@@ -1,0 +1,275 @@
+/* content styles */
+aside#alerts {
+    margin-top: 20px;
+}
+
+body > section {
+    min-height: 150px;
+
+    section {
+        /*display: none;*/
+        background-color: white;
+        margin:  20px 0;
+        padding: 20px;
+        border: 1px solid #AAA;
+        border-radius: 4px;
+
+        box-shadow: 0 1px 5px rgba(0,0,0,0.1), inset 0 1px 0 white;
+
+        > header {
+            background-color: #d8d8d8;
+            min-height: 40px;
+            margin: -20px -20px 20px;
+            padding: 0 20px;
+
+            border-top-left-radius:  4px;
+            border-top-right-radius: 4px;
+
+            background-image: -moz-linear-gradient(-90deg,#e4e4e4,#d8d8d8);
+            background-image: -webkit-gradient(linear, 0 top, 0 bottom, from(#e4e4e4),to(#d8d8d8));
+
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+
+            h2 {
+                margin: 0;
+                line-height: 40px;
+            }
+        }
+
+        > .content {
+            min-height: 100px;
+            .transition(.1s linear all);
+        }
+
+        > p:first-child {
+            margin-top: 0;
+        }
+
+        > p:last-child {
+            margin-bottom: 0;
+        }
+
+        &.spinning > {
+            height: 180px;
+            header h2 {
+                background: transparent url('data:image/gif;base64,R0lGODlhEAALAPQAAN7e3oiIiNHR0c3NzdbW1omJiYiIiJeXl7Ozs6enp8bGxpKSkqCgoLa2tqmpqcjIyJSUlIiIiKKiotXV1dDQ0Nra2pqamtLS0tnZ2cXFxb29vcvLy9jY2AAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCwAAACwAAAAAEAALAAAFLSAgjmRpnqSgCuLKAq5AEIM4zDVw03ve27ifDgfkEYe04kDIDC5zrtYKRa2WQgAh+QQJCwAAACwAAAAAEAALAAAFJGBhGAVgnqhpHIeRvsDawqns0qeN5+y967tYLyicBYE7EYkYAgAh+QQJCwAAACwAAAAAEAALAAAFNiAgjothLOOIJAkiGgxjpGKiKMkbz7SN6zIawJcDwIK9W/HISxGBzdHTuBNOmcJVCyoUlk7CEAAh+QQJCwAAACwAAAAAEAALAAAFNSAgjqQIRRFUAo3jNGIkSdHqPI8Tz3V55zuaDacDyIQ+YrBH+hWPzJFzOQQaeavWi7oqnVIhACH5BAkLAAAALAAAAAAQAAsAAAUyICCOZGme1rJY5kRRk7hI0mJSVUXJtF3iOl7tltsBZsNfUegjAY3I5sgFY55KqdX1GgIAIfkECQsAAAAsAAAAABAACwAABTcgII5kaZ4kcV2EqLJipmnZhWGXaOOitm2aXQ4g7P2Ct2ER4AMul00kj5g0Al8tADY2y6C+4FIIACH5BAkLAAAALAAAAAAQAAsAAAUvICCOZGme5ERRk6iy7qpyHCVStA3gNa/7txxwlwv2isSacYUc+l4tADQGQ1mvpBAAIfkECQsAAAAsAAAAABAACwAABS8gII5kaZ7kRFGTqLLuqnIcJVK0DeA1r/u3HHCXC/aKxJpxhRz6Xi0ANAZDWa+kEAA7AAAAAAAAAAAA') left center no-repeat;
+                text-indent: -10000em;
+            }
+            .controls, .add-form, .content {
+                display: none;
+            }
+        }
+    }
+}
+
+.add-form {
+    button.show {
+        display: none;
+    }
+    &.inactive {
+        button, input {
+            display: none;
+        }
+        button.show {
+            display: inherit;
+        }
+    }
+}
+
+#query-editor {
+    width:    888px;
+    height:   100px;
+    position: relative;
+
+
+    -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+    -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+    transition: border linear 0.2s, box-shadow linear 0.2s;
+    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin: 0 0 10px;
+    padding: 4px;
+    border: 1px solid #CCC;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+tr {
+    td.action-column {
+        padding: 5px 10px 0;
+        text-align: right;
+        button {
+            visibility: hidden;
+            -o-transition-property:      color,background,box-shadow;
+            -moz-transition-property:    color,background,box-shadow;
+            -webkit-transition-property: color,background,box-shadow;
+            transition-property:         color,background,box-shadow;
+        }
+    }
+    &:hover {
+        td.action-column button {
+            visibility: inherit;
+        }
+    }
+}
+
+section#servers {
+    // span.databases {
+    //     border-bottom: 1px dotted @greyish;
+    //     cursor: help;
+    // }
+    .alert-message.error {
+        padding: 3px 10px;
+        font-weight: bold;
+    }
+
+    tr.spinning {
+        td:first-child {
+            padding-left: 35px;
+            background: transparent url('data:image/gif;base64,R0lGODlhEAALAPQAAP///zMzM+Hh4dnZ2e7u7jc3NzMzM1dXV5qamn9/f8fHx05OTm5ubqGhoYKCgsrKylFRUTY2NnFxcerq6t/f3/b29l9fX+Li4vT09MTExLKystTU1PHx8QAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCwAAACwAAAAAEAALAAAFLSAgjmRpnqSgCuLKAq5AEIM4zDVw03ve27ifDgfkEYe04kDIDC5zrtYKRa2WQgAh+QQJCwAAACwAAAAAEAALAAAFJGBhGAVgnqhpHIeRvsDawqns0qeN5+y967tYLyicBYE7EYkYAgAh+QQJCwAAACwAAAAAEAALAAAFNiAgjothLOOIJAkiGgxjpGKiKMkbz7SN6zIawJcDwIK9W/HISxGBzdHTuBNOmcJVCyoUlk7CEAAh+QQJCwAAACwAAAAAEAALAAAFNSAgjqQIRRFUAo3jNGIkSdHqPI8Tz3V55zuaDacDyIQ+YrBH+hWPzJFzOQQaeavWi7oqnVIhACH5BAkLAAAALAAAAAAQAAsAAAUyICCOZGme1rJY5kRRk7hI0mJSVUXJtF3iOl7tltsBZsNfUegjAY3I5sgFY55KqdX1GgIAIfkECQsAAAAsAAAAABAACwAABTcgII5kaZ4kcV2EqLJipmnZhWGXaOOitm2aXQ4g7P2Ct2ER4AMul00kj5g0Al8tADY2y6C+4FIIACH5BAkLAAAALAAAAAAQAAsAAAUvICCOZGme5ERRk6iy7qpyHCVStA3gNa/7txxwlwv2isSacYUc+l4tADQGQ1mvpBAAIfkECQsAAAAsAAAAABAACwAABS8gII5kaZ7kRFGTqLLuqnIcJVK0DeA1r/u3HHCXC/aKxJpxhRz6Xi0ANAZDWa+kEAA7AAAAAAAAAAAA') 10px center no-repeat;
+        }
+    }
+
+    tr {
+        input {
+            display: none;
+        }
+        &.editing {
+            span.name {
+                display: none;
+            }
+            input {
+                display: inherit;
+            }
+        }
+    }
+}
+
+.document-wrapper {
+    div.well {
+        overflow-x: auto;
+
+        h3 a {
+            color: #333;
+            &:hover, &:active {
+                color: #0058e1;
+            }
+        }
+    }
+
+    article {
+        position: relative;
+        div.document-actions {
+            position: absolute;
+            right: 20px;
+            z-index: 10;
+            button.save, button.cancel {
+                display: none;
+            }
+            button.edit, button.destroy {
+                visibility: hidden;
+            }
+        }
+        &:hover {
+            div.document-actions {
+                button.edit, button.destroy {
+                    visibility: inherit;
+                }
+            }
+        }
+        div.well {
+            @transition: border linear .2s, box-shadow linear .2s;
+            .transition(@transition);
+            .box-shadow(inset 0 1px 1px rgba(0,0,0,.05));
+        }
+        &.edit {
+            div.document-actions {
+                margin-top: 20px;
+                button.edit, button.destroy {
+                    display: none;
+                }
+                button.save, button.cancel {
+                    display: inline-block;
+                }
+            }
+            div.well {
+                h3 {
+                    display: none;
+                }
+                padding: 0;
+                height: 400px;
+                border-color: rgba(82,168,236,.8);
+                background-color: white;
+                @shadow: inset 0 1px 3px rgba(0,0,0,.1), 0 0 8px rgba(82,168,236,.6);
+                .box-shadow(@shadow);
+                .clearfix;
+                .genghis-document-editor {
+                    position: relative;
+                    left:  1px;
+                    right: 1px;
+                    height: 400px;
+                    .ace_scroller {
+                        // padding: 20px;
+                        background-color: transparent;
+                    }
+                }
+            }
+        }
+    }
+}
+
+section#documents {
+    .controls {
+        .clearfix;
+        margin-bottom: 20px;
+        .add-document {
+            float: left;
+        }
+        .pagination {
+            margin: 0;
+            ul {
+                float: right;
+                li.disabled a {
+                    cursor: default;
+                }
+            }
+        }
+    }
+}
+
+section#document {
+    article h3 { display: none; }
+}
+
+.modal.editor {
+    width:       820px;
+    margin-left: -410px;
+    .wrapper {
+        .border-radius(4px);
+        border: 1px solid rgba(82,168,236,.8);
+        background-color: white;
+        @shadow: inset 0 1px 3px rgba(0,0,0,.1), 0 0 8px rgba(82,168,236,.6);
+        .box-shadow(@shadow);
+        .clearfix;
+    }
+    .genghis-document-editor {
+        height: 250px;
+        position: relative;
+        .ace_scroller {
+            background-color: transparent;
+        }
+    }
+}
+
+// Look! responsiveish!
+@media screen and (max-width: 860px) {
+    .modal.editor {
+        left:  20px;
+        right: 20px;
+        width: auto;
+        margin-left: 0;
+    }
+}
+

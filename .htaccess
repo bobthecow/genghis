@@ -1,0 +1,7 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # RewriteBase /genghis
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule (.*) genghis.php/$1 [L,QSA]
+</IfModule>

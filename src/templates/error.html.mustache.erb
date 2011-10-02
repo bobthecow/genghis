@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Genghis &mdash; {{ status }}: {{ message }}</title>
+        <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Rokkitt:400,700">
+        <link type="text/css" rel="stylesheet" href="{{ base_url }}/assets/style.css">
+    </head>
+    <body>
+        <div class="topbar">
+            <div class="fill">
+                <div class="container fixed">
+                    <h3><a class="magic logo" href="{{ base_url }}">Genghis</a></h3>
+                    <nav></nav>
+                </div>
+            </div>
+        </div>
+
+        <section id="genghis" class="container fluid">
+            <section id="error" style="display:block;">
+                <header><h2>{{ status }}: {{ message }}</h2></header>
+                <div class="content">
+                    <p>
+                        If you think you've reached this message in error, please press <strong>0</strong> to speak with
+                        an operator. Otherwise, hang up and try again.
+                    </p>
+                </div>
+            </section>
+        </section>
+
+        <footer class="container"><p>Genghis, by <a href="http://justinhileman.info">Justin Hileman</a>.</p></footer>
+    </body>
+</html>

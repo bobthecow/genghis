@@ -1,0 +1,48 @@
+/* Apprise.less
+ * Thunk Apprise.js to work with Twitter Bootstrap styles.
+ * ------------------------------------------------------- */
+
+.appriseOverlay {
+  .modal-backdrop;
+}
+.appriseOuter {
+  .modal;
+
+  // Reset a few things
+  width:  auto;
+  top:    inherit;
+  left:   inherit;
+  margin: 0;
+
+  // And apply the Apprise styles
+  min-width:200px;
+  min-height:50px;
+  max-width:75%;
+  display: none;
+}
+.appriseInner {
+  .modal-body;
+
+  button {
+    .btn;
+    &[value="ok"] {
+      .btn.primary;
+    }
+    &:last-child {
+      margin-left: 0;
+    }
+  }
+}
+.aButtons {
+  .modal-footer;
+  margin: 20px -15px -15px;
+  button {
+    .modal-footer .btn;
+  }
+}
+.aTextbox {
+  width: 94%;
+  min-width:180px;
+  display: block;
+  margin: 20px auto 0;
+}

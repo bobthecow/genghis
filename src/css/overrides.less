@@ -1,0 +1,89 @@
+/* overrides */
+
+// Container overrides... make it elastic
+.container {
+    padding-left:  20px;
+    padding-right: 20px;
+    width: auto;
+    min-width: 480px;
+    max-width: 1400px;
+}
+
+// Topbar size overrides
+.topbar {
+    height: 60px;
+
+    // App name
+    h3 {
+        a {
+            font-size: 32px;
+            padding: 16px 20px 12px;
+        }
+    }
+
+    ul {
+        .menu-dropdown {
+            li a {
+                padding-right: 45px;
+                position: relative;
+                span {
+                    padding: 0 6px;
+                    display: inline-block;
+                    position: absolute;
+                    top:   50%;
+                    right: 10px;
+                    margin-top: -8px;
+                    .border-radius(8px);
+                    line-height: 16px;
+                    color: #666;
+                    background-color: rgba(0,0,0,.2);
+                    @shadow: inset 0 1px 0 rgba(0,0,0,.3), 0 1px 0 rgba(255,255,255,.2);
+                    .box-shadow(@shadow);
+                }
+                &:hover span {
+                    color: #CCC;
+                }
+            }
+        }
+    }
+
+    form {
+        padding-left: 20px;
+        margin: 15px 0 15px -10px;
+    }
+}
+
+// Topbar nav
+.nav .dropdown-toggle,
+.nav .dropdown-toggle:hover,
+.nav .dropdown.open .dropdown-toggle,
+.topbar form {
+    background: transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAiCAYAAABmzUjmAAAB6UlEQVQ4y42UTUsCURSGR8UZm7EsKyfM/FYqA2kSgwKhaCQqZYSIEmlhYWErV4IrwY1b3QouxJU/wJUff8GVG7eiuFAQV67sDMxAmPfWwHCfxcPl3nPecwmCIBSLxUIJqxJWAvWLnwqAcjqd1J9irVZby2azWmAKJyqMRiM9nU71wDtIUbKZ0WjEut3ufWASJ5KZTIYtlUo2YCNOVGi1WsN8Pj9iGMa7qgI/D7vVaDTc4XD4FNiAEylBEBytVuscmEOKkmyeTCaXLMveANM4UV8ul7lUKiWKxzhR7fP5Trrd7r1KpXqQ2vtblGRbp9MJchz3BGzCidvQzkA+n38GvsaJarvd7uv1ejGdTvcuXwoVAEe9XhdCodCHXCqUuJ1IJILVajVJkmRMvBRSTCaTt5VK5Qv4Bbejq91uP/I8/wl8groM6fF4/FDLV5qm3+TYrRLZQqFwlU6nxfJc4Mrj6vf7DxaLJSomCtXCtUgk4oUE3QHzuF6zzWbTD5nkxSSh8qiATthns1mAoiheGuOVIpPL5VzFYtEPfIhLuGE4HHrMZvOZeFbUcCmhdnuDweBILjByriEEpmg06hJTjhN1sB5oNBob9u2Jx+PrsOMuajdZpMbj8YbVat1cLsmyqAbQLI/nytfsPw/pNzeW3Nxkkyo3AAAAAElFTkSuQmCC') center left no-repeat;
+}
+.nav {
+    > li {
+        > a {
+            padding: 20px 10px 21px 20px;
+            height:      19px;
+            line-height: 19px;
+            white-space: nowrap;
+            color: #EEE;
+            &:hover {
+                background-color: transparent;
+            }
+            &:after {
+                display: none;
+            }
+        }
+    }
+    .menu-dropdown {
+        background-color: rgba(41,41,41,.95);
+        top: 60px;
+        max-width: 350px;
+    }
+}
+
+// misc chrome overrides
+footer {
+    border-top: none;
+}

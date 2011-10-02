@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Genghis</title>
+        <link rel="shortcut icon" type="image/png" href="<%= favicon_uri %>">
+        <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Rokkitt:400,700">
+        <link type="text/css" rel="stylesheet" href="{{ base_url }}/assets/style.css">
+        <% templates.each do |tpl| %>
+            <script type="text/template" id="<%= tpl[:name] %>-template"><%= tpl[:content] %></script>
+        <% end %>
+        <script type="text/javascript" src="{{ base_url }}/assets/script.js"></script>
+        <script type="text/javascript">jQuery(function() { Genghis.boot('{{ base_url }}'); });</script>
+    </head>
+    <body>
+        <header class="topbar">
+            <div class="topbar-inner">
+                <div class="container fixed">
+                    <h3><a class="magic logo" href="{{ base_url }}">Genghis</a></h3>
+                    <nav></nav>
+                </div>
+            </div>
+        </header>
+
+        <noscript><h1>You won&#146;t get far in life without JavaScript&hellip;</h1></noscript>
+
+        <section id="genghis" class="container fluid">
+            <aside id="alerts"></aside>
+            <section id="servers"></section>
+            <section id="databases"></section>
+            <section id="collections"></section>
+            <section id="documents"></section>
+            <section id="document"><header></header></section>
+            <section id="error"></section>
+        </section>
+
+        <footer class="container"><p>Genghis, by <a href="http://justinhileman.info">Justin Hileman</a>.</p></footer>
+    </body>
+</html>
