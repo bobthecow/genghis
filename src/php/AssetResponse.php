@@ -13,7 +13,8 @@ class AssetResponse extends Response
 
     protected function getContentType()
     {
-        $ext = strtolower(end(explode('.', $this->name)));
+        $parts = explode('.', $this->name);
+        $ext = array_pop($parts);
         switch ($ext) {
             case "js":
                 return "application/x-javascript";
