@@ -68,6 +68,7 @@ script_files = FileList[
   'vendor/bootstrap/js/bootstrap-tooltip.js',
   'vendor/bootstrap/js/bootstrap-popover.js',
   'vendor/bootstrap/js/bootstrap-modal.js',
+  'vendor/hotkeys/jquery.hotkeys.js',
 
   # extensions
   'src/js/extensions.js',
