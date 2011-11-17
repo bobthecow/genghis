@@ -1,5 +1,15 @@
 /* overrides */
 
+// the current version of .transition uses preserve-3d which breaks things in chrome.
+.safe-transition(@transition) {
+    -webkit-transition: @transition;
+       -moz-transition: @transition;
+        -ms-transition: @transition;
+         -o-transition: @transition;
+            transition: @transition;
+}
+
+
 // Container overrides... make it elastic
 .container {
     padding-left:  20px;

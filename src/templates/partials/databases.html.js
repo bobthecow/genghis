@@ -1,6 +1,6 @@
 <header><h2>Databases</h2></header>
 <div class="content">
-    <table>
+    <table class="zebra-striped bordered-table">
         <thead>
             <tr>
                 <th>name</th>
