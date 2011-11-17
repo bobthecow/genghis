@@ -2,11 +2,11 @@ Genghis.Views.Nav = Backbone.View.extend({
     el: '.navbar nav',
     template: _.template($('#nav-template').html()),
     events: {
-        'keypress input#navbar-query': 'findDocuments',
-        'click a':                     'navigate'
+        'keyup input#navbar-query': 'findDocuments',
+        'click a':                  'navigate'
     },
     initialize: function() {
-        _.bindAll(this, 'render', 'toggleSections', 'updateQuery', 'findDocuments', 'navigate');
+        _.bindAll(this, 'render', 'toggleSections', 'updateQuery', 'findDocuments', 'navigate', 'focusSearch');
 
         this.model.bind('change', this.toggleSections);
         this.model.bind('change', this.updateQuery)
@@ -19,6 +19,8 @@ Genghis.Views.Nav = Backbone.View.extend({
     },
     render: function() {
         $(this.el).html(this.template({query: this.model.get('query')}));
+
+        $(document).bind('keyup', '/', this.focusSearch);
 
         this.ServerNavView = new Genghis.Views.NavSection({
             el: $('li.server', this.el),
@@ -63,10 +65,18 @@ Genghis.Views.Nav = Backbone.View.extend({
                 url  = base + (q.match(/^([a-z\d]+)$/i) ? '/' + q : '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q)}));
 
             App.Router.navigate(url, true);
+        } else if (e.keyCode == 27) {
+            this.$('input#navbar-query').val('').blur();
         }
     },
     navigate: function(e) {
         e.preventDefault();
         App.Router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
+    },
+    focusSearch: function(e) {
+        if (this.$('input#navbar-query').is(':visible')) {
+            e.preventDefault();
+            this.$('input#navbar-query').focus();
+        }
     }
 });
