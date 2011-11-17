@@ -38,7 +38,7 @@ Genghis.Base.SectionView = Backbone.View.extend({
         headerConfig[this.$('table thead th').length - 1] = {sorter: false};
 
         // do sort everything else
-        this.$('table').addClass('zebra-striped').tablesorter({headers: headerConfig});
+        this.$('table').tablesorter({headers: headerConfig});
         if (this.collection.size()) this.$('table').trigger('sorton', [[[0,0]]]);
 
         return this;
