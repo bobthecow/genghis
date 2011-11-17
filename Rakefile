@@ -10,6 +10,8 @@ require 'html_compressor'
 require 'digest/md5'
 require 'base64'
 
+GENGHIS_VERSION = '1.0.3'
+
 # sweet mixin action
 class String
   def unindent
@@ -36,7 +38,7 @@ file 'tmp/style.css' => FileList['tmp', 'src/css/*.less'] do
   File.open('tmp/style.css', 'w') do |file|
     file << <<-doc.unindent
       /**
-       * Genghis
+       * Genghis v#{GENGHIS_VERSION}
        *
        * The single-file MongoDB admin app
        *
@@ -84,7 +86,7 @@ file 'tmp/script.js' => ['tmp'] + script_files do
   File.open('tmp/script.js', 'w') do |file|
     file << <<-doc.unindent
       /**
-       * Genghis
+       * Genghis v#{GENGHIS_VERSION}
        *
        * The single-file MongoDB admin app
        *
@@ -153,7 +155,7 @@ file 'genghis.php' => include_files + asset_files do
   end
 end
 
-Rake::PackageTask.new('genghis', :noversion) do |p|
+Rake::PackageTask.new('genghis', GENGHIS_VERSION) do |p|
   p.need_tar = true
   p.package_files.include('genghis.php', '.htaccess', 'README.markdown')
 end
