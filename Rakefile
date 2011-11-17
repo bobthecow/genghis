@@ -10,7 +10,7 @@ require 'html_compressor'
 require 'digest/md5'
 require 'base64'
 
-GENGHIS_VERSION = '1.0.2'
+GENGHIS_VERSION = '1.0.3'
 
 # sweet mixin action
 class String
