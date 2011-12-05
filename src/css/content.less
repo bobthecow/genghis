@@ -155,6 +155,45 @@ section#servers {
     }
 }
 
+.index-details {
+    color: @blackish;
+    list-style: none;
+    margin: 0;
+
+    > li {
+        display: block;
+        margin-bottom: 5px;
+        ul, li {
+            display: inline-block;
+            list-style: none;
+            margin:     0;
+            padding:    0;
+        }
+
+        li {
+            color:    @blackish;
+            &:after {
+                content: ',';
+                padding-right: .25em;
+            }
+            &:last-of-type:after {
+                content: '';
+                padding-right: 0;
+            }
+        }
+
+        .prop:after {
+            content: ':';
+            color:   @greyish;
+            padding-right: .25em;
+        }
+
+        .num {
+            color: #40A070;
+        }
+    }
+}
+
 .document-wrapper {
     div.well {
         overflow-x: auto;
