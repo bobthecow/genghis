@@ -14,7 +14,10 @@
     </table>
 </div>
 <div class="add-form inactive">
-    <input class="name span4" type="text" size="30">
+    <span class="input-append">
+        <input class="name span4" type="text" size="30">
+        <span class="add-on help" title="user:pass@localhost:27017">?</span>
+    </span>
     <button class="show btn">Add server</button>
     <button class="add btn primary">Add server</button>
     <button class="cancel btn">Cancel</button>

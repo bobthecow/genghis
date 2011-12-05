@@ -67,12 +67,23 @@ body > section {
         display: none;
     }
     &.inactive {
-        button, input {
+        button, input, .input-append {
             display: none;
         }
         button.show {
             display: inherit;
         }
+        .help {
+            display: none;
+        }
+    }
+    span.input-append {
+        .add-on {
+            margin-right: 4px;
+        }
+    }
+    .help {
+        cursor: default;
     }
 }
 
