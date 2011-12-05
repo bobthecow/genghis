@@ -3,7 +3,7 @@
 </td>
 <td>
     <span class="collections has-details"><%= obj.get('count') %></span>
-    <div class="details" title="Collections">
+    <div class="details" title="<%= obj.get('count') %> Collection<% if (obj.get('count') != 1) { %>s<% } %>">
         <% if (obj.get('count') > 0) { %>
             <ul>
                 <% _.each(_.first(obj.get('collections'), 15), function(collection) { %>

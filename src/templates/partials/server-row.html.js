@@ -11,7 +11,7 @@
     </td>
     <td>
         <span class="databases has-details"><%= obj.get('count') %></span>
-        <div class="details" title="Databases">
+        <div class="details" title="<%= obj.get('count') %> Database<% if (obj.get('count') != 1) { %>s<% } %>">
             <% if (obj.get('count') > 0) { %>
                 <ul>
                     <% _.each(_.first(obj.get('databases'), 15), function(database) { %>
