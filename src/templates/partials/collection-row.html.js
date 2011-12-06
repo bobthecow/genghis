@@ -1,11 +1,11 @@
 <td>
-    <a href="<%= obj.url() %>" class="name"><%= obj.get('name') %></a>
+    <a href="<%= obj.url() %>" class="name value"><%= obj.get('name') %></a>
 </td>
 <td>
-    <span class="documents"><%= obj.get('count') %></span>
+    <span class="documents value"><%= obj.get('count') %></span>
 </td>
 <td>
-    <span class="indexes has-details"><%= obj.get('indexes').length %></span>
+    <span class="indexes has-details value"><%= obj.get('indexes').length %></span>
     <div class="details" title="<%= obj.get('indexes').length %> Index<% if (obj.get('indexes').length != 1) { %>es<% } %>">
         <% if (obj.get('indexes').length > 0) { %>
             <ul class="index-details">

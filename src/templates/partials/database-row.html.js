@@ -1,8 +1,8 @@
 <td>
-    <a href="<%= obj.url() %>" class="name"><%= obj.get('name') %></a>
+    <a href="<%= obj.url() %>" class="name value"><%= obj.get('name') %></a>
 </td>
 <td>
-    <span class="collections has-details"><%= obj.get('count') %></span>
+    <span class="collections has-details value"><%= obj.get('count') %></span>
     <div class="details" title="<%= obj.get('count') %> Collection<% if (obj.get('count') != 1) { %>s<% } %>">
         <% if (obj.get('count') > 0) { %>
             <ul>
@@ -19,7 +19,7 @@
     </div>
 </td>
 <td>
-    <span class="size"><%= Genghis.Util.humanizeSize(obj.get('size')) %></span>
+    <span class="size value"><%= Genghis.Util.humanizeSize(obj.get('size')) %></span>
 </td>
 <td class="action-column">
     <button class="btn small danger destroy">Remove</button>

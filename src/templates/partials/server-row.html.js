@@ -1,16 +1,16 @@
 <% if (obj.get('error')) { %>
     <td>
-        <%= obj.get('name') %>
+        <span class="value"><%= obj.get('name') %></span>
         <span class="label important" title="<%= Genghis.Util.escape(obj.get('error')) %>">Error</span>
     </td>
     <td></td>
     <td></td>
 <% } else { %>
     <td>
-        <a href="<%= obj.url() %>" class="name"><%= obj.get('name') %></a>
+        <a href="<%= obj.url() %>" class="name value"><%= obj.get('name') %></a>
     </td>
     <td>
-        <span class="databases has-details"><%= obj.get('count') %></span>
+        <span class="databases has-details value"><%= obj.get('count') %></span>
         <div class="details" title="<%= obj.get('count') %> Database<% if (obj.get('count') != 1) { %>s<% } %>">
             <% if (obj.get('count') > 0) { %>
                 <ul>
@@ -27,7 +27,7 @@
         </div>
     </td>
     <td>
-        <span class="size"><%= Genghis.Util.humanizeSize(obj.get('size')) %></span>
+        <span class="size value"><%= Genghis.Util.humanizeSize(obj.get('size')) %></span>
     </td>
 <% } %>
 <td class="action-column">
