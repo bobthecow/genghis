@@ -160,49 +160,43 @@ class Api extends App
     {
         $this->initServers();
         $servers = array();
-        foreach ($this->servers as $server) {
-            $servers[] = $this->dumpServer($server['name']);
+        foreach (array_keys($this->servers) as $name) {
+            $servers[] = $this->dumpServer($name);
         }
         return new JsonResponse($servers);
     }
 
     protected function addServer(array $data)
     {
-        if (isset($data['dsn'])) {
-            $dsn = parse_url($data['dsn']);
-            if (
-                $dsn === false || isset($dsn['query']) || isset($dsn['fragment'])
-                || (isset($dsn['host']) && isset($dsn['path']))
-            ) {
-                throw new HttpException(400, 'Malformed server dsn');
-            }
-
-            $map = array(
-                'path' => 'name', // parse_url returns the server name as 'path'
-                'host' => 'name',
-                'port' => 'port',
-                'user' => 'username',
-                'pass' => 'password'
-            );
-            foreach ($map as $from => $to) {
-                if (isset($dsn[$from])) {
-                    $data[$to] = $dsn[$from];
-                }
-            }
-        }
-
         if (!isset($data['name'])) {
             throw new HttpException(400, 'Server name must be specified');
         }
 
+        $dsn = $data['name'];
+        if (strpos($dsn, '://') === false) {
+            $dsn = 'mongodb://'.$dsn;
+        } else if (strpos($dsn, 'mongodb://') !== 0) {
+            throw new HttpException(400, 'Malformed server dsn');
+        }
+
+        $chunks = parse_url($dsn);
+        if ($chunks === false || isset($chunks['query']) || isset($chunks['fragment']) || !isset($chunks['host'])) {
+            throw new HttpException(400, 'Malformed server dsn');
+        }
+
+        $name = $chunks['host'];
+        if (isset($chunks['user'])) {
+            $name = $chunks['user'].'@'.$name;
+        }
+        if (isset($chunks['port']) && $chunks['port'] !== 27017) {
+            $name .= ':'.$chunks['port'];
+        }
+
         $this->initServers();
-        $this->servers[$data['name']] = array(
-            'name' => $data['name'],
-            'port' => isset($data['port']) ? $data['port'] : 27017,
-        );
+        $this->servers[$name] = $dsn;
         $this->saveServers();
 
-        return $this->showServer($data['name']);
+        return $this->showServer($name);
     }
 
     protected function removeServer($name)
@@ -228,25 +222,24 @@ class Api extends App
 
     protected function dumpServer($name)
     {
-        $server = $this->servers[$name];
         try {
-            $res = $this->getMongo($server['name'])->listDBs();
+            $res = $this->getMongo($name)->listDBs();
             $dbs = array_map(function($db) {
                 return $db['name'];
             }, $res['databases']);
 
             return array(
-                'id'        => $server['name'],
-                'name'      => $server['name'],
+                'id'        => $name,
+                'name'      => $name,
                 'size'      => $res['totalSize'],
                 'count'     => count($dbs),
                 'databases' => $dbs,
             );
         } catch (Exception $e) {
             return array(
-                'id' => $server['name'],
-                'name' => $server['name'],
-                'error' => 'Unable to connect to Mongo server at "'.$server['name'].'".',
+                'id'    => $name,
+                'name'  => $name,
+                'error' => 'Unable to connect to Mongo server at "'.$name.'".',
             );
         }
     }
@@ -257,12 +250,7 @@ class Api extends App
             if (isset($_COOKIE['genghis_servers']) && $servers = json_decode($_COOKIE['genghis_servers'], true)) {
                 $this->servers = $servers;
             } else {
-                $this->servers = array(
-                    'localhost' => array(
-                        'name' => 'localhost',
-                        'port' => 27017
-                    )
-                );
+                $this->servers = array('localhost' => 'localhost:27017');
             }
         }
     }
@@ -504,8 +492,7 @@ class Api extends App
     {
         $this->initServers();
         if (isset($this->servers[$server])) {
-            $s = $this->servers[$server];
-            return new Mongo($s['name'].':'.$s['port']);
+            return new Mongo($this->servers[$server]);
         }
     }
 

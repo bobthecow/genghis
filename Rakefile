@@ -10,7 +10,7 @@ require 'html_compressor'
 require 'digest/md5'
 require 'base64'
 
-GENGHIS_VERSION = '1.0.3'
+GENGHIS_VERSION = '1.1.0'
 
 # sweet mixin action
 class String
@@ -59,7 +59,6 @@ script_files = FileList[
   'src/js/jquery.js',
   'src/js/jquery.hoverintent.js',
   'src/js/jquery.tablesorter.js',
-  'src/js/bootstrap-modal.js',
   'src/js/underscore.js',
   'src/js/backbone.js',
   'vendor/ace/ace-uncompressed.js',
@@ -67,6 +66,8 @@ script_files = FileList[
   'vendor/ace/theme-git_hubby.js',
   'vendor/apprise/apprise-1.5.full.js',
   'vendor/bootstrap/js/bootstrap-twipsy.js',
+  'vendor/bootstrap/js/bootstrap-popover.js',
+  'vendor/bootstrap/js/bootstrap-modal.js',
 
   # extensions
   'src/js/extensions.js',
