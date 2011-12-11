@@ -30,6 +30,7 @@ Genghis.Views.NewDocument = Backbone.View.extend({
     show: function() {
         this.el.find('#editor-new').height($(window).height() - 250);
         this.editor.getSession().setValue("{\n    \n}\n");
+        this.editor.focus();
         this.modal.css({marginTop: (30 - (this.el.height() / 2)) + 'px'}).modal('show');
     },
     resizeEditor: function() {
