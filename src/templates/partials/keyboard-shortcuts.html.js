@@ -11,7 +11,7 @@
           <dt><kbd>?</kbd></dt>
           <dd>This cheat sheet</dd>
         </dl>
-<!--
+
         <h4>Servers</h4>
         <dl>
           <dt><kbd>c</kbd></dt>
@@ -29,17 +29,16 @@
           <dt><kbd>c</kbd></dt>
           <dd>New collection</dd>
         </dl>
--->
       </li>
       <li>
         <h4>Documents</h4>
         <dl>
           <dt><kbd>/</kbd></dt>
           <dd>Search</dd>
-<!--
+
           <dt><kbd>c</kbd></dt>
           <dd>New document</dd>
--->
+
           <dt><kbd>n</kbd></dt>
           <dd>Next page</dd>
 
