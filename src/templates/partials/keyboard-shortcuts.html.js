@@ -23,14 +23,14 @@
           <dt><kbd>c</kbd></dt>
           <dd>New database</dd>
         </dl>
-
+      </li>
+      <li>
         <h4>Collections</h4>
         <dl>
           <dt><kbd>c</kbd></dt>
           <dd>New collection</dd>
         </dl>
-      </li>
-      <li>
+
         <h4>Documents</h4>
         <dl>
           <dt><kbd>/</kbd></dt>
