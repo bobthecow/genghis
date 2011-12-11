@@ -4,3 +4,6 @@
 [submodule "vendor/hotkeys"]
 	path = vendor/hotkeys
 	url = https://github.com/jeresig/jquery.hotkeys.git
+[submodule "vendor/keyscss"]
+	path = vendor/keyscss
+	url = https://github.com/michaelhue/keyscss.git
