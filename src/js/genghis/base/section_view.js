@@ -34,7 +34,7 @@ Genghis.Base.SectionView = Backbone.View.extend({
         this.addAll();
 
         // add placeholder help
-        this.$('.help', this.addForm).twipsy();
+        this.$('.help', this.addForm).tooltip();
 
         // don't sort the actions column
         var headerConfig = {};

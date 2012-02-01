@@ -24,6 +24,6 @@ Genghis.Views.NavSection = Backbone.View.extend({
         this.$('a.dropdown-toggle').text(this.model.id ? this.model.id : '').attr('href', this.model.id ? this.model.url : '');
     },
     renderMenu: function() {
-        this.$('ul.menu-dropdown').html(this.menuTemplate({model: this.model, collection: this.collection}));
+        this.$('ul.dropdown-menu').html(this.menuTemplate({model: this.model, collection: this.collection}));
     }
 });

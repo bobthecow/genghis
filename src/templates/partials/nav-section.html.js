@@ -1,2 +1,2 @@
-<a href="#" class="dropdown-toggle"><%= model.id %></a>
-<ul class="menu-dropdown"></ul>
+<a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= model.id %></a>
+<ul class="dropdown-menu"></ul>

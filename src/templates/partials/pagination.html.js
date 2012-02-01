@@ -1,7 +1,7 @@
-<div class="pagination">
+<div class="pagination pagination-right">
   <ul>
     <li class="prev<% if (page == 1) print(' disabled'); %>">
-        <a<% if (page != 1) { %> href="<%= url(prev) %>"<% } %>>&larr; Previous</a>
+        <a<% if (page != 1) { %> href="<%= url(prev) %>"<% } %>>&larr;</a>
     </li>
 
     <% if (start > 1) { %>
@@ -19,7 +19,7 @@
     <% } %>
 
     <li class="next<% if (page == pages) print(' disabled'); %>">
-        <a<% if (page != pages) { %> href="<%= url(next) %>"<% } %>>Next &rarr;</a>
+        <a<% if (page != pages) { %> href="<%= url(next) %>"<% } %>>&rarr;</a>
     </li>
   </ul>
 </div>

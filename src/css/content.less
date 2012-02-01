@@ -115,9 +115,62 @@ body > section {
     border-radius: 3px;
 }
 
+// All tables in Genghis are styled.
+table {
+    .table;
+    .table-bordered;
+    .table-striped;
+
+    .header {
+        cursor: pointer;
+        &:after {
+            content: "";
+            float: right;
+            margin-top: 7px;
+            border-width: 0 4px 4px;
+            border-style: solid;
+            border-color: #000 transparent;
+            visibility: hidden;
+        }
+
+        // Style the sorted column headers (THs)
+        &.headerSortUp,
+        &.headerSortDown {
+            background-color: fadeout(@blue, 95);
+            text-shadow: 0 1px 1px rgba(255,255,255,.75);
+        }
+        // Style the ascending (reverse alphabetical) column header
+        &:hover {
+            &:after {
+                visibility:visible;
+            }
+        }
+        // Style the descending (alphabetical) column header
+        &.headerSortDown,
+        &.headerSortDown:hover {
+            &:after {
+                visibility:visible;
+                .opacity(60);
+            }
+        }
+        // Style the ascending (reverse alphabetical) column header
+        &.headerSortUp {
+            &:after {
+                border-bottom: none;
+                border-left: 4px solid transparent;
+                border-right: 4px solid transparent;
+                border-top: 4px solid #000;
+                visibility:visible;
+                .box-shadow(none); //can't add boxshadow to downward facing arrow :(
+                .opacity(60);
+            }
+        }
+    }
+}
+
 tr {
     td.action-column {
-        padding: 5px 10px 0;
+        padding: 3px 10px 0;
         text-align: right;
         button {
             visibility: hidden;
@@ -139,7 +192,7 @@ section#servers {
     //     border-bottom: 1px dotted @greyish;
     //     cursor: help;
     // }
-    .alert-message.error {
+    .alert.alert-error {
         padding: 3px 10px;
         font-weight: bold;
     }
@@ -287,11 +340,14 @@ section#documents {
         }
         .pagination {
             margin: 0;
-            ul {
-                float: right;
-                li.disabled a {
-                    cursor: default;
-                }
+            li.disabled a {
+                cursor: default;
+            }
+            li.prev a:after {
+                content: ' Previous';
+            }
+            li.next a:before {
+                content: 'Next ';
             }
         }
     }
@@ -304,6 +360,7 @@ section#document {
 .modal.editor {
     width:       820px;
     margin-left: -410px;
+    max-height: 90%;
     .wrapper {
         .border-radius(4px);
         border: 1px solid rgba(82,168,236,.8);
@@ -322,6 +379,19 @@ section#document {
 }
 
 // Look! responsiveish!
+@media screen and (max-width: 1200px) {
+    section#documents {
+        .controls .pagination {
+            li.prev a:after, li.next a:before {
+                content: '';
+            }
+            li.prev a:after {
+                content: ' Prev';
+            }
+        }
+    }
+}
+
 @media screen and (max-width: 860px) {
     .modal.editor {
         left:  20px;
@@ -330,13 +400,24 @@ section#document {
         margin-left: 0;
     }
     table {
-        .condensed-table;
+        .table-condensed;
         td.action-column {
-            .btn.small {
-                padding: 5px 9px;
-                margin: -4px 0;
+            padding-top: 2px;
+            .btn {
+                padding: 2px 9px;
+            }
+        }
+    }
+    section#documents {
+        .controls .pagination {
+            li.prev a:after, li.next a:before {
+                content: '';
+            }
+            li.prev a:after {
+                content: ' Prev';
             }
         }
     }
 }
+
 

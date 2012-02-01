@@ -19,20 +19,18 @@
     max-width: 1400px;
 }
 
-// Topbar size overrides
-.topbar {
+// Navbar size overrides
+.navbar {
     height: 60px;
 
-    // App name
-    h3 {
-        a {
-            font-size: 32px;
-            padding: 16px 20px 12px;
-        }
+    .brand {
+        font-size: 32px;
+        line-height: 26px;
+        padding: 16px 20px 12px;
     }
 
     ul {
-        .menu-dropdown {
+        .dropdown-menu {
             li a {
                 padding-right: 45px;
                 position: relative;
@@ -46,12 +44,18 @@
                     .border-radius(8px);
                     line-height: 16px;
                     color: #666;
-                    background-color: rgba(0,0,0,.2);
-                    @shadow: inset 0 1px 0 rgba(0,0,0,.3), 0 1px 0 rgba(255,255,255,.2);
+                    background-color: rgba(0,0,0,.1);
+                    @shadow: inset 0 1px 0 rgba(0,0,0,.2), 0 1px 0 rgba(255,255,255,.2);
                     .box-shadow(@shadow);
                 }
                 &:hover span {
+                    color: #DDD;
+                }
+            }
+            li.active a {
+                span {
                     color: #CCC;
+                    background-color: rgba(0,0,0,.2);
                 }
             }
         }
@@ -63,37 +67,19 @@
     }
 }
 
-// Topbar nav
-.nav .dropdown-toggle,
-.nav .dropdown-toggle:hover,
-.nav .dropdown.open .dropdown-toggle,
-.topbar form {
+// Navbar nav
+.nav .dropdown, .navbar-search {
     background: transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAiCAQAAADMxIBtAAABLUlEQVQoz2NgYPzPxMDEgAaY/7OrsGMIruJs4GFAE2aU4vooxCCCrpb7pbiaNAMbqiBblfhsRQYpNAN4xH5qcuuju0Fwj5qfIYMYqiB7gPI+cwYjdMvk3lmLuzBwoQoKzTMqdGHQQhVkNdG55s3sw8CIKqx4wc0ojEEGVVC4wa4jgsEJzQAlk9sx/CnolilvC/BNR3eYcJrbkiy2GFTLhLM8FmUzRKKqVN0f4prBoIMSVtpm1+K4klGDUHyiY3kEgxWa5ic+8lEMgshCnIH6+7wYXFHVie8183NlkEMJe36lz3bsrgzMKFHXrDrJjEEDVbPYc205YwZOZCEmbYlnmqiOBmreJhOlyiCEKsj/X5ZDES0tJfFuE0VXx/6WT0EA1THAEP/PgR7aDNgSLQDySzbpQ/g6wQAAAABJRU5ErkJggg==') center left no-repeat;
 }
-.nav {
-    > li {
-        > a {
-            padding: 20px 10px 21px 20px;
-            height:      19px;
-            line-height: 19px;
-            white-space: nowrap;
-            color: #EEE;
-            &:hover {
-                background-color: transparent;
-            }
-            &:after {
-                display: none;
-            }
+.nav .dropdown {
+    .dropdown-toggle {
+        padding: 20px 10px 21px 20px;
+        height:      19px;
+        line-height: 19px;
+        white-space: nowrap;
+        color: #EEE;
+        &:hover {
+            background-color: transparent;
         }
     }
-    .menu-dropdown {
-        background-color: rgba(41,41,41,.95);
-        top: 60px;
-        max-width: 350px;
-    }
-}
-
-// misc chrome overrides
-footer {
-    border-top: none;
 }

@@ -8,7 +8,7 @@ Genghis.Views.NewDocument = Backbone.View.extend({
     render: function() {
         this.el = $(this.template()).hide().appendTo('body');
 
-        this.modal = this.el.modal({backdrop: true});
+        this.modal = this.el.modal('hide');
         this.modal.bind('hide', this.cancelEdit);
 
         this.editor = ace.edit('editor-new');

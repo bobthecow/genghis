@@ -1,6 +1,6 @@
 <header><h2>Databases</h2></header>
 <div class="content">
-    <table class="zebra-striped bordered-table">
+    <table>
         <thead>
             <tr>
                 <th>name</th>
@@ -13,9 +13,9 @@
         </tbody>
     </table>
 </div>
-<div class="add-form inactive">
+<div class="add-form inactive form-horizontal">
     <input class="name span4" type="text" size="30">
     <button class="show btn">Add database</button>
-    <button class="add btn primary">Add database</button>
+    <button class="add btn btn-primary">Add database</button>
     <button class="cancel btn">Cancel</button>
 </div>
