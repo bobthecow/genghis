@@ -1,5 +1,5 @@
 Genghis.Views.Nav = Backbone.View.extend({
-    el: '.topbar nav',
+    el: '.navbar nav',
     template: _.template($('#nav-template').html()),
     events: {
         'keypress input#navbar-query': 'findDocuments',

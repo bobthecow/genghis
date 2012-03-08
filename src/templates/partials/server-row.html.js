@@ -1,7 +1,7 @@
 <% if (obj.get('error')) { %>
     <td>
         <span class="value"><%= obj.get('name') %></span>
-        <span class="label important" title="<%= Genghis.Util.escape(obj.get('error')) %>">Error</span>
+        <span class="label label-important" title="<%= Genghis.Util.escape(obj.get('error')) %>">Error</span>
     </td>
     <td></td>
     <td></td>
@@ -31,5 +31,5 @@
     </td>
 <% } %>
 <td class="action-column">
-    <button class="btn small danger destroy">Remove</button>
+    <button class="btn btn-mini btn-danger destroy">Remove</button>
 </td>

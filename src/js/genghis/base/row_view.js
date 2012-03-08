@@ -12,7 +12,7 @@ Genghis.Base.RowView = Backbone.View.extend({
     },
     render: function() {
         $(this.el).html(this.template(this.model));
-        $(this.el).find('.label[title]').twipsy({placement: 'below'});
+        $(this.el).find('.label[title]').tooltip({placement: 'below'});
         this.$('.has-details').popover({
             html: true,
             content: function() { return $(this).siblings('.details').html(); },

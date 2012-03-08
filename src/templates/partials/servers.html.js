@@ -1,6 +1,6 @@
 <header><h2>Servers</h2></header>
 <div class="content">
-    <table class="zebra-striped bordered-table">
+    <table>
         <thead>
             <tr>
                 <th>name</th>
@@ -13,12 +13,12 @@
         </tbody>
     </table>
 </div>
-<div class="add-form inactive">
+<div class="add-form inactive form-horizontal">
     <span class="input-append">
         <input class="name span4" type="text" size="30">
         <span class="add-on help" title="user:pass@localhost:27017">?</span>
     </span>
     <button class="show btn">Add server</button>
-    <button class="add btn primary">Add server</button>
+    <button class="add btn btn-primary">Add server</button>
     <button class="cancel btn">Cancel</button>
 </div>

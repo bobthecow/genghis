@@ -22,5 +22,5 @@
     <span class="size value"><%= Genghis.Util.humanizeSize(obj.get('size')) %></span>
 </td>
 <td class="action-column">
-    <button class="btn small danger destroy">Remove</button>
+    <button class="btn btn-mini btn-danger destroy">Remove</button>
 </td>

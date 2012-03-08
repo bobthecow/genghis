@@ -1,9 +1,9 @@
 <div class="well">
     <div class="document-actions">
-        <button class="save btn small primary">Save</button>
-        <button class="cancel btn small">Cancel</button>
-        <button class="edit btn small">Edit</button>
-        <button class="destroy btn small danger">Delete</button>
+        <button class="btn btn-small btn-primary save">Save</button>
+        <button class="btn btn-small cancel">Cancel</button>
+        <button class="btn btn-small edit">Edit</button>
+        <button class="btn btn-small btn-danger destroy">Delete</button>
     </div>
 
     <h3>
