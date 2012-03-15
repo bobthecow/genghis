@@ -8,7 +8,7 @@ Genghis.Views.Nav = Backbone.View.extend({
     initialize: function() {
         _.bindAll(
             this, 'render', 'toggleSections', 'updateQuery', 'findDocuments', 'navigate', 'navigateToServers',
-            'focusSearch'
+            'navigateUp', 'focusSearch'
         );
 
         this.model.bind('change', this.toggleSections);
@@ -19,6 +19,7 @@ Genghis.Views.Nav = Backbone.View.extend({
         });
 
         $(document).bind('keyup', 's', this.navigateToServers);
+        $(document).bind('keyup', 'u', this.navigateUp);
 
         this.render();
     },
@@ -81,6 +82,14 @@ Genghis.Views.Nav = Backbone.View.extend({
     navigateToServers: function(e) {
         e.preventDefault();
         App.Router.redirectToIndex();
+    },
+    navigateUp: function(e) {
+        e.preventDefault();
+        App.Router.redirectTo(
+            this.model.has('database')   && this.model.get('server'),
+            this.model.has('collection') && this.model.get('database'),
+            (this.model.has('document') || this.model.has('query')) && this.model.get('collection')
+        );
     },
     focusSearch: function(e) {
         if (this.$('input#navbar-query').is(':visible')) {
