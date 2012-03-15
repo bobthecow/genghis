@@ -6,7 +6,10 @@ Genghis.Views.Nav = Backbone.View.extend({
         'click a':                  'navigate'
     },
     initialize: function() {
-        _.bindAll(this, 'render', 'toggleSections', 'updateQuery', 'findDocuments', 'navigate', 'focusSearch');
+        _.bindAll(
+            this, 'render', 'toggleSections', 'updateQuery', 'findDocuments', 'navigate', 'navigateToServers',
+            'focusSearch'
+        );
 
         this.model.bind('change', this.toggleSections);
         this.model.bind('change', this.updateQuery)
@@ -14,6 +17,8 @@ Genghis.Views.Nav = Backbone.View.extend({
         $('body').bind('click', function(e) {
             $('.dropdown-toggle, .menu').parent('li').removeClass('open');
         });
+
+        $(document).bind('keyup', 's', this.navigateToServers);
 
         this.render();
     },
@@ -72,6 +77,10 @@ Genghis.Views.Nav = Backbone.View.extend({
     navigate: function(e) {
         e.preventDefault();
         App.Router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
+    },
+    navigateToServers: function(e) {
+        e.preventDefault();
+        App.Router.redirectToIndex();
     },
     focusSearch: function(e) {
         if (this.$('input#navbar-query').is(':visible')) {

@@ -10,6 +10,9 @@
         <dl>
           <dt><kbd>?</kbd></dt>
           <dd>This cheat sheet</dd>
+
+          <dt><kbd>s</kbd></dt>
+          <dd>Go to Servers</dd>
         </dl>
 
         <h4>Servers</h4>
@@ -17,14 +20,14 @@
           <dt><kbd>c</kbd></dt>
           <dd>New server</dd>
         </dl>
-
+      </li>
+      <li>
         <h4>Databases</h4>
         <dl>
           <dt><kbd>c</kbd></dt>
           <dd>New database</dd>
         </dl>
-      </li>
-      <li>
+
         <h4>Collections</h4>
         <dl>
           <dt><kbd>c</kbd></dt>
