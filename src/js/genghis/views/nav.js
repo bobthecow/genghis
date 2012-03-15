@@ -72,7 +72,8 @@ Genghis.Views.Nav = Backbone.View.extend({
 
             App.Router.navigate(url, true);
         } else if (e.keyCode == 27) {
-            this.$('input#navbar-query').val('').blur();
+            this.$('input#navbar-query').blur();
+            this.updateQuery();
         }
     },
     navigate: function(e) {
