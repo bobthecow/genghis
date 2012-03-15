@@ -5,10 +5,15 @@ Genghis.Views.Documents = Backbone.View.extend({
         'click button.add-document': 'createDocument'
     },
     initialize: function() {
-        _.bindAll(this, 'render', 'addAll', 'addDocument', 'createDocument');
+        _.bindAll(
+            this, 'render', 'addAll', 'addDocument', 'createDocument',
+            'createDocumentIfVisible'
+        );
 
         this.collection.bind('reset', this.addAll,      this);
         this.collection.bind('add',   this.addDocument, this);
+
+        $(document).bind('keyup', 'c', this.createDocumentIfVisible);
 
         this.render();
     },
@@ -39,5 +44,11 @@ Genghis.Views.Documents = Backbone.View.extend({
     },
     createDocument: function() {
         this.NewDocumentView.show();
+    },
+    createDocumentIfVisible: function(e) {
+        if ($(this.el).is(':visible')) {
+            e.preventDefault();
+            this.createDocument();
+        }
     }
 });

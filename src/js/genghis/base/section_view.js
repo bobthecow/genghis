@@ -7,9 +7,9 @@ Genghis.Base.SectionView = Backbone.View.extend({
     },
     initialize: function() {
         _.bindAll(
-            this, 'render', 'updateTitle', 'showAddForm', 'submitAddForm',
-            'closeAddForm', 'updateOnKeyup', 'addModel', 'addModelAndUpdate',
-            'addAll'
+            this, 'render', 'updateTitle', 'showAddForm', 'showAddFormIfVisible',
+            'submitAddForm', 'closeAddForm', 'updateOnKeyup', 'addModel',
+            'addModelAndUpdate', 'addAll'
         );
 
         if (this.model) {
@@ -20,6 +20,8 @@ Genghis.Base.SectionView = Backbone.View.extend({
             this.collection.bind('reset', this.render);
             this.collection.bind('add',   this.addModelAndUpdate);
         }
+
+        $(document).bind('keyup', 'c', this.showAddFormIfVisible);
 
 	    this.render();
     },
@@ -54,6 +56,12 @@ Genghis.Base.SectionView = Backbone.View.extend({
     showAddForm: function() {
         this.addForm.removeClass('inactive');
         this.addInput.focus();
+    },
+    showAddFormIfVisible: function(e) {
+        if ($(this.el).is(':visible')) {
+            e.preventDefault();
+            this.showAddForm();
+        }
     },
     submitAddForm: function() {
         this.collection.create({name: this.addInput.val()});

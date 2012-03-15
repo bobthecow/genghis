@@ -4,8 +4,10 @@ Genghis.Views.Pagination = Backbone.View.extend({
         'click a': 'navigate'
     },
     initialize: function() {
-        _.bindAll(this, 'render', 'urlTemplate', 'navigate');
+        _.bindAll(this, 'render', 'urlTemplate', 'navigate', 'nextPage', 'prevPage');
         this.model.bind('change', this.render);
+        $(document).bind('keyup', 'n', this.nextPage);
+        $(document).bind('keyup', 'p', this.prevPage);
     },
     render: function() {
         if (this.model.get('pages') == 1) {
@@ -56,6 +58,18 @@ Genghis.Views.Pagination = Backbone.View.extend({
         var url = $(e.target).attr('href');
         if (url) {
             App.Router.navigate(Genghis.Util.route(url), true);
+        }
+    },
+    nextPage: function(e) {
+        if ($(this.el).is(':visible')) {
+            e.preventDefault();
+            this.$('li.next a[href]').click();
+        }
+    },
+    prevPage: function(e) {
+        if ($(this.el).is(':visible')) {
+            e.preventDefault();
+            this.$('li.prev a[href]').click();
         }
     }
 });
