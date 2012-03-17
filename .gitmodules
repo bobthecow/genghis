@@ -1,3 +1,9 @@
 [submodule "vendor/bootstrap"]
 	path = vendor/bootstrap
 	url = https://github.com/twitter/bootstrap.git
+[submodule "vendor/hotkeys"]
+	path = vendor/hotkeys
+	url = https://github.com/jeresig/jquery.hotkeys.git
+[submodule "vendor/keyscss"]
+	path = vendor/keyscss
+	url = https://github.com/michaelhue/keyscss.git

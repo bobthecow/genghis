@@ -50,6 +50,9 @@ Genghis.Router = Backbone.Router.extend({
         Genghis.Selection.select(server, database, collection, null, params.q, params.page);
         App.showSection('documents');
     },
+    redirectToQuery: function(server, database, collection, query) {
+        this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection+'?'+Genghis.Util.buildQuery({q: encodeURIComponent(query)}), true);
+    },
     document: function(server, database, collection, documentId) {
         document.title = this.buildTitle(server, database, collection, documentId);
         Genghis.Selection.select(server, database, collection, documentId);
@@ -57,6 +60,19 @@ Genghis.Router = Backbone.Router.extend({
     },
     redirectToDocument: function(server, database, collection, document) {
         this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection+'/documents/'+document, true);
+    },
+    redirectTo: function(server, database, collection, document, query) {
+        if (!server)     return this.redirectToIndex();
+        if (!database)   return this.redirectToServer(server);
+        if (!collection) return this.redirectToDatabase(server, database);
+
+        if (!document && !query) {
+            return this.redirectToCollection(server, database, collection);
+        } else if (!query) {
+            return this.redirectToDocument(server, database, collection, document);
+        } else {
+            return this.redirectToQuery(server, database, collection, query);
+        }
     },
     notFound: function(path) {
         // fix a weird case where the Backbone router won't route if the root url == the current pathname.
