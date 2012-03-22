@@ -128,9 +128,11 @@ file 'tmp/index.html.mustache' => FileList[
   end
 end
 
-file 'tmp/error.html.mustache' => FileList['tmp', 'src/templates/index.html.mustache.erb'] do
+file 'tmp/error.html.mustache' => FileList['tmp', 'src/templates/index.html.mustache.erb', 'src/img/favicon.png'] do
   File.open('tmp/error.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
+
+    favicon_uri  = "data:image/png;base64,#{Base64.encode64(File.read('src/img/favicon.png'))}"
 
     tpl = ERB.new(File.read('src/templates/error.html.mustache.erb')).result(binding)
     if ENV['NOCOMPRESS']

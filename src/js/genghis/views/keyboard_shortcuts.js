@@ -16,7 +16,8 @@ Genghis.Views.KeyboardShortcuts = Backbone.View.extend({
     show: function() {
         $(this.el).modal('show');
     },
-    hide: function() {
+    hide: function(e) {
+        e.preventDefault();
         $(this.el).modal('hide');
     },
     toggle: function() {
