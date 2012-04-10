@@ -138,11 +138,11 @@ Genghis.Util = {
                 if ($target.is(':visible')) {
                     $target.hide();
                     $('<span class="ellipsis"> ' + summary($target) + ' &hellip; </span>').insertBefore($target).click(arguments.callee);
-                    $collapser.text('+');
+                    $collapser.addClass('collapsed').text('+');
                 } else {
                     $target.siblings('.ellipsis').remove();
                     $target.show();
-                    $collapser.text('-');
+                    $collapser.removeClass('collapsed').text('-');
                 }
 
                 e.preventDefault();
