@@ -109,48 +109,49 @@ Genghis.Util = {
 
     attachCollapsers: function(scope, andCollapse) {
         $('<div class="collapser">-</div>')
-            .prependTo($('.document ul', scope).parent('li, .document'))
-            .click(function(e) {
-                var $parent    = $(this).parent(),
-                    $target    = $parent.children('ul'),
-                    $collapser = $parent.children('.collapser');
+            .prependTo($('.document ul', scope).parent('li, .document'));
 
-                function summary(target) {
-                    if (!('collapserSummary' in target.data())) {
-                        var $s = $(_.detect(target.find('> li > span.prop'), function(el) {
-                            return /^\s*(name|title)\s*/i.test($(el).text());
-                        })).siblings('span');
+        $('.document', scope).on('click', 'div.collapser', function(e) {
+            var $parent    = $(this).parent(),
+                $target    = $parent.children('ul'),
+                $collapser = $parent.children('.collapser');
 
-                        if ($s.length == 0) {
-                            $s = $(_.detect(target.find('> li > span:not(.prop)'), function(el) {
-                                var $el = $(el);
-                                return $el.hasClass('num') || $el.hasClass('boolean')
-                                    || ($el.hasClass('string') && $el.text().length < 64);
-                            }));
-                        }
+            function summary(target) {
+                if (!('collapserSummary' in target.data())) {
+                    var $s = $(_.detect(target.find('> li > span.prop'), function(el) {
+                        return /^\s*(name|title)\s*/i.test($(el).text());
+                    })).siblings('span');
 
-                        if ($s.length) {
-                            target.data('collapserSummary', '<span class="summary">' + $s.siblings('.prop').text() + ': ' + $s.text() + '</span>');
-                        } else {
-                            target.data('collapserSummary', '');
-                        }
+                    if ($s.length == 0) {
+                        $s = $(_.detect(target.find('> li > span:not(.prop)'), function(el) {
+                            var $el = $(el);
+                            return $el.hasClass('num') || $el.hasClass('boolean')
+                                || ($el.hasClass('string') && $el.text().length < 64);
+                        }));
                     }
 
-                    return target.data('collapserSummary');
+                    if ($s.length) {
+                        target.data('collapserSummary', '<span class="summary">' + $s.siblings('.prop').text() + ': ' + $s.text() + '</span>');
+                    } else {
+                        target.data('collapserSummary', '');
+                    }
                 }
 
-                if ($target.is(':visible')) {
-                    $target.hide();
-                    $('<span class="ellipsis"> ' + summary($target) + ' &hellip; </span>').insertBefore($target).click(arguments.callee);
-                    $collapser.addClass('collapsed').text('+');
-                } else {
-                    $target.siblings('.ellipsis').remove();
-                    $target.show();
-                    $collapser.removeClass('collapsed').text('-');
-                }
+                return target.data('collapserSummary');
+            }
 
-                e.preventDefault();
-            });
+            if ($target.is(':visible')) {
+                $target.hide();
+                $('<span class="ellipsis"> ' + summary($target) + ' &hellip; </span>').insertBefore($target).click(arguments.callee);
+                $collapser.addClass('collapsed').text('+');
+            } else {
+                $target.siblings('.ellipsis').remove();
+                $target.show();
+                $collapser.removeClass('collapsed').text('-');
+            }
+
+            e.preventDefault();
+        });
 
         if (andCollapse) {
             $('.document > .collapser', scope).click();
