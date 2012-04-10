@@ -116,23 +116,27 @@ Genghis.Util = {
                     $collapser = $parent.children('.collapser');
 
                 function summary(target) {
-                    var $s = $(_.detect(target.find('> li > span.prop'), function(el) {
-                        return /^\s*(name|title)\s*/i.test($(el).text());
-                    })).siblings('span');
+                    if (!('collapserSummary' in target.data())) {
+                        var $s = $(_.detect(target.find('> li > span.prop'), function(el) {
+                            return /^\s*(name|title)\s*/i.test($(el).text());
+                        })).siblings('span');
 
-                    if ($s.length == 0) {
-                        $s = $(_.detect(target.find('> li > span:not(.prop)'), function(el) {
-                            var $el = $(el);
-                            return $el.hasClass('num') || $el.hasClass('boolean')
-                                || ($el.hasClass('string') && $el.text().length < 64);
-                        }));
+                        if ($s.length == 0) {
+                            $s = $(_.detect(target.find('> li > span:not(.prop)'), function(el) {
+                                var $el = $(el);
+                                return $el.hasClass('num') || $el.hasClass('boolean')
+                                    || ($el.hasClass('string') && $el.text().length < 64);
+                            }));
+                        }
+
+                        if ($s.length) {
+                            target.data('collapserSummary', '<span class="summary">' + $s.siblings('.prop').text() + ': ' + $s.text() + '</span>');
+                        } else {
+                            target.data('collapserSummary', '');
+                        }
                     }
 
-                    if ($s.length) {
-                        return '<span class="summary">' + $s.siblings('.prop').text() + ': ' + $s.text() + '</span>';
-                    } else {
-                        return '';
-                    }
+                    return target.data('collapserSummary');
                 }
 
                 if ($target.is(':visible')) {
