@@ -4,6 +4,16 @@ class Genghis_AssetResponse extends Genghis_Response
 {
     protected $headers;
 
+    private static $extMap = array(
+        'js'   => 'application/x-javascript',
+        'json' => 'application/json',
+        'css'  => 'text/css',
+        'html' => 'text/html',
+        'htm'  => 'text/html',
+        'php'  => 'text/html',
+        'txt'  => 'text/plain',
+    );
+
     public function __construct($name, $content, $headers = array())
     {
         parent::__construct($content);
@@ -14,22 +24,12 @@ class Genghis_AssetResponse extends Genghis_Response
     protected function getContentType()
     {
         $parts = explode('.', $this->name);
-        $ext = array_pop($parts);
-        switch ($ext) {
-            case "js":
-                return "application/x-javascript";
-            case "json":
-                return "application/json";
-            case "css":
-                return "text/css";
-            case "html":
-            case "htm":
-            case "php":
-                return "text/html";
-            case "txt":
-                return "text/plain";
-            default:
-                return "unknown/" . trim($ext);
+        $ext   = end($parts);
+
+        if (isset(self::$extMap[$ext])) {
+            return self::$extMap[$ext];
+        } else {
+            return 'unknown/' . trim($ext);
         }
     }
 }
