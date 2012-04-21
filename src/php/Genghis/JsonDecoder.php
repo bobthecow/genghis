@@ -96,12 +96,13 @@ class Genghis_JsonDecoder
    /**
     * constructs a new JsonDecoder instance
     */
-    function __construct()
+    public function __construct()
     {
         $this->_mb_strlen            = function_exists('mb_strlen');
         $this->_mb_convert_encoding  = function_exists('mb_convert_encoding');
         $this->_mb_substr            = function_exists('mb_substr');
     }
+
     // private - cache the mbstring lookup results..
     var $_mb_strlen = false;
     var $_mb_substr = false;
@@ -118,10 +119,10 @@ class Genghis_JsonDecoder
     * @return   string  UTF-8 character
     * @access   private
     */
-    function utf162utf8($utf16)
+    private function utf162utf8($utf16)
     {
         // oh please oh please oh please oh please oh please
-        if($this->_mb_convert_encoding) {
+        if ($this->_mb_convert_encoding) {
             return mb_convert_encoding($utf16, 'UTF-8', 'UTF-16');
         }
 
@@ -162,7 +163,7 @@ class Genghis_JsonDecoder
     * @return   string  UTF-16 character
     * @access   private
     */
-    function utf82utf16($utf8)
+    private function utf82utf16($utf8)
     {
         // oh please oh please oh please oh please oh please
         if($this->_mb_convert_encoding) {
@@ -203,7 +204,7 @@ class Genghis_JsonDecoder
     * @return   string  string value stripped of comments and whitespace
     * @access   private
     */
-    function reduce_string($str)
+    private function reduce_string($str)
     {
         $str = preg_replace(array(
 
@@ -236,18 +237,21 @@ class Genghis_JsonDecoder
     * @throws   Genghis_JsonException
     * @access   public
     */
-    function decode($str)
+    public function decode($str)
     {
         $str = $this->reduce_string($str);
 
         switch (strtolower($str)) {
             case 'true':
+
                 return true;
 
             case 'false':
+
                 return false;
 
             case 'null':
+
                 return null;
 
             default:
@@ -261,9 +265,9 @@ class Genghis_JsonDecoder
                     // return (float)$str;
 
                     // Return float or int, as appropriate
-                    return ((float)$str == (integer)$str)
-                        ? (integer)$str
-                        : (float)$str;
+                    return ((float) $str == (integer) $str)
+                        ? (integer) $str
+                        : (float) $str;
 
                 } elseif (preg_match('/^("|\').*(\1)$/s', $str, $m) && $m[1] == $m[2]) {
                     // STRINGS RETURNED IN UTF-8 FORMAT
@@ -471,9 +475,9 @@ class Genghis_JsonDecoder
                             array_pop($stk);
                             $c++;
 
-                            for ($i = $top['where']; $i <= $c; ++$i)
+                            for ($i = $top['where']; $i <= $c; ++$i) {
                                 $chrs = substr_replace($chrs, ' ', $i, 1);
-
+                            }
 
                         }
 
@@ -503,12 +507,13 @@ class Genghis_JsonDecoder
     * @param string
     * @return integer length
     */
-    function strlen8( $str )
+    private function strlen8($str)
     {
-        if ( $this->_mb_strlen ) {
-            return mb_strlen( $str, "8bit" );
+        if ($this->_mb_strlen) {
+            return mb_strlen($str, "8bit");
         }
-        return strlen( $str );
+
+        return strlen($str);
     }
 
     /**
@@ -518,32 +523,16 @@ class Genghis_JsonDecoder
     * @param integer length
     * @return integer length
     */
-    function substr8( $string, $start, $length=false )
+    private function substr8( $string, $start, $length=false )
     {
-        if ( $length === false ) {
-            $length = $this->strlen8( $string ) - $start;
+        if ($length === false) {
+            $length = $this->strlen8($string) - $start;
         }
-        if ( $this->_mb_substr ) {
-            return mb_substr( $string, $start, $length, "8bit" );
+
+        if ($this->_mb_substr) {
+            return mb_substr($string, $start, $length, "8bit");
         }
-        return substr( $string, $start, $length );
+
+        return substr($string, $start, $length);
     }
 }
-
-class Genghis_JsonRegex
-{
-    public $pattern;
-
-    public function __construct($pattern)
-    {
-        $this->pattern = $pattern;
-    }
-
-    public function __toString()
-    {
-        return $this->getPattern();
-    }
-}
-
-class Genghis_JsonException extends Exception {}
-

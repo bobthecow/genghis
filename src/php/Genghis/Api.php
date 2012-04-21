@@ -160,10 +160,12 @@ class Genghis_Api extends Genghis_App
     protected function listServers()
     {
         $this->initServers();
+
         $servers = array();
         foreach (array_keys($this->servers) as $name) {
             $servers[] = $this->dumpServer($name);
         }
+
         return new Genghis_JsonResponse($servers);
     }
 

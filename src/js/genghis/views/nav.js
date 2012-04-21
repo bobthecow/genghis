@@ -12,7 +12,7 @@ Genghis.Views.Nav = Backbone.View.extend({
         );
 
         this.model.bind('change', this.toggleSections);
-        this.model.bind('change', this.updateQuery)
+        this.model.bind('change', this.updateQuery);
 
         $('body').bind('click', function(e) {
             $('.dropdown-toggle, .menu').parent('li').removeClass('open');
@@ -32,27 +32,27 @@ Genghis.Views.Nav = Backbone.View.extend({
             el: $('li.server', this.el),
             model: this.model.CurrentServer,
             collection: this.model.Servers
-        })
+        });
 
         this.DatabaseNavView = new Genghis.Views.NavSection({
             el: $('li.database', this.el),
             model: this.model.CurrentDatabase,
             collection: this.model.Databases
-        })
+        });
 
         this.CollectionNavView = new Genghis.Views.NavSection({
             el: $('li.collection', this.el),
             model: this.model.CurrentCollection,
             collection: this.model.Collections
-        })
+        });
 
         return this;
     },
     toggleSections: function() {
-        $(this.ServerNavView.el).toggle(this.model.get('server') != null);
-        $(this.DatabaseNavView.el).toggle(this.model.get('database') != null);
-        $(this.CollectionNavView.el).toggle(this.model.get('collection') != null);
-        this.$('form').toggle(this.model.get('collection') != null);
+        $(this.ServerNavView.el).toggle(this.model.get('server') !== null);
+        $(this.DatabaseNavView.el).toggle(this.model.get('database') !== null);
+        $(this.CollectionNavView.el).toggle(this.model.get('collection') !== null);
+        this.$('form').toggle(this.model.get('collection') !== null);
     },
     updateQuery: function() {
         var q = (this.model.get('query') || this.model.get('document') || '')

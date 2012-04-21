@@ -4,7 +4,7 @@ Genghis.Collections.Alerts = Backbone.Collection.extend({
         _.bindAll(this, 'handleError');
     },
     handleError: function(response) {
-        if (response.readyState == 0) return;
+        if (response.readyState === 0) return;
 
         try {
             data = JSON.parse(response.responseText);

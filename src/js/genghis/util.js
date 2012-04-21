@@ -23,10 +23,10 @@ Genghis.Util = {
     },
 
     humanizeSize: function(bytes) {
-        if (bytes == 0) return 'n/a';
+        if (bytes ==- 0) return 'n/a';
         var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'],
-            i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-        return ((i == 0)? (bytes / Math.pow(1024, i)) : (bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + sizes[i];
+            i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+        return ((i === 0)? (bytes / Math.pow(1024, i)) : (bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + sizes[i];
     },
 
     humanizeCount: function(count) {
@@ -58,7 +58,7 @@ Genghis.Util = {
 
     formatJSON: function(value) {
         function htmlEncode(t) {
-            return t != null ? t.toString().replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
+            return t !== null ? t.toString().replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
         }
 
         function wrap(value, className, raw) {
@@ -68,7 +68,7 @@ Genghis.Util = {
         function valueToHTML(value) {
             var valueType = typeof value,
                 output = [];
-            if (value == null) {
+            if (value === null) {
                 output.push(wrap('null', 'null'));
             } else if (value && value.constructor == Array) {
                 output.push(arrayToHTML(value));
@@ -123,11 +123,11 @@ Genghis.Util = {
                             return (/^\s*(name|title)\s*/i.test($(el).text()));
                         })).siblings('span');
 
-                    if ($s.length == 0) {
+                    if ($s.length === 0) {
                         $s = $(_.detect(target.find('> li > span:not(.prop)'), function(el) {
                             var $el = $(el);
-                            return $el.hasClass('num') || $el.hasClass('boolean')
-                                || ($el.hasClass('string') && $el.text().length < 64);
+                            return $el.hasClass('num') || $el.hasClass('boolean') ||
+                                ($el.hasClass('string') && $el.text().length < 64);
                         }));
                     }
 
