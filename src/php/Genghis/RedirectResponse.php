@@ -1,6 +1,6 @@
 <?php
 
-class RedirectResponse extends Response
+class Genghis_RedirectResponse extends Genghis_Response
 {
     public function __construct($url, $status = 301)
     {

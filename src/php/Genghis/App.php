@@ -1,6 +1,6 @@
 <?php
 
-class App
+class Genghis_App
 {
     protected $assets     = array();
     protected $assetEtags = array();
@@ -10,12 +10,12 @@ class App
     {
         try {
             $response = $this->route($this->getRequestMethod(), $this->getRequestPath());
-            if ($response instanceof Response) {
+            if ($response instanceof Genghis_Response) {
                 $response->render();
             } else {
-                throw new HttpException(500);
+                throw new Genghis_HttpException(500);
             }
-        } catch (HttpException $e) {
+        } catch (Genghis_HttpException $e) {
             $errorResponse = $this->renderTemplate(
                 'error.html.mustache',
                 $e->getStatus(),
@@ -32,11 +32,13 @@ class App
     {
         if ($this->isJsonRequest()) {
             try {
-                $api = new Api();
+                $api = new Genghis_Api;
+
                 return $api->route($method, $path);
-            } catch (HttpException $e) {
-                $msg = $e->getMessage() ? $e->getMessage() : Response::getStatusText($e->getStatus());
-                return new JsonResponse(array('error' => $msg, 'status' => $e->getStatus()), $e->getStatus());
+            } catch (Genghis_HttpException $e) {
+                $msg = $e->getMessage() ? $e->getMessage() : Genghis_Response::getStatusText($e->getStatus());
+
+                return new Genghis_JsonResponse(array('error' => $msg, 'status' => $e->getStatus()), $e->getStatus());
             }
         } else {
             if (strpos($path, '/assets/') === 0) {
@@ -65,6 +67,7 @@ class App
         if (!isset($this->baseUrl)) {
             $this->baseUrl = $this->prepareBaseUrl();
         }
+
         return $this->baseUrl;
     }
 
@@ -140,6 +143,7 @@ class App
     protected function getQueryParams()
     {
         global $_GET;
+
         return $_GET;
     }
 
@@ -159,7 +163,8 @@ class App
         $defaults = array(
             'base_url' => $this->getBaseUrl(),
         );
-        return new Response(strtr($this->assets[$name], $this->prepareVars(array_merge($defaults, $vars))), $status);
+
+        return new Genghis_Response(strtr($this->assets[$name], $this->prepareVars(array_merge($defaults, $vars))), $status);
     }
 
     protected function prepareVars($vars)
@@ -168,6 +173,7 @@ class App
         foreach ($vars as $name => $var) {
             $ret['{{ '.$name.' }}'] = $var;
         }
+
         return $ret;
     }
 
@@ -175,12 +181,12 @@ class App
     {
         $this->initAssets();
         if (isset($this->assets[$name])) {
-            return new AssetResponse($name, $this->assets[$name], array(
+            return new Genghis_AssetResponse($name, $this->assets[$name], array(
                 'Last-Modified' => gmdate("D, d M Y H:i:s", filemtime(__FILE__))." GMT",
                 'Etag'          => sprintf('"%s"', $this->assetEtags[$name]),
             ));
         }
-        throw new HttpException(404);
+        throw new Genghis_HttpException(404);
     }
 
     protected function initAssets()

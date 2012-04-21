@@ -12,7 +12,7 @@
 <% includes.each do |inc| %><%= inc.sub(/(^<\?php\n|\?>\n?$)/, '').strip %>
 <% end %>
 
-$app = new App;
+$app = new Genghis_App;
 $app->run();
 
 __halt_compiler();

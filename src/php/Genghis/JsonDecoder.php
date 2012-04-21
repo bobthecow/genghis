@@ -53,14 +53,14 @@
  *
  * <code>
  * // create a new instance of JsonDecoder
- * $json = new JsonDecoder();
+ * $json = new JsonDecoder;
  *
  * // accept incoming POST data, assumed to be in JSON notation
  * $input = file_get_contents('php://input', 1000000);
  * $value = $json->decode($input);
  * </code>
  */
-class JsonDecoder
+class Genghis_JsonDecoder
 {
     /**
      * Marker constant for Services_JSON::decode(), used to flag stack state
@@ -106,7 +106,7 @@ class JsonDecoder
     var $_mb_strlen = false;
     var $_mb_substr = false;
     var $_mb_convert_encoding = false;
-    
+
    /**
     * convert a string from one UTF-16 char to one UTF-8 char
     *
@@ -233,7 +233,7 @@ class JsonDecoder
     *                   Note that decode() always returns strings
     *                   in ASCII or UTF-8 format!
     *
-    * @throws   JsonException
+    * @throws   Genghis_JsonException
     * @access   public
     */
     function decode($str)
@@ -414,7 +414,7 @@ class JsonDecoder
                                 // element in an associative array,
                                 // for now
                                 $parts = array();
-                                
+
                                if (preg_match('/^\s*(["\'].*[^\\\]["\'])\s*:/Uis', $slice, $parts)) {
                                   // "name":value pair
                                     $key = $this->decode($parts[1]);
@@ -426,7 +426,7 @@ class JsonDecoder
                                     $val = $this->decode(trim(substr($slice, strlen($parts[0])), ", \t\n\r\0\x0B"));
                                     $obj[$key] = $val;
                                 } else {
-                                    throw new JsonException();
+                                    throw new Genghis_JsonException;
                                 }
                             }
 
@@ -480,7 +480,7 @@ class JsonDecoder
                     }
 
                     if (in_array($top['what'], array(self::IN_CMT, self::IN_STR))) {
-                        throw new JsonException();
+                        throw new Genghis_JsonException;
                     }
 
                     if (reset($stk) == self::IN_ARR) {
@@ -491,34 +491,34 @@ class JsonDecoder
 
                 } elseif (preg_match('/^\/.*\/$/s', $str)) {
                     // Special case: this is a regex.
-                    return new JsonRegex($str);
+                    return new Genghis_JsonRegex($str);
                 } else {
-                    throw new JsonException();
+                    throw new Genghis_JsonException;
                 }
         }
     }
 
     /**
     * Calculates length of string in bytes
-    * @param string 
+    * @param string
     * @return integer length
     */
-    function strlen8( $str ) 
+    function strlen8( $str )
     {
         if ( $this->_mb_strlen ) {
             return mb_strlen( $str, "8bit" );
         }
         return strlen( $str );
     }
-    
+
     /**
     * Returns part of a string, interpreting $start and $length as number of bytes.
-    * @param string 
-    * @param integer start 
-    * @param integer length 
+    * @param string
+    * @param integer start
+    * @param integer length
     * @return integer length
     */
-    function substr8( $string, $start, $length=false ) 
+    function substr8( $string, $start, $length=false )
     {
         if ( $length === false ) {
             $length = $this->strlen8( $string ) - $start;
@@ -530,7 +530,7 @@ class JsonDecoder
     }
 }
 
-class JsonRegex
+class Genghis_JsonRegex
 {
     public $pattern;
 
@@ -545,5 +545,5 @@ class JsonRegex
     }
 }
 
-class JsonException extends Exception {}
+class Genghis_JsonException extends Exception {}
 

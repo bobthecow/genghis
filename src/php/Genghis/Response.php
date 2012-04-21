@@ -1,6 +1,6 @@
 <?php
 
-class Response
+class Genghis_Response
 {
     protected static $statusCodes = array(
         200 => 'OK',
