@@ -340,9 +340,6 @@ section#documents {
         }
         .pagination {
             margin: 0;
-            li.disabled a {
-                cursor: default;
-            }
             li.prev a:after {
                 content: ' Previous';
             }
@@ -418,8 +415,8 @@ section#document {
 @media screen and (max-width: 1200px) {
     section#documents {
         .controls .pagination {
-            li.prev a:after, li.next a:before {
-                content: '';
+            li.next a:before {
+                content: 'Next ';
             }
             li.prev a:after {
                 content: ' Prev';
@@ -445,9 +442,6 @@ section#document {
         .controls .pagination {
             li.prev a:after, li.next a:before {
                 content: '';
-            }
-            li.prev a:after {
-                content: ' Prev';
             }
         }
     }
