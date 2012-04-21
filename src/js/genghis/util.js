@@ -118,9 +118,10 @@ Genghis.Util = {
 
             function summary(target) {
                 if (!('collapserSummary' in target.data())) {
-                    var $s = $(_.detect(target.find('> li > span.prop'), function(el) {
-                        return /^\s*(name|title)\s*/i.test($(el).text());
-                    })).siblings('span');
+                    var prop,
+                        $s = $(_.detect(target.find('> li > span.prop'), function(el) {
+                            return (/^\s*(name|title)\s*/i.test($(el).text()));
+                        })).siblings('span');
 
                     if ($s.length == 0) {
                         $s = $(_.detect(target.find('> li > span:not(.prop)'), function(el) {
@@ -131,7 +132,8 @@ Genghis.Util = {
                     }
 
                     if ($s.length) {
-                        target.data('collapserSummary', '<span class="summary">' + $s.siblings('.prop').text() + ': ' + $s.text() + '</span>');
+                        prop = $s.siblings('.prop').text();
+                        target.data('collapserSummary', '<span class="summary">' + (prop ? prop + ': ' : '') + $s.text() + '</span>');
                     } else {
                         target.data('collapserSummary', '');
                     }
