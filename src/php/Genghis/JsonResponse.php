@@ -1,6 +1,6 @@
 <?php
 
-class JsonResponse extends Response
+class Genghis_JsonResponse extends Genghis_Response
 {
     public function renderHeaders()
     {

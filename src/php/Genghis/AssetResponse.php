@@ -1,6 +1,6 @@
 <?php
 
-class AssetResponse extends Response
+class Genghis_AssetResponse extends Genghis_Response
 {
     protected $headers;
 

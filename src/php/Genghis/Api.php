@@ -1,6 +1,6 @@
 <?php
 
-class Api extends App
+class Genghis_Api extends Genghis_App
 {
     // api/servers/:serverName/databases/:databaseName/collections/:collectionName/documents/:documentId
     const ROUTE_PATTERN = '~^/?servers(?:/(?P<server>[^/]+)(?P<databases>/databases(?:/(?P<database>[^/]+)(?P<collections>/collections(?:/(?P<collection>[^/]+)(?P<documents>/documents(?:/(?P<document>[^/]+))?)?)?)?)?)?)?/?$~';
@@ -18,9 +18,9 @@ class Api extends App
     {
         try {
             return parent::run();
-        } catch (HttpException $e) {
-            $msg = $e->getMessage() ? $e->getMessage() : Response::getStatusText($e->getStatus());
-            $response = new JsonResponse(array('error' => $msg), $e->getStatus());
+        } catch (Genghis_HttpException $e) {
+            $msg = $e->getMessage() ? $e->getMessage() : Genghis_Response::getStatusText($e->getStatus());
+            $response = new Genghis_JsonResponse(array('error' => $msg), $e->getStatus());
             $response->render();
         }
     }
@@ -32,8 +32,9 @@ class Api extends App
         }
 
         if (preg_match(self::CONVERT_JSON_ROUTE, $path)) {
-            $decoder = new JsonDecoder();
-            return new JsonResponse($decoder->decode(file_get_contents('php://input')));
+            $decoder = new Genghis_JsonDecoder;
+
+            return new Genghis_JsonResponse($decoder->decode(file_get_contents('php://input')));
         }
 
         $p = array();
@@ -54,7 +55,7 @@ class Api extends App
                         case 'DELETE':
                             return $this->removeDocument($p['server'], $p['database'], $p['collection'], $p['document']);
                         default:
-                            throw new HttpException(405);
+                            throw new Genghis_HttpException(405);
                     }
                 } else {
                     switch ($method) {
@@ -69,7 +70,7 @@ class Api extends App
                         case 'DELETE':
                             return $this->truncateCollection($p['server'], $p['database'], $p['collection']);
                         default:
-                            throw new HttpException(405);
+                            throw new Genghis_HttpException(405);
                     }
                 }
             } elseif (isset($p['collections'])) {
@@ -80,7 +81,7 @@ class Api extends App
                         case 'DELETE':
                             return $this->dropCollection($p['server'], $p['database'], $p['collection']);
                         default:
-                            throw new HttpException(405);
+                            throw new Genghis_HttpException(405);
                     }
                 } else {
                     switch ($method) {
@@ -89,7 +90,7 @@ class Api extends App
                         case 'POST':
                             return $this->createCollection($p['server'], $p['database'], $this->getRequestData());
                         default:
-                            throw new HttpException(405);
+                            throw new Genghis_HttpException(405);
                     }
                 }
             } elseif (isset($p['databases'])) {
@@ -100,7 +101,7 @@ class Api extends App
                         case 'DELETE':
                             return $this->dropDatabase($p['server'], $p['database']);
                         default:
-                            throw new HttpException(405);
+                            throw new Genghis_HttpException(405);
                     }
                 } else {
                     switch ($method) {
@@ -109,7 +110,7 @@ class Api extends App
                         case 'POST':
                             return $this->createDatabase($p['server'], $this->getRequestData());
                         default:
-                            throw new HttpException(405);
+                            throw new Genghis_HttpException(405);
                     }
                 }
             } else {
@@ -120,7 +121,7 @@ class Api extends App
                         case 'DELETE':
                             return $this->removeServer($p['server']);
                         default:
-                            throw new HttpException(405);
+                            throw new Genghis_HttpException(405);
                     }
                 } else {
                     switch ($method) {
@@ -129,13 +130,13 @@ class Api extends App
                         case 'POST':
                             return $this->addServer($this->getRequestData());
                         default:
-                            throw new HttpException(405);
+                            throw new Genghis_HttpException(405);
                     }
                 }
             }
         }
 
-        throw new HttpException(404);
+        throw new Genghis_HttpException(404);
     }
 
     protected function checkStatus()
@@ -153,7 +154,7 @@ class Api extends App
 
         // TODO: more sanity checks?
 
-        return new JsonResponse(compact('alerts'));
+        return new Genghis_JsonResponse(compact('alerts'));
     }
 
     protected function listServers()
@@ -163,25 +164,25 @@ class Api extends App
         foreach (array_keys($this->servers) as $name) {
             $servers[] = $this->dumpServer($name);
         }
-        return new JsonResponse($servers);
+        return new Genghis_JsonResponse($servers);
     }
 
     protected function addServer(array $data)
     {
         if (!isset($data['name'])) {
-            throw new HttpException(400, 'Server name must be specified');
+            throw new Genghis_HttpException(400, 'Server name must be specified');
         }
 
         $dsn = $data['name'];
         if (strpos($dsn, '://') === false) {
             $dsn = 'mongodb://'.$dsn;
         } else if (strpos($dsn, 'mongodb://') !== 0) {
-            throw new HttpException(400, 'Malformed server dsn');
+            throw new Genghis_HttpException(400, 'Malformed server dsn');
         }
 
         $chunks = parse_url($dsn);
         if ($chunks === false || isset($chunks['query']) || isset($chunks['fragment']) || !isset($chunks['host'])) {
-            throw new HttpException(400, 'Malformed server dsn');
+            throw new Genghis_HttpException(400, 'Malformed server dsn');
         }
 
         $name = $chunks['host'];
@@ -205,18 +206,20 @@ class Api extends App
         if (isset($this->servers[$name])) {
             unset($this->servers[$name]);
             $this->saveServers();
-            return new JsonResponse(array('success' => true));
+
+            return new Genghis_JsonResponse(array('success' => true));
         }
-        throw new HttpException(404);
+
+        throw new Genghis_HttpException(404);
     }
 
     protected function showServer($name)
     {
         $this->initServers();
         if (isset($this->servers[$name])) {
-            return new JsonResponse($this->dumpServer($name));
+            return new Genghis_JsonResponse($this->dumpServer($name));
         } else {
-            throw new HttpException(404);
+            throw new Genghis_HttpException(404);
         }
     }
 
@@ -284,15 +287,16 @@ class Api extends App
     protected function selectDatabase($server, $database)
     {
         if ($db = $this->dumpDatabase($server, $database)) {
-            return new JsonResponse($db);
+            return new Genghis_JsonResponse($db);
         }
-        throw new HttpException(404);
+        throw new Genghis_HttpException(404);
     }
 
     protected function dropDatabase($server, $database)
     {
         $this->getDatabase($server, $database)->drop();
-        return new JsonResponse(array('success' => true));
+
+        return new Genghis_JsonResponse(array('success' => true));
     }
 
     protected function listDatabases($server)
@@ -303,7 +307,8 @@ class Api extends App
         foreach ($res['databases'] as $db) {
             $dbs[] = $this->dumpDatabase($server, $db['name']);
         }
-        return new JsonResponse($dbs);
+
+        return new Genghis_JsonResponse($dbs);
     }
 
     protected function createDatabase($server, array $data)
@@ -313,6 +318,7 @@ class Api extends App
         }
 
         $this->getCollection($server, $data['name'], '__genghis_tmp_collection__')->drop();
+
         return $this->selectDatabase($server, $data['name']);
     }
 
@@ -333,27 +339,29 @@ class Api extends App
     public function selectCollection($server, $database, $collection)
     {
         if ($coll = $this->dumpCollection($server, $database, $collection)) {
-            return new JsonResponse($coll);
+            return new Genghis_JsonResponse($coll);
         }
-        throw new HttpException(404);
+        throw new Genghis_HttpException(404);
     }
 
     public function truncateCollection($server, $database, $collection)
     {
         if ($coll = $this->getCollection($server, $database, $collection)) {
             $coll->remove(array());
+
             return $this->selectCollection($server, $database, $collection);
         }
-        throw new HttpException(404);
+        throw new Genghis_HttpException(404);
     }
 
     public function dropCollection($server, $database, $collection)
     {
         if ($coll = $this->getCollection($server, $database, $collection)) {
             $coll->drop();
-            return new JsonResponse(array('success' => true));
+
+            return new Genghis_JsonResponse(array('success' => true));
         }
-        throw new HttpException(404);
+        throw new Genghis_HttpException(404);
     }
 
     public function listCollections($server, $database)
@@ -362,15 +370,17 @@ class Api extends App
         foreach ($this->getDatabase($server, $database)->listCollections() as $coll) {
             $colls[] = $this->dumpCollection($server, $database, $coll->getName());
         }
-        return new JsonResponse($colls);
+
+        return new Genghis_JsonResponse($colls);
     }
 
     public function createCollection($server, $database, array $data = array())
     {
         if (!isset($data['name'])) {
-            throw new HttpException(400, 'Database name must be specified');
+            throw new Genghis_HttpException(400, 'Database name must be specified');
         }
         $this->getDatabase($server, $database)->createCollection($data['name']);
+
         return $this->selectCollection($server, $database, $data['name']);
     }
 
@@ -380,9 +390,9 @@ class Api extends App
             '_id' => new MongoId($document),
         ));
         if ($doc) {
-            return new JsonResponse($doc);
+            return new Genghis_JsonResponse($doc);
         }
-        throw new HttpException(404);
+        throw new Genghis_HttpException(404);
     }
 
     public function updateDocument($server, $database, $collection, $document, array $data)
@@ -395,10 +405,10 @@ class Api extends App
             if (isset($result['ok']) && $result['ok']) {
                 return $this->findDocument($server, $database, $collection, $document);
             } else {
-                throw new HttpException();
+                throw new Genghis_HttpException;
             }
         } else {
-            throw new HttpException(404);
+            throw new Genghis_HttpException(404);
         }
     }
 
@@ -410,12 +420,12 @@ class Api extends App
             $result = $coll->remove($query, array('safe' => true));
 
             if (isset($result['ok']) && $result['ok']) {
-                return new JsonResponse(array('success' => true));
+                return new Genghis_JsonResponse(array('success' => true));
             } else {
-                throw new HttpException();
+                throw new Genghis_HttpException;
             }
         } else {
-            throw new HttpException(404);
+            throw new Genghis_HttpException(404);
         }
     }
 
@@ -429,7 +439,7 @@ class Api extends App
 
         $count = $cursor->count();
 
-        return new JsonResponse(array(
+        return new Genghis_JsonResponse(array(
             'count'     => $count,
             'page'      => $page,
             'pages'     => max(1, ceil($count / self::PAGE_LIMIT)),
@@ -442,26 +452,27 @@ class Api extends App
     public function insertDocument($server, $database, $collection, array $data = null)
     {
         if (empty($data)) {
-            throw new HttpException(400, 'Malformed document');
+            throw new Genghis_HttpException(400, 'Malformed document');
         }
 
         $result = $this->getCollection($server, $database, $collection)
             ->insert($data, array('safe' => true));
 
         if (isset($result['ok']) && $result['ok']) {
-            return new JsonResponse($data);
+            return new Genghis_JsonResponse($data);
         } else {
-            throw new HttpException();
+            throw new Genghis_HttpException;
         }
     }
 
     protected function decodeJson($data)
     {
         try {
-            $decoder = new JsonDecoder();
+            $decoder = new Genghis_JsonDecoder;
+
             return $this->thunkMongoQuery($decoder->decode($data));
-        } catch (JsonException $e) {
-            throw new HttpException(400, 'Malformed document');
+        } catch (Genghis_JsonException $e) {
+            throw new Genghis_HttpException(400, 'Malformed document');
         }
     }
 
@@ -471,15 +482,16 @@ class Api extends App
             if (is_array($val)) {
                 if (isset($val['$id']) && count($val) == 1) {
                     $query[$key] = new MongoId($val['$id']);
-                } else if(count($val) == 2 && isset($val['sec']) && isset($val['usec'])) {
+                } elseif (count($val) == 2 && isset($val['sec']) && isset($val['usec'])) {
                     $query[$key] = new MongoDate($val['sec'], $val['usec']);
                 } else {
                     $query[$key] = $this->thunkMongoQuery($val);
                 }
-            } else if ($val instanceof JsonRegex) {
+            } else if ($val instanceof Genghis_JsonRegex) {
                 $query[$key] = new MongoRegex($val->pattern);
             }
         }
+
         return $query;
     }
 

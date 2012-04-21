@@ -56,11 +56,51 @@
         }
 
         .collapser {
-            position: absolute;
-            left:     -1.5em;
-            padding:  0 .5em;
-            color:    @greyish;
-            cursor:   pointer;
+            cursor:      pointer;
+            position:    absolute;
+            height:      16px;
+            width:       16px;
+            left:        -16px;
+            padding:     0;
+            font-size:   0;
+            line-height: 0;
+            color:       transparent;
+            overflow:    hidden;
+
+            &:after {
+                display:  block;
+                border:   4px solid blue;
+                content:  ' ';
+                overflow: hidden;
+                height:   0;
+                width:    0;
+                position: relative;
+                left:     4px;
+                top:      6px;
+
+                border:   4px solid transparent;
+                border-top-color: lighten(@greyish, 20%);
+            }
+            &:hover, &:active {
+                &:after {
+                    border-top-color: @greyish;
+                }
+            }
+            &.collapsed {
+                &:after {
+                    left: 6px;
+                    top:  4px;
+
+                    border-top-color:  transparent;
+                    border-left-color: lighten(@greyish, 20%);
+                }
+                &:hover, &:active {
+                    &:after {
+                        border-top-color:  transparent;
+                        border-left-color: @greyish;
+                    }
+                }
+            }
         }
 
         .ellipsis {
@@ -78,8 +118,11 @@
 
         ul {
             list-style: none;
-            margin:     0 0 0 2em;
-            padding:    0;
+            margin:     0;
+            padding:    0 0 0 2em;
+            -webkit-box-shadow: inset 2px 0 0 -1px lighten(@greyish, 30%);
+               -moz-box-shadow: inset 2px 0 0 -1px lighten(@greyish, 30%);
+                    box-shadow: inset 2px 0 0 -1px lighten(@greyish, 30%);
         }
 
         li {

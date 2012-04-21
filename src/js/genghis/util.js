@@ -109,13 +109,15 @@ Genghis.Util = {
 
     attachCollapsers: function(scope, andCollapse) {
         $('<div class="collapser">-</div>')
-            .prependTo($('.document ul', scope).parent('li, .document'))
-            .click(function(e) {
-                var $parent    = $(this).parent(),
-                    $target    = $parent.children('ul'),
-                    $collapser = $parent.children('.collapser');
+            .prependTo($('.document ul', scope).parent('li, .document'));
 
-                function summary(target) {
+        $('.document', scope).on('click', 'div.collapser', function(e) {
+            var $parent    = $(this).parent(),
+                $target    = $parent.children('ul'),
+                $collapser = $parent.children('.collapser');
+
+            function summary(target) {
+                if (!('collapserSummary' in target.data())) {
                     var $s = $(_.detect(target.find('> li > span.prop'), function(el) {
                         return /^\s*(name|title)\s*/i.test($(el).text());
                     })).siblings('span');
@@ -129,24 +131,27 @@ Genghis.Util = {
                     }
 
                     if ($s.length) {
-                        return '<span class="summary">' + $s.siblings('.prop').text() + ': ' + $s.text() + '</span>';
+                        target.data('collapserSummary', '<span class="summary">' + $s.siblings('.prop').text() + ': ' + $s.text() + '</span>');
                     } else {
-                        return '';
+                        target.data('collapserSummary', '');
                     }
                 }
 
-                if ($target.is(':visible')) {
-                    $target.hide();
-                    $('<span class="ellipsis"> ' + summary($target) + ' &hellip; </span>').insertBefore($target).click(arguments.callee);
-                    $collapser.text('+');
-                } else {
-                    $target.siblings('.ellipsis').remove();
-                    $target.show();
-                    $collapser.text('-');
-                }
+                return target.data('collapserSummary');
+            }
 
-                e.preventDefault();
-            });
+            if ($target.is(':visible')) {
+                $target.hide();
+                $('<span class="ellipsis"> ' + summary($target) + ' &hellip; </span>').insertBefore($target).click(arguments.callee);
+                $collapser.addClass('collapsed').text('+');
+            } else {
+                $target.siblings('.ellipsis').remove();
+                $target.show();
+                $collapser.removeClass('collapsed').text('-');
+            }
+
+            e.preventDefault();
+        });
 
         if (andCollapse) {
             $('.document > .collapser', scope).click();
