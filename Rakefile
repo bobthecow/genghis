@@ -12,6 +12,8 @@ require 'base64'
 
 GENGHIS_VERSION = '1.4.0'
 
+tmp_dir = ENV['NOCOMPRESS'] ? 'tmp/uncompressed/' : 'tmp/compressed/'
+
 # sweet mixin action
 class String
   def unindent
@@ -24,18 +26,18 @@ task :build => 'build:all'
 
 namespace :build do
   desc "Compile Genghis CSS assets"
-  task :css => [ 'tmp/style.css' ]
+  task :css => [ tmp_dir+'style.css' ]
 
   desc "Compile Genghis JavaScript assets"
-  task :js  => [ 'tmp/script.js' ]
+  task :js  => [ tmp_dir+'script.js' ]
 
   task :all => [ 'genghis.php', 'build:js', 'build:css' ]
 end
 
-directory 'tmp'
+directory tmp_dir
 
-file 'tmp/style.css' => FileList['tmp', 'src/css/*.less'] do
-  File.open('tmp/style.css', 'w') do |file|
+file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less'] do
+  File.open(tmp_dir+'style.css', 'w') do |file|
     file << <<-doc.unindent
       /**
        * Genghis v#{GENGHIS_VERSION}
@@ -82,10 +84,10 @@ script_files = FileList[
   'src/js/genghis/views/**/*',
   'src/js/genghis/router.js'
 ]
-file 'tmp/script.js' => ['tmp'] + script_files do
+file tmp_dir+'script.js' => [ tmp_dir ] + script_files do
   # ugly = Uglifier.new(:copyright => false)
   ugly = Closure::Compiler.new
-  File.open('tmp/script.js', 'w') do |file|
+  File.open(tmp_dir+'script.js', 'w') do |file|
     file << <<-doc.unindent
       /**
        * Genghis v#{GENGHIS_VERSION}
@@ -103,11 +105,11 @@ file 'tmp/script.js' => ['tmp'] + script_files do
   end
 end
 
-file 'tmp/index.html.mustache' => FileList[
-  'tmp', 'src/templates/partials/*.html.js',
+file tmp_dir+'index.html.mustache' => FileList[
+  tmp_dir, 'src/templates/partials/*.html.js',
   'src/templates/index.html.mustache.erb', 'src/img/favicon.png', 'src/img/keyboard.png'
 ] do
-  File.open('tmp/index.html.mustache', 'w') do |file|
+  File.open(tmp_dir+'index.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
     # include partials
     templates = FileList['src/templates/partials/*.html.js'].map do |name|
@@ -129,8 +131,8 @@ file 'tmp/index.html.mustache' => FileList[
   end
 end
 
-file 'tmp/error.html.mustache' => FileList['tmp', 'src/templates/index.html.mustache.erb', 'src/img/favicon.png'] do
-  File.open('tmp/error.html.mustache', 'w') do |file|
+file tmp_dir+'error.html.mustache' => FileList[tmp_dir, 'src/templates/index.html.mustache.erb', 'src/img/favicon.png'] do
+  File.open(tmp_dir+'error.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
 
     favicon_uri  = "data:image/png;base64,#{Base64.encode64(File.read('src/img/favicon.png'))}"
@@ -145,7 +147,7 @@ file 'tmp/error.html.mustache' => FileList['tmp', 'src/templates/index.html.must
 end
 
 include_files = FileList['src/php/**/*.php']
-asset_files = ['tmp/index.html.mustache', 'tmp/error.html.mustache', 'tmp/style.css', 'tmp/script.js']
+asset_files = [tmp_dir+'index.html.mustache', tmp_dir+'error.html.mustache', tmp_dir+'style.css', tmp_dir+'script.js']
 file 'genghis.php' => include_files + asset_files do
   File.open('genghis.php', 'w') do |file|
     template = ERB.new(File.read('src/templates/genghis.php.erb'))
@@ -153,7 +155,7 @@ file 'genghis.php' => include_files + asset_files do
     includes = include_files.map { |inc| ENV['NOCOMPRESS'] ? File.read(inc) : `php -w #{inc}` }
     assets = asset_files.map do |asset|
       content = File.read(asset)
-      { :name => asset.sub(/^tmp\//, ''), :content => content, :etag => Digest::MD5.hexdigest(content) }
+      { :name => asset.sub(/^tmp\/(un)?compressed\//, ''), :content => content, :etag => Digest::MD5.hexdigest(content) }
     end
 
     file << template.result(binding)
