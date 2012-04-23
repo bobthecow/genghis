@@ -36,7 +36,7 @@ end
 
 directory tmp_dir
 
-file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/keyscss/keys.css'] do
+file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/bootstrap/less/*.less', 'vendor/keyscss/keys.css'] do
   File.open(tmp_dir+'style.css', 'w') do |file|
     file << <<-doc.unindent
       /**
