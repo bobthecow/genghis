@@ -36,7 +36,7 @@ end
 
 directory tmp_dir
 
-file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less'] do
+file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/keyscss/keys.css'] do
   File.open(tmp_dir+'style.css', 'w') do |file|
     file << <<-doc.unindent
       /**
@@ -50,8 +50,11 @@ file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less'] do
        */
     doc
 
+    css = File.read('vendor/keyscss/keys.css')
+
     parser = Less::Parser.new(:paths => ['./src/css'], :filename => 'src/css/style.less')
-    css = parser.parse(File.read('src/css/style.less')).to_css
+    css << parser.parse(File.read('src/css/style.less')).to_css
+
     file << (ENV['NOCOMPRESS'] ? css : Rainpress.compress(css))
   end
 end
