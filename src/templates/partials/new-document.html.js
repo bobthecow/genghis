@@ -9,7 +9,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary save">Save</button>
         <button class="btn cancel">Cancel</button>
+        <button class="btn btn-primary save">Save</button>
     </div>
 </div>

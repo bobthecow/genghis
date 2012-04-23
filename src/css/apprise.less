@@ -28,16 +28,18 @@
     &[value="ok"] {
       .btn-primary;
     }
-    &:last-child {
-      margin-left: 0;
-    }
   }
 }
 .aButtons {
   .modal-footer;
   margin: 20px -15px -15px;
   button {
-    .modal-footer .btn;
+    float: right;
+    margin-left: 5px;
+    margin-bottom: 0; // account for input[type="submit"] which gets the bottom margin like all other inputs
+    &:last-child {
+      margin-left: 0;
+    }
   }
 }
 .aTextbox {

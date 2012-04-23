@@ -23,7 +23,7 @@ Genghis.Base.SectionView = Backbone.View.extend({
 
         $(document).bind('keyup', 'c', this.showAddFormIfVisible);
 
-	    this.render();
+        this.render();
     },
     render: function() {
         $(this.el).html(this.template({}));

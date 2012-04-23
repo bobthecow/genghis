@@ -21,7 +21,7 @@ Genghis.Router = Backbone.Router.extend({
         this.navigate('', true);
     },
     server: function(server) {
-        document.title = this.buildTitle(server)
+        document.title = this.buildTitle(server);
         Genghis.Selection.select(server);
         App.showSection('databases');
     },
@@ -29,7 +29,7 @@ Genghis.Router = Backbone.Router.extend({
         this.navigate('servers/'+server, true);
     },
     database: function(server, database) {
-        document.title = this.buildTitle(server, database)
+        document.title = this.buildTitle(server, database);
         Genghis.Selection.select(server, database);
         App.showSection('collections');
     },
@@ -37,7 +37,7 @@ Genghis.Router = Backbone.Router.extend({
         this.navigate('servers/'+server+'/databases/'+database, true);
     },
     collection: function(server, database, collection) {
-        document.title = this.buildTitle(server, database, collection)
+        document.title = this.buildTitle(server, database, collection);
         Genghis.Selection.select(server, database, collection);
         App.showSection('documents');
     },
