@@ -14,7 +14,7 @@ class Genghis_JsonResponse extends Genghis_Response
     public function renderContent()
     {
         // json encoding a MongoId with PECL Mongo driver < 1.0.11 returns '{}' ...
-        if (version_compare(Mongo::VERSION, '1.0.11', '<')) {
+        if (class_exists('Mongo') && version_compare(Mongo::VERSION, '1.0.11', '<')) {
             array_walk_recursive($this->data, array(__CLASS__, 'prepareData'), ini_get('mongo.cmd'));
         }
 
