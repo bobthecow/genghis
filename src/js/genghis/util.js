@@ -133,7 +133,7 @@ Genghis.Util = {
 
                     if ($s.length) {
                         prop = $s.siblings('.prop').text();
-                        target.data('collapserSummary', '<span class="summary">' + (prop ? prop + ': ' : '') + $s.text() + '</span>');
+                        target.data('collapserSummary', '<span class="summary">' + (prop ? prop + ': ' : '') + Genghis.Util.escape($s.text()) + '</span>');
                     } else {
                         target.data('collapserSummary', '');
                     }

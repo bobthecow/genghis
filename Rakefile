@@ -10,7 +10,7 @@ require 'html_compressor'
 require 'digest/md5'
 require 'base64'
 
-GENGHIS_VERSION = '1.4.1'
+GENGHIS_VERSION = '1.4.2'
 
 tmp_dir = ENV['NOCOMPRESS'] ? 'tmp/uncompressed/' : 'tmp/compressed/'
 
@@ -36,7 +36,7 @@ end
 
 directory tmp_dir
 
-file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/keyscss/keys.css'] do
+file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/bootstrap/less/*.less', 'vendor/keyscss/keys.css'] do
   File.open(tmp_dir+'style.css', 'w') do |file|
     file << <<-doc.unindent
       /**

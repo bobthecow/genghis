@@ -25,6 +25,7 @@ Genghis.Views.Nav = Backbone.View.extend({
     },
     render: function() {
         $(this.el).html(this.template({query: this.model.get('query')}));
+        this.$('form').submit(function(e) { e.preventDefault(); });
 
         $(document).bind('keyup', '/', this.focusSearch);
 

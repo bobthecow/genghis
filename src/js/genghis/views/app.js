@@ -53,7 +53,8 @@ Genghis.Views.App = Backbone.View.extend({
     showSection: function(section) {
         this.$('section').hide()
             .filter('#'+(_.isArray(section) ? section.join(',#') : section))
-                .addClass('spinning').show();
+                //.addClass('spinning')
+                .show();
 
         $(document).scrollTop(0);
     }
