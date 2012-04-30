@@ -10,7 +10,7 @@ require 'html_compressor'
 require 'digest/md5'
 require 'base64'
 
-GENGHIS_VERSION = '1.4.1'
+GENGHIS_VERSION = '1.4.2'
 
 tmp_dir = ENV['NOCOMPRESS'] ? 'tmp/uncompressed/' : 'tmp/compressed/'
 
