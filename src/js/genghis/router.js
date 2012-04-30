@@ -51,7 +51,7 @@ Genghis.Router = Backbone.Router.extend({
         App.showSection('documents');
     },
     redirectToQuery: function(server, database, collection, query) {
-        this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection+'?'+Genghis.Util.buildQuery({q: encodeURIComponent(query)}), true);
+        this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection+'/documents?'+Genghis.Util.buildQuery({q: encodeURIComponent(query)}), true);
     },
     document: function(server, database, collection, documentId) {
         document.title = this.buildTitle(server, database, collection, documentId);
