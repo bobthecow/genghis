@@ -446,3 +446,102 @@ section#document {
         }
     }
 }
+
+@media only screen and (max-width: 480px) {
+    .container {
+        padding: 0;
+    }
+    body > section section {
+        border: none;
+        .border-radius(0);
+    }
+
+    /* Force table to not be like tables anymore */
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    table {
+        border: none;
+
+        /* Hide table headers (but not display: none;, for accessibility) */
+        thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        tr {
+            border: 1px solid #DDD;
+            border-bottom: none;
+            &:last-child {
+                border-bottom: 1px solid #DDD;
+            }
+            &:first-child, &:first-child > td:first-child {
+                -webkit-border-top-left-radius:  5px;
+                -webkit-border-top-right-radius: 5px;
+                -moz-border-radius-topleft:      5px;
+                -moz-border-radius-topright:     5px;
+                border-top-left-radius:          5px;
+                border-top-right-radius:         5px;
+            }
+            &:last-child, &:last-child > td:last-child {
+                -webkit-border-bottom-left-radius:  5px;
+                -webkit-border-bottom-right-radius: 5px;
+                -moz-border-radius-bottomleft:      5px;
+                -moz-border-radius-bottomright:     5px;
+                border-bottom-left-radius:          5px;
+                border-bottom-right-radius:         5px;
+            }
+        }
+
+        td {
+            /* Behave  like a "row" */
+            border: none;
+            position: relative;
+            padding-left: 35%;
+        }
+
+        td:before {
+            /* Now like a table header */
+            position: absolute;
+            /* Top/left values mimic padding */
+            top: 6px;
+            left: 6px;
+            width: 30%;
+            padding-right: 10px;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+    }
+    /*
+    Label the data
+    */
+    section#servers {
+        table {
+            td:nth-of-type(1):before { content: "name"; }
+            td:nth-of-type(2):before { content: "databases"; }
+            td:nth-of-type(3):before { content: "size"; }
+            td:nth-of-type(4) { display: none; }
+        }
+    }
+
+    section#databases {
+        table {
+            td:nth-of-type(1):before { content: "name"; }
+            td:nth-of-type(2):before { content: "collections"; }
+            td:nth-of-type(3):before { content: "size"; }
+            td:nth-of-type(4) { display: none; }
+        }
+    }
+
+    section#collections {
+        table {
+            td:nth-of-type(1):before { content: "name"; }
+            td:nth-of-type(2):before { content: "documents"; }
+            td:nth-of-type(3):before { content: "indexes"; }
+            td:nth-of-type(4) { display: none; }
+        }
+    }
+}
