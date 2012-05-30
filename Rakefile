@@ -21,20 +21,8 @@ class String
     gsub(/^#{self[/\A\s*/]}/, '')
   end
 
-  def camelize(uppercase_first_letter = true)
-    string = self.to_s
-    if uppercase_first_letter
-      string = string.sub(/^[a-z\d]*/) { $&.capitalize }
-    else
-      string = string.sub(/^(?:#{inflections.acronym_regex}(?=\b|[A-Z_])|\w)/) { $&.downcase }
-    end
-    string.gsub(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{$2.capitalize}" }.gsub('/', '::')
-  end
-end
-
-class BareString < ::String
-  def to_json(*)
-    self
+  def camelize
+    self.to_s.sub(/^[a-z\d]*/) { $&.capitalize }.gsub(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{$2.capitalize}" }
   end
 end
 
