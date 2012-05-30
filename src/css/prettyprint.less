@@ -9,12 +9,7 @@
     .document {
         color: @blackish;
         position: relative;
-
-        .prop:after {
-            content: ':';
-            color:   @greyish;
-            padding-right: .5em;
-        }
+        white-space: pre;
 
         .null, .bool {
             color: #0086b3;
@@ -24,117 +19,109 @@
             color: #40A070;
         }
 
-        .string {
+        .quoted {
             color: #D20;
-            .value {
+            .string {
                 color: #D14;
-            }
-
-            a:link, a:visited {
-                .value {
+                a:link, a:visited {
+                    color: #D14;
                     text-decoration: underline;
                 }
-            }
-            a:hover, a:active {
-                .value {
+                a:hover, a:active {
                     color: #0058E1;
                 }
             }
+
         }
 
-        .db-ref {
-            .db-ref-ref, .db-ref-id, .db-ref-db {
-                .string .value {
-                    cursor: pointer;
-                    border-bottom: 1px dotted #D14;
-                    &:hover {
-                        color: #0058E1;
-                        border-bottom: 1px solid #0058E1;
-                    }
+//        .fn {
+//            color: #458;
+//        }
+
+//        .db-ref {
+//            .db-ref-ref, .db-ref-id, .db-ref-db {
+//                .string .value {
+//                    cursor: pointer;
+//                    border-bottom: 1px dotted #D14;
+//                    &:hover {
+//                        color: #0058E1;
+//                        border-bottom: 1px solid #0058E1;
+//                    }
+//                }
+//            }
+//        }
+
+        .collapsible {
+            position:    relative;
+
+            .ellipsis {
+                display: none;
+                cursor: pointer;
+                .summary {
+                    color:  @greyish;
+                    font-style: italic;
                 }
             }
-        }
 
-        .collapser {
-            cursor:      pointer;
-            position:    absolute;
-            height:      16px;
-            width:       16px;
-            left:        -16px;
-            padding:     0;
-            font-size:   0;
-            line-height: 0;
-            color:       transparent;
-            overflow:    hidden;
+            .collapser {
+                display: block;
+                cursor:      pointer;
+                position:    absolute;
+                height:      16px;
+                width:       16px;
+                left:        -16px;
+                top:         0;
+                padding:     0;
+                font-size:   0;
+                line-height: 0;
+                color:       transparent;
+                overflow:    hidden;
 
-            &:after {
-                display:  block;
-                border:   4px solid blue;
-                content:  ' ';
-                overflow: hidden;
-                height:   0;
-                width:    0;
-                position: relative;
-                left:     4px;
-                top:      6px;
-
-                border:   4px solid transparent;
-                border-top-color: lighten(@greyish, 20%);
-            }
-            &:hover, &:active {
                 &:after {
-                    border-top-color: @greyish;
-                }
-            }
-            &.collapsed {
-                &:after {
-                    left: 6px;
-                    top:  4px;
+                    display:  block;
+                    position: absolute;
+                    left:     4px;
+                    top:      6px;
+                    height:   0;
+                    width:    0;
+                    content:  ' ';
 
-                    border-top-color:  transparent;
-                    border-left-color: lighten(@greyish, 20%);
+                    border:   4px solid transparent;
+                    border-top-color: lighten(@greyish, 20%);
                 }
                 &:hover, &:active {
                     &:after {
-                        border-top-color:  transparent;
-                        border-left-color: @greyish;
+                        border-top-color: @greyish;
                     }
                 }
             }
-        }
+            &.collapsed {
+                .ellipsis {
+                    display: inline;
+                }
+                .collapser {
+                    &:after {
+                        top:  4px;
 
-        .ellipsis {
-            color:  @greyish;
-            cursor: pointer;
-            .summary {
-                padding-left: 5px;
-                font-style: italic;
-            }
-        }
+                        border-top-color:  transparent;
+                        border-left-color: lighten(@greyish, 20%);
+                    }
+                    &:hover, &:active {
+                        &:after {
+                            border-top-color:  transparent;
+                            border-left-color: @greyish;
+                        }
+                    }
+                }
 
-        .fn {
-            color: #458;
-        }
-
-        ul {
-            list-style: none;
-            margin:     0;
-            padding:    0 0 0 2em;
-            -webkit-box-shadow: inset 2px 0 0 -1px lighten(@greyish, 30%);
-               -moz-box-shadow: inset 2px 0 0 -1px lighten(@greyish, 30%);
-                    box-shadow: inset 2px 0 0 -1px lighten(@greyish, 30%);
-        }
-
-        li {
-            position: relative;
-            color:    @blackish;
-
-            &:after {
-                content: ',';
-            }
-
-            &:last-of-type:after {
-                content: '';
+                > .value {
+                    height: 0px;
+                    width: 0px;
+                    overflow: hidden;
+                    display: inline-block;
+                    visibility: hidden;
+                    /*display: none;*/
+                }
             }
         }
     }

@@ -23,10 +23,12 @@ Genghis.Views.DocumentView = Backbone.View.extend({
     },
     render: function() {
         $(this.el).html(this.template.render(this.model));
+        setTimeout(this.updateDocument, 1);
+
         return this;
     },
     updateDocument: function() {
-        this.$('.document').html(this.model.prettyPrint()).show();
+        this.$('.document').html('').append(this.model.prettyPrint()).show();
         Genghis.Util.attachCollapsers(this.el);
     },
     navigate: function(e) {
