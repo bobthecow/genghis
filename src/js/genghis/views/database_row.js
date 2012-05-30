@@ -1,5 +1,5 @@
 Genghis.Views.DatabaseRow = Genghis.Base.RowView.extend({
-    template: _.template($('#database-row-template').html()),
+    template: Genghis.Templates.DatabaseRow,
     destroy: function() {
         var model = this.model;
         apprise(

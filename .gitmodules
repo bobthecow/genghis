@@ -7,3 +7,6 @@
 [submodule "vendor/keyscss"]
 	path = vendor/keyscss
 	url = https://github.com/michaelhue/keyscss.git
+[submodule "vendor/hogan"]
+	path = vendor/hogan
+	url = https://github.com/twitter/hogan.js.git
