@@ -29,18 +29,18 @@ Genghis.Views.Pagination = Backbone.View.extend({
                 start = 1;
             }
 
-            var urlTemplate = this.urlTemplate();
+            var url = this.urlTemplate;
             $(this.el).html(this.template.render({
                 page:     page,
                 last:     pages,
-                firstUrl: urlTemplate.replace('{{ page }}', 1),
-                prevUrl:  urlTemplate.replace('{{ page }}', Math.max(1, page - 1)),
-                nextUrl:  urlTemplate.replace('{{ page }}', Math.min(page + 1, pages)),
-                lastUrl:  urlTemplate.replace('{{ page }}', pages),
+                firstUrl: url(1),
+                prevUrl:  url(Math.max(1, page - 1)),
+                nextUrl:  url(Math.min(page + 1, pages)),
+                lastUrl:  url(pages),
                 pageUrls: _.range(start, end + 1).map(function(i) {
                     return {
                         index:  i,
-                        url:    urlTemplate.replace('{{ page }}', i),
+                        url:    url(i),
                         active: i === page
                     };
                 }),
@@ -52,13 +52,13 @@ Genghis.Views.Pagination = Backbone.View.extend({
         }
         return this;
     },
-    urlTemplate: function() {
+    urlTemplate: function(i) {
         var url    = this.collection.url,
             chunks = url.split('?'),
             base   = chunks.shift(),
             params = Genghis.Util.parseQuery(chunks.join('?'));
 
-        return base + '?' + Genghis.Util.buildQuery(_.extend(params, {page: '{{ page }}'}));
+        return base + '?' + Genghis.Util.buildQuery(_.extend(params, {page: i}));
     },
     navigate: function(e) {
         e.preventDefault();
