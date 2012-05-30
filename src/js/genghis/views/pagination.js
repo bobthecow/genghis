@@ -1,5 +1,5 @@
 Genghis.Views.Pagination = Backbone.View.extend({
-    template: _.template($('#pagination-template').html()),
+    template: Genghis.Templates.Pagination,
     events: {
         'click a': 'navigate'
     },
@@ -30,18 +30,25 @@ Genghis.Views.Pagination = Backbone.View.extend({
             }
 
             var urlTemplate = this.urlTemplate();
-            $(this.el).html(this.template(_.extend(
-                this.model.toJSON(),
-                {
-                    page:  page,
-                    pages: pages,
-                    start: start,
-                    end:   end,
-                    prev:  Math.max(1, page - 1),
-                    next:  Math.min(page + 1, pages),
-                    url:   function(page) { return urlTemplate.replace('{{ page }}', page); }
-                }
-            ))).show();
+            $(this.el).html(this.template.render({
+                page:     page,
+                last:     pages,
+                firstUrl: urlTemplate.replace('{{ page }}', 1),
+                prevUrl:  urlTemplate.replace('{{ page }}', Math.max(1, page - 1)),
+                nextUrl:  urlTemplate.replace('{{ page }}', Math.min(page + 1, pages)),
+                lastUrl:  urlTemplate.replace('{{ page }}', pages),
+                pageUrls: _.range(start, end + 1).map(function(i) {
+                    return {
+                        index:  i,
+                        url:    urlTemplate.replace('{{ page }}', i),
+                        active: i === page
+                    };
+                }),
+                isFirst: page === 1,
+                isStart: start === 1,
+                isEnd:   end >= pages,
+                isLast:  page === pages
+            })).show();
         }
         return this;
     },
