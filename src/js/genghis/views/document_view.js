@@ -1,6 +1,6 @@
 Genghis.Views.DocumentView = Backbone.View.extend({
     tagName: 'article',
-    template: _.template($('#document-view-template').html()),
+    template: Genghis.Templates.DocumentView,
     events: {
         'click a.id':               'navigate',
         'click button.edit':        'openEditDialog',
@@ -22,7 +22,7 @@ Genghis.Views.DocumentView = Backbone.View.extend({
         this.model.bind('destroy', this.remove);
     },
     render: function() {
-        $(this.el).html(this.template(this.model));
+        $(this.el).html(this.template.render(this.model));
         return this;
     },
     updateDocument: function() {

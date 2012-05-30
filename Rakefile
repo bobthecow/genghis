@@ -9,6 +9,7 @@ require 'closure-compiler'
 require 'html_compressor'
 require 'digest/md5'
 require 'base64'
+require 'json'
 
 GENGHIS_VERSION = '1.4.2'
 
@@ -18,6 +19,10 @@ tmp_dir = ENV['NOCOMPRESS'] ? 'tmp/uncompressed/' : 'tmp/compressed/'
 class String
   def unindent
     gsub(/^#{self[/\A\s*/]}/, '')
+  end
+
+  def camelize
+    self.to_s.sub(/^[a-z\d]*/) { $&.capitalize }.gsub(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{$2.capitalize}" }
   end
 end
 
@@ -59,6 +64,17 @@ file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/bootstra
   end
 end
 
+file tmp_dir+'templates.js' => FileList[tmp_dir, 'vendor/hogan/lib/*.js', 'src/templates/partials/*.mustache'] do
+  File.open(tmp_dir+'templates.js', 'w') do |file|
+    context = ExecJS.compile(File.read('vendor/hogan/web/builds/2.0.0/hogan-2.0.0.js'))
+    FileList['src/templates/partials/*.mustache'].each do |name|
+      key     = name.sub(/^src\/templates\/partials\/(.*)\.mustache$/, '\1').camelize
+      content = context.eval("Hogan.compile(#{File.read(name).inspect}, {asString: true})")
+      file << "Genghis.Templates.#{key} = new Hogan.Template({code: #{content}});\n"
+    end
+  end
+end
+
 script_files = FileList[
   # vendor libraries
   'src/js/jquery.js',
@@ -74,12 +90,14 @@ script_files = FileList[
   'vendor/bootstrap/js/bootstrap-popover.js',
   'vendor/bootstrap/js/bootstrap-modal.js',
   'vendor/hotkeys/jquery.hotkeys.js',
+  'vendor/hogan/lib/template.js',
 
   # extensions
   'src/js/extensions.js',
 
   # genghis app
   'src/js/genghis/bootstrap.js',
+  tmp_dir+'templates.js',
   'src/js/genghis/util.js',
   'src/js/genghis/base/**/*',
   'src/js/genghis/models/**/*',
@@ -87,7 +105,7 @@ script_files = FileList[
   'src/js/genghis/views/**/*',
   'src/js/genghis/router.js'
 ]
-file tmp_dir+'script.js' => [ tmp_dir ] + script_files do
+file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files do
   # ugly = Uglifier.new(:copyright => false)
   ugly = Closure::Compiler.new
   File.open(tmp_dir+'script.js', 'w') do |file|
@@ -109,18 +127,10 @@ file tmp_dir+'script.js' => [ tmp_dir ] + script_files do
 end
 
 file tmp_dir+'index.html.mustache' => FileList[
-  tmp_dir, 'src/templates/partials/*.html.js',
-  'src/templates/index.html.mustache.erb', 'src/img/favicon.png', 'src/img/keyboard.png'
+  tmp_dir, tmp_dir+'templates.js', 'src/templates/index.html.mustache.erb', 'src/img/favicon.png', 'src/img/keyboard.png'
 ] do
   File.open(tmp_dir+'index.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
-    # include partials
-    templates = FileList['src/templates/partials/*.html.js'].map do |name|
-      {
-        :name => name.sub(/^src\/templates\/partials\/(.*)\.html\.js$/, '\1'),
-        :content => ENV['NOCOMPRESS'] ? File.read(name) : packer.compress(File.read(name))
-      }
-    end
 
     favicon_uri  = "data:image/png;base64,#{Base64.encode64(File.read('src/img/favicon.png'))}"
     keyboard_uri = "data:image/png;base64,#{Base64.encode64(File.read('src/img/keyboard.png'))}"

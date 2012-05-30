@@ -3,6 +3,7 @@ window.Genghis = {
     Models:      {},
     Collections: {},
     Views:       {},
+    Templates:   {},
     boot: function(baseUrl) {
         baseUrl = baseUrl + (baseUrl.charAt(baseUrl.length - 1) == '/' ? '' : '/');
         window.App = new Genghis.Views.App({base_url: baseUrl});

@@ -7,8 +7,8 @@
     </div>
 
     <h3>
-        <a class="id" href="<%= obj.url() %>"><%= obj.id %></a>
+        <a class="id" href="{{ url }}">{{ id }}</a>
     </h3>
 
-    <div class="document"><%= obj.prettyPrint() %></div>
+    <div class="document">{{{ prettyPrint }}}</div>
 </div>

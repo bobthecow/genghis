@@ -1,6 +1,6 @@
 Genghis.Views.Nav = Backbone.View.extend({
     el: '.navbar nav',
-    template: _.template($('#nav-template').html()),
+    template: Genghis.Templates.Nav,
     events: {
         'keyup input#navbar-query': 'findDocuments',
         'click a':                  'navigate'
@@ -24,7 +24,7 @@ Genghis.Views.Nav = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template({query: this.model.get('query')}));
+        $(this.el).html(this.template.render({query: this.model.get('query')}));
         this.$('form').submit(function(e) { e.preventDefault(); });
 
         $(document).bind('keyup', '/', this.focusSearch);

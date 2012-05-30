@@ -1,12 +1,12 @@
 Genghis.Views.NewDocument = Backbone.View.extend({
     el: '#new-document',
-    template: _.template($('#new-document-template').html()),
+    template: Genghis.Templates.NewDocument,
     initialize: function() {
         _.bindAll(this, 'render', 'show', 'resizeEditor', 'closeModal', 'cancelEdit', 'saveDocument');
         this.render();
     },
     render: function() {
-        this.el = $(this.template()).hide().appendTo('body');
+        this.el = $(this.template.render()).hide().appendTo('body');
 
         this.modal = this.el.modal('hide');
         this.modal.bind('hide', this.cancelEdit);

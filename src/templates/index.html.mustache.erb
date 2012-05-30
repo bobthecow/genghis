@@ -6,9 +6,6 @@
         <link rel="shortcut icon" type="image/png" href="<%= favicon_uri %>">
         <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Rokkitt:400,700">
         <link type="text/css" rel="stylesheet" href="{{ base_url }}/assets/style.css">
-        <% templates.each do |tpl| %>
-            <script type="text/template" id="<%= tpl[:name] %>-template"><%= tpl[:content] %></script>
-        <% end %>
         <script type="text/javascript" src="{{ base_url }}/assets/script.js"></script>
         <script type="text/javascript">jQuery(function() { Genghis.boot('{{ base_url }}'); });</script>
     </head>

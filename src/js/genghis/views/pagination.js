@@ -1,5 +1,5 @@
 Genghis.Views.Pagination = Backbone.View.extend({
-    template: _.template($('#pagination-template').html()),
+    template: Genghis.Templates.Pagination,
     events: {
         'click a': 'navigate'
     },
@@ -29,29 +29,36 @@ Genghis.Views.Pagination = Backbone.View.extend({
                 start = 1;
             }
 
-            var urlTemplate = this.urlTemplate();
-            $(this.el).html(this.template(_.extend(
-                this.model.toJSON(),
-                {
-                    page:  page,
-                    pages: pages,
-                    start: start,
-                    end:   end,
-                    prev:  Math.max(1, page - 1),
-                    next:  Math.min(page + 1, pages),
-                    url:   function(page) { return urlTemplate.replace('{{ page }}', page); }
-                }
-            ))).show();
+            var url = this.urlTemplate;
+            $(this.el).html(this.template.render({
+                page:     page,
+                last:     pages,
+                firstUrl: url(1),
+                prevUrl:  url(Math.max(1, page - 1)),
+                nextUrl:  url(Math.min(page + 1, pages)),
+                lastUrl:  url(pages),
+                pageUrls: _.range(start, end + 1).map(function(i) {
+                    return {
+                        index:  i,
+                        url:    url(i),
+                        active: i === page
+                    };
+                }),
+                isFirst: page === 1,
+                isStart: start === 1,
+                isEnd:   end >= pages,
+                isLast:  page === pages
+            })).show();
         }
         return this;
     },
-    urlTemplate: function() {
+    urlTemplate: function(i) {
         var url    = this.collection.url,
             chunks = url.split('?'),
             base   = chunks.shift(),
             params = Genghis.Util.parseQuery(chunks.join('?'));
 
-        return base + '?' + Genghis.Util.buildQuery(_.extend(params, {page: '{{ page }}'}));
+        return base + '?' + Genghis.Util.buildQuery(_.extend(params, {page: i}));
     },
     navigate: function(e) {
         e.preventDefault();
