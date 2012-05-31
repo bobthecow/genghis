@@ -113,7 +113,7 @@ Genghis.Util = {
             }
 
             function quote(string) {
-                var el = span('value quoted'),
+                var el = span('v q'),
                     child;
 
                 el.appendChild(t('"'));
@@ -142,10 +142,10 @@ Genghis.Util = {
 
                 // link the string
                 if (linkable.test(string)) {
-                    child = e('A', 'string');
+                    child = e('A', 's');
                     child.href = string;
                 } else {
-                    child = span('string');
+                    child = span('s');
                 }
 
                 child.appendChild(t(string));
@@ -165,7 +165,7 @@ Genghis.Util = {
                     }) + '"';
                 }
 
-                return span('prop', key);
+                return span('k', key);
             }
 
             function createView(key, holder) {
@@ -198,10 +198,10 @@ Genghis.Util = {
 
                 case 'number':
                     // JSON numbers must be finite. Encode non-finite numbers as null.
-                    return span('value num', isFinite(value) ? String(value) : 'null');
+                    return span('v n', isFinite(value) ? String(value) : 'null');
 
                 case 'boolean':
-                    return span('value bool', String(value));
+                    return span('v b', String(value));
 
                 // If the type is 'object', we might be dealing with an object or an array or
                 // null.
@@ -211,7 +211,7 @@ Genghis.Util = {
                     // so watch out for that case.
 
                     if (!value) {
-                        return span('value null', 'null');
+                        return span('v z', 'null');
                     }
 
                     // Make an array to hold the partial results of stringifying this object value.
@@ -222,10 +222,10 @@ Genghis.Util = {
 
                     if (Object.prototype.toString.apply(value) === '[object Array]') {
                         if (value.length === 0) {
-                            return span('value array', '[]');
+                            return span('v a', '[]');
                         }
 
-                        el = span('value array');
+                        el = span('v a');
 
                         if (gap) {
                             el.collapsible = true;
@@ -251,7 +251,7 @@ Genghis.Util = {
                                 el.appendChild(glue.cloneNode(false));
                             }
 
-                            el.appendChild(createView(i, value) || span('value null', 'null'));
+                            el.appendChild(createView(i, value) || span('v z', 'null'));
                         }
 
                         el.appendChild(t(gap ? ('\n' + mind + ']') : ']'));
@@ -269,10 +269,10 @@ Genghis.Util = {
                         if (Object.hasOwnProperty.call(value, k)) {
                             v = createView(k, value);
                             if (v) {
-                                p = span('property' + (v.collapsible ? ' collapsible' : '') + (v.collapsed ? ' collapsed' : ''));
+                                p = span('p' + (v.collapsible ? ' collapsible' : '') + (v.collapsed ? ' collapsed' : ''));
 
                                 if (v.collapsible) {
-                                    p.appendChild(span('collapser'));
+                                    p.appendChild(span('c'));
                                 }
 
                                 p.appendChild(prop(k));
@@ -280,7 +280,7 @@ Genghis.Util = {
                                 p.appendChild(v);
 
                                 if (v.collapsed) {
-                                    child = span('ellipsis');
+                                    child = span('e');
                                     child.appendChild(t('[ '));
                                     child.appendChild(span('summary', t(' …')));
                                     child.appendChild(t(' ]'));
@@ -297,10 +297,10 @@ Genghis.Util = {
                     // and wrap them in braces.
 
                     if (partial.length === 0) {
-                        return span('value object', (t('{}')));
+                        return span('v o', (t('{}')));
                     }
 
-                    el = span('value object');
+                    el = span('v o');
                     el.collapsible = true;
                     el.appendChild(t(gap ? ('{\n' + gap) : '{'));
 
@@ -342,40 +342,40 @@ Genghis.Util = {
 
 
     attachCollapsers: function(scope) {
-        $('.document', scope).on('click', 'span.collapser,span.ellipsis', function(e) {
+        $('.document', scope).on('click', 'span.c,span.e', function(e) {
 
             var $property = $(this).parent(),
-                $value    = $property.children('.value'),
+                $value    = $property.children('.v'),
                 isName    = /^\s*(name|title)\s*/i,
-                isObject  = $value.hasClass('object'),
+                isObject  = $value.hasClass('o'),
                 summary   = '',
                 prop,
                 $s;
 
-            if (!$property.children('.ellipsis').length) {
+            if (!$property.children('.e').length) {
                 if (isObject) {
-                    $s = $(_.detect($value.find('> span.property > span.prop'), function(el) {
+                    $s = $(_.detect($value.find('> span.p > span.k'), function(el) {
                         return isName.test($(el).text());
-                    })).siblings('span.value');
+                    })).siblings('span.v');
 
                     if ($s.length === 0) {
-                        $s = $(_.detect($value.find('> span.property > span.value'), function(el) {
+                        $s = $(_.detect($value.find('> span.p > span.v'), function(el) {
                             var $el = $(el);
-                            return $el.hasClass('num') || $el.hasClass('boolean') ||
-                                ($el.hasClass('quoted') && $el.text().length < 64);
+                            return $el.hasClass('n') || $el.hasClass('b') ||
+                                ($el.hasClass('q') && $el.text().length < 64);
                         }));
                     }
 
                     if ($s && $s.length) {
-                        prop = $s.siblings('.prop').text();
+                        prop = $s.siblings('span.k').text();
                         summary = (prop ? prop + ': ' : '') + Genghis.Util.escape($s.text());
                     }
                 }
 
                 $property.append(
-                    '<span class="ellipsis">' +
+                    '<span class="e">' +
                     (isObject ? '{' : '[') +
-                    ' <span class="summary">' +
+                    ' <span class="m">' +
                     summary +
                     ' &hellip;</span> ' +
                     (isObject ? '}' : ']') +

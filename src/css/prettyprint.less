@@ -11,17 +11,21 @@
         position: relative;
         white-space: pre;
 
-        .null, .bool {
+        .null, .bool,
+        .z, .b {
             color: #0086b3;
         }
 
-        .num {
+        .num,
+        .n {
             color: #40A070;
         }
 
-        .quoted {
+        .quoted,
+        .q {
             color: #D20;
-            .string {
+            .string,
+            .s {
                 color: #D14;
                 a:link, a:visited {
                     color: #D14;
@@ -54,16 +58,19 @@
         .collapsible {
             position:    relative;
 
-            .ellipsis {
+            .ellipsis,
+            .e {
                 display: none;
                 cursor: pointer;
-                .summary {
+                .summary,
+                .m {
                     color:  @greyish;
                     font-style: italic;
                 }
             }
 
-            .collapser {
+            .collapser,
+            .c {
                 display: block;
                 cursor:      pointer;
                 position:    absolute;
@@ -96,10 +103,12 @@
                 }
             }
             &.collapsed {
-                .ellipsis {
+                .ellipsis,
+                .e {
                     display: inline;
                 }
-                .collapser {
+                .collapser,
+                .c {
                     &:after {
                         top:  4px;
 
@@ -114,7 +123,7 @@
                     }
                 }
 
-                > .value {
+                > .v {
                     height: 0px;
                     width: 0px;
                     overflow: hidden;
