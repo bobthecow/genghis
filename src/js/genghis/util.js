@@ -329,11 +329,12 @@ Genghis.Util = {
 
             v = createView('_', {'_': value}).innerHTML;
 
-            return v.replace(encodable, function (a) {
-                var c = entities[a];
-                return typeof c === 'string' ? c : a;
-            });
+            // return v.replace(encodable, function (a) {
+            //     var c = entities[a];
+            //     return typeof c === 'string' ? c : a;
+            // });
 
+            return v;
         }
 
         return JsonView(value);
@@ -342,6 +343,7 @@ Genghis.Util = {
 
     attachCollapsers: function(scope) {
         $('.document', scope).on('click', 'span.collapser,span.ellipsis', function(e) {
+
             var $property = $(this).parent(),
                 $value    = $property.children('.value'),
                 isName    = /^\s*(name|title)\s*/i,
