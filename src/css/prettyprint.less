@@ -55,7 +55,7 @@
 //            }
 //        }
 
-        .collapsible {
+        .p {
             position:    relative;
 
             .ellipsis,
@@ -63,14 +63,15 @@
                 display: none;
                 cursor: pointer;
                 .summary,
-                .m {
+                q {
                     color:  @greyish;
                     font-style: italic;
                 }
             }
 
             .collapser,
-            .c {
+            .c,
+            button {
                 display: block;
                 cursor:      pointer;
                 position:    absolute;
@@ -101,6 +102,10 @@
                         border-top-color: @greyish;
                     }
                 }
+            }
+            button {
+                border: none;
+                background-color: transparent;
             }
             &.collapsed {
                 .ellipsis,

@@ -1570,7 +1570,7 @@ MEjLIesAAAAASUVORK5CYII=
     </body>
 </html>
 
-@@style.css e51235f7da1fc31bfcfbce565264f5ce
+@@style.css f8fa145c23c4dac6464b826ed02ff5f7
 /**
  * Genghis v1.4.2
  *
@@ -5787,23 +5787,24 @@ noscript h1 {
 .document-wrapper .document .q .s a:active {
   color: #0058E1;
 }
-.document-wrapper .document .collapsible {
+.document-wrapper .document .p {
   position: relative;
 }
-.document-wrapper .document .collapsible .ellipsis,
-.document-wrapper .document .collapsible .e {
+.document-wrapper .document .p .ellipsis,
+.document-wrapper .document .p .e {
   display: none;
   cursor: pointer;
 }
-.document-wrapper .document .collapsible .ellipsis .summary,
-.document-wrapper .document .collapsible .e .summary,
-.document-wrapper .document .collapsible .ellipsis .m,
-.document-wrapper .document .collapsible .e .m {
+.document-wrapper .document .p .ellipsis .summary,
+.document-wrapper .document .p .e .summary,
+.document-wrapper .document .p .ellipsis q,
+.document-wrapper .document .p .e q {
   color: #999988;
   font-style: italic;
 }
-.document-wrapper .document .collapsible .collapser,
-.document-wrapper .document .collapsible .c {
+.document-wrapper .document .p .collapser,
+.document-wrapper .document .p .c,
+.document-wrapper .document .p button {
   display: block;
   cursor: pointer;
   position: absolute;
@@ -5817,8 +5818,9 @@ noscript h1 {
   color: transparent;
   overflow: hidden;
 }
-.document-wrapper .document .collapsible .collapser:after,
-.document-wrapper .document .collapsible .c:after {
+.document-wrapper .document .p .collapser:after,
+.document-wrapper .document .p .c:after,
+.document-wrapper .document .p button:after {
   display: block;
   position: absolute;
   left: 4px;
@@ -5829,30 +5831,36 @@ noscript h1 {
   border: 4px solid transparent;
   border-top-color: #c8c8bf;
 }
-.document-wrapper .document .collapsible .collapser:hover:after,
-.document-wrapper .document .collapsible .c:hover:after,
-.document-wrapper .document .collapsible .collapser:active:after,
-.document-wrapper .document .collapsible .c:active:after {
+.document-wrapper .document .p .collapser:hover:after,
+.document-wrapper .document .p .c:hover:after,
+.document-wrapper .document .p button:hover:after,
+.document-wrapper .document .p .collapser:active:after,
+.document-wrapper .document .p .c:active:after,
+.document-wrapper .document .p button:active:after {
   border-top-color: #999988;
 }
-.document-wrapper .document .collapsible.collapsed .ellipsis,
-.document-wrapper .document .collapsible.collapsed .e {
+.document-wrapper .document .p button {
+  border: none;
+  background-color: transparent;
+}
+.document-wrapper .document .p.collapsed .ellipsis,
+.document-wrapper .document .p.collapsed .e {
   display: inline;
 }
-.document-wrapper .document .collapsible.collapsed .collapser:after,
-.document-wrapper .document .collapsible.collapsed .c:after {
+.document-wrapper .document .p.collapsed .collapser:after,
+.document-wrapper .document .p.collapsed .c:after {
   top: 4px;
   border-top-color: transparent;
   border-left-color: #c8c8bf;
 }
-.document-wrapper .document .collapsible.collapsed .collapser:hover:after,
-.document-wrapper .document .collapsible.collapsed .c:hover:after,
-.document-wrapper .document .collapsible.collapsed .collapser:active:after,
-.document-wrapper .document .collapsible.collapsed .c:active:after {
+.document-wrapper .document .p.collapsed .collapser:hover:after,
+.document-wrapper .document .p.collapsed .c:hover:after,
+.document-wrapper .document .p.collapsed .collapser:active:after,
+.document-wrapper .document .p.collapsed .c:active:after {
   border-top-color: transparent;
   border-left-color: #999988;
 }
-.document-wrapper .document .collapsible.collapsed > .v {
+.document-wrapper .document .p.collapsed > .v {
   height: 0px;
   width: 0px;
   overflow: hidden;
@@ -6662,7 +6670,7 @@ section#document article h3 {
 }
 
 
-@@script.js 9fae673786c02c48d10af903afd07032
+@@script.js 4fc74a8417c0ca0b1abc58d99dc3c035
 /**
  * Genghis v1.4.2
  *
@@ -37713,7 +37721,7 @@ Genghis.Util = {
                     }) + '"';
                 }
 
-                return span('k', key);
+                return e('VAR', false, key);
             }
 
             function createView(key, holder) {
@@ -37817,10 +37825,10 @@ Genghis.Util = {
                         if (Object.hasOwnProperty.call(value, k)) {
                             v = createView(k, value);
                             if (v) {
-                                p = span('p' + (v.collapsible ? ' collapsible' : '') + (v.collapsed ? ' collapsed' : ''));
+                                p = span('p' + (v.collapsed ? ' collapsed' : ''));
 
                                 if (v.collapsible) {
-                                    p.appendChild(span('c'));
+                                    p.appendChild(e('button'));
                                 }
 
                                 p.appendChild(prop(k));
@@ -37830,7 +37838,7 @@ Genghis.Util = {
                                 if (v.collapsed) {
                                     child = span('e');
                                     child.appendChild(t('[ '));
-                                    child.appendChild(span('summary', t(' …')));
+                                    child.appendChild(e('Q', false, t(' …')));
                                     child.appendChild(t(' ]'));
 
                                     p.appendChild(child);
@@ -37890,7 +37898,7 @@ Genghis.Util = {
 
 
     attachCollapsers: function(scope) {
-        $('.document', scope).on('click', 'span.c,span.e', function(e) {
+        $('.document', scope).on('click', 'button,span.e', function(e) {
 
             var $property = $(this).parent(),
                 $value    = $property.children('.v'),
@@ -37902,7 +37910,7 @@ Genghis.Util = {
 
             if (!$property.children('.e').length) {
                 if (isObject) {
-                    $s = $(_.detect($value.find('> span.p > span.k'), function(el) {
+                    $s = $(_.detect($value.find('> span.p > var'), function(el) {
                         return isName.test($(el).text());
                     })).siblings('span.v');
 
@@ -37915,7 +37923,7 @@ Genghis.Util = {
                     }
 
                     if ($s && $s.length) {
-                        prop = $s.siblings('span.k').text();
+                        prop = $s.siblings('var').text();
                         summary = (prop ? prop + ': ' : '') + Genghis.Util.escape($s.text());
                     }
                 }
@@ -37923,9 +37931,9 @@ Genghis.Util = {
                 $property.append(
                     '<span class="e">' +
                     (isObject ? '{' : '[') +
-                    ' <span class="m">' +
+                    ' <q>' +
                     summary +
-                    ' &hellip;</span> ' +
+                    ' &hellip;</q> ' +
                     (isObject ? '}' : ']') +
                     '</span>'
                 );

@@ -165,7 +165,7 @@ Genghis.Util = {
                     }) + '"';
                 }
 
-                return span('k', key);
+                return e('VAR', false, key);
             }
 
             function createView(key, holder) {
@@ -269,10 +269,10 @@ Genghis.Util = {
                         if (Object.hasOwnProperty.call(value, k)) {
                             v = createView(k, value);
                             if (v) {
-                                p = span('p' + (v.collapsible ? ' collapsible' : '') + (v.collapsed ? ' collapsed' : ''));
+                                p = span('p' + (v.collapsed ? ' collapsed' : ''));
 
                                 if (v.collapsible) {
-                                    p.appendChild(span('c'));
+                                    p.appendChild(e('button'));
                                 }
 
                                 p.appendChild(prop(k));
@@ -282,7 +282,7 @@ Genghis.Util = {
                                 if (v.collapsed) {
                                     child = span('e');
                                     child.appendChild(t('[ '));
-                                    child.appendChild(span('summary', t(' …')));
+                                    child.appendChild(e('Q', false, t(' …')));
                                     child.appendChild(t(' ]'));
 
                                     p.appendChild(child);
@@ -342,7 +342,7 @@ Genghis.Util = {
 
 
     attachCollapsers: function(scope) {
-        $('.document', scope).on('click', 'span.c,span.e', function(e) {
+        $('.document', scope).on('click', 'button,span.e', function(e) {
 
             var $property = $(this).parent(),
                 $value    = $property.children('.v'),
@@ -354,7 +354,7 @@ Genghis.Util = {
 
             if (!$property.children('.e').length) {
                 if (isObject) {
-                    $s = $(_.detect($value.find('> span.p > span.k'), function(el) {
+                    $s = $(_.detect($value.find('> span.p > var'), function(el) {
                         return isName.test($(el).text());
                     })).siblings('span.v');
 
@@ -367,7 +367,7 @@ Genghis.Util = {
                     }
 
                     if ($s && $s.length) {
-                        prop = $s.siblings('span.k').text();
+                        prop = $s.siblings('var').text();
                         summary = (prop ? prop + ': ' : '') + Genghis.Util.escape($s.text());
                     }
                 }
@@ -375,9 +375,9 @@ Genghis.Util = {
                 $property.append(
                     '<span class="e">' +
                     (isObject ? '{' : '[') +
-                    ' <span class="m">' +
+                    ' <q>' +
                     summary +
-                    ' &hellip;</span> ' +
+                    ' &hellip;</q> ' +
                     (isObject ? '}' : ']') +
                     '</span>'
                 );
