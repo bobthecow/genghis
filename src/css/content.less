@@ -137,7 +137,7 @@ table {
         // Style the sorted column headers (THs)
         &.headerSortUp,
         &.headerSortDown {
-            background-color: fadeout(@blue, 95);
+            background-color: fadeout(@linkColor, 95%);
             text-shadow: 0 1px 1px rgba(255,255,255,.75);
         }
         // Style the ascending (reverse alphabetical) column header
@@ -266,9 +266,9 @@ section#servers {
         h3 {
             margin-top: 0;
             a {
-                color: #333;
+                color: @grayDark;
                 &:hover, &:active {
-                    color: #0058e1;
+                    color: @linkColor;
                 }
             }
         }
@@ -325,9 +325,9 @@ section#servers {
             }
             &.focused {
                 div.well {
-                    border-color: rgba(82,168,236,.8);
-                    @shadow: inset 0 1px 3px rgba(0,0,0,.1), 0 0 8px rgba(82,168,236,.6);
-                    .box-shadow(@shadow);
+                    border-color:     fade(@linkColor, 80%);
+                    @formFocusShadow: fade(@linkColor, 60%);
+                    .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @{formFocusShadow}");
                 }
             }
         }
@@ -365,8 +365,9 @@ section#document {
         .border-radius(4px);
         border: 1px solid @inputBorder;
         &.focused {
-            border: 1px solid rgba(82,168,236,.8);
-            .box-shadow(~"0 0 8px rgba(82,168,236,.6)");
+            border: 1px solid fade(@linkColor, 80%);
+            @formFocusShadow: fade(@linkColor, 60%);
+            .box-shadow(~"0 0 8px @{formFocusShadow}");
         }
     }
     .CodeMirror-scroll {

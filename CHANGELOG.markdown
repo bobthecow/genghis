@@ -3,6 +3,7 @@
 Updates:
 
  * Update Bootstrap (2.1.0), jQuery (1.8.0), Underscore (1.3.3), and Backbone (0.9.2).
+ * Greeeen.
  * Add a CHANGELOG. Meta.
 
 Improvements:
