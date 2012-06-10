@@ -19,10 +19,7 @@
     max-width: 1400px;
 }
 
-// Navbar size overrides
 .navbar {
-    height: 60px;
-
     .brand {
         font-size: 32px;
         line-height: 26px;
@@ -63,8 +60,13 @@
 
     form {
         padding-left: 20px;
-        margin: 15px 0 15px -10px;
+        margin: 15px 0 0 -10px;
     }
+}
+
+.navbar-inner {
+    background-image: none;
+    background-color: rgba(0, 0, 0, 0.85);
 }
 
 // Navbar nav
@@ -74,12 +76,6 @@
 .nav .dropdown {
     .dropdown-toggle {
         padding: 20px 10px 21px 20px;
-        height:      19px;
-        line-height: 19px;
         white-space: nowrap;
-        color: #EEE;
-        &:hover {
-            background-color: transparent;
-        }
     }
 }
