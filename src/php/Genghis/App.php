@@ -90,7 +90,7 @@ class Genghis_App
             $last    = count($chunks);
             $baseUrl = '';
             do {
-                $seg     = $segs[$index];
+                $seg     = $chunks[$index];
                 $baseUrl = '/'.$seg.$baseUrl;
                 ++$index;
             } while (($last > $index) && (false !== ($pos = strpos($path, $baseUrl))) && (0 != $pos));
@@ -137,7 +137,13 @@ class Genghis_App
 
     protected function getRequestPath()
     {
-        return isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '/';
+        if (isset($_SERVER['PATH_INFO'])) {
+            return $_SERVER['PATH_INFO'];
+        } elseif (isset($_SERVER['REQUEST_URI'])) {
+            return $_SERVER['REQUEST_URI'];
+        } else {
+            return '/';
+        }
     }
 
     protected function getQueryParams()
