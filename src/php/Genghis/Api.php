@@ -389,7 +389,7 @@ class Genghis_Api extends Genghis_App
     public function findDocument($server, $database, $collection, $document)
     {
         $doc = $this->getCollection($server, $database, $collection)->findOne(array(
-            '_id' => new MongoId($document),
+            '_id' => $this->thunkMongoId($document),
         ));
         if ($doc) {
             return new Genghis_JsonResponse($doc);
@@ -400,7 +400,7 @@ class Genghis_Api extends Genghis_App
     public function updateDocument($server, $database, $collection, $document, array $data)
     {
         $coll = $this->getCollection($server, $database, $collection);
-        $query = array('_id' => new MongoId($document));
+        $query = array('_id' => $this->thunkMongoId($document));
         if ($coll->findOne($query)) {
             $result = $coll->update($query, $data, array('safe' => true));
 
@@ -417,7 +417,7 @@ class Genghis_Api extends Genghis_App
     public function removeDocument($server, $database, $collection, $document)
     {
         $coll = $this->getCollection($server, $database, $collection);
-        $query = array('_id' => new MongoId($document));
+        $query = array('_id' => $this->thunkMongoId($document));
         if ($coll->findOne($query)) {
             $result = $coll->remove($query, array('safe' => true));
 
@@ -483,7 +483,7 @@ class Genghis_Api extends Genghis_App
         foreach ($query as $key => $val) {
             if (is_array($val)) {
                 if (isset($val['$id']) && count($val) == 1) {
-                    $query[$key] = new MongoId($val['$id']);
+                    $query[$key] = $this->thunkMongoId($val['$id']);
                 } elseif (count($val) == 2 && isset($val['sec']) && isset($val['usec'])) {
                     $query[$key] = new MongoDate($val['sec'], $val['usec']);
                 } else {
@@ -495,6 +495,11 @@ class Genghis_Api extends Genghis_App
         }
 
         return $query;
+    }
+
+    protected function thunkMongoId($id)
+    {
+        return preg_match('/^[a-f0-9]{24}$/i', $id) ? new MongoId($id) : $id;
     }
 
     protected function getRequestData()
