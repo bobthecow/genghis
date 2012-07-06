@@ -16,6 +16,12 @@ Put `genghis.php` somewhere web accessible. If you want pretty urls, add `.htacc
 That's pretty much it.
 
 
+Configuration
+-------------
+
+Check [the Genghis wiki](https://github.com/bobthecow/genghis/wiki) for additional configuration information.
+
+
 License
 -------
 
