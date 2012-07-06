@@ -175,28 +175,10 @@ class Genghis_Api extends Genghis_App
             throw new Genghis_HttpException(400, 'Server name must be specified');
         }
 
-        $dsn = $data['name'];
-        if (strpos($dsn, '://') === false) {
-            $dsn = 'mongodb://'.$dsn;
-        } else if (strpos($dsn, 'mongodb://') !== 0) {
-            throw new Genghis_HttpException(400, 'Malformed server dsn');
-        }
-
-        $chunks = parse_url($dsn);
-        if ($chunks === false || isset($chunks['query']) || isset($chunks['fragment']) || !isset($chunks['host'])) {
-            throw new Genghis_HttpException(400, 'Malformed server dsn');
-        }
-
-        $name = $chunks['host'];
-        if (isset($chunks['user'])) {
-            $name = $chunks['user'].'@'.$name;
-        }
-        if (isset($chunks['port']) && $chunks['port'] !== 27017) {
-            $name .= ':'.$chunks['port'];
-        }
+        $server = self::parseServerDsn($data['name']);
 
         $this->initServers();
-        $this->servers[$name] = $dsn;
+        $this->servers[$server['name']] = $server['dsn'];
         $this->saveServers();
 
         return $this->showServer($name);
@@ -228,6 +210,8 @@ class Genghis_Api extends Genghis_App
     protected function dumpServer($name)
     {
         try {
+            $editable = !(isset($this->servers[$name]['default']) && $this->servers[$name]['default']);
+
             $res = $this->getMongo($name)->listDBs();
             $dbs = array_map(function($db) {
                 return $db['name'];
@@ -236,6 +220,7 @@ class Genghis_Api extends Genghis_App
             return array(
                 'id'        => $name,
                 'name'      => $name,
+                'editable'  => $editable,
                 'size'      => $res['totalSize'],
                 'count'     => count($dbs),
                 'databases' => $dbs,
@@ -252,17 +237,79 @@ class Genghis_Api extends Genghis_App
     protected function initServers()
     {
         if (!isset($this->servers)) {
-            if (isset($_COOKIE['genghis_servers']) && $servers = json_decode($_COOKIE['genghis_servers'], true)) {
-                $this->servers = $servers;
-            } else {
-                $this->servers = array('localhost' => 'localhost:27017');
+            $defaultDsns = array_merge(
+                isset($_ENV['GENGHIS_SERVERS'])    ? explode(';', $_ENV['GENGHIS_SERVERS'])    : array(),
+                isset($_SERVER['GENGHIS_SERVERS']) ? explode(';', $_SERVER['GENGHIS_SERVERS']) : array()
+            );
+
+            foreach (array_map(array($this, 'parseServerDsn'), $defaultDsns) as $server) {
+                $server['default'] = true;
+                $this->servers[$server['name']] = $server;
+            }
+
+            if (isset($_COOKIE['genghis_servers']) && $localDsns = json_decode($_COOKIE['genghis_servers'], true)) {
+                foreach (array_map(array($this, 'parseServerDsn'), $localDsns) as $server) {
+                    $this->servers[$server['name']] = $server;
+                }
+            }
+
+            if (empty($this->servers)) {
+                $this->servers['localhost'] = array(
+                    'name' => 'localhost',
+                    'dsn'  => 'localhost:27017',
+                );
             }
         }
     }
 
     protected function saveServers()
     {
-        setcookie('genghis_servers', json_encode($this->servers), time()+60*60*24*365, '/');
+        $servers = array();
+        foreach ($this->servers as $name => $server) {
+            if (!isset($server['default']) || !$server['default']) {
+                $servers[$name] = $server['dsn'];
+            }
+        }
+
+        setcookie('genghis_servers', json_encode($servers), time()+60*60*24*365, '/');
+    }
+
+    public static function parseServerDsn($dsn)
+    {
+        if (strpos($dsn, '://') === false) {
+            $dsn = 'mongodb://'.$dsn;
+        } else if (strpos($dsn, 'mongodb://') !== 0) {
+            throw new Genghis_HttpException(400, 'Malformed server dsn');
+        }
+
+        $chunks = parse_url($dsn);
+        if ($chunks === false || isset($chunks['query']) || isset($chunks['fragment']) || !isset($chunks['host'])) {
+            throw new Genghis_HttpException(400, 'Malformed server dsn');
+        }
+
+        $options = array();
+        if (isset($chunks['query'])) {
+            parse_str($chunks['query'], $options);
+            foreach ($options as $name => $value) {
+                if (!in_array($name, array('replicaSet'))) {
+                    throw new Genghis_HttpException(400, 'Malformed server dsn');
+                }
+
+                $options[$name] = (string) $value;
+            }
+        }
+
+        $name = $chunks['host'];
+        if (isset($chunks['user'])) {
+            $name = $chunks['user'].'@'.$name;
+        }
+        if (isset($chunks['port']) && $chunks['port'] !== 27017) {
+            $name .= ':'.$chunks['port'];
+        }
+
+        if (isset($chunks['query']))
+
+        return compact('name', 'dsn', 'options');
     }
 
     protected function dumpDatabase($server, $database)
@@ -511,7 +558,9 @@ class Genghis_Api extends Genghis_App
     {
         $this->initServers();
         if (isset($this->servers[$server])) {
-            return new Mongo($this->servers[$server]);
+            $server = $this->servers[$server];
+
+            return new Mongo($server['dsn'], isset($server['options']) ? $server['options'] : array());
         }
     }
 
