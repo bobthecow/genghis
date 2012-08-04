@@ -54,7 +54,13 @@ class Genghis_App
     protected function isJsonRequest()
     {
         if (in_array($this->getRequestMethod(), array('POST', 'PUT'))) {
-            $type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : 'x-www-form-urlencoded';
+            if (array_key_exists('HTTP_CONTENT_TYPE', $_SERVER)) {
+                $type = $_SERVER['HTTP_CONTENT_TYPE'];
+            } elseif (array_key_exists('CONTENT_TYPE', $_SERVER)) {
+                $type = $_SERVER['CONTENT_TYPE'];
+            } else {
+                $type = 'x-www-form-urlencoded';
+            }
         } else {
             $type = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : 'text/html';
         }
