@@ -18,7 +18,7 @@ describe 'Genghis API', :type => :request do
 
   context 'servers' do
     describe 'GET /servers' do
-      it 'lists available servers' do
+      it 'always contains localhost' do
         res = @api.get '/servers'
         res.status.should eq 200
         res.body.should match_json_expression \
@@ -36,8 +36,44 @@ describe 'Genghis API', :type => :request do
     end
 
     describe 'POST /servers' do
-      it 'creates a server when given a valid DSN'
-      it 'returns 400 if the DSN is not valid'
+      it 'creates a server when given a valid DSN' do
+        res = @api.post do |req|
+          req.url '/servers'
+          req.headers['Content-Type'] = 'application/json'
+          req.body = { name: 'localhost:27017' }.to_json
+        end
+
+        res.status.should eq 200
+        res.headers['content-type'].should eq 'application/json'
+        res.body.should match_json_expression \
+          id:        'localhost',
+          name:      'localhost',
+          editable:  true,
+          size:      Fixnum,
+          count:     Fixnum,
+          databases: Array
+      end
+
+      it 'returns 400 if the DSN is not valid' do
+        res = @api.post do |req|
+          req.url '/servers'
+          req.headers['Content-Type'] = 'application/json'
+          req.body = { name: 'http://foo/bar' }.to_json
+        end
+        res.status.should eq 400
+      end
+    end
+
+    describe 'DELETE /servers/:server' do
+      it 'deletes a server if it exists' do
+        res = @api.delete '/servers/localhost'
+        res.status.should eq 200
+      end
+
+      it 'returns 404 when the server is not found' do
+        res = @api.delete '/servers/not-a-real-server'
+        res.status.should eq 404
+      end
     end
   end
 end
