@@ -279,7 +279,7 @@ class Genghis_Api extends Genghis_App
         if (strpos($dsn, '://') === false) {
             $dsn = 'mongodb://'.$dsn;
         } else if (strpos($dsn, 'mongodb://') !== 0) {
-            throw new Genghis_HttpException(400, 'Malformed server dsn');
+            throw new Genghis_HttpException(400, 'Malformed server dsn: unknown URI scheme');
         }
 
         $chunks = parse_url($dsn);
@@ -292,7 +292,7 @@ class Genghis_Api extends Genghis_App
             parse_str($chunks['query'], $options);
             foreach ($options as $name => $value) {
                 if (!in_array($name, array('replicaSet'))) {
-                    throw new Genghis_HttpException(400, 'Malformed server dsn');
+                    throw new Genghis_HttpException(400, 'Malformed server dsn: Unknown option — ' . $name);
                 }
 
                 $options[$name] = (string) $value;
