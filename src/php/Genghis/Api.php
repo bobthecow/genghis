@@ -178,10 +178,10 @@ class Genghis_Api extends Genghis_App
         $server = self::parseServerDsn($data['name']);
 
         $this->initServers();
-        $this->servers[$server['name']] = $server['dsn'];
+        $this->servers[$server['name']] = $server;
         $this->saveServers();
 
-        return $this->showServer($name);
+        return $this->showServer($server['name']);
     }
 
     protected function removeServer($name)
@@ -306,8 +306,6 @@ class Genghis_Api extends Genghis_App
         if (isset($chunks['port']) && $chunks['port'] !== 27017) {
             $name .= ':'.$chunks['port'];
         }
-
-        if (isset($chunks['query']))
 
         return compact('name', 'dsn', 'options');
     }
