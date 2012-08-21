@@ -22,11 +22,29 @@
 .navbar {
     .brand {
         font-size: 32px;
-        line-height: 26px;
+        line-height: 32px;
         padding: 16px 20px 12px;
-    }
 
-    ul {
+        color: #000;
+        text-shadow: 0 1px 0 rgba(255,255,255,.1), 0 0 30px rgba(255,255,255,.125);
+        .transition(color .1s linear);
+    }
+    .nav {
+        > li > a {
+            min-height: 18px;
+        }
+        li.dropdown {
+            .dropdown-toggle {
+                padding: 20px 10px 21px 20px;
+                white-space: nowrap;
+            }
+            &, &.open, &.active {
+                > .dropdown-toggle {
+                    background-color: transparent;
+                }
+            }
+        }
+
         .dropdown-menu {
             li a {
                 padding-right: 45px;
@@ -64,21 +82,11 @@
     }
 }
 
-.navbar-inner {
-    background-image: none;
-    background-color: rgba(0, 0, 0, 0.85);
-}
-
 // Navbar nav
 .nav .dropdown, .navbar-search {
     background: transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAiCAQAAADMxIBtAAABLUlEQVQoz2NgYPzPxMDEgAaY/7OrsGMIruJs4GFAE2aU4vooxCCCrpb7pbiaNAMbqiBblfhsRQYpNAN4xH5qcuuju0Fwj5qfIYMYqiB7gPI+cwYjdMvk3lmLuzBwoQoKzTMqdGHQQhVkNdG55s3sw8CIKqx4wc0ojEEGVVC4wa4jgsEJzQAlk9sx/CnolilvC/BNR3eYcJrbkiy2GFTLhLM8FmUzRKKqVN0f4prBoIMSVtpm1+K4klGDUHyiY3kEgxWa5ic+8lEMgshCnIH6+7wYXFHVie8183NlkEMJe36lz3bsrgzMKFHXrDrJjEEDVbPYc205YwZOZCEmbYlnmqiOBmreJhOlyiCEKsj/X5ZDES0tJfFuE0VXx/6WT0EA1THAEP/PgR7aDNgSLQDySzbpQ/g6wQAAAABJRU5ErkJggg==') center left no-repeat;
 }
 .navbar-search {
-    background-position: left -2px;
-}
-.nav .dropdown {
-    .dropdown-toggle {
-        padding: 20px 10px 21px 20px;
-        white-space: nowrap;
-    }
+    // center the breadcrumb separator in front of the search form
+    background-position: left -1px;
 }
