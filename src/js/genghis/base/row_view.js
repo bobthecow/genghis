@@ -11,8 +11,10 @@ Genghis.Base.RowView = Backbone.View.extend({
         this.model.bind('destroy', this.remove);
     },
     render: function() {
-        $(this.el).html(this.template.render(this.model));
-        $(this.el).find('.label[title]').tooltip({placement: 'bottom'});
+        $(this.el)
+            .html(this.template.render(this.model))
+            .toggleClass('error', !!this.model.get('error'))
+            .find('.label[title]').tooltip({placement: 'bottom'});
         this.$('.has-details').popover({
             html: true,
             content: function() { return $(this).siblings('.details').html(); },
