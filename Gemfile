@@ -6,7 +6,6 @@ gem 'less'
 gem 'rainpress'
 gem 'uglifier'
 gem 'html_compressor'
-gem 'closure-compiler'
 
 group :test do
   gem 'rspec'
