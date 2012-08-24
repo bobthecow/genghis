@@ -227,9 +227,10 @@ class Genghis_Api extends Genghis_App
             );
         } catch (Exception $e) {
             return array(
-                'id'    => $name,
-                'name'  => $name,
-                'error' => 'Unable to connect to Mongo server at "'.$name.'".',
+                'id'       => $name,
+                'name'     => $name,
+                'editable' => $editable,
+                'error'    => 'Unable to connect to Mongo server at "'.$name.'".',
             );
         }
     }
