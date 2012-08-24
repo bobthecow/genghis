@@ -35,13 +35,18 @@ Genghis.Base.RowView = Backbone.View.extend({
     },
     destroy: function() {
         var model = this.model;
+        var name  = model.has('name') ? model.get('name') : '';
+
         apprise(
             'Really? There is no undo.',
             {
                 confirm: true,
-                textOk: '<strong>Yes</strong>, delete '+(model.has('name') ? model.get('name') : '')+' forever'
+                textOk: this.destroyConfirmButton(name)
             },
             function(r) { if (r) model.destroy(); }
         );
+    },
+    destroyConfirmButton: function(name) {
+        return '<strong>Yes</strong>, delete '+name+' forever';
     }
 });
