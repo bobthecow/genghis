@@ -32,9 +32,7 @@ class Genghis_Api extends Genghis_App
         }
 
         if (preg_match(self::CONVERT_JSON_ROUTE, $path)) {
-            $decoder = new Genghis_JsonDecoder;
-
-            return new Genghis_JsonResponse($decoder->decode(file_get_contents('php://input')));
+            return new Genghis_JsonResponse($this->getRequestData(false));
         }
 
         $p = array();
@@ -513,12 +511,13 @@ class Genghis_Api extends Genghis_App
         }
     }
 
-    protected function decodeJson($data)
+    protected function decodeJson($data, $andThunk = true)
     {
         try {
             $decoder = new Genghis_JsonDecoder;
+            $json    = $decoder->decode($data);
 
-            return $this->thunkMongoQuery($decoder->decode($data));
+            return $andThunk ? $this->thunkMongoQuery($json) : $json;
         } catch (Genghis_JsonException $e) {
             throw new Genghis_HttpException(400, 'Malformed document');
         }
@@ -548,9 +547,9 @@ class Genghis_Api extends Genghis_App
         return preg_match('/^[a-f0-9]{24}$/i', $id) ? new MongoId($id) : $id;
     }
 
-    protected function getRequestData()
+    protected function getRequestData($andThunk = true)
     {
-        return $this->decodeJson(file_get_contents('php://input'));
+        return $this->decodeJson(file_get_contents('php://input'), $andThunk);
     }
 
     protected function getMongo($server)
