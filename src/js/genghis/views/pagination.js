@@ -13,14 +13,14 @@ Genghis.Views.Pagination = Backbone.View.extend({
         if (this.model.get('pages') == 1) {
             $(this.el).hide();
         } else {
-            var count = 9,
-                half  = Math.ceil(count / 2),
-                page  = this.model.get('page'),
-                pages = this.model.get('pages'),
-                min   = (page > half) ? Math.max(page - (half - 3), 1) : 1,
-                max   = (pages - page > half) ? Math.min(page + (half - 3), pages) : pages,
-                start = (max == pages) ? Math.max(pages - (count - 3), 1) : min,
-                end   = (min == 1) ? Math.min(start + (count - 3), pages) : max;
+            var count = 9;
+            var half  = Math.ceil(count / 2);
+            var page  = this.model.get('page');
+            var pages = this.model.get('pages');
+            var min   = (page > half) ? Math.max(page - (half - 3), 1) : 1;
+            var max   = (pages - page > half) ? Math.min(page + (half - 3), pages) : pages;
+            var start = (max == pages) ? Math.max(pages - (count - 3), 1) : min;
+            var end   = (min == 1) ? Math.min(start + (count - 3), pages) : max;
 
             if (end >= pages - 2) {
                 end = pages;
@@ -53,10 +53,10 @@ Genghis.Views.Pagination = Backbone.View.extend({
         return this;
     },
     urlTemplate: function(i) {
-        var url    = this.collection.url,
-            chunks = url.split('?'),
-            base   = chunks.shift(),
-            params = Genghis.Util.parseQuery(chunks.join('?'));
+        var url    = this.collection.url;
+        var chunks = url.split('?');
+        var base   = chunks.shift();
+        var params = Genghis.Util.parseQuery(chunks.join('?'));
 
         return base + '?' + Genghis.Util.buildQuery(_.extend(params, {page: i}));
     },

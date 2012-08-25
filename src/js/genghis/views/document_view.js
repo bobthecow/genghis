@@ -34,29 +34,29 @@ Genghis.Views.DocumentView = Backbone.View.extend({
         App.Router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
     },
     navigateDb: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref'),
-            db     = $dbRef.find('.db-ref-db .value').text();
+        var $dbRef = $(e.target).parents('.db-ref');
+        var db     = $dbRef.find('.db-ref-db .value').text();
 
         App.Router.redirectToDatabase(Genghis.Selection.CurrentServer.id, db);
     },
     navigateColl: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref'),
-            db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id,
-            coll   = $dbRef.find('.db-ref-ref .value').text();
+        var $dbRef = $(e.target).parents('.db-ref');
+        var db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id;
+        var coll   = $dbRef.find('.db-ref-ref .value').text();
 
         App.Router.redirectToCollection(Genghis.Selection.CurrentServer.id, db, coll);
     },
     navigateId: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref'),
-            db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id,
-            coll   = $dbRef.find('.db-ref-ref .value').text() || Genghis.Selection.CurrentCollection.id,
-            id     = $dbRef.find('.db-ref-id  .value').text();
+        var $dbRef = $(e.target).parents('.db-ref');
+        var db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id;
+        var coll   = $dbRef.find('.db-ref-ref .value').text() || Genghis.Selection.CurrentCollection.id;
+        var id     = $dbRef.find('.db-ref-id  .value').text();
 
         App.Router.redirectToDocument(Genghis.Selection.CurrentServer.id, db, coll, id);
     },
     openEditDialog: function() {
-        var $well = this.$('.well'),
-            height = Math.max(180, Math.min(600, $well.height() + 40));
+        var $well = this.$('.well');
+        var height = Math.max(180, Math.min(600, $well.height() + 40));
 
         $(this.el).addClass('edit');
         $well.height(height);
@@ -88,8 +88,8 @@ Genghis.Views.DocumentView = Backbone.View.extend({
         this.$('.well').height('auto');
     },
     saveDocument: function() {
-        var doc = this.model,
-            cancelEdit = this.cancelEdit;
+        var doc        = this.model;
+        var cancelEdit = this.cancelEdit;
 
         $.ajax({
             type: 'POST',

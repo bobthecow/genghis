@@ -8,8 +8,8 @@ Genghis.Util = {
 
         if (str.length) {
             _.each(str.split('&'), function(val) {
-                var chunks = val.split('='),
-                    name   = chunks.shift();
+                var chunks = val.split('=');
+                var name   = chunks.shift();
 
                 params[name] = chunks.join('=');
             });
@@ -24,8 +24,9 @@ Genghis.Util = {
 
     humanizeSize: function(bytes) {
         if (bytes ==- 0) return 'n/a';
-        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'],
-            i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+
         return ((i === 0)? (bytes / Math.pow(1024, i)) : (bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + sizes[i];
     },
 
@@ -66,8 +67,8 @@ Genghis.Util = {
         }
 
         function valueToHTML(value) {
-            var valueType = typeof value,
-                output = [];
+            var valueType = typeof value;
+            var output = [];
             if (value === null) {
                 output.push(wrap('null', 'null'));
             } else if (value && value.constructor == Array) {
@@ -91,16 +92,18 @@ Genghis.Util = {
 
         function arrayToHTML(json) {
             var output = _.map(json, function(value) { return '<li>' + valueToHTML(value) + '</li>'; });
+
             return output.length ? '[<ul class="array">' + output.join('') + '</ul>]' : '[ ]';
         }
 
         function objectToHTML(json) {
-            var isRef     = (_.detect(json, function(v, p) { return _.include(['$id', '_id'], p); }) && _.detect(json, function(v, p) { return (p === '$ref'); })),
-                className = 'obj' + (isRef ? ' db-ref' : ''),
-                output    = _.map(json, function(value, prop) {
+            var isRef     = (_.detect(json, function(v, p) { return _.include(['$id', '_id'], p); }) && _.detect(json, function(v, p) { return (p === '$ref'); }));
+            var className = 'obj' + (isRef ? ' db-ref' : '');
+            var output    = _.map(json, function(value, prop) {
                     var isRefProp = (isRef && _.include(['$ref', '$id', '_id', '$db'], prop));
                     return '<li' + (isRefProp ? (' class="db-ref-' + prop.substring(1) + '"') : '') + '>' + wrap(prop, 'prop') + valueToHTML(value) + '</li>';
                 });
+
             return output.length ? '{<ul class="' + className + '">' + output.join('') + '</ul>}' : '{ }';
         }
 
@@ -112,14 +115,14 @@ Genghis.Util = {
             .prependTo($('.document ul', scope).parent('li, .document'));
 
         $('.document', scope).on('click', 'div.collapser', function(e) {
-            var $parent    = $(this).parent(),
-                $target    = $parent.children('ul'),
-                $collapser = $parent.children('.collapser');
+            var $parent    = $(this).parent();
+            var $target    = $parent.children('ul');
+            var $collapser = $parent.children('.collapser');
 
             function summary(target) {
                 if (!('collapserSummary' in target.data())) {
-                    var prop,
-                        $s = $(_.detect(target.find('> li > span.prop'), function(el) {
+                    var prop;
+                    var $s = $(_.detect(target.find('> li > span.prop'), function(el) {
                             return (/^\s*(name|title)\s*/i.test($(el).text()));
                         })).siblings('span');
 

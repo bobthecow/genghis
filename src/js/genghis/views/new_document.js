@@ -43,8 +43,8 @@ Genghis.Views.NewDocument = Backbone.View.extend({
         this.editor.getSession().setValue('');
     },
     saveDocument: function() {
-        var collection = this.collection,
-            closeModal = this.closeModal;
+        var collection = this.collection;
+        var closeModal = this.closeModal;
 
         $.ajax({
             type: 'POST',

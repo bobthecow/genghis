@@ -67,9 +67,9 @@ Genghis.Views.Nav = Backbone.View.extend({
         if (e.keyCode == 13) {
             e.preventDefault();
 
-            var q    = $(e.target).val(),
-                base = Genghis.Util.route(this.model.CurrentCollection.url + '/documents'),
-                url  = base + (q.match(/^([a-z\d]+)$/i) ? '/' + q : '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q)}));
+            var q    = $(e.target).val();
+            var base = Genghis.Util.route(this.model.CurrentCollection.url + '/documents');
+            var url  = base + (q.match(/^([a-z\d]+)$/i) ? '/' + q : '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q)}));
 
             App.Router.navigate(url, true);
         } else if (e.keyCode == 27) {
