@@ -18,6 +18,8 @@ Bugs:
 
  * Fix #19 — Only implicitly wrap MongoIds if they're 24 character hex strings.
  * Fix output glitches when displaying a brand new document immediately after an existing document.
+ * Fix a possible JavaScript error when adding a new collection.
+ * Fix a handful of rare (and relatively benign) error messages.
 
 Features:
 
