@@ -93,6 +93,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
         }
 
         if (documentId) {
+            this.CurrentDocument.clear({silent: true});
             this.CurrentDocument.id = documentId;
             this.CurrentDocument.urlRoot = url;
             this.CurrentDocument.fetch();
