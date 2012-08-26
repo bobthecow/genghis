@@ -1,0 +1,30 @@
+.cm-s-default {
+    span {
+        &.cm-keyword    { color: @blackish;  }
+        &.cm-atom       { color: #0086b3;    }
+        &.cm-number     { color: #40A070;    }
+        &.cm-def        { color: @blackish;  }
+        &.cm-variable   { color: @blackish;  }
+        &.cm-variable-2 { color: @blackish;  }
+        &.cm-variable-3 { color: @blackish;  }
+        &.cm-property   { color: @blackish;  }
+        &.cm-operator   { color: @blackish;  }
+        &.cm-comment    { color: @blackish;  }
+        &.cm-string     { color: #D14;       }
+        &.cm-string-2   { color: #009926;    }
+        &.cm-meta       { color: @blackish;  }
+        &.cm-error      { color: #F00;       }
+        &.cm-qualifier  { color: @blackish;  }
+        &.cm-builtin    { color: @blackish;  }
+        &.cm-bracket    { color: @blackish;  }
+        &.cm-tag        { color: @blackish;  }
+        &.cm-attribute  { color: @blackish;  }
+        &.cm-header     { color: @blackish;  }
+        &.cm-quote      { color: @blackish;  }
+        &.cm-hr         { color: @blackish;  }
+        &.cm-link       { color: @linkColor; }
+    }
+}
+.CodeMirror-focused div.CodeMirror-selected {
+    background: desaturate(lighten(@linkColor, 45%), 35%);
+}

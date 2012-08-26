@@ -13,6 +13,9 @@ h1, h2, h3, a.brand, body > footer p {
     font-family: "Rokkitt", serif;
     font-weight: 700;
 }
+.document {
+    font-family: monospace;
+}
 body > footer {
     font-weight: 400;
     text-align: center;
@@ -41,4 +44,17 @@ noscript h1 {
     font-size: 2.2em;
     text-align: center;
     margin: 80px 40px;
+}
+
+::-moz-selection {
+    background:  desaturate(lighten(@linkColor, 45%), 35%);
+    text-shadow: none;
+}
+::-webkit-selection {
+    background:  desaturate(lighten(@linkColor, 45%), 35%);
+    text-shadow: none;
+}
+::selection {
+    background:  desaturate(lighten(@linkColor, 45%), 35%);
+    text-shadow: none;
 }

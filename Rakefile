@@ -40,7 +40,12 @@ end
 
 directory tmp_dir
 
-file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/bootstrap/less/*.less', 'vendor/keyscss/keys.css'] do
+css_files = [
+  'vendor/keyscss/keys.css',
+  'vendor/codemirror/lib/codemirror.css'
+]
+
+file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/bootstrap/less/*.less', *css_files] do
   File.open(tmp_dir+'style.css', 'w') do |file|
     file << <<-doc.unindent
       /**
@@ -54,7 +59,11 @@ file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/bootstra
        */
     doc
 
-    css = File.read('vendor/keyscss/keys.css')
+    css = ''
+
+    css_files.each do |f|
+      css << File.read(f)
+    end
 
     parser = Less::Parser.new(:paths => ['./src/css'], :filename => 'src/css/style.less')
     css << parser.parse(File.read('src/css/style.less')).to_css
@@ -81,9 +90,8 @@ script_files = FileList[
   'src/js/jquery.tablesorter.js',
   'src/js/underscore.js',
   'src/js/backbone.js',
-  'vendor/ace/ace-uncompressed.js',
-  'vendor/ace/mode-json.js',
-  'vendor/ace/theme-git_hubby.js',
+  'vendor/codemirror/lib/codemirror.js',
+  'vendor/codemirror/mode/javascript/javascript.js',
   'vendor/apprise/apprise-1.5.full.js',
   'vendor/bootstrap/js/bootstrap-tooltip.js',
   'vendor/bootstrap/js/bootstrap-popover.js',

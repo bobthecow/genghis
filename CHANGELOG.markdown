@@ -13,6 +13,7 @@ Improvements:
  * Better keyboard shortcuts dialog on smaller screens.
  * Improve error handling in a couple of places.
  * Use UglifyJS instead of closure compiler to minify JS. It's faster and doesn't require Java :)
+ * Update code editor. The new * one (CodeMirror) is lighter, faster, smaller and a cleaner implementation.
 
 Bugs:
 

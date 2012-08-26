@@ -58,32 +58,32 @@ Genghis.Views.DocumentView = Backbone.View.extend({
         var $well = this.$('.well');
         var height = Math.max(180, Math.min(600, $well.height() + 40));
 
-        $(this.el).addClass('edit');
         $well.height(height);
-
-        var div = $('<div id="editor-'+this.model.id+'" class="genghis-document-editor"></div>')
+        var textarea = $('<textarea id="editor-'+this.model.id+'"></textarea>')
             .text(this.model.JSONish())
             .appendTo($well)
             .height(height);
 
-
         this.$('.document').hide();
 
-        this.editor = ace.edit('editor-'+this.model.id);
-        this.editor.setTheme("ace/theme/git-hubby");
-        this.editor.setHighlightActiveLine(false);
-        this.editor.setShowPrintMargin(false);
-        this.editor.renderer.setShowGutter(false);
+        var el = $(this.el).addClass('edit');
+        this.editor = CodeMirror.fromTextArea($('#editor-'+this.model.id)[0], {
+            mode: "application/json",
+            lineNumbers: true,
+            tabSize: 2,
+            indentUnit: 2,
+            onFocus: function() { el.addClass('focused');    },
+            onBlur:  function() { el.removeClass('focused'); }
+        });
 
-        var JsonMode = require("ace/mode/json").Mode;
-        this.editor.getSession().setMode(new JsonMode());
+        setTimeout(this.editor.focus, 50);
 
-        div.resize(_.throttle(this.editor.resize, 100));
+        textarea.resize(_.throttle(this.editor.refresh, 100));
     },
     cancelEdit: function() {
-        $(this.el).removeClass('edit');
-        this.editor.destroy();
-        this.$('.genghis-document-editor').remove();
+        $(this.el).removeClass('edit focused');
+        this.editor.toTextArea();
+        $('textarea', this.el).remove();
         this.updateDocument();
         this.$('.well').height('auto');
     },
@@ -94,7 +94,7 @@ Genghis.Views.DocumentView = Backbone.View.extend({
         $.ajax({
             type: 'POST',
             url: Genghis.baseUrl + 'convert-json',
-            data: this.editor.getSession().getValue(),
+            data: this.editor.getValue(),
             contentType: 'application/json',
             async: false,
             success: function(data) {

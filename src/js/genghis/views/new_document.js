@@ -11,36 +11,41 @@ Genghis.Views.NewDocument = Backbone.View.extend({
         this.modal = this.el.modal('hide');
         this.modal.bind('hide', this.cancelEdit);
 
-        this.editor = ace.edit('editor-new');
-        this.editor.setTheme("ace/theme/git-hubby");
-        this.editor.setHighlightActiveLine(false);
-        this.editor.setShowPrintMargin(false);
-        this.editor.renderer.setShowGutter(false);
-
-        var JsonMode = require("ace/mode/json").Mode;
-        this.editor.getSession().setMode(new JsonMode());
+        var wrapper = $('.wrapper', this.el);
+        this.editor = CodeMirror.fromTextArea($('#editor-new', this.el)[0], {
+            mode: "application/json",
+            lineNumbers: true,
+            tabSize: 2,
+            indentUnit: 2,
+            onFocus: function() { wrapper.addClass('focused');    },
+            onBlur:  function() { wrapper.removeClass('focused'); }
+        });
 
         $(window).resize(_.throttle(this.resizeEditor, 100));
+
         this.modal.bind('shown', this.resizeEditor);
         this.modal.find('button.cancel').bind('click', this.closeModal);
         this.modal.find('button.save').bind('click', this.saveDocument);
+
+        window.GenghisEditor = this.editor;
 
         return this;
     },
     show: function() {
         this.el.find('#editor-new').height($(window).height() - 250);
-        this.editor.getSession().setValue("{\n    \n}\n");
-        this.editor.focus();
+        this.editor.setValue("{\n  \n}\n");
+        this.editor.setCursor({line:1, ch:2});
         this.modal.css({marginTop: (30 - (this.el.height() / 2)) + 'px'}).modal('show');
+        setTimeout(this.editor.focus, 50);
     },
     resizeEditor: function() {
-        this.editor.resize();
+        this.editor.refresh();
     },
     closeModal: function(e) {
         this.modal.modal('hide');
     },
     cancelEdit: function(e) {
-        this.editor.getSession().setValue('');
+        this.editor.setValue('');
     },
     saveDocument: function() {
         var collection = this.collection;
@@ -49,7 +54,7 @@ Genghis.Views.NewDocument = Backbone.View.extend({
         $.ajax({
             type: 'POST',
             url: Genghis.baseUrl + 'convert-json',
-            data: this.editor.getSession().getValue(),
+            data: this.editor.getValue(),
             contentType: 'application/json',
             async: false,
             success: function(data) {
