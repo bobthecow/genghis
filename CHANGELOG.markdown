@@ -6,6 +6,12 @@ Updates:
  * Greeeen.
  * Add a CHANGELOG. Meta.
 
+Features:
+
+ * Make Genghis work with the PHP 5.4 CLI SAPI webserver.
+ * Add support for pre-configured servers via `$GENGHIS_SERVERS` environment variable.
+ * Add support for replica sets, e.g. `localhost:12345/?replicaSet=production`.
+
 Improvements:
 
  * Require db name confirmation rather than DELETE.
@@ -14,20 +20,15 @@ Improvements:
  * Better keyboard shortcuts dialog on smaller screens.
  * Improve error handling in a couple of places.
  * Use UglifyJS instead of closure compiler to minify JS. It's faster and doesn't require Java :)
- * Update code editor. The new * one (CodeMirror) is lighter, faster, smaller and a cleaner implementation.
+ * Update code editor. The new one (CodeMirror) is lighter, faster, smaller and a cleaner implementation.
 
 Bugs:
 
  * Fix #19 — Only implicitly wrap MongoIds if they're 24 character hex strings.
+ * Fix #20 — Support creating and editing documents with an `attributes` property.
  * Fix output glitches when displaying a brand new document immediately after an existing document.
  * Fix a possible JavaScript error when adding a new collection.
  * Fix a handful of rare (and relatively benign) error messages.
-
-Features:
-
- * Make Genghis work with the PHP 5.4 CLI SAPI webserver.
- * Add support for pre-configured servers via $GENGHIS_SERVERS env variable.
- * Add support for replica sets, e.g. `localhost:12345/?replicaSet=production`.
 
 
 ## v1.4.2
