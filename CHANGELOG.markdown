@@ -29,6 +29,7 @@ Bugs:
  * Fix output glitches when displaying a brand new document immediately after an existing document.
  * Fix a possible JavaScript error when adding a new collection.
  * Fix a handful of rare (and relatively benign) error messages.
+ * Fix — malformed server DSN could prevent servers list from rendering.
 
 
 ## v1.4.2

@@ -207,29 +207,33 @@ class Genghis_Api extends Genghis_App
 
     protected function dumpServer($name)
     {
-        try {
-            $editable = !(isset($this->servers[$name]['default']) && $this->servers[$name]['default']);
+        $server = array(
+            'id'       => $name,
+            'name'     => $name,
+            'editable' => !(isset($this->servers[$name]['default']) && $this->servers[$name]['default']),
+        );
 
+        if (isset($this->servers[$name]['error'])) {
+            $server['error'] = $this->servers[$name]['error'];
+
+            return $server;
+        }
+
+        try {
             $res = $this->getMongo($name)->listDBs();
             $dbs = array_map(function($db) {
                 return $db['name'];
             }, $res['databases']);
 
-            return array(
-                'id'        => $name,
-                'name'      => $name,
-                'editable'  => $editable,
+            return array_merge($server, array(
                 'size'      => $res['totalSize'],
                 'count'     => count($dbs),
                 'databases' => $dbs,
-            );
+            ));
         } catch (Exception $e) {
-            return array(
-                'id'       => $name,
-                'name'     => $name,
-                'editable' => $editable,
-                'error'    => 'Unable to connect to Mongo server at "'.$name.'".',
-            );
+            $server['error'] = 'Unable to connect to Mongo server at "'.$name.'".';
+
+            return $server;
         }
     }
 
@@ -241,7 +245,18 @@ class Genghis_Api extends Genghis_App
                 isset($_SERVER['GENGHIS_SERVERS']) ? explode(';', $_SERVER['GENGHIS_SERVERS']) : array()
             );
 
-            foreach (array_map(array($this, 'parseServerDsn'), $defaultDsns) as $server) {
+            foreach ($defaultDsns as $dsn) {
+                try {
+                    $server = self::parseServerDsn($dsn);
+                } catch (Genghis_HttpException $e) {
+                    $server = array(
+                        'name'    => $dsn,
+                        'dsn'     => $dsn,
+                        'options' => array(),
+                        'error'   => $e->getMessage(),
+                    );
+                }
+
                 $server['default'] = true;
                 $this->servers[$server['name']] = $server;
             }
@@ -278,12 +293,12 @@ class Genghis_Api extends Genghis_App
         if (strpos($dsn, '://') === false) {
             $dsn = 'mongodb://'.$dsn;
         } else if (strpos($dsn, 'mongodb://') !== 0) {
-            throw new Genghis_HttpException(400, 'Malformed server dsn: unknown URI scheme');
+            throw new Genghis_HttpException(400, 'Malformed server DSN: unknown URI scheme');
         }
 
         $chunks = parse_url($dsn);
         if ($chunks === false || isset($chunks['query']) || isset($chunks['fragment']) || !isset($chunks['host'])) {
-            throw new Genghis_HttpException(400, 'Malformed server dsn');
+            throw new Genghis_HttpException(400, 'Malformed server DSN');
         }
 
         $options = array();
@@ -291,7 +306,7 @@ class Genghis_Api extends Genghis_App
             parse_str($chunks['query'], $options);
             foreach ($options as $name => $value) {
                 if (!in_array($name, array('replicaSet'))) {
-                    throw new Genghis_HttpException(400, 'Malformed server dsn: Unknown option — ' . $name);
+                    throw new Genghis_HttpException(400, 'Malformed server DSN: Unknown option — ' . $name);
                 }
 
                 $options[$name] = (string) $value;
