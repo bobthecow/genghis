@@ -8,7 +8,11 @@ Genghis.Views.NewDocument = Backbone.View.extend({
     render: function() {
         this.el = $(this.template.render()).hide().appendTo('body');
 
-        this.modal = this.el.modal('hide');
+        this.modal = this.el.modal({
+            backdrop: 'static',
+            show: false
+        });
+
         this.modal.bind('hide', this.cancelEdit);
 
         var wrapper = $('.wrapper', this.el);
