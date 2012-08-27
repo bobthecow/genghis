@@ -51,6 +51,10 @@ Genghis.Views.App = Backbone.View.extend({
         Genghis.Selection.change();
     },
     showSection: function(section) {
+        $('body')
+            .removeClass('section-servers section-databases section-collections section-documents section-document')
+            .addClass('section-'+(_.isArray(section) ? section.join(' section-') : section));
+
         this.$('section').hide()
             .filter('#'+(_.isArray(section) ? section.join(',#') : section))
                 //.addClass('spinning')

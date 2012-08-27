@@ -85,6 +85,8 @@ end
 
 script_files = FileList[
   # vendor libraries
+  'src/js/modernizr.js',
+  'src/js/modernizr-detects.js',
   'src/js/jquery.js',
   'src/js/jquery.hoverintent.js',
   'src/js/jquery.tablesorter.js',

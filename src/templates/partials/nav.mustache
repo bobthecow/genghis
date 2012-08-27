@@ -1,6 +1,8 @@
+{{! <button class="btn search pull-right">Search</button> }}
 <ul class="nav">
-	<li class="dropdown server"></li>
-	<li class="dropdown database"></li>
-	<li class="dropdown collection"></li>
+	<li class="nav-section servers"><a class="btn-servers" href="{{ baseUrl }}">Servers</a></li>
+	<li class="nav-section dropdown server"></li>
+	<li class="nav-section dropdown database"></li>
+	<li class="nav-section dropdown collection"></li>
 </ul>
 <form class="navbar-search form-search"><input id="navbar-query" class="search-query" name="q" type="text" value="{{ query }}" /></form>
