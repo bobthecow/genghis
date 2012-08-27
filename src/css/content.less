@@ -32,9 +32,11 @@ aside#alerts {
 
     // keep breadcrumb segments from leaking if they're too long
     .nav-section > a {
-        max-width: 8em;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        html.textoverflow & {
+            max-width: 8em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 }
 
