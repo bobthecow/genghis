@@ -12,28 +12,21 @@ body > section {
         margin:  20px 0;
         padding: 20px;
         border: 1px solid #AAA;
-        border-radius: 4px;
-
-        box-shadow: 0 1px 5px rgba(0,0,0,0.1), inset 0 1px 0 white;
+        .border-radius(4px);
+        .box-shadow(~"0 1px 5px rgba(0,0,0,0.1), inset 0 1px 0 white");
 
         > header {
-            background-color: #d8d8d8;
-            min-height: 40px;
+            .border-radius(4px 4px 0 0);
             margin: -20px -20px 20px;
-            padding: 0 20px;
-
-            border-top-left-radius:  4px;
-            border-top-right-radius: 4px;
-
-            background-image: -moz-linear-gradient(-90deg,#e4e4e4,#d8d8d8);
-            background-image: -webkit-gradient(linear, 0 top, 0 bottom, from(#e4e4e4),to(#d8d8d8));
-
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+            padding: 9px 20px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            .box-shadow(inset 0 1px 0 @white);
 
             h2 {
                 font-size:   24px;
-                line-height: 40px;
                 margin:      0;
+                line-height: 30px;
             }
         }
 
@@ -101,19 +94,12 @@ body > section {
     height:   100px;
     position: relative;
 
-
-    -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
-    -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
-    transition: border linear 0.2s, box-shadow linear 0.2s;
-    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    .transition(~"border linear 0.2s, box-shadow linear 0.2s");
+    .box-shadow(inset 0 1px 3px rgba(0, 0, 0, 0.1));
     margin: 0 0 10px;
     padding: 4px;
     border: 1px solid #CCC;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
+    .border-radius(3px);
 }
 
 // All tables in Genghis are styled.
@@ -143,7 +129,7 @@ table {
         // Style the ascending (reverse alphabetical) column header
         &:hover {
             &:after {
-                visibility:visible;
+                visibility: visible;
             }
         }
         // Style the descending (alphabetical) column header
@@ -175,10 +161,10 @@ tr {
         text-align: right;
         button {
             visibility: hidden;
-            -o-transition-property:      color,background,box-shadow;
-            -moz-transition-property:    color,background,box-shadow;
             -webkit-transition-property: color,background,box-shadow;
-            transition-property:         color,background,box-shadow;
+               -moz-transition-property: color,background,box-shadow;
+                 -o-transition-property: color,background,box-shadow;
+                    transition-property: color,background,box-shadow;
         }
     }
     &:hover {
@@ -189,10 +175,6 @@ tr {
 }
 
 section#servers {
-    // span.databases {
-    //     border-bottom: 1px dotted @greyish;
-    //     cursor: help;
-    // }
     .alert.alert-error {
         padding: 3px 10px;
         font-weight: bold;
@@ -295,8 +277,7 @@ section#servers {
             }
         }
         div.well {
-            @transition: border linear .2s, box-shadow linear .2s;
-            .transition(@transition);
+            .transition(~"border linear .2s, box-shadow linear .2s");
             .box-shadow(inset 0 1px 1px rgba(0,0,0,.05));
         }
         &.edit {
@@ -494,20 +475,12 @@ section#document {
                 border-bottom: 1px solid #DDD;
             }
             &:first-child, &:first-child > td:first-child {
-                -webkit-border-top-left-radius:  5px;
-                -webkit-border-top-right-radius: 5px;
-                -moz-border-radius-topleft:      5px;
-                -moz-border-radius-topright:     5px;
-                border-top-left-radius:          5px;
-                border-top-right-radius:         5px;
+                .border-top-left-radius(5px);
+                .border-top-right-radius(5px);
             }
             &:last-child, &:last-child > td:last-child {
-                -webkit-border-bottom-left-radius:  5px;
-                -webkit-border-bottom-right-radius: 5px;
-                -moz-border-radius-bottomleft:      5px;
-                -moz-border-radius-bottomright:     5px;
-                border-bottom-left-radius:          5px;
-                border-bottom-right-radius:         5px;
+                .border-bottom-left-radius(5px);
+                .border-bottom-right-radius(5px);
             }
         }
 
