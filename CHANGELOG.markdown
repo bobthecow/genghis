@@ -8,6 +8,7 @@ Updates:
 
 Features:
 
+ * Add Genghis.rb (currently read-only) — Thanks @TylerBrock for doing all the work :)
  * Make Genghis work with the PHP 5.4 CLI SAPI webserver.
  * Add support for pre-configured servers via `$GENGHIS_SERVERS` environment variable.
  * Add support for replica sets, e.g. `localhost:12345/?replicaSet=production`.
