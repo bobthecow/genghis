@@ -10,7 +10,7 @@ require 'digest/md5'
 require 'base64'
 require 'json'
 
-GENGHIS_VERSION = '1.4.2'
+GENGHIS_VERSION = '2.0.0-dev'
 
 tmp_dir = ENV['NOCOMPRESS'] ? 'tmp/uncompressed/' : 'tmp/compressed/'
 

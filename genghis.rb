@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# Genghis v1.4.2
+# Genghis v2.0.0-dev
 #
 # The single-file MongoDB admin app
 #
@@ -209,7 +209,7 @@ __END__
 
 @@ style.css
 /**
- * Genghis v1.4.2
+ * Genghis v2.0.0-dev
  *
  * The single-file MongoDB admin app
  *
@@ -221,7 +221,7 @@ __END__
 
 @@ script.js
 /**
- * Genghis v1.4.2
+ * Genghis v2.0.0-dev
  *
  * The single-file MongoDB admin app
  *
