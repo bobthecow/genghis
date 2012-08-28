@@ -11,7 +11,6 @@
 require 'rubygems'
 require 'sinatra/base'
 require 'sinatra/mustache'
-require 'sinatra/flash'
 require 'sinatra/json'
 require 'sinatra/reloader'
 require 'mongo'
@@ -28,10 +27,10 @@ class Genghis < Sinatra::Base
 
   def connection(server_name)
     server = @servers[server_name]
-    
+
     if server.start_with?('mongodb://')
       Mongo::Connection.from_uri(server)
-    else 
+    else
       host, port = @servers[server_name].split(':')
       Mongo::Connection.new(host, port ? port.to_i : 27017)
     end
@@ -87,7 +86,7 @@ class Genghis < Sinatra::Base
         :limit => 50,
         :skip => 50 * (page - 1)
       ).to_a
-    }  
+    }
   end
 
   before do
@@ -98,7 +97,7 @@ class Genghis < Sinatra::Base
   end
 
   get '/check-status' do
-    json({:alerts => []})  
+    json({:alerts => []})
   end
 
   get '/assets/style.css' do
@@ -116,13 +115,13 @@ class Genghis < Sinatra::Base
       pass
     else
       mustache 'index.html.mustache'.intern
-    end  
+    end
   end
 
   get '/servers' do
     json @servers.keys.collect {|server_name| server_info(server_name)}
-  end 
-  
+  end
+
   post '/servers' do
     name = JSON.parse(request.body.read)['name']
     @servers[name] = name
@@ -132,7 +131,7 @@ class Genghis < Sinatra::Base
       :value => JSON.dump(@servers),
       :expires => Time.now + 60*60*24*365
     )
-    json server_info(name) 
+    json server_info(name)
   end
 
   delete '/servers/:server' do
@@ -151,7 +150,7 @@ class Genghis < Sinatra::Base
   end
 
   get '/servers/:server/databases' do |server|
-    databases = connection(server)['admin'].command({:listDatabases => true})['databases']  
+    databases = connection(server)['admin'].command({:listDatabases => true})['databases']
     json databases.map {|database| database_info(server, database)}
   end
 
@@ -163,7 +162,7 @@ class Genghis < Sinatra::Base
 
   get '/servers/:server/databases/:database/collections' do |server, db|
     database = connection(server)[db]
-    collections = database.collections.reject {|collection| collection.name.start_with?('system')} 
+    collections = database.collections.reject {|collection| collection.name.start_with?('system')}
     json collections.map {|collection| collection_info(collection)}
   end
 
@@ -179,7 +178,7 @@ class Genghis < Sinatra::Base
   end
 
   get '/servers/:server/databases/:database/collections/:collection/documents/:document' do
-    
+
   end
 end
 
