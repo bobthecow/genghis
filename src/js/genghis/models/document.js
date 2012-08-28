@@ -34,5 +34,8 @@ Genghis.Models.Document = Backbone.Model.extend({
     },
     JSONish: function() {
         return JSON.stringify(this.toJSON(), null, 4);
+    },
+    readOnly: function() {
+        return Genghis.features.readOnly || false;
     }
 });

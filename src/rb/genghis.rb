@@ -15,6 +15,12 @@ class Genghis < Sinatra::Base
     register Sinatra::Reloader
   end
 
+  def features
+    {
+      :readOnly => true
+    }
+  end
+
   def connection(server_name)
     server = @servers[server_name]
 
@@ -109,6 +115,7 @@ class Genghis < Sinatra::Base
     if request.xhr?
       pass
     else
+      @features = features.to_json
       mustache 'index.html.mustache'.intern
     end
   end

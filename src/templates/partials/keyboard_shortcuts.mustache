@@ -18,6 +18,7 @@
           <dd>Go up one level</dd>
         </dl>
 
+        {{^ readOnly }}
         <h4>Servers</h4>
         <dl>
           <dt><kbd>c</kbd></dt>
@@ -29,21 +30,26 @@
           <dt><kbd>c</kbd></dt>
           <dd>New database</dd>
         </dl>
+        {{/ readOnly }}
       </li>
       <li>
+        {{^ readOnly }}
         <h4>Collections</h4>
         <dl>
           <dt><kbd>c</kbd></dt>
           <dd>New collection</dd>
         </dl>
+        {{/ readOnly }}
 
         <h4>Documents</h4>
         <dl>
           <dt><kbd>/</kbd></dt>
           <dd>Search</dd>
 
+          {{^ readOnly }}
           <dt><kbd>c</kbd></dt>
           <dd>New document</dd>
+          {{/ readOnly }}
 
           <dt><kbd>n</kbd></dt>
           <dd>Next page</dd>
