@@ -35,7 +35,14 @@ namespace :build do
   desc "Compile Genghis JavaScript assets"
   task :js  => [ tmp_dir+'script.js' ]
 
-  task :all => [ 'genghis.php', 'build:js', 'build:css' ]
+  desc "Compile PHP Genghis w/ CSS and JS"
+  task :all_php => [ 'genghis.php', 'build:js', 'build:css' ]
+
+  desc "Compile Ruby Genghis w/ CSS and JS"
+  task :all_rb => [ 'genghis.rb', 'build:js', 'build:css' ]
+
+  desc "Compile Both PHP and Ruby versions of Genghis"
+  task :all => [ 'genghis.php', 'genghis.rb', 'build:js', 'build:css' ]
 end
 
 directory tmp_dir
@@ -173,13 +180,14 @@ file tmp_dir+'error.html.mustache' => FileList[tmp_dir, 'src/templates/index.htm
   end
 end
 
-include_files = FileList['src/php/**/*.php']
 asset_files = [tmp_dir+'index.html.mustache', tmp_dir+'error.html.mustache', tmp_dir+'style.css', tmp_dir+'script.js']
-file 'genghis.php' => include_files + asset_files do
+
+php_include_files = FileList['src/php/**/*.php']
+file 'genghis.php' => php_include_files + asset_files do
   File.open('genghis.php', 'w') do |file|
     template = ERB.new(File.read('src/templates/genghis.php.erb'))
 
-    includes = include_files.map { |inc| ENV['NOCOMPRESS'] ? File.read(inc) : `php -w #{inc}` }
+    includes = php_include_files.map { |inc| ENV['NOCOMPRESS'] ? File.read(inc) : `php -w #{inc}` }
     assets = asset_files.map do |asset|
       content = File.read(asset)
       { :name => asset.sub(/^tmp\/(un)?compressed\//, ''), :content => content, :etag => Digest::MD5.hexdigest(content) }
@@ -189,10 +197,27 @@ file 'genghis.php' => include_files + asset_files do
   end
 end
 
+rb_include_files = FileList['src/rb/*.rb']
+asset_files = [tmp_dir+'index.html.mustache', tmp_dir+'error.html.mustache', tmp_dir+'style.css', tmp_dir+'script.js']
+file 'genghis.rb' => rb_include_files + asset_files do
+  File.open('genghis.rb', 'w') do |file|
+    template = ERB.new(File.read('src/templates/genghis.rb.erb'))
+
+    includes = rb_include_files.map { |inc| File.read(inc) }
+    assets = asset_files.map do |asset|
+      content = File.read(asset)
+      { :name => asset.sub(/^tmp\/(un)?compressed\//, ''), :content => content, :etag => Digest::MD5.hexdigest(content) }
+    end
+
+    file << template.result(binding)
+    chmod(0755, file)
+  end
+end
+
 Rake::PackageTask.new('genghis', GENGHIS_VERSION) do |p|
   p.need_tar = true
   p.package_files.include('genghis.php', '.htaccess', 'README.markdown')
 end
 
 CLEAN.include('tmp/*')
-CLOBBER.include('tmp/*', 'genghis.php')
+CLOBBER.include('tmp/*', 'genghis.php', 'genghis.rb')
