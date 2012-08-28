@@ -37,7 +37,8 @@ class Genghis < Sinatra::Base
   end
 
   def server_info(server_name)
-    resp = { :id => server_name, :name => server_name }
+    # TODO: not all are editable... remove "editable: true" once default servers are implemented
+    resp = { :id => server_name, :name => server_name, :editable => true }
     begin
       conn = connection(server_name)
     rescue Mongo::ConnectionFailure => ex
