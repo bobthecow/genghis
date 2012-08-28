@@ -175,11 +175,7 @@ class Genghis < Sinatra::Base
   get '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
     collection = connection(server)[db][coll]
     page = params.fetch(:page, 1).to_i
-
-    # TODO: figure out what's up here
-    # for some reason the normal #json return doesn't work with this one.
-    content_type :json
-    document_info(collection, page).to_json
+    json document_info(collection, page), :encoder => :to_json
   end
 
   get '/servers/:server/databases/:database/collections/:collection/documents/:document' do
