@@ -90,6 +90,10 @@ class Genghis < Sinatra::Base
     }
   end
 
+  def thunk_mongo_id(id)
+    id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(id) : id
+  end
+
   before do
     @servers ||= { 'localhost' => 'localhost:27017' }
     if servers = request.cookies['genghis_servers']
@@ -178,8 +182,9 @@ class Genghis < Sinatra::Base
     json document_info(collection, page), :encoder => :to_json
   end
 
-  get '/servers/:server/databases/:database/collections/:collection/documents/:document' do
-
+  get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
+    document = connection(server)[db][coll].find_one('_id' => thunk_mongo_id(doc))
+    json document, :encoder => :to_json
   end
 end
 
