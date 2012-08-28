@@ -151,7 +151,7 @@ class Genghis < Sinatra::Base
 
   get '/servers/:server/databases/:database' do |server, db|
     databases = connection(server)['admin'].command({:listDatabases => true})['databases']
-    database = databases[databases.index {|database| database['name'] == db}]
+    database  = databases.detect {|d| d['name'] == db}
     json database_info(server, database)
   end
 
