@@ -17,14 +17,10 @@ Genghis.Views.NewDocument = Backbone.View.extend({
         });
 
         wrapper = $('.wrapper', this.el);
-        this.editor = CodeMirror.fromTextArea($('#editor-new', this.el)[0], {
-            mode: "application/json",
-            lineNumbers: true,
-            tabSize: 2,
-            indentUnit: 2,
+        this.editor = CodeMirror.fromTextArea($('#editor-new', this.el)[0], _.extend(Genghis.defaults.codeMirror, {
             onFocus: function() { wrapper.addClass('focused');    },
             onBlur:  function() { wrapper.removeClass('focused'); }
-        });
+        }));
 
         $(window).resize(_.throttle(this.refreshEditor, 100));
 
@@ -37,8 +33,8 @@ Genghis.Views.NewDocument = Backbone.View.extend({
         return this;
     },
     show: function() {
-        this.editor.setValue("{\n  \n}\n");
-        this.editor.setCursor({line:1, ch:2});
+        this.editor.setValue("{\n    \n}\n");
+        this.editor.setCursor({line:1, ch:4});
         this.modal
             .css({marginTop: (-10 - (this.el.height() / 2)) + 'px'})
             .modal('show');

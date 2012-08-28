@@ -67,14 +67,10 @@ Genghis.Views.DocumentView = Backbone.View.extend({
         this.$('.document').hide();
 
         var el = $(this.el).addClass('edit');
-        this.editor = CodeMirror.fromTextArea($('#editor-'+this.model.id)[0], {
-            mode: "application/json",
-            lineNumbers: true,
-            tabSize: 2,
-            indentUnit: 2,
+        this.editor = CodeMirror.fromTextArea($('#editor-'+this.model.id)[0], _.extend(Genghis.defaults.codeMirror, {
             onFocus: function() { el.addClass('focused');    },
             onBlur:  function() { el.removeClass('focused'); }
-        });
+        }));
 
         setTimeout(this.editor.focus, 50);
 
