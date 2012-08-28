@@ -2,10 +2,12 @@ Genghis.Views.NewDocument = Backbone.View.extend({
     el: '#new-document',
     template: Genghis.Templates.NewDocument,
     initialize: function() {
-        _.bindAll(this, 'render', 'show', 'resizeEditor', 'closeModal', 'cancelEdit', 'saveDocument');
+        _.bindAll(this, 'render', 'show', 'refreshEditor', 'closeModal', 'cancelEdit', 'saveDocument');
         this.render();
     },
     render: function() {
+        var wrapper;
+
         this.el = $(this.template.render()).hide().appendTo('body');
 
         this.modal = this.el.modal({
@@ -14,9 +16,7 @@ Genghis.Views.NewDocument = Backbone.View.extend({
             keyboard: false
         });
 
-        this.modal.bind('hide', this.cancelEdit);
-
-        var wrapper = $('.wrapper', this.el);
+        wrapper = $('.wrapper', this.el);
         this.editor = CodeMirror.fromTextArea($('#editor-new', this.el)[0], {
             mode: "application/json",
             lineNumbers: true,
@@ -26,25 +26,26 @@ Genghis.Views.NewDocument = Backbone.View.extend({
             onBlur:  function() { wrapper.removeClass('focused'); }
         });
 
-        $(window).resize(_.throttle(this.resizeEditor, 100));
+        $(window).resize(_.throttle(this.refreshEditor, 100));
 
-        this.modal.bind('shown', this.resizeEditor);
+        this.modal.bind('hide', this.cancelEdit);
+        this.modal.bind('shown', this.refreshEditor);
+
         this.modal.find('button.cancel').bind('click', this.closeModal);
         this.modal.find('button.save').bind('click', this.saveDocument);
-
-        window.GenghisEditor = this.editor;
 
         return this;
     },
     show: function() {
-        this.el.find('#editor-new').height($(window).height() - 250);
         this.editor.setValue("{\n  \n}\n");
         this.editor.setCursor({line:1, ch:2});
-        this.modal.css({marginTop: (30 - (this.el.height() / 2)) + 'px'}).modal('show');
-        setTimeout(this.editor.focus, 50);
+        this.modal
+            .css({marginTop: (-10 - (this.el.height() / 2)) + 'px'})
+            .modal('show');
     },
-    resizeEditor: function() {
+    refreshEditor: function() {
         this.editor.refresh();
+        this.editor.focus();
     },
     closeModal: function(e) {
         this.modal.modal('hide');
