@@ -104,6 +104,7 @@ script_files = FileList[
   'vendor/bootstrap/js/bootstrap-tooltip.js',
   'vendor/bootstrap/js/bootstrap-popover.js',
   'vendor/bootstrap/js/bootstrap-modal.js',
+  'vendor/esprima/esprima.js',
   'vendor/hotkeys/jquery.hotkeys.js',
   'vendor/hogan/lib/template.js',
 
@@ -114,6 +115,7 @@ script_files = FileList[
   'src/js/genghis/bootstrap.js',
   tmp_dir+'templates.js',
   'src/js/genghis/util.js',
+  'src/js/genghis/json.js',
   'src/js/genghis/base/**/*',
   'src/js/genghis/models/**/*',
   'src/js/genghis/collections/**/*',

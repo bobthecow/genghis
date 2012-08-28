@@ -1,4 +1,4 @@
-Genghis.Views.NewDocument = Backbone.View.extend({
+Genghis.Views.NewDocument = Genghis.Base.DocumentView.extend({
     el: '#new-document',
     template: Genghis.Templates.NewDocument,
     initialize: function() {
@@ -49,23 +49,25 @@ Genghis.Views.NewDocument = Backbone.View.extend({
     cancelEdit: function(e) {
         this.editor.setValue('');
     },
+    getErrorBlock: function() {
+        var errorBlock = $('div.errors', this.el);
+        if (errorBlock.length == 0) {
+            errorBlock = $('<div class="errors"></div>').prependTo($('.modal-body', this.el));
+        }
+
+        return errorBlock;
+    },
     saveDocument: function() {
-        var collection = this.collection;
+        var data = this.getEditorValue();
+        if (data === false) {
+            return;
+        }
+
         var closeModal = this.closeModal;
 
-        $.ajax({
-            type: 'POST',
-            url: Genghis.baseUrl + 'convert-json',
-            data: this.editor.getValue(),
-            contentType: 'application/json',
-            async: false,
-            success: function(data) {
-                collection.create(data, {success: function(doc) {
-                    closeModal();
-                    App.Router.navigate(Genghis.Util.route(doc.url()), true);
-                }});
-            },
-            dataType: 'json'
-        });
+        this.collection.create(data, {success: function(doc) {
+            closeModal();
+            App.Router.navigate(Genghis.Util.route(doc.url()), true);
+        }});
     }
 });

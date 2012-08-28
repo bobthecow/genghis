@@ -1,4 +1,4 @@
-Genghis.Views.DocumentView = Backbone.View.extend({
+Genghis.Views.DocumentView = Genghis.Base.DocumentView.extend({
     tagName: 'article',
     template: Genghis.Templates.DocumentView,
     events: {
@@ -83,24 +83,24 @@ Genghis.Views.DocumentView = Backbone.View.extend({
         this.updateDocument();
         this.$('.well').height('auto');
     },
-    saveDocument: function() {
-        var doc        = this.model;
-        var cancelEdit = this.cancelEdit;
+    getErrorBlock: function() {
+        var errorBlock = this.$('div.errors');
+        if (errorBlock.length == 0) {
+            errorBlock = $('<div class="errors"></div>').prependTo(this.el);
+        }
 
-        $.ajax({
-            type: 'POST',
-            url: Genghis.baseUrl + 'convert-json',
-            data: this.editor.getValue(),
-            contentType: 'application/json',
-            async: false,
-            success: function(data) {
-                doc.clear({silent: true});
-                doc.set(data);
-                doc.save();
-                cancelEdit();
-            },
-            dataType: 'json'
-        });
+        return errorBlock;
+    },
+    saveDocument: function() {
+        var data = this.getEditorValue();
+        if (data === false) {
+            return;
+        }
+
+        this.model.clear({silent: true});
+        this.model.set(data);
+        this.model.save();
+        this.cancelEdit();
     },
     destroy: function() {
         var model = this.model;
