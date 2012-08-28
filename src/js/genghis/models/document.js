@@ -4,13 +4,13 @@ Genghis.Models.Document = Backbone.Model.extend({
 
         var id = this.get('_id');
         if (id) {
-            this.id = id['$id'] || id;
+            this.id = id['$id'] || id['$oid'] || id;
         }
     },
     parse: function(resp) {
         // a little bitta id thunk.
         if (resp['_id']) {
-            this.id = resp['_id']['$id'] || resp['_id'];
+            this.id = resp['_id']['$id'] || resp['_id']['$oid'] || resp['_id'];
         }
 
         return resp;
