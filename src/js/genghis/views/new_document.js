@@ -10,7 +10,8 @@ Genghis.Views.NewDocument = Backbone.View.extend({
 
         this.modal = this.el.modal({
             backdrop: 'static',
-            show: false
+            show: false,
+            keyboard: false
         });
 
         this.modal.bind('hide', this.cancelEdit);
