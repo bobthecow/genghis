@@ -41,11 +41,17 @@ end
 directory tmp_dir
 
 css_files = [
+  'vendor/codemirror/lib/codemirror.css',
   'vendor/keyscss/keys.css',
-  'vendor/codemirror/lib/codemirror.css'
 ]
 
-file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/bootstrap/less/*.less', *css_files] do
+file tmp_dir+'style.css' => FileList[
+  tmp_dir,
+  'src/css/*.less',
+  'vendor/bootstrap/less/*.less',
+  'vendor/apprise-bootstrap/apprise-bootstrap.less',
+  *css_files
+] do
   File.open(tmp_dir+'style.css', 'w') do |file|
     file << <<-doc.unindent
       /**
@@ -94,7 +100,7 @@ script_files = FileList[
   'src/js/backbone.js',
   'vendor/codemirror/lib/codemirror.js',
   'vendor/codemirror/mode/javascript/javascript.js',
-  'vendor/apprise/apprise-1.5.full.js',
+  'vendor/apprise-bootstrap/apprise.js',
   'vendor/bootstrap/js/bootstrap-tooltip.js',
   'vendor/bootstrap/js/bootstrap-popover.js',
   'vendor/bootstrap/js/bootstrap-modal.js',
