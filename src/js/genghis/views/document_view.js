@@ -73,7 +73,11 @@ Genghis.Views.DocumentView = Genghis.Base.DocumentView.extend({
         var el = $(this.el).addClass('edit');
         this.editor = CodeMirror.fromTextArea($('#editor-'+this.model.id)[0], _.extend(Genghis.defaults.codeMirror, {
             onFocus: function() { el.addClass('focused');    },
-            onBlur:  function() { el.removeClass('focused'); }
+            onBlur:  function() { el.removeClass('focused'); },
+            extraKeys: {
+                 'Ctrl-Enter': this.saveDocument,
+                 'Cmd-Enter':  this.saveDocument
+             }
         }));
 
         setTimeout(this.editor.focus, 50);
