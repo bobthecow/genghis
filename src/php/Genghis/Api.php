@@ -42,7 +42,7 @@ class Genghis_Api extends Genghis_App
                         case 'GET':
                             return $this->findDocument($p['server'], $p['database'], $p['collection'], $p['document']);
                         case 'PUT':
-                            return $this->updateDocument($p['server'], $p['database'], $p['collection'], $p['document'], $this->getRequestData());
+                            return $this->updateDocument($p['server'], $p['database'], $p['collection'], $p['document'], $this->getRequestData(true));
                         case 'DELETE':
                             return $this->removeDocument($p['server'], $p['database'], $p['collection'], $p['document']);
                         default:
@@ -254,7 +254,7 @@ class Genghis_Api extends Genghis_App
                 $this->servers[$server['name']] = $server;
             }
 
-            if (isset($_COOKIE['genghis_servers']) && $localDsns = json_decode($_COOKIE['genghis_servers'], true)) {
+            if (isset($_COOKIE['genghis_servers']) && $localDsns = $this->decodeJson($_COOKIE['genghis_servers'], false)) {
                 foreach (array_map(array($this, 'parseServerDsn'), $localDsns) as $server) {
                     $this->servers[$server['name']] = $server;
                 }
@@ -278,7 +278,7 @@ class Genghis_Api extends Genghis_App
             }
         }
 
-        setcookie('genghis_servers', json_encode($servers), time()+60*60*24*365, '/');
+        setcookie('genghis_servers', $this->encodeJson($servers, false), time()+60*60*24*365, '/');
     }
 
     public static function parseServerDsn($dsn)
@@ -519,17 +519,30 @@ class Genghis_Api extends Genghis_App
         }
     }
 
-    protected function encodeJson($object)
+    protected function encodeJson($value, $gfj = true)
     {
-        return Genghis_Json::encode($object);
+        if ($gfj) {
+            return Genghis_Json::encode($value);
+        } else {
+            return json_encode($value);
+        }
     }
 
-    protected function decodeJson($data)
+    protected function decodeJson($data, $gfj = true)
     {
-        try {
-            return Genghis_Json::decode($data);
-        } catch (Genghis_JsonException $e) {
-            throw new Genghis_HttpException(400, 'Malformed document');
+        if ($gfj) {
+            try {
+                return Genghis_Json::decode($data);
+            } catch (Genghis_JsonException $e) {
+                throw new Genghis_HttpException(400, 'Malformed document');
+            }
+        } else {
+            $json = json_decode($data, true);
+            if ($json === false && trim($data) != '') {
+                throw new Genghis_HttpException(400, 'Malformed document');
+            }
+
+            return $json;
         }
     }
 
@@ -538,9 +551,9 @@ class Genghis_Api extends Genghis_App
         return preg_match('/^[a-f0-9]{24}$/i', $id) ? new MongoId($id) : $id;
     }
 
-    protected function getRequestData()
+    protected function getRequestData($gfj = false)
     {
-        return $this->decodeJson(file_get_contents('php://input'));
+        return $this->decodeJson(file_get_contents('php://input'), $gfj);
     }
 
     protected function getMongo($server)
