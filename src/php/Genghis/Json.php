@@ -56,15 +56,6 @@ class Genghis_Json
             }
 
         } elseif (is_array($object)) {
-
-            // handle db refs
-            if (isset($object['$ref']) && isset($object['$id'])) {
-                return array(
-                    '$genghisType' => 'DBRef',
-                    '$value' => $object
-                );
-            }
-
             // walk.
             foreach ($object as $key => $value) {
                 $object[$key] = self::doEncode($value);
@@ -98,13 +89,6 @@ class Genghis_Json
 
                     case 'ISODate':
                         return ($value === null) ? new MongoDate : new MongoDate($value);
-
-                    case 'DBRef':
-                        $ref = self::getProp($value, 'ref');
-                        $id  = self::getProp($value, 'id');
-                        $db  = self::getProp($value, 'db');
-
-                        return new MongoDBRef($ref, $id, $db);
 
                     case 'RegEx':
                         $pattern = self::getProp($value, 'pattern');

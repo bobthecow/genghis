@@ -100,13 +100,12 @@ Genghis.JSON = {
                 return new GenghisDate(timestamp);
             }
 
+            // DBRef isn't so much a custom type as it is a hash factory...
+            // we won't bother using a $genghisType for this one.
             function DBRef(ref, id) {
                 return {
-                    '$genghisType': 'DBRef',
-                    '$value': {
-                        '$ref': ref ? ref.toString() : null,
-                        '$id':  id ? id : null
-                    }
+                    '$ref': ref,
+                    '$id':  id
                 };
             }
 
