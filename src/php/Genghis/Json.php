@@ -91,7 +91,7 @@ class Genghis_Json
                     case 'ISODate':
                         return ($value === null) ? new MongoDate : new MongoDate($value);
 
-                    case 'RegEx':
+                    case 'RegExp':
                         $pattern = self::getProp($value, 'pattern');
                         $flags   = self::getProp($value, 'flags');
 
