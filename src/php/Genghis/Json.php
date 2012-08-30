@@ -1,0 +1,140 @@
+<?php
+
+class Genghis_Json
+{
+    /**
+     * Encode a Mongo document into JSON.
+     *
+     * Serialize special object types (ObjectIds, Dates, RegExps, etc) to a
+     * Genghis-specific format, for example, an ObjectId might be serialized as:
+     *
+     *     {
+     *         '$genghisType': 'ObjectId',
+     *         '$value': '503f1a53910b4b7863341428'
+     *     }
+     *
+     * @param   mixed $object Object or associative array
+     *
+     * @return string
+     */
+    public static function encode($object)
+    {
+        // $object is not really an object, but what can you do?
+        return json_encode(self::doEncode($object));
+    }
+
+    private static function doEncode($object)
+    {
+        if (is_object($object)) {
+
+            // Genghisify Mongo objects.
+            switch (get_class($object)) {
+                case 'MongoId':
+                    return array(
+                        '$genghisType' => 'ObjectId',
+                        '$value' => (string) $object
+                    );
+
+                case 'MongoDate':
+                    return array(
+                        '$genghisType' => 'ISODate',
+                        '$value' => date(DATE_W3C, $object->sec) // 2012-08-30T06:35:22.056Z
+                    );
+
+                case 'MongoRegex':
+                    return array(
+                        '$genghisType' => 'RegExp',
+                        '$value' => array(
+                            '$pattern' => $object->regex,
+                            '$flags'   => $object->flags ? $object->flags : null
+                        )
+                    );
+
+                // Some random value object? Prolly ints or BinData.
+                default:
+                    return $object;
+            }
+
+        } elseif (is_array($object)) {
+
+            // handle db refs
+            if (isset($object['$ref']) && isset($object['$id'])) {
+                return array(
+                    '$genghisType' => 'DBRef',
+                    '$value' => $object
+                );
+            }
+
+            // walk.
+            foreach ($object as $key => $value) {
+                $object[$key] = self::doEncode($value);
+            }
+        }
+
+        return $object;
+    }
+
+    public static function decode($object)
+    {
+        if (is_string($object)) {
+            $object = json_decode($object);
+
+            if ($object === false) {
+                throw new Genghis_JsonException;
+            }
+        }
+
+        return self::doDecode($object);
+    }
+
+    private static function doDecode($object)
+    {
+        if (is_object($object)) {
+            if ($type = self::getProp($object, 'genghisType')) {
+                $value = self::getProp($object, 'value');
+                switch ($type) {
+                    case 'ObjectId':
+                        return new MongoId($value);
+
+                    case 'ISODate':
+                        return ($value === null) ? new MongoDate : new MongoDate($value);
+
+                    case 'DBRef':
+                        $ref = self::getProp($value, 'ref');
+                        $id  = self::getProp($value, 'id');
+                        $db  = self::getProp($value, 'db');
+
+                        return new MongoDBRef($ref, $id, $db);
+
+                    case 'RegEx':
+                        $pattern = self::getProp($value, 'pattern');
+                        $flags   = self::getProp($value, 'flags');
+
+                        return new MongoRegex(sprintf('/%s/%s', $pattern, $flags));
+                }
+            } else {
+                // explicitly handle a couple of edge cases:
+                if (count(get_object_vars($object)) && $id = self::getProp($object, 'id')) {
+                    return new MongoId($id);
+                }
+
+                foreach ($object as $prop => $value) {
+                    $object->$prop = self::doDecode($value);
+                }
+            }
+        } elseif (is_array($object)) {
+            foreach ($object as $key => $value) {
+                $object[$key] = self::doDecode($value);
+            }
+        }
+
+        return $object;
+    }
+
+    private static function getProp($object, $name)
+    {
+        $name = sprintf('$%s', $name);
+
+        return isset($object->$name) ? $object->$name : null;
+    }
+}

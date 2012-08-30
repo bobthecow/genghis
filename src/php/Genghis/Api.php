@@ -5,9 +5,6 @@ class Genghis_Api extends Genghis_App
     // api/servers/:serverName/databases/:databaseName/collections/:collectionName/documents/:documentId
     const ROUTE_PATTERN = '~^/?servers(?:/(?P<server>[^/]+)(?P<databases>/databases(?:/(?P<database>[^/]+)(?P<collections>/collections(?:/(?P<collection>[^/]+)(?P<documents>/documents(?:/(?P<document>[^/]+))?)?)?)?)?)?)?/?$~';
 
-    // convert-json
-    const CONVERT_JSON_ROUTE = '~/?convert-json/?$~';
-
     const CHECK_STATUS_ROUTE = '~/?check-status/?$~';
 
     const PAGE_LIMIT = 50;
@@ -29,10 +26,6 @@ class Genghis_Api extends Genghis_App
     {
         if (preg_match(self::CHECK_STATUS_ROUTE, $path)) {
             return $this->checkStatus();
-        }
-
-        if (preg_match(self::CONVERT_JSON_ROUTE, $path)) {
-            return new Genghis_JsonResponse($this->getRequestData(false));
         }
 
         $p = array();
@@ -456,7 +449,7 @@ class Genghis_Api extends Genghis_App
         throw new Genghis_HttpException(404);
     }
 
-    public function updateDocument($server, $database, $collection, $document, array $data)
+    public function updateDocument($server, $database, $collection, $document, $data)
     {
         $coll = $this->getCollection($server, $database, $collection);
         $query = array('_id' => $this->thunkMongoId($document));
@@ -510,7 +503,7 @@ class Genghis_Api extends Genghis_App
         ));
     }
 
-    public function insertDocument($server, $database, $collection, array $data = null)
+    public function insertDocument($server, $database, $collection, $data = null)
     {
         if (empty($data)) {
             throw new Genghis_HttpException(400, 'Malformed document');
@@ -526,35 +519,18 @@ class Genghis_Api extends Genghis_App
         }
     }
 
-    protected function decodeJson($data, $andThunk = true)
+    protected function encodeJson($object)
+    {
+        return Genghis_Json::encode($object);
+    }
+
+    protected function decodeJson($data)
     {
         try {
-            $decoder = new Genghis_JsonDecoder;
-            $json    = $decoder->decode($data);
-
-            return $andThunk ? $this->thunkMongoQuery($json) : $json;
+            return Genghis_Json::decode($data);
         } catch (Genghis_JsonException $e) {
             throw new Genghis_HttpException(400, 'Malformed document');
         }
-    }
-
-    protected function thunkMongoQuery(array $query)
-    {
-        foreach ($query as $key => $val) {
-            if (is_array($val)) {
-                if (isset($val['$id']) && count($val) == 1) {
-                    $query[$key] = $this->thunkMongoId($val['$id']);
-                } elseif (count($val) == 2 && isset($val['sec']) && isset($val['usec'])) {
-                    $query[$key] = new MongoDate($val['sec'], $val['usec']);
-                } else {
-                    $query[$key] = $this->thunkMongoQuery($val);
-                }
-            } else if ($val instanceof Genghis_JsonRegex) {
-                $query[$key] = new MongoRegex($val->pattern);
-            }
-        }
-
-        return $query;
     }
 
     protected function thunkMongoId($id)
@@ -562,9 +538,9 @@ class Genghis_Api extends Genghis_App
         return preg_match('/^[a-f0-9]{24}$/i', $id) ? new MongoId($id) : $id;
     }
 
-    protected function getRequestData($andThunk = true)
+    protected function getRequestData()
     {
-        return $this->decodeJson(file_get_contents('php://input'), $andThunk);
+        return $this->decodeJson(file_get_contents('php://input'));
     }
 
     protected function getMongo($server)
