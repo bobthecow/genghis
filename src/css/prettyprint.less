@@ -105,10 +105,8 @@
                     border:   4px solid transparent;
                     border-top-color: lighten(@greyish, 20%);
                 }
-                &:hover, &:active {
-                    &:after {
-                        border-top-color: @greyish;
-                    }
+                &:hover:after, &:active:after {
+                    border-top-color: @greyish;
                 }
             }
             button {
@@ -116,6 +114,19 @@
                 background-color: transparent;
             }
             &.collapsed {
+                button {
+                    &:after {
+                        left: 6px;
+                        top:  4px;
+
+                        border-top-color: transparent;
+                        border-left-color: lighten(@greyish, 20%);
+                    }
+                    &:hover:after, &:active:after {
+                        border-top-color: transparent;
+                        border-left-color: @greyish;
+                    }
+                }
                 .ellipsis,
                 .e {
                     display: inline;
