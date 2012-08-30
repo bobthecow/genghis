@@ -46,18 +46,28 @@
 //            color: #458;
 //        }
 
-//        .db-ref {
-//            .db-ref-ref, .db-ref-id, .db-ref-db {
-//                .string .value {
-//                    cursor: pointer;
-//                    border-bottom: 1px dotted #D14;
-//                    &:hover {
-//                        color: #0058E1;
-//                        border-bottom: 1px solid #0058E1;
-//                    }
-//                }
-//            }
-//        }
+        .ref {
+            .ref-link() {
+                cursor: pointer;
+                border-bottom: 1px dotted #D14;
+                &:hover {
+                    color: @linkColor;
+                    border-bottom: 1px solid @linkColor;
+                }
+            }
+            .ref-ref, .ref-db, .ref-id {
+                .v .s {
+                    .ref-link;
+                }
+            }
+            .ref-id {
+                .v.n {
+                    .ref-link;
+                    border-bottom-color: #40A070;
+                }
+            }
+        }
+
 
         var {
             font-style: normal;

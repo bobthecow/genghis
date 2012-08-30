@@ -197,6 +197,7 @@ Genghis.Util = {
                 var p;
                 var glue = '';
                 var value = holder[key];
+                var spanClass;
 
                 // If the value has a toJSON method, call it to obtain a replacement value.
                 if (_.isObject(value) && typeof value.toJSON === 'function') {
@@ -296,7 +297,12 @@ Genghis.Util = {
                             if (Object.hasOwnProperty.call(value, k)) {
                                 v = createView(k, value);
                                 if (v) {
-                                    p = span('p' + (v.collapsed ? ' collapsed' : ''));
+                                    spanClass = 'p' + (v.collapsed ? ' collapsed' : '');
+                                    if (k == '$ref' || k == '$id' || k == '$db') {
+                                        spanClass = spanClass + ' ref-' + k.substr(1);
+                                    }
+
+                                    p = span(spanClass);
 
                                     if (v.collapsible) {
                                         p.appendChild(e('button'));
@@ -322,12 +328,15 @@ Genghis.Util = {
 
                         // Join all of the member texts together, separated with commas,
                         // and wrap them in braces.
+                        spanClass = 'v o';
 
                         if (partial.length === 0) {
-                            return span('v o', (t('{}')));
+                            return span(spanClass, (t('{}')));
+                        } else if (value['$ref'] && value['$id']) {
+                            spanClass = spanClass + ' ref';
                         }
 
-                        el = span('v o');
+                        el = span(spanClass);
                         el.collapsible = true;
                         el.appendChild(t(gap ? ('{\n' + gap) : '{'));
 

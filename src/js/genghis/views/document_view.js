@@ -8,9 +8,11 @@ Genghis.Views.DocumentView = Genghis.Base.DocumentView.extend({
         'click button.save':        'saveDocument',
         'click button.cancel':      'cancelEdit',
         'click button.destroy':     'destroy',
-        'click .db-ref-ref .value': 'navigateColl',
-        'click .db-ref-db .value':  'navigateDb',
-        'click .db-ref-id .value':  'navigateId'
+
+        // navigation!
+        'click .ref .ref-ref .v .s':                    'navigateColl',
+        'click .ref .ref-db .v .s':                     'navigateDb',
+        'click .ref .ref-id .v .s, .ref .ref-id .v.n':  'navigateId'    // handle numeric IDs too
     },
     initialize: function() {
         _.bindAll(
@@ -36,23 +38,23 @@ Genghis.Views.DocumentView = Genghis.Base.DocumentView.extend({
         App.Router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
     },
     navigateDb: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref');
-        var db     = $dbRef.find('.db-ref-db .value').text();
+        var $dbRef = $(e.target).parents('.ref');
+        var db     = $dbRef.find('.ref-db .v .s').text();
 
         App.Router.redirectToDatabase(Genghis.Selection.CurrentServer.id, db);
     },
     navigateColl: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref');
-        var db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id;
-        var coll   = $dbRef.find('.db-ref-ref .value').text();
+        var $dbRef = $(e.target).parents('.ref');
+        var db     = $dbRef.find('.ref-db  .v .s').text() || Genghis.Selection.CurrentDatabase.id;
+        var coll   = $dbRef.find('.ref-ref .v .s').text();
 
         App.Router.redirectToCollection(Genghis.Selection.CurrentServer.id, db, coll);
     },
     navigateId: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref');
-        var db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id;
-        var coll   = $dbRef.find('.db-ref-ref .value').text() || Genghis.Selection.CurrentCollection.id;
-        var id     = $dbRef.find('.db-ref-id  .value').text();
+        var $dbRef = $(e.target).parents('.ref');
+        var db     = $dbRef.find('.ref-db  .v .s').text() || Genghis.Selection.CurrentDatabase.id;
+        var coll   = $dbRef.find('.ref-ref .v .s').text() || Genghis.Selection.CurrentCollection.id;
+        var id     = $dbRef.find('.ref-id  .v .s, .ref-id .v.n').text();
 
         App.Router.redirectToDocument(Genghis.Selection.CurrentServer.id, db, coll, id);
     },
