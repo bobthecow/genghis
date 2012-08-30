@@ -98,11 +98,6 @@ class Genghis_Json
                         return new MongoRegex(sprintf('/%s/%s', $pattern, $flags));
                 }
             } else {
-                // explicitly handle a couple of edge cases:
-                if (count(get_object_vars($object)) && $id = self::getProp($object, 'id')) {
-                    return new MongoId($id);
-                }
-
                 foreach ($object as $prop => $value) {
                     $object->$prop = self::doDecode($value);
                 }
