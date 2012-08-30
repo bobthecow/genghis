@@ -65,7 +65,7 @@ Genghis.Views.NewDocument = Genghis.Base.DocumentView.extend({
 
         var closeModal = this.closeModal;
 
-        this.collection.create(data, {success: function(doc) {
+        this.collection.create(data, {wait: true, success: function(doc) {
             closeModal();
             App.Router.navigate(Genghis.Util.route(doc.url()), true);
         }});
