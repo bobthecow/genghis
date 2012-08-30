@@ -8,8 +8,8 @@ Genghis.Util = {
 
         if (str.length) {
             _.each(str.split('&'), function(val) {
-                var chunks = val.split('='),
-                    name   = chunks.shift();
+                var chunks = val.split('=');
+                var name   = chunks.shift();
 
                 params[name] = chunks.join('=');
             });
@@ -24,8 +24,9 @@ Genghis.Util = {
 
     humanizeSize: function(bytes) {
         if (bytes ==- 0) return 'n/a';
-        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'],
-            i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+
         return ((i === 0)? (bytes / Math.pow(1024, i)) : (bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + sizes[i];
     },
 
@@ -339,7 +340,6 @@ Genghis.Util = {
 
         return JsonView(value);
     },
-
 
     attachCollapsers: function(scope) {
         $('.document', scope).on('click', 'button,span.e', function(e) {

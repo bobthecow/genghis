@@ -2,15 +2,23 @@ Genghis.Models.Document = Backbone.Model.extend({
     initialize: function() {
         _.bindAll(this, 'prettyPrint', 'JSONish');
 
-        var id = this.get('_id');
+        var id = this.thunkId(this.get('_id'));
         if (id) {
-            this.id = id['$id'] || id;
+            this.id = id;
+        }
+    },
+    thunkId: function(id) {
+        if (typeof id === 'object' && id['$genghisType'] == 'ObjectId') {
+            return id['$value'];
+        } else {
+            return id;
         }
     },
     parse: function(resp) {
         // a little bitta id thunk.
-        if (resp['_id']) {
-            this.id = resp['_id']['$id'] || resp['_id'];
+        var id = this.thunkId(resp['_id']);
+        if (id) {
+            this.id = id;
         }
 
         return resp;

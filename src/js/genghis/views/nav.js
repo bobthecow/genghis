@@ -3,15 +3,15 @@ Genghis.Views.Nav = Backbone.View.extend({
     template: Genghis.Templates.Nav,
     events: {
         'keyup input#navbar-query': 'findDocuments',
-        'click a':                  'navigate'
+        'click a':                  'navigate',
+        // 'click button.search':      'toggleSearch',
     },
     initialize: function() {
         _.bindAll(
-            this, 'render', 'toggleSections', 'updateQuery', 'findDocuments', 'navigate', 'navigateToServers',
+            this, 'render', 'updateQuery', 'findDocuments', 'navigate', 'navigateToServers',
             'navigateUp', 'focusSearch'
         );
 
-        this.model.bind('change', this.toggleSections);
         this.model.bind('change', this.updateQuery);
 
         $('body').bind('click', function(e) {
@@ -24,7 +24,7 @@ Genghis.Views.Nav = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render({query: this.model.get('query')}));
+        $(this.el).html(this.template.render({query: this.model.get('query'), baseUrl: Genghis.baseUrl}));
         this.$('form').submit(function(e) { e.preventDefault(); });
 
         $(document).bind('keyup', '/', this.focusSearch);
@@ -49,12 +49,6 @@ Genghis.Views.Nav = Backbone.View.extend({
 
         return this;
     },
-    toggleSections: function() {
-        $(this.ServerNavView.el).toggle(this.model.get('server') !== null);
-        $(this.DatabaseNavView.el).toggle(this.model.get('database') !== null);
-        $(this.CollectionNavView.el).toggle(this.model.get('collection') !== null);
-        this.$('form').toggle(this.model.get('collection') !== null);
-    },
     updateQuery: function() {
         var q = (this.model.get('query') || this.model.get('document') || '')
                 .trim()
@@ -67,9 +61,9 @@ Genghis.Views.Nav = Backbone.View.extend({
         if (e.keyCode == 13) {
             e.preventDefault();
 
-            var q    = $(e.target).val(),
-                base = Genghis.Util.route(this.model.CurrentCollection.url + '/documents'),
-                url  = base + (q.match(/^([a-z\d]+)$/i) ? '/' + q : '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q)}));
+            var q    = $(e.target).val();
+            var base = Genghis.Util.route(this.model.CurrentCollection.url + '/documents');
+            var url  = base + (q.match(/^([a-z\d]+)$/i) ? '/' + q : '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q)}));
 
             App.Router.navigate(url, true);
         } else if (e.keyCode == 27) {

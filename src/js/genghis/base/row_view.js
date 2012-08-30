@@ -11,8 +11,10 @@ Genghis.Base.RowView = Backbone.View.extend({
         this.model.bind('destroy', this.remove);
     },
     render: function() {
-        $(this.el).html(this.template.render(this.model));
-        $(this.el).find('.label[title]').tooltip({placement: 'below'});
+        $(this.el)
+            .html(this.template.render(this.model))
+            .toggleClass('error', !!this.model.get('error'))
+            .find('.label[title]').tooltip({placement: 'bottom'});
         this.$('.has-details').popover({
             html: true,
             content: function() { return $(this).siblings('.details').html(); },
@@ -33,13 +35,18 @@ Genghis.Base.RowView = Backbone.View.extend({
     },
     destroy: function() {
         var model = this.model;
+        var name  = model.has('name') ? model.get('name') : '';
+
         apprise(
             'Really? There is no undo.',
             {
                 confirm: true,
-                textOk: '<strong>Yes</strong>, delete '+(model.has('name') ? model.get('name') : '')+' forever'
+                textOk: this.destroyConfirmButton(name)
             },
             function(r) { if (r) model.destroy(); }
         );
+    },
+    destroyConfirmButton: function(name) {
+        return '<strong>Yes</strong>, delete '+name+' forever';
     }
 });

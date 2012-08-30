@@ -1,4 +1,4 @@
-Genghis.Views.DocumentView = Backbone.View.extend({
+Genghis.Views.DocumentView = Genghis.Base.DocumentView.extend({
     tagName: 'article',
     template: Genghis.Templates.DocumentView,
     events: {
@@ -36,77 +36,73 @@ Genghis.Views.DocumentView = Backbone.View.extend({
         App.Router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
     },
     navigateDb: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref'),
-            db     = $dbRef.find('.db-ref-db .value').text();
+        var $dbRef = $(e.target).parents('.db-ref');
+        var db     = $dbRef.find('.db-ref-db .value').text();
 
         App.Router.redirectToDatabase(Genghis.Selection.CurrentServer.id, db);
     },
     navigateColl: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref'),
-            db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id,
-            coll   = $dbRef.find('.db-ref-ref .value').text();
+        var $dbRef = $(e.target).parents('.db-ref');
+        var db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id;
+        var coll   = $dbRef.find('.db-ref-ref .value').text();
 
         App.Router.redirectToCollection(Genghis.Selection.CurrentServer.id, db, coll);
     },
     navigateId: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref'),
-            db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id,
-            coll   = $dbRef.find('.db-ref-ref .value').text() || Genghis.Selection.CurrentCollection.id,
-            id     = $dbRef.find('.db-ref-id  .value').text();
+        var $dbRef = $(e.target).parents('.db-ref');
+        var db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id;
+        var coll   = $dbRef.find('.db-ref-ref .value').text() || Genghis.Selection.CurrentCollection.id;
+        var id     = $dbRef.find('.db-ref-id  .value').text();
 
         App.Router.redirectToDocument(Genghis.Selection.CurrentServer.id, db, coll, id);
     },
     openEditDialog: function() {
-        var $well = this.$('.well'),
-            height = Math.max(180, Math.min(600, $well.height() + 40));
+        var $well = this.$('.well');
+        var height = Math.max(180, Math.min(600, $well.height() + 40));
 
-        $(this.el).addClass('edit');
         $well.height(height);
-
-        var div = $('<div id="editor-'+this.model.id+'" class="genghis-document-editor"></div>')
+        var textarea = $('<textarea id="editor-'+this.model.id+'"></textarea>')
             .text(this.model.JSONish())
             .appendTo($well)
             .height(height);
 
-
         this.$('.document').hide();
 
-        this.editor = ace.edit('editor-'+this.model.id);
-        this.editor.setTheme("ace/theme/git-hubby");
-        this.editor.setHighlightActiveLine(false);
-        this.editor.setShowPrintMargin(false);
-        this.editor.renderer.setShowGutter(false);
+        var el = $(this.el).addClass('edit');
+        this.editor = CodeMirror.fromTextArea($('#editor-'+this.model.id)[0], _.extend(Genghis.defaults.codeMirror, {
+            onFocus: function() { el.addClass('focused');    },
+            onBlur:  function() { el.removeClass('focused'); }
+        }));
 
-        var JsonMode = require("ace/mode/json").Mode;
-        this.editor.getSession().setMode(new JsonMode());
+        setTimeout(this.editor.focus, 50);
 
-        div.resize(_.throttle(this.editor.resize, 100));
+        textarea.resize(_.throttle(this.editor.refresh, 100));
     },
     cancelEdit: function() {
-        $(this.el).removeClass('edit');
-        this.editor.destroy();
-        this.$('.genghis-document-editor').remove();
+        $(this.el).removeClass('edit focused');
+        this.editor.toTextArea();
+        $('textarea', this.el).remove();
         this.updateDocument();
         this.$('.well').height('auto');
     },
-    saveDocument: function() {
-        var doc = this.model,
-            cancelEdit = this.cancelEdit;
+    getErrorBlock: function() {
+        var errorBlock = this.$('div.errors');
+        if (errorBlock.length == 0) {
+            errorBlock = $('<div class="errors"></div>').prependTo(this.el);
+        }
 
-        $.ajax({
-            type: 'POST',
-            url: Genghis.baseUrl + 'convert-json',
-            data: this.editor.getSession().getValue(),
-            contentType: 'application/json',
-            async: false,
-            success: function(data) {
-                doc.clear({silent: true});
-                doc.set(data);
-                doc.save();
-                cancelEdit();
-            },
-            dataType: 'json'
-        });
+        return errorBlock;
+    },
+    saveDocument: function() {
+        var data = this.getEditorValue();
+        if (data === false) {
+            return;
+        }
+
+        this.model.clear({silent: true});
+        this.model.set(data);
+        this.model.save();
+        this.cancelEdit();
     },
     destroy: function() {
         var model = this.model;

@@ -1,10 +1,8 @@
 {{# error }}
-    <td>
+    <td colspan="3">
         <span class="value">{{ name }}</span>
         <span class="label label-important" title="{{ error }}">Error</span>
     </td>
-    <td></td>
-    <td></td>
 {{/ error }}
 {{^ error }}
     <td>
@@ -33,5 +31,5 @@
     </td>
 {{/ error }}
 <td class="action-column">
-    <button class="btn btn-mini btn-danger destroy">Remove</button>
+    {{# editable }}<button class="btn btn-mini btn-danger destroy">Remove</button>{{/ editable }}
 </td>

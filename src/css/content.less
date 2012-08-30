@@ -3,6 +3,43 @@ aside#alerts {
     margin-top: 20px;
 }
 
+.navbar {
+    .servers, .btn.search {
+        display: none;
+    }
+
+    // only show breadcrumbs in appropriate views
+    .nav-section {
+        display: none;
+
+        body.section-databases   &.server,
+        body.section-collections &.server,
+        body.section-collections &.database,
+        body.section-documents   &.server,
+        body.section-documents   &.database,
+        body.section-documents   &.collection,
+        body.section-document    &.server,
+        body.section-document    &.database,
+        body.section-document    &.collection { display: block; }
+    }
+
+    // only show search form in doc views
+    form {
+        display: none;
+        body.section-documents &,
+        body.section-document & { display: block; }
+    }
+
+    // keep breadcrumb segments from leaking if they're too long
+    .nav-section > a {
+        html.textoverflow & {
+            max-width: 8em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
 body > section {
     min-height: 150px;
 
@@ -12,33 +49,27 @@ body > section {
         margin:  20px 0;
         padding: 20px;
         border: 1px solid #AAA;
-        border-radius: 4px;
-
-        box-shadow: 0 1px 5px rgba(0,0,0,0.1), inset 0 1px 0 white;
+        .border-radius(4px);
+        .box-shadow(~"0 1px 5px rgba(0,0,0,0.1), inset 0 1px 0 white");
 
         > header {
-            background-color: #d8d8d8;
-            min-height: 40px;
+            .border-radius(4px 4px 0 0);
             margin: -20px -20px 20px;
-            padding: 0 20px;
-
-            border-top-left-radius:  4px;
-            border-top-right-radius: 4px;
-
-            background-image: -moz-linear-gradient(-90deg,#e4e4e4,#d8d8d8);
-            background-image: -webkit-gradient(linear, 0 top, 0 bottom, from(#e4e4e4),to(#d8d8d8));
-
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+            padding: 9px 20px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            .box-shadow(inset 0 1px 0 @white);
 
             h2 {
-                margin: 0;
-                line-height: 40px;
+                font-size:   24px;
+                margin:      0;
+                line-height: 30px;
             }
         }
 
         > .content {
             min-height: 100px;
-            .safe-transition(.1s linear all);
+            .transition(.1s linear all);
         }
 
         > p:first-child {
@@ -100,26 +131,19 @@ body > section {
     height:   100px;
     position: relative;
 
-
-    -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
-    -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
-    transition: border linear 0.2s, box-shadow linear 0.2s;
-    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    .transition(~"border linear 0.2s, box-shadow linear 0.2s");
+    .box-shadow(inset 0 1px 3px rgba(0, 0, 0, 0.1));
     margin: 0 0 10px;
     padding: 4px;
     border: 1px solid #CCC;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
+    .border-radius(3px);
 }
 
 // All tables in Genghis are styled.
 table {
     .table;
     .table-bordered;
-    .table-striped;
+    .table-hover;
 
     .header {
         cursor: pointer;
@@ -136,13 +160,13 @@ table {
         // Style the sorted column headers (THs)
         &.headerSortUp,
         &.headerSortDown {
-            background-color: fadeout(@blue, 95);
+            background-color: fadeout(@linkColor, 95%);
             text-shadow: 0 1px 1px rgba(255,255,255,.75);
         }
         // Style the ascending (reverse alphabetical) column header
         &:hover {
             &:after {
-                visibility:visible;
+                visibility: visible;
             }
         }
         // Style the descending (alphabetical) column header
@@ -174,10 +198,10 @@ tr {
         text-align: right;
         button {
             visibility: hidden;
-            -o-transition-property:      color,background,box-shadow;
-            -moz-transition-property:    color,background,box-shadow;
             -webkit-transition-property: color,background,box-shadow;
-            transition-property:         color,background,box-shadow;
+               -moz-transition-property: color,background,box-shadow;
+                 -o-transition-property: color,background,box-shadow;
+                    transition-property: color,background,box-shadow;
         }
     }
     &:hover {
@@ -188,10 +212,6 @@ tr {
 }
 
 section#servers {
-    // span.databases {
-    //     border-bottom: 1px dotted @greyish;
-    //     cursor: help;
-    // }
     .alert.alert-error {
         padding: 3px 10px;
         font-weight: bold;
@@ -262,10 +282,13 @@ section#servers {
     div.well {
         overflow-x: auto;
 
-        h3 a {
-            color: #333;
-            &:hover, &:active {
-                color: #0058e1;
+        h3 {
+            margin-top: 0;
+            a {
+                color: @grayDark;
+                &:hover, &:active {
+                    color: @linkColor;
+                }
             }
         }
     }
@@ -291,8 +314,7 @@ section#servers {
             }
         }
         div.well {
-            @transition: border linear .2s, box-shadow linear .2s;
-            .safe-transition(@transition);
+            .transition(~"border linear .2s, box-shadow linear .2s");
             .box-shadow(inset 0 1px 1px rgba(0,0,0,.05));
         }
         &.edit {
@@ -311,20 +333,19 @@ section#servers {
                 }
                 padding: 0;
                 height: 400px;
-                border-color: rgba(82,168,236,.8);
                 background-color: white;
-                @shadow: inset 0 1px 3px rgba(0,0,0,.1), 0 0 8px rgba(82,168,236,.6);
-                .box-shadow(@shadow);
                 .clearfix;
-                .genghis-document-editor {
-                    position: relative;
-                    left:  1px;
-                    right: 1px;
-                    height: 400px;
-                    .ace_scroller {
-                        // padding: 20px;
-                        background-color: transparent;
-                    }
+                .CodeMirror-scroll {
+                    // CodeMirror should auto-adjust height inside a document view.
+                    height: auto;
+                    overflow: visible;
+                }
+            }
+            &.focused {
+                div.well {
+                    border-color:     fade(@linkColor, 80%);
+                    @formFocusShadow: fade(@linkColor, 60%);
+                    .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @{formFocusShadow}");
                 }
             }
         }
@@ -360,18 +381,15 @@ section#document {
     max-height: 90%;
     .wrapper {
         .border-radius(4px);
-        border: 1px solid rgba(82,168,236,.8);
-        background-color: white;
-        @shadow: inset 0 1px 3px rgba(0,0,0,.1), 0 0 8px rgba(82,168,236,.6);
-        .box-shadow(@shadow);
-        .clearfix;
-    }
-    .genghis-document-editor {
-        height: 250px;
-        position: relative;
-        .ace_scroller {
-            background-color: transparent;
+        border: 1px solid @inputBorder;
+        &.focused {
+            border: 1px solid fade(@linkColor, 80%);
+            @formFocusShadow: fade(@linkColor, 60%);
+            .box-shadow(~"0 0 8px @{formFocusShadow}");
         }
+    }
+    .CodeMirror-scroll {
+        height: 250px;
     }
 }
 
@@ -456,6 +474,101 @@ section#document {
     .container {
         padding: 0;
     }
+
+    // navvvv
+    .navbar {
+        .nav {
+            float: none;
+        }
+
+        .btn.search {
+            display: inline-block;
+            z-index: 10;
+        }
+        form {
+            display: none; // deal with this guy later
+            height: 0;
+            overflow: hidden;
+        }
+
+        .brand {
+            display: none;
+            body.section-servers & {
+                display: block;
+                text-align: center;
+                float: none;
+            }
+        }
+
+        .nav-section {
+            position: absolute;
+            background: none;
+
+            .dropdown-menu {
+                display: none;
+            }
+
+            body.section-servers &.servers,
+            body.section-servers &.server,
+            body.section-servers &.database,
+            body.section-servers &.collection,
+            body.section-databases &.database,
+            body.section-databases &.collection,
+            body.section-collections &.servers,
+            body.section-collections &.collection,
+            body.section-documents &.servers,
+            body.section-documents &.server,
+            body.section-document &.servers,
+            body.section-document &.server {
+                display: none;
+            }
+
+            // "previous" button
+            body.section-databases &.servers,
+            body.section-collections &.server,
+            body.section-documents &.database,
+            body.section-document &.database {
+                display: inline-block;
+                float: left;
+                padding: 16px 0 0 2px;
+                z-index: @zindexFixedNavbar + 2;
+                > a.dropdown-toggle, > a {
+                    .btn;
+                    .back-button;
+                    .transition(none);
+                    z-index: 10;
+                    overflow: visible;
+                }
+                &.dropdown .dropdown-toggle {
+                    padding: 4px 14px;
+                }
+            }
+
+            // "current" section heading
+            body.section-databases &.server,
+            body.section-collections &.database,
+            body.section-documents &.collection,
+            body.section-document &.collection {
+                width: 12em;
+                left:  50%;
+                margin-left: -6em;
+                padding-top: 20px;
+                display: inline-block;
+                float: none;
+                text-align: center;
+                z-index: @zindexFixedNavbar + 1;
+                > a {
+                    font-family: "Rokkitt", serif;
+                    font-size:   24px;
+                    line-height: 24px;
+                }
+                .dropdown-toggle {
+                    padding: 0;
+                }
+            }
+        }
+    }
+
     body > section section {
         border: none;
         .border-radius(0);
@@ -483,20 +596,12 @@ section#document {
                 border-bottom: 1px solid #DDD;
             }
             &:first-child, &:first-child > td:first-child {
-                -webkit-border-top-left-radius:  5px;
-                -webkit-border-top-right-radius: 5px;
-                -moz-border-radius-topleft:      5px;
-                -moz-border-radius-topright:     5px;
-                border-top-left-radius:          5px;
-                border-top-right-radius:         5px;
+                .border-top-left-radius(5px);
+                .border-top-right-radius(5px);
             }
             &:last-child, &:last-child > td:last-child {
-                -webkit-border-bottom-left-radius:  5px;
-                -webkit-border-bottom-right-radius: 5px;
-                -moz-border-radius-bottomleft:      5px;
-                -moz-border-radius-bottomright:     5px;
-                border-bottom-left-radius:          5px;
-                border-bottom-right-radius:         5px;
+                .border-bottom-left-radius(5px);
+                .border-bottom-right-radius(5px);
             }
         }
 
@@ -527,15 +632,13 @@ section#document {
     }
 
 
-    /*
-    Label the data
-    */
+    /* Label the data */
     section#servers {
         table {
             td:nth-of-type(1):before { content: "name"; }
             td:nth-of-type(2):before { content: "databases"; }
             td:nth-of-type(3):before { content: "size"; }
-            td:nth-of-type(4) { display: none; }
+            td:nth-of-type(4), td.action-column { display: none; }
         }
     }
 
@@ -544,7 +647,7 @@ section#document {
             td:nth-of-type(1):before { content: "name"; }
             td:nth-of-type(2):before { content: "collections"; }
             td:nth-of-type(3):before { content: "size"; }
-            td:nth-of-type(4) { display: none; }
+            td:nth-of-type(4), td.action-column { display: none; }
         }
     }
 
@@ -553,7 +656,7 @@ section#document {
             td:nth-of-type(1):before { content: "name"; }
             td:nth-of-type(2):before { content: "documents"; }
             td:nth-of-type(3):before { content: "indexes"; }
-            td:nth-of-type(4) { display: none; }
+            td:nth-of-type(4), td.action-column { display: none; }
         }
     }
 }

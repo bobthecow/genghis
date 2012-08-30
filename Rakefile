@@ -5,7 +5,6 @@ require 'erb'
 require 'less'
 require 'rainpress'
 require 'uglifier'
-require 'closure-compiler'
 require 'html_compressor'
 require 'digest/md5'
 require 'base64'
@@ -41,7 +40,18 @@ end
 
 directory tmp_dir
 
-file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/bootstrap/less/*.less', 'vendor/keyscss/keys.css'] do
+css_files = [
+  'vendor/codemirror/lib/codemirror.css',
+  'vendor/keyscss/keys.css',
+]
+
+file tmp_dir+'style.css' => FileList[
+  tmp_dir,
+  'src/css/*.less',
+  'vendor/bootstrap/less/*.less',
+  'vendor/apprise-bootstrap/apprise-bootstrap.less',
+  *css_files
+] do
   File.open(tmp_dir+'style.css', 'w') do |file|
     file << <<-doc.unindent
       /**
@@ -55,7 +65,11 @@ file tmp_dir+'style.css' => FileList[tmp_dir, 'src/css/*.less', 'vendor/bootstra
        */
     doc
 
-    css = File.read('vendor/keyscss/keys.css')
+    css = ''
+
+    css_files.each do |f|
+      css << File.read(f)
+    end
 
     parser = Less::Parser.new(:paths => ['./src/css'], :filename => 'src/css/style.less')
     css << parser.parse(File.read('src/css/style.less')).to_css
@@ -77,18 +91,20 @@ end
 
 script_files = FileList[
   # vendor libraries
+  'src/js/modernizr.js',
+  'src/js/modernizr-detects.js',
   'src/js/jquery.js',
   'src/js/jquery.hoverintent.js',
   'src/js/jquery.tablesorter.js',
   'src/js/underscore.js',
   'src/js/backbone.js',
-  'vendor/ace/ace-uncompressed.js',
-  'vendor/ace/mode-json.js',
-  'vendor/ace/theme-git_hubby.js',
-  'vendor/apprise/apprise-1.5.full.js',
+  'vendor/codemirror/lib/codemirror.js',
+  'vendor/codemirror/mode/javascript/javascript.js',
+  'vendor/apprise-bootstrap/apprise.js',
   'vendor/bootstrap/js/bootstrap-tooltip.js',
   'vendor/bootstrap/js/bootstrap-popover.js',
   'vendor/bootstrap/js/bootstrap-modal.js',
+  'vendor/esprima/esprima.js',
   'vendor/hotkeys/jquery.hotkeys.js',
   'vendor/hogan/lib/template.js',
 
@@ -99,6 +115,7 @@ script_files = FileList[
   'src/js/genghis/bootstrap.js',
   tmp_dir+'templates.js',
   'src/js/genghis/util.js',
+  'src/js/genghis/json.js',
   'src/js/genghis/base/**/*',
   'src/js/genghis/models/**/*',
   'src/js/genghis/collections/**/*',
@@ -106,8 +123,7 @@ script_files = FileList[
   'src/js/genghis/router.js'
 ]
 file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files do
-  # ugly = Uglifier.new(:copyright => false)
-  ugly = Closure::Compiler.new
+  ugly = Uglifier.new(:copyright => false)
   File.open(tmp_dir+'script.js', 'w') do |file|
     file << <<-doc.unindent
       /**

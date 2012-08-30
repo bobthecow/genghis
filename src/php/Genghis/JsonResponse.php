@@ -18,7 +18,7 @@ class Genghis_JsonResponse extends Genghis_Response
             array_walk_recursive($this->data, array(__CLASS__, 'prepareData'), ini_get('mongo.cmd'));
         }
 
-        print(json_encode($this->data));
+        print(Genghis_Json::encode($this->data));
     }
 
     private static function prepareData(&$data, $key, $cmd = '$')

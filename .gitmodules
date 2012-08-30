@@ -10,3 +10,12 @@
 [submodule "vendor/hogan"]
 	path = vendor/hogan
 	url = https://github.com/twitter/hogan.js.git
+[submodule "vendor/codemirror"]
+	path = vendor/codemirror
+	url = https://github.com/marijnh/CodeMirror.git
+[submodule "vendor/apprise-bootstrap"]
+	path = vendor/apprise-bootstrap
+	url = https://github.com/bobthecow/apprise-bootstrap.git
+[submodule "vendor/esprima"]
+	path = vendor/esprima
+	url = https://github.com/ariya/esprima.git
