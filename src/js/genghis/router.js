@@ -6,6 +6,7 @@ Genghis.Router = Backbone.Router.extend({
         'servers/:server/databases':                                                         'redirectToServer',
         'servers/:server/databases/:database':                                               'database',
         'servers/:server/databases/:database/collections':                                   'redirectToDatabase',
+        'servers/:server/databases/:database/collections/:collection?*query':                'redirectToCollectionQuery',
         'servers/:server/databases/:database/collections/:collection':                       'collection',
         'servers/:server/databases/:database/collections/:collection/documents':             'redirectToCollection',
         'servers/:server/databases/:database/collections/:collection/documents?*query':      'collectionQuery',
@@ -43,6 +44,9 @@ Genghis.Router = Backbone.Router.extend({
     },
     redirectToCollection: function(server, database, collection) {
         this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection, true);
+    },
+    redirectToCollectionQuery: function(server, database, collection, query) {
+        this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection+'/documents?'+query, true);
     },
     collectionQuery: function(server, database, collection, query) {
         document.title = this.buildTitle(server, database, collection, 'Query results');

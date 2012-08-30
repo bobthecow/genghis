@@ -80,7 +80,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
 
             var url_query = '';
             if (query || page) {
-                if (query) params.q = encodeURIComponent(query);
+                if (query) params.q = encodeURIComponent(JSON.stringify(Genghis.JSON.parse(query)));
                 if (page)  params.page = encodeURIComponent(page);
                 url_query = '?' + Genghis.Util.buildQuery(params);
             }
