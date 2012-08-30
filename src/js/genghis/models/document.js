@@ -41,6 +41,9 @@ Genghis.Models.Document = Backbone.Model.extend({
         return Genghis.Util.formatJSON(this.toJSON());
     },
     JSONish: function() {
-        return JSON.stringify(this.toJSON(), null, 4);
+        // TODO: update formatJSON to do a string concat version
+        // so we don't have to build a bunch of elements just to
+        // tear 'em down.
+        return $('<div>' + this.prettyPrint() + '</div>').text();
     }
 });
