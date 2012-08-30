@@ -23,13 +23,13 @@ Genghis.Views.DocumentView = Genghis.Base.DocumentView.extend({
     },
     render: function() {
         $(this.el).html(this.template.render(this.model));
+        Genghis.Util.attachCollapsers(this.el);
         setTimeout(this.updateDocument, 1);
 
         return this;
     },
     updateDocument: function() {
         this.$('.document').html('').append(this.model.prettyPrint()).show();
-        Genghis.Util.attachCollapsers(this.el);
     },
     navigate: function(e) {
         e.preventDefault();
