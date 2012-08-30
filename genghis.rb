@@ -102,7 +102,7 @@ class Genghis < Sinatra::Base
 
   before do
     @servers ||= { 'localhost' => 'localhost:27017' }
-    if servers = request.cookies['genghis_servers']
+    if servers = request.cookies['genghis_rb_servers']
       @servers = JSON.parse(servers)
     end
   end
@@ -138,7 +138,7 @@ class Genghis < Sinatra::Base
     name = JSON.parse(request.body.read)['name']
     @servers[name] = name
     response.set_cookie(
-      :genghis_servers,
+      :genghis_rb_servers,
       :path => '/',
       :value => JSON.dump(@servers),
       :expires => Time.now + 60*60*24*365
@@ -149,7 +149,7 @@ class Genghis < Sinatra::Base
   delete '/servers/:server' do
     @servers.delete(params[:server])
     response.set_cookie(
-      :genghis_servers,
+      :genghis_rb_servers,
       :path => '/',
       :value => JSON.dump(@servers),
       :expires => Time.now + 60*60*24*365
