@@ -19,11 +19,11 @@ require 'uri'
 
 class Genghis < Sinatra::Base
   enable :inline_templates
-  helpers Sinatra::JSON
+  register Sinatra::Reloader if development?
 
-  configure :development do
-    register Sinatra::Reloader
-  end
+  helpers Sinatra::JSON
+  set :json_encoder, :to_json
+  set :json_content_type, :json
 
   def features
     {
@@ -186,12 +186,12 @@ class Genghis < Sinatra::Base
   get '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
     collection = connection(server)[db][coll]
     page = params.fetch(:page, 1).to_i
-    json document_info(collection, page), :encoder => :to_json
+    json document_info(collection, page)
   end
 
   get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
     document = connection(server)[db][coll].find_one('_id' => thunk_mongo_id(doc))
-    json document, :encoder => :to_json
+    json document
   end
 end
 
