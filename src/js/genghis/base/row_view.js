@@ -33,18 +33,40 @@ Genghis.Base.RowView = Backbone.View.extend({
     remove: function() {
         $(this.el).remove();
     },
+    isParanoid: false,
     destroy: function() {
         var model = this.model;
         var name  = model.has('name') ? model.get('name') : '';
 
-        apprise(
-            'Really? There is no undo.',
-            {
-                confirm: true,
-                textOk: this.destroyConfirmButton(name)
-            },
-            function(r) { if (r) model.destroy(); }
-        );
+        if (this.isParanoid) {
+            if (!name) {
+                throw "Unable to confirm destruction without a confirmation string.";
+            }
+
+            apprise(
+                '<strong>Deleting is forever.</strong><br><br>Type <strong>'+name+'</strong> to continue:',
+                {
+                    input: true,
+                    textOk: 'Delete '+name+' forever'
+                },
+                function(r) {
+                    if (r == name) {
+                        model.destroy();
+                    } else {
+                        apprise('<strong>Phew. That was close.</strong><br><br>'+name+' was not deleted.');
+                    }
+                }
+            );
+        } else {
+            apprise(
+                'Really? There is no undo.',
+                {
+                    confirm: true,
+                    textOk: this.destroyConfirmButton(name)
+                },
+                function(r) { if (r) model.destroy(); }
+            );
+        }
     },
     destroyConfirmButton: function(name) {
         return '<strong>Yes</strong>, delete '+name+' forever';

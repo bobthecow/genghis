@@ -21,6 +21,7 @@ Tons of improvements:
     * Prevent "new document" modal from closing on background click.
     * Better "keyboard shortcuts" dialog on smaller screens.
     * Require database name confirmation rather than DELETE before removing a db.
+    * Collection removal is paranoid as well: it also requires confirmation before removing.
  * Update Bootstrap (2.1.0), jQuery (1.8.0), Underscore (1.3.3), and Backbone (0.9.2).
  * Use UglifyJS instead of closure compiler to minify JS. It's faster and doesn't require Java :)
 
