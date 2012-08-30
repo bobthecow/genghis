@@ -1,37 +1,39 @@
 ## v1.5.0
 
-Updates:
+Brand new features:
 
- * Update Bootstrap (2.1.0), jQuery (1.8.0), Underscore (1.3.3), and Backbone (0.9.2).
- * Greeeen.
- * Add a CHANGELOG. Meta.
-
-Features:
-
- * Make Genghis work with the PHP 5.4 CLI SAPI webserver.
- * Add support for pre-configured servers via `$GENGHIS_SERVERS` environment variable.
+ * Genghis doesn't require a webserver! Ghengis.php now runs as a standalone server with the PHP 5.4 CLI SAPI.
+ * Add support for pre-configured servers via the `$GENGHIS_SERVERS` environment variable.
  * Add support for replica sets, e.g. `localhost:12345/?replicaSet=production`.
 
-Improvements:
+Tons of improvements:
 
- * Require db name confirmation rather than DELETE.
+ * Add this CHANGELOG. Meta.
+ * Genghis now has a more refined visual style — greeeeen!
  * More responsive design (check it in a really small window!)
- * Faster client side rendering. Can't complain about that, eh?
- * Better keyboard shortcuts dialog on smaller screens.
- * Improve error handling in a couple of places.
+ * Epic document parsing and rendering overhaul:
+    * Huge speed improvements. Rendering, collapsing and scrolling like wow.
+    * Documents are now displayed and edited in Genghis Flavored JSON, a more lenient and intuitive superset of JSON.
+    * Date, ObjectId and regular expression values (and more) are now formatted (and edited) for humans, not robots.
+ * UX Improvements:
+    * Update code editor. The new one (CodeMirror) is lighter, faster, smaller and a cleaner implementation.
+    * Add Cmd+Enter / Ctrl+Enter keyboard shortcut for saving the document being edited.
+    * Prevent "new document" modal from closing on background click.
+    * Better "keyboard shortcuts" dialog on smaller screens.
+    * Require database name confirmation rather than DELETE before removing a db.
+ * Update Bootstrap (2.1.0), jQuery (1.8.0), Underscore (1.3.3), and Backbone (0.9.2).
  * Use UglifyJS instead of closure compiler to minify JS. It's faster and doesn't require Java :)
- * Update code editor. The new one (CodeMirror) is lighter, faster, smaller and a cleaner implementation.
- * Add Cmd+Enter / Ctrl+Enter hotkey for saving the document being edited.
- * Prevent "new document" modal from closing on background click.
 
-Bugs:
+And a handful of bug fixes:
 
  * Fix #19 — Only implicitly wrap MongoIds if they're 24 character hex strings.
  * Fix #20 — Support creating and editing documents with an `attributes` property.
  * Fix output glitches when displaying a brand new document immediately after an existing document.
- * Fix a possible JavaScript error when adding a new collection.
- * Fix a handful of rare (and relatively benign) error messages.
+ * Fix – possible JavaScript error when adding a new collection.
+ * Fix – handful of rare (and relatively benign) error messages.
  * Fix — malformed server DSN could prevent servers list from rendering.
+ * Fix — rare bug where properties with a specific structure might be mistaken for ObjectIds or Dates.
+ * Improve error handling in a couple of places.
 
 
 ## v1.4.2
