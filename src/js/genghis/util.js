@@ -157,8 +157,8 @@ Genghis.Util = {
                 return el;
             }
 
+            // escape a property (but only if it needs to be escaped)
             function prop(key) {
-                // escape a property
                 if (regexES51ReservedWord.test(key) || !regexIdentifier.test(key)) {
                     key = '"' + key.replace(escapable, function (a) {
                         var c = meta[a];
@@ -169,157 +169,183 @@ Genghis.Util = {
                 return e('VAR', false, key);
             }
 
+            // escape a function call
+            function c(fn, values, classes) {
+                var s = span('call ' + classes);
+
+                s.appendChild(t(fn + '('));
+
+                _.each(values, function(value) {
+                    s.appendChild(quote(value));
+                });
+
+                s.appendChild(t(')'));
+
+                return s;
+            }
+
+
+            // Produce a string from holder[key].
             function createView(key, holder) {
-
-                // Produce a string from holder[key].
-
-                var i,          // The loop counter.
-                    k,          // The member key.
-                    v,          // The member value.
-                    length,
-                    mind = gap,
-                    partial,
-                    el,
-                    p,
-                    glue = '',
-                    value = holder[key];
+                var i;          // The loop counter.
+                var k;          // The member key.
+                var v;          // The member value.
+                var length;
+                var mind = gap;
+                var partial;
+                var el;
+                var p;
+                var glue = '';
+                var value = holder[key];
 
                 // If the value has a toJSON method, call it to obtain a replacement value.
-
-                if (value && typeof value === 'object' &&
-                        typeof value.toJSON === 'function') {
+                if (_.isObject(value) && typeof value.toJSON === 'function') {
                     value = value.toJSON(key);
                 }
 
                 // What happens next depends on the value's type.
-
                 switch (typeof value) {
-                case 'string':
-                    return quote(value);
+                    case 'string':
+                        return quote(value);
 
-                case 'number':
-                    // JSON numbers must be finite. Encode non-finite numbers as null.
-                    return span('v n', isFinite(value) ? String(value) : 'null');
+                    case 'number':
+                        // JSON numbers must be finite. Encode non-finite numbers as null.
+                        return span('v n', isFinite(value) ? String(value) : 'null');
 
-                case 'boolean':
-                    return span('v b', String(value));
+                    case 'boolean':
+                        return span('v b', String(value));
 
-                // If the type is 'object', we might be dealing with an object or an array or
-                // null.
-
-                case 'object':
-                    // Due to a specification blunder in ECMAScript, typeof null is 'object',
-                    // so watch out for that case.
-
-                    if (!value) {
-                        return span('v z', 'null');
-                    }
-
-                    // Make an array to hold the partial results of stringifying this object value.
-
-                    gap += indent;
-
-                    // Is the value an array?
-
-                    if (Object.prototype.toString.apply(value) === '[object Array]') {
-                        if (value.length === 0) {
-                            return span('v a', '[]');
+                    // If the type is 'object', we might be dealing with an object or an array or
+                    // null.
+                    case 'object':
+                        // Due to a specification blunder in ECMAScript, typeof null is 'object',
+                        // so watch out for that case.
+                        if (_.isNull(value)) {
+                            return span('v z', 'null');
                         }
 
-                        el = span('v a');
+                        // This is a serialized Genghis type, print it as something awesomer.
+                        if (Object.hasOwnProperty.call(value, '$genghisType')) {
+                            switch(value['$genghisType']) {
+                                case 'ObjectId':
+                                    return c('ObjectId', [value['$value']], 'oid');
 
-                        if (gap) {
-                            el.collapsible = true;
+                                case 'ISODate':
+                                    return c('ISODate', [value['$value']], 'date');
 
-                            if (value.length > 10) {
-                                el.collapsed = true;
-                                // el.setAttribute('data-uninitialized', 1);
-                                // el.appendChild(t(JSON.stringify(value)));
-                                // return el;
+                                case 'RegExp':
+                                    // we'll render regexp as a literal
+                                    // TODO: something might need escaped here?
+                                    var pattern = value['$value']['$pattern'];
+                                    var flags   = value['$value']['$flags'] || '';
+
+                                    return span('v re', '/' + pattern + '/' + flags);
                             }
                         }
 
-                        // The value is an array. Stringify every element. Use null as a placeholder
-                        // for non-JSON values.
+                        // Make an array to hold the partial results of stringifying this object value.
+                        gap += indent;
 
-                        el.appendChild(t(gap ? ('[\n' + gap) : '['));
+                        // Is the value an array?
+                        if (_.isArray(value)) {
+                            if (value.length === 0) {
+                                return span('v a', '[]');
+                            }
+
+                            el = span('v a');
+
+                            if (gap) {
+                                el.collapsible = true;
+
+                                if (value.length > 10) {
+                                    el.collapsed = true;
+                                    // el.setAttribute('data-uninitialized', 1);
+                                    // el.appendChild(t(JSON.stringify(value)));
+                                    // return el;
+                                }
+                            }
+
+                            // The value is an array. Stringify every element. Use null as a placeholder
+                            // for non-JSON values.
+
+                            el.appendChild(t(gap ? ('[\n' + gap) : '['));
+
+                            glue = t(gap ? (',\n' + gap) : ',');
+
+                            length = value.length;
+                            for (i = 0; i < length; i += 1) {
+                                if (i > 0) {
+                                    el.appendChild(glue.cloneNode(false));
+                                }
+
+                                el.appendChild(createView(i, value) || span('v z', 'null'));
+                            }
+
+                            el.appendChild(t(gap ? ('\n' + mind + ']') : ']'));
+
+                            gap = mind;
+
+                            return el;
+                        }
+
+                        // Iterate through all of the keys in the object.
+                        partial = [];
+
+                        var cologn = t(gap ? ': ' : ':');
+                        for (k in value) {
+                            if (Object.hasOwnProperty.call(value, k)) {
+                                v = createView(k, value);
+                                if (v) {
+                                    p = span('p' + (v.collapsed ? ' collapsed' : ''));
+
+                                    if (v.collapsible) {
+                                        p.appendChild(e('button'));
+                                    }
+
+                                    p.appendChild(prop(k));
+                                    p.appendChild(cologn.cloneNode(false));
+                                    p.appendChild(v);
+
+                                    if (v.collapsed) {
+                                        child = span('e');
+                                        child.appendChild(t('[ '));
+                                        child.appendChild(e('Q', false, t(' …')));
+                                        child.appendChild(t(' ]'));
+
+                                        p.appendChild(child);
+                                    }
+
+                                    partial.push(p);
+                                }
+                            }
+                        }
+
+                        // Join all of the member texts together, separated with commas,
+                        // and wrap them in braces.
+
+                        if (partial.length === 0) {
+                            return span('v o', (t('{}')));
+                        }
+
+                        el = span('v o');
+                        el.collapsible = true;
+                        el.appendChild(t(gap ? ('{\n' + gap) : '{'));
 
                         glue = t(gap ? (',\n' + gap) : ',');
 
-                        length = value.length;
-                        for (i = 0; i < length; i += 1) {
+                        length = partial.length;
+                        for (i = 0; i < partial.length; i++) {
                             if (i > 0) {
-                                el.appendChild(glue.cloneNode(false));
+                                el.appendChild(glue.cloneNode(true));
                             }
-
-                            el.appendChild(createView(i, value) || span('v z', 'null'));
+                            el.appendChild(partial[i]);
                         }
 
-                        el.appendChild(t(gap ? ('\n' + mind + ']') : ']'));
+                        el.appendChild(t(gap ? ('\n' + mind + '}') : '}'));
 
                         gap = mind;
 
                         return el;
-                    }
-
-                    // Iterate through all of the keys in the object.
-                    partial = [];
-
-                    var cologn = t(gap ? ': ' : ':');
-                    for (k in value) {
-                        if (Object.hasOwnProperty.call(value, k)) {
-                            v = createView(k, value);
-                            if (v) {
-                                p = span('p' + (v.collapsed ? ' collapsed' : ''));
-
-                                if (v.collapsible) {
-                                    p.appendChild(e('button'));
-                                }
-
-                                p.appendChild(prop(k));
-                                p.appendChild(cologn.cloneNode(false));
-                                p.appendChild(v);
-
-                                if (v.collapsed) {
-                                    child = span('e');
-                                    child.appendChild(t('[ '));
-                                    child.appendChild(e('Q', false, t(' …')));
-                                    child.appendChild(t(' ]'));
-
-                                    p.appendChild(child);
-                                }
-
-                                partial.push(p);
-                            }
-                        }
-                    }
-
-                    // Join all of the member texts together, separated with commas,
-                    // and wrap them in braces.
-
-                    if (partial.length === 0) {
-                        return span('v o', (t('{}')));
-                    }
-
-                    el = span('v o');
-                    el.collapsible = true;
-                    el.appendChild(t(gap ? ('{\n' + gap) : '{'));
-
-                    glue = t(gap ? (',\n' + gap) : ',');
-
-                    length = partial.length;
-                    for (i = 0; i < partial.length; i++) {
-                        if (i > 0) {
-                            el.appendChild(glue.cloneNode(true));
-                        }
-                        el.appendChild(partial[i]);
-                    }
-
-                    el.appendChild(t(gap ? ('\n' + mind + '}') : '}'));
-
-                    gap = mind;
-
-                    return el;
                 }
             }
 
