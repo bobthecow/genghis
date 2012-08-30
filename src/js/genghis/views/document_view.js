@@ -115,8 +115,16 @@ Genghis.Views.DocumentView = Genghis.Base.DocumentView.extend({
             },
             function(r) {
                 if (r) {
+                    var selection = Genghis.Selection;
+
                     model.destroy();
-                    Genghis.Selection.Pagination.decrementTotal();
+
+                    selection.Pagination.decrementTotal();
+
+                    // if we're currently in single-document view, bust outta this!
+                    if (selection.get('document')) {
+                        App.Router.redirectTo(selection.get('server'), selection.get('database'), selection.get('collection'), null, selection.get('query'));
+                    }
                 }
             }
         );
