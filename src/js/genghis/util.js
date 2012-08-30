@@ -11,7 +11,7 @@ Genghis.Util = {
                 var chunks = val.split('=');
                 var name   = chunks.shift();
 
-                params[name] = chunks.join('=');
+                params[name] = decodeURIComponent(chunks.join('='));
             });
         }
 
