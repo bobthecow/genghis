@@ -49,10 +49,11 @@ class Genghis_Json
                             '$flags'   => $object->flags ? $object->flags : null
                         )
                     );
+            }
 
-                // Some random value object? Prolly ints or BinData.
-                default:
-                    return $object;
+            // everything else is likely a StdClass...
+            foreach ($object as $prop => $value) {
+                $object->$prop = self::doEncode($value);
             }
 
         } elseif (is_array($object)) {
