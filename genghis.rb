@@ -21,10 +21,14 @@ class Genghis < Sinatra::Base
   enable :inline_templates
   register Sinatra::Reloader if development?
 
-  class JsonEncoder
+  class GenghisJson
     class << self
       def encode(object)
         enc(object, Array, Hash, BSON::OrderedHash).to_json
+      end
+
+      def decode(str)
+        dec(JSON.parse(str))
       end
 
       private
@@ -36,7 +40,7 @@ class Genghis < Sinatra::Base
         when Array then o.map { |e| enc(e) }
         when Hash then o.merge(o) { |k, v| enc(v) }
         when Time then thunk('ISODate', o.strftime('%FT%T%:z'))
-        when Regexp then thunk('RegExp', {'$pattern' => o.source, '$flags' => re_flags(o.options)})
+        when Regexp then thunk('RegExp', {'$pattern' => o.source, '$flags' => enc_re_flags(o.options)})
         when BSON::ObjectId then thunk('ObjectId', o.to_s)
         when BSON::DBRef then db_ref(o)
         else o
@@ -47,19 +51,37 @@ class Genghis < Sinatra::Base
         {'$genghisType' => name, '$value' => value }
       end
 
-      def re_flags(o)
-        (o & Regexp::MULTILINE ? 'm' : '') + (o & Regexp::IGNORECASE ? 'i' : '')
+      def enc_re_flags(opt)
+        (opt & Regexp::MULTILINE ? 'm' : '') + (opt & Regexp::IGNORECASE ? 'i' : '')
       end
 
       def db_ref(o)
         o = o.to_hash
         {'$ref' => o['$ns'], '$id' => enc(o['$id'])}
       end
+
+      def dec(o)
+        case o
+        when Array then o.map { |e| dec(e) }
+        when Hash then
+          case o['$genghisType']
+          when 'ObjectId' then BSON::ObjectId.from_string(o['$value'])
+          when 'ISODate' then DateTime.parse(o['$value']).to_time
+          when 'RegExp' then Regexp.new(o['$value']['$pattern'], dec_re_flags(o['$value']['$flags']))
+          else o.merge(o) { |k, v| dec(v) }
+          end
+        else o
+        end
+      end
+
+      def dec_re_flags(flags)
+        (flags.include?('m') ? Regexp::MULTILINE : 0) | (flags.include?('i') ? Regexp::IGNORECASE : 0)
+      end
     end
   end
 
   helpers Sinatra::JSON
-  set :json_encoder, JsonEncoder
+  set :json_encoder, GenghisJson
   set :json_content_type, :json
 
   def connection(server_name)
@@ -221,6 +243,17 @@ class Genghis < Sinatra::Base
 
   get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
     document = connection(server)[db][coll].find_one('_id' => thunk_mongo_id(doc))
+    json document
+  end
+
+  put '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
+    data = GenghisJson.decode(request.body.read)
+
+    document = connection(server)[db][coll].find_and_modify \
+      :query => {'_id' => thunk_mongo_id(doc)},
+      :update => data,
+      :new => true
+
     json document
   end
 end
