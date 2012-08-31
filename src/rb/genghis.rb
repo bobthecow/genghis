@@ -11,6 +11,10 @@ class Genghis < Sinatra::Base
   enable :inline_templates
   register Sinatra::Reloader if development?
 
+  helpers Sinatra::JSON
+  set :json_encoder, :to_json
+  set :json_content_type, :json
+
   class GenghisJson
     class << self
       def encode(object)
@@ -42,7 +46,7 @@ class Genghis < Sinatra::Base
       end
 
       def enc_re_flags(opt)
-        (opt & Regexp::MULTILINE ? 'm' : '') + (opt & Regexp::IGNORECASE ? 'i' : '')
+        ((opt & Regexp::MULTILINE != 0) ? 'm' : '') + ((opt & Regexp::IGNORECASE != 0) ? 'i' : '')
       end
 
       def db_ref(o)
@@ -65,14 +69,15 @@ class Genghis < Sinatra::Base
       end
 
       def dec_re_flags(flags)
-        (flags.include?('m') ? Regexp::MULTILINE : 0) | (flags.include?('i') ? Regexp::IGNORECASE : 0)
+        f = flags || ''
+        (f.include?('m') ? Regexp::MULTILINE : 0) | (f.include?('i') ? Regexp::IGNORECASE : 0)
       end
     end
   end
 
-  helpers Sinatra::JSON
-  set :json_encoder, GenghisJson
-  set :json_content_type, :json
+  def request_json
+    GenghisJson.decode request.body.read
+  end
 
   def connection(server_name)
     server = @servers[server_name]
@@ -185,7 +190,11 @@ class Genghis < Sinatra::Base
       :value => JSON.dump(@servers),
       :expires => Time.now + 60*60*24*365
     )
-    json server_info(name)
+    json server_info name
+  end
+
+  get '/servers/:server' do |server|
+    json server_info server
   end
 
   delete '/servers/:server' do
@@ -199,19 +208,29 @@ class Genghis < Sinatra::Base
     json({ :success => true })
   end
 
-  get '/servers/:server' do |server|
-    json server_info(server)
-  end
-
   get '/servers/:server/databases' do |server|
     databases = connection(server)['admin'].command({:listDatabases => true})['databases']
     json databases.map {|database| database_info(server, database)}
   end
 
+  post '/servers/:server/databases' do |server|
+    name = JSON.parse(request.body.read)['name']
+    connection(server)[name]['__genghis_tmp_collection__'].drop
+    databases = connection(server)['admin'].command({:listDatabases => true})['databases']
+    database  = databases.detect {|d| d['name'] == name}
+    json database_info server, database
+  end
+
   get '/servers/:server/databases/:database' do |server, db|
     databases = connection(server)['admin'].command({:listDatabases => true})['databases']
-    database  = databases.detect {|d| d['name'] == db}
-    json database_info(server, database)
+    database  = databases.detect {|d| d['name'] == db} || not_found
+    json database_info server, database
+  end
+
+  delete '/servers/:server/databases/:database' do |server, db|
+    not_found unless connection(server).database_names.include? db
+    connection(server).drop_database db
+    json :success => true
   end
 
   get '/servers/:server/databases/:database/collections' do |server, db|
@@ -220,31 +239,58 @@ class Genghis < Sinatra::Base
     json collections.map {|collection| collection_info(collection)}
   end
 
+  post '/servers/:server/databases/:database/collections' do |server, db|
+    database = connection(server)[db]
+    name = JSON.parse(request.body.read)['name']
+    collection = database.create_collection name
+    json collection_info collection
+  end
+
   get '/servers/:server/databases/:database/collections/:collection' do |server, db, coll|
-    collection = connection(server)[db][coll]
-    json collection_info(collection)
+    not_found unless connection(server)[db].collection_names.include? coll
+    json collection_info connection(server)[db][coll]
+  end
+
+  delete '/servers/:server/databases/:database/collections/:collection' do |server, db, coll|
+    not_found unless connection(server)[db].collection_names.include? coll
+    connection(server)[db][coll].drop
+    json :success => true
   end
 
   get '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
     collection = connection(server)[db][coll]
     page = params.fetch(:page, 1).to_i
-    json document_info(collection, page)
+    json document_info(collection, page), :encoder => GenghisJson
+  end
+
+  post '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
+    collection = connection(server)[db][coll]
+    id = collection.insert request_json
+    document = collection.find_one('_id' => id) || not_found
+    json document, :encoder => GenghisJson
   end
 
   get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
     document = connection(server)[db][coll].find_one('_id' => thunk_mongo_id(doc))
-    json document
+    json document, :encoder => GenghisJson
   end
 
   put '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
-    data = GenghisJson.decode(request.body.read)
-
     document = connection(server)[db][coll].find_and_modify \
       :query => {'_id' => thunk_mongo_id(doc)},
-      :update => data,
+      :update => request_json,
       :new => true
+    not_found unless document
+    json document, :encoder => GenghisJson
+  end
 
-    json document
+  delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
+    query      = {'_id' => thunk_mongo_id(doc)}
+    collection = connection(server)[db][coll]
+    collection.find_one(query) || not_found
+
+    collection.remove query
+    json :success => true
   end
 end
 
