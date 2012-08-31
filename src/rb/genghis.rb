@@ -15,12 +15,6 @@ class Genghis < Sinatra::Base
   set :json_encoder, :to_json
   set :json_content_type, :json
 
-  def features
-    {
-      :readOnly => true
-    }
-  end
-
   def connection(server_name)
     server = @servers[server_name]
 
@@ -115,7 +109,6 @@ class Genghis < Sinatra::Base
     if request.xhr?
       pass
     else
-      @features = features.to_json
       mustache 'index.html.mustache'.intern
     end
   end

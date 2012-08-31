@@ -26,7 +26,7 @@ Genghis.Base.SectionView = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render({readOnly: Genghis.features.readOnly}));
+        $(this.el).html(this.template.render());
 
         this.addForm      = this.$('.add-form');
         this.addButton    = this.$('.add-form button.add');

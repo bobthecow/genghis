@@ -11,14 +11,11 @@ window.Genghis = {
             tabSize:       4,
             indentUnit:    4,
             matchBrackets: true
-        },
-        features: {
-            readOnly: false
         }
     },
-    boot: function(baseUrl, features) {
+    boot: function(baseUrl) {
         baseUrl = baseUrl + (baseUrl.charAt(baseUrl.length - 1) == '/' ? '' : '/');
-        window.App = new Genghis.Views.App({base_url: baseUrl, features: features || {}});
+        window.App = new Genghis.Views.App({base_url: baseUrl});
         Backbone.history.start({pushState: true, root: baseUrl});
     }
 };

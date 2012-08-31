@@ -16,8 +16,5 @@ Genghis.Base.Model = Backbone.Model.extend({
     },
     hasMoreChildren: function() {
         return this.get('count') > 15;
-    },
-    readOnly: function() {
-        return Genghis.features.readOnly || false;
     }
 });

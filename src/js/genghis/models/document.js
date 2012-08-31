@@ -45,8 +45,5 @@ Genghis.Models.Document = Backbone.Model.extend({
         // so we don't have to build a bunch of elements just to
         // tear 'em down.
         return $('<div>' + this.prettyPrint() + '</div>').text();
-    },
-    readOnly: function() {
-        return Genghis.features.readOnly || false;
     }
 });

@@ -12,7 +12,7 @@ Genghis.Views.KeyboardShortcuts = Backbone.View.extend({
     },
     render: function() {
         $(this.el)
-            .html(this.template.render({readOnly: Genghis.features.readOnly}))
+            .html(this.template.render())
             .modal({backdrop: true, keyboard: true, show: false});
 
         return this;
