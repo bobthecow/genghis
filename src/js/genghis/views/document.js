@@ -9,8 +9,6 @@ Genghis.Views.Document = Backbone.View.extend({
         var view = new Genghis.Views.DocumentView({model: this.model});
         $(this.el).removeClass('spinning').html(this.template.render({model: this.model}));
         this.$('.content').html(view.render().el);
-        Genghis.Util.attachCollapsers(view.el);
-
         return this;
     }
 });

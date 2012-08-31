@@ -38,9 +38,8 @@ Genghis.Views.Documents = Backbone.View.extend({
         $(this.el).removeClass('spinning');
     },
     addDocument: function(document) {
-        var view = new Genghis.Views.DocumentView({model: document}).render();
-        this.$('.content').append(view.el);
-        Genghis.Util.attachCollapsers(view.el, (this.collection.size() > 10));
+        var view = new Genghis.Views.DocumentView({model: document});
+        this.$('.content').append(view.render().el);
     },
     createDocument: function() {
         this.NewDocumentView.show();
