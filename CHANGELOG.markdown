@@ -13,8 +13,8 @@ Tons of improvements:
  * More responsive design (check it in a really small window!)
  * Epic document parsing and rendering overhaul:
     * Huge speed improvements. Rendering, collapsing and scrolling like wow.
-    * Documents are now displayed and edited in Genghis Flavored JSON, a more lenient and intuitive superset of JSON.
     * Date, ObjectId and regular expression values (and more) are now formatted (and edited) for humans, not robots.
+    * Documents are now displayed _and edited_ as Genghis Flavored JSON, a more lenient and intuitive superset of JSON.
  * UX Improvements:
     * Update code editor. The new one (CodeMirror) is lighter, faster, smaller and a cleaner implementation.
     * Add Cmd+Enter / Ctrl+Enter keyboard shortcut for saving the document being edited.
