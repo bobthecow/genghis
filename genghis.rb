@@ -153,7 +153,7 @@ class Genghis < Sinatra::Base
     {
       :count => documents.count,
       :page =>  page,
-      :pages => [0, (documents.count / PAGE_LIMIT).ceil].max,
+      :pages => [0, (documents.count / PAGE_LIMIT.to_f).ceil].max,
       :per_page => PAGE_LIMIT,
       :offset   => offset,
       :documents => documents.to_a
