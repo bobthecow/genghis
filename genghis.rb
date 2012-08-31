@@ -18,6 +18,8 @@ require 'json'
 require 'uri'
 
 class Genghis < Sinatra::Base
+  PAGE_LIMIT = 50
+
   enable :inline_templates
   register Sinatra::Reloader if development?
 
@@ -139,18 +141,22 @@ class Genghis < Sinatra::Base
     }
   end
 
-  def document_info(collection, page)
+  def document_info(collection, page, query={})
+    offset = PAGE_LIMIT * (page - 1)
+
+    documents = collection.find(
+      query,
+      :limit => PAGE_LIMIT,
+      :skip  => offset
+    )
+
     {
-      :count => collection.count,
-      :page => page,
-      :pages => 1,
-      :per_page => 50,
-      :offset => 50,
-      :documents => collection.find(
-        {},
-        :limit => 50,
-        :skip => 50 * (page - 1)
-      ).to_a
+      :count => documents.count,
+      :page =>  page,
+      :pages => [0, (documents.count / PAGE_LIMIT).ceil].max,
+      :per_page => PAGE_LIMIT,
+      :offset   => offset,
+      :documents => documents.to_a
     }
   end
 
@@ -269,8 +275,9 @@ class Genghis < Sinatra::Base
 
   get '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
     collection = connection(server)[db][coll]
-    page = params.fetch(:page, 1).to_i
-    json document_info(collection, page), :encoder => GenghisJson
+    page  = params.fetch('page', 1).to_i
+    query = GenghisJson.decode(params.fetch('q', '{}'))
+    json document_info(collection, page, query), :encoder => GenghisJson
   end
 
   post '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
