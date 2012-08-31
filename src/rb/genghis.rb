@@ -11,8 +11,45 @@ class Genghis < Sinatra::Base
   enable :inline_templates
   register Sinatra::Reloader if development?
 
+  class JsonEncoder
+    class << self
+      def encode(object)
+        enc(object, Array, Hash, BSON::OrderedHash).to_json
+      end
+
+      private
+
+      def enc(o, *a)
+        o = o.to_s if o.is_a? Symbol
+        fail "invalid: #{o.inspect}" unless a.empty? or a.include? o.class
+        case o
+        when Array then o.map { |e| enc(e) }
+        when Hash then o.merge(o) { |k, v| enc(v) }
+        when Time then thunk('ISODate', o.strftime('%FT%T%:z'))
+        when Regexp then thunk('RegExp', {'$pattern' => o.source, '$flags' => re_flags(o.options)})
+        when BSON::ObjectId then thunk('ObjectId', o.to_s)
+        when BSON::DBRef then db_ref(o)
+        else o
+        end
+      end
+
+      def thunk(name, value)
+        {'$genghisType' => name, '$value' => value }
+      end
+
+      def re_flags(o)
+        (o & Regexp::MULTILINE ? 'm' : '') + (o & Regexp::IGNORECASE ? 'i' : '')
+      end
+
+      def db_ref(o)
+        o = o.to_hash
+        {'$ref' => o['$ns'], '$id' => enc(o['$id'])}
+      end
+    end
+  end
+
   helpers Sinatra::JSON
-  set :json_encoder, :to_json
+  set :json_encoder, JsonEncoder
   set :json_content_type, :json
 
   def connection(server_name)
