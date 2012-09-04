@@ -9,8 +9,10 @@ require 'html_compressor'
 require 'digest/md5'
 require 'base64'
 require 'json'
+require 'bundler'
+require 'rspec/core/rake_task'
 
-GENGHIS_VERSION = '2.0.0-dev'
+GENGHIS_VERSION = File.read('VERSION').strip
 
 tmp_dir = ENV['NOCOMPRESS'] ? 'tmp/uncompressed/' : 'tmp/compressed/'
 
@@ -216,9 +218,14 @@ file 'genghis.rb' => rb_include_files + asset_files do
   end
 end
 
+Bundler::GemHelper.install_tasks
+
+RSpec::Core::RakeTask.new(:spec)
+task :test => :spec
+
 Rake::PackageTask.new('genghis', GENGHIS_VERSION) do |p|
   p.need_tar = true
-  p.package_files.include('genghis.php', '.htaccess', 'README.markdown')
+  p.package_files.include('genghis.php', 'genghis.rb', '.htaccess', 'README.markdown', 'LICENSE', 'CHANGELOG.markdown')
 end
 
 CLEAN.include('tmp/*')
