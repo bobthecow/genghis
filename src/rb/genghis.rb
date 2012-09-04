@@ -5,7 +5,6 @@ require 'sinatra/json'
 require 'sinatra/reloader'
 require 'mongo'
 require 'json'
-require 'uri'
 
 class Genghis < Sinatra::Base
   PAGE_LIMIT = 50
@@ -82,30 +81,29 @@ class Genghis < Sinatra::Base
   end
 
   def connection(server_name)
-    server = @servers[server_name]
-
-    if server.start_with?('mongodb://')
-      Mongo::Connection.from_uri(server)
-    else
-      host, port = @servers[server_name].split(':')
-      Mongo::Connection.new(host, port ? port.to_i : 27017)
-    end
+    server = servers[server_name] || not_found
+    Mongo::Connection.from_uri(server[:dsn])
   end
 
   def server_info(server_name)
-    # TODO: not all are editable... remove "editable: true" once default servers are implemented
-    resp = { :id => server_name, :name => server_name, :editable => true }
-    begin
-      conn = connection(server_name)
-    rescue Mongo::ConnectionFailure => ex
-      resp.merge!({ :error => ex.to_s })
+    server = servers[server_name]
+    puts server.inspect
+    resp = { :id => server_name, :name => server_name, :editable => !server[:default] }
+    if server[:error]
+      resp.merge!({:error => server[:error]})
     else
-      databases = conn['admin'].command({:listDatabases => true})
-      resp.merge!({
-        :size => databases['totalSize'],
-        :count => databases['databases'].count,
-        :databases => databases['databases'].map {|db| db['name']}
-      })
+      begin
+        conn = connection(server_name)
+      rescue Mongo::ConnectionFailure => ex
+        resp.merge!({:error => ex.to_s})
+      else
+        databases = conn['admin'].command({:listDatabases => true})
+        resp.merge!({
+          :size      => databases['totalSize'],
+          :count     => databases['databases'].count,
+          :databases => databases['databases'].map {|db| db['name']}
+        })
+      end
     end
   end
 
@@ -154,10 +152,61 @@ class Genghis < Sinatra::Base
     id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(id) : id
   end
 
-  before do
-    @servers ||= { 'localhost' => 'localhost:27017' }
-    if servers = request.cookies['genghis_rb_servers']
-      @servers = JSON.parse(servers)
+  def init_server(dsn)
+    dsn = 'mongodb://'+dsn unless dsn.include? '://'
+
+    server = {
+      :name => dsn.sub(/^mongodb:\/\//, ''),
+      :dsn  => dsn,
+    }
+
+    begin
+      uri = ::Mongo::URIParser.new dsn
+
+      # name this server something useful
+      name = uri.host
+      if user = uri.auths.map{|a| a['username']}.first
+        name = "#{user}@#{name}"
+      end
+      name = "#{name}:#{uri.port}" unless uri.port == 27017
+      server[:name] = name
+    rescue Mongo::MongoArgumentError => e
+      server[:error] = "Malformed server DSN: #{e.message}"
+    end
+
+    server
+  end
+
+  def init_servers(dsn_list, opts={})
+    Hash[dsn_list.map { |dsn|
+      server = init_server(dsn)
+      server.merge(opts)
+      [server[:name], server]
+    }]
+  end
+
+  def save_servers
+    server_names = servers.collect { |name, server| server[:dsn] unless server[:default] }.compact
+    response.set_cookie(
+      :genghis_rb_servers,
+      :path => '/',
+      :value => JSON.dump(server_names),
+      :expires => Time.now + 60*60*24*365
+    )
+  end
+
+  def default_servers
+    @default_servers ||= begin
+      env_var = (ENV['GENGHIS_SERVERS'] || '').split(';')
+      init_servers(env_var, :default => true)
+    end
+  end
+
+  def servers
+    @servers ||= begin
+      names   = JSON.parse(request.cookies['genghis_rb_servers'] || '[]')
+      servers = default_servers.merge(init_servers(names))
+      servers.empty? ? init_servers(['localhost']) : servers # fall back to 'localhost'
     end
   end
 
@@ -184,18 +233,15 @@ class Genghis < Sinatra::Base
   end
 
   get '/servers' do
-    json @servers.keys.collect {|server_name| server_info(server_name)}
+    json servers.keys.map {|server_name| server_info(server_name)}
   end
 
   post '/servers' do
-    name = JSON.parse(request.body.read)['name']
-    @servers[name] = name
-    response.set_cookie(
-      :genghis_rb_servers,
-      :path => '/',
-      :value => JSON.dump(@servers),
-      :expires => Time.now + 60*60*24*365
-    )
+    server = init_server(JSON.parse(request.body.read)['name'])
+    name   = server[:name]
+    raise "Server #{name} already exists" unless servers[name].nil?
+    @servers[name] = server
+    save_servers
     json server_info name
   end
 
@@ -204,13 +250,9 @@ class Genghis < Sinatra::Base
   end
 
   delete '/servers/:server' do
+    raise "Unknown server: #{name}" if servers[params[:server]].nil?
     @servers.delete(params[:server])
-    response.set_cookie(
-      :genghis_rb_servers,
-      :path => '/',
-      :value => JSON.dump(@servers),
-      :expires => Time.now + 60*60*24*365
-    )
+    save_servers
     json({ :success => true })
   end
 
