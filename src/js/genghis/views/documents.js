@@ -18,7 +18,7 @@ Genghis.Views.Documents = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render());
+        $(this.el).html(this.template.render({}));
 
         this.HeaderView      = new Genghis.Views.DocumentsHeader({model: Genghis.Selection.Pagination});
         this.NewDocumentView = new Genghis.Views.NewDocument({collection: Genghis.Selection.Documents});

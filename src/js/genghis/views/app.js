@@ -3,8 +3,6 @@ Genghis.Views.App = Backbone.View.extend({
     initialize: function() {
         _.bindAll(this, 'showSection');
 
-        Genghis.features = _.extend(Genghis.defaults.features, this.options.features || {});
-
         // let's save this for later
         Genghis.baseUrl = this.options.base_url;
 
