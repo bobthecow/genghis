@@ -234,7 +234,24 @@ class Genghis < Sinatra::Base
   end
 
   get '/check-status' do
-    json({:alerts => []})
+    alerts = []
+    if ::BSON::BSON_CODER == ::BSON::BSON_RUBY
+      msg = <<-MSG.strip.gsub(/\s+/, " ")
+        <h4>MongoDB driver C extension not found.</h4>
+        Install this extension for better performance: <code>gem install bson_ext</code>
+      MSG
+      alerts << {:level => 'warning', :msg => msg, :block => true}
+    end
+
+    unless defined? JSON::Ext
+      msg = <<-MSG.strip.gsub(/\s+/, " ")
+        <h4>JSON C extension not found.</h4>
+        Falling back to the pure Ruby variant. <code>gem install json</code> for better performance.
+      MSG
+      alerts << {:level => 'warning', :msg => msg, :block => true}
+    end
+
+    json({:alerts => alerts})
   end
 
   get '/assets/style.css' do
