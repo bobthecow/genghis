@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'sinatra-contrib',  '~> 1.3.1'
   gem.add_dependency 'sinatra-mustache', '~> 0.0.4'
   gem.add_dependency 'mongo',            '~> 1.7.0'
+  gem.add_dependency 'json',             '~> 1.7.0'
 
   # building
   gem.add_development_dependency 'rake'
