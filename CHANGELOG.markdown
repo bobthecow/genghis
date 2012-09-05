@@ -1,8 +1,9 @@
-## v1.5.0
+## v2.0.0-dev
 
 Brand new features:
 
  * Genghis doesn't require a webserver! Ghengis.php now runs as a standalone server with the PHP 5.4 CLI SAPI.
+ * Genghis doesn't require PHP! Introducing Genghis.rb — Thanks @TylerBrock for doing all the work :)
  * Add support for pre-configured servers via the `$GENGHIS_SERVERS` environment variable.
  * Add support for replica sets, e.g. `localhost:12345/?replicaSet=production`.
 
