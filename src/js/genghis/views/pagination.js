@@ -57,8 +57,15 @@ Genghis.Views.Pagination = Backbone.View.extend({
         var chunks = url.split('?');
         var base   = chunks.shift();
         var params = Genghis.Util.parseQuery(chunks.join('?'));
+        var extra  = {page: i};
 
-        return base + '?' + Genghis.Util.buildQuery(_.extend(params, {page: i}));
+        // TODO: this is ugly. fix it.
+        if (params.q) {
+            // swap out the query for a pretty one
+            extra['q'] = encodeURIComponent(Genghis.Selection.get('query'));
+        }
+
+        return base + '?' + Genghis.Util.buildQuery(_.extend(params, extra));
     },
     navigate: function(e) {
         e.preventDefault();
