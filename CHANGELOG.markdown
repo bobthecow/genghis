@@ -23,6 +23,7 @@ Tons of improvements:
     * Better "keyboard shortcuts" dialog on smaller screens.
     * Require database name confirmation rather than DELETE before removing a db.
     * Collection removal is paranoid as well: it also requires confirmation before removing.
+    * Expando-matic search box. No more squinting or scrolling to see your massive queries.
  * Update Bootstrap (2.1.0), jQuery (1.8.0), Underscore (1.3.3), and Backbone (0.9.2).
  * Use UglifyJS instead of closure compiler to minify JS. It's faster and doesn't require Java :)
 
