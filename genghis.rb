@@ -17,7 +17,7 @@ require 'mongo'
 require 'json'
 
 class Genghis < Sinatra::Base
-  PAGE_LIMIT = 2
+  PAGE_LIMIT = 50
 
   enable :inline_templates
   register Sinatra::Reloader if development?
