@@ -17,7 +17,7 @@ require 'mongo'
 require 'json'
 
 class Genghis < Sinatra::Base
-  PAGE_LIMIT = 50
+  PAGE_LIMIT = 2
 
   enable :inline_templates
   register Sinatra::Reloader if development?
@@ -70,9 +70,9 @@ class Genghis < Sinatra::Base
         when Array then o.map { |e| dec(e) }
         when Hash then
           case o['$genghisType']
-          when 'ObjectId' then BSON::ObjectId.from_string(o['$value'])
-          when 'ISODate' then DateTime.parse(o['$value']).to_time
-          when 'RegExp' then Regexp.new(o['$value']['$pattern'], dec_re_flags(o['$value']['$flags']))
+          when 'ObjectId' then object_id o['$value']
+          when 'ISODate'  then iso_date  o['$value']
+          when 'RegExp'   then reg_exp   o['$value']
           else o.merge(o) { |k, v| dec(v) }
           end
         else o
@@ -83,6 +83,19 @@ class Genghis < Sinatra::Base
         f = flags || ''
         (f.include?('m') ? Regexp::MULTILINE : 0) | (f.include?('i') ? Regexp::IGNORECASE : 0)
       end
+
+      def object_id(value)
+        value.nil? ? BSON::ObjectId.new : BSON::ObjectId.from_string(value)
+      end
+
+      def iso_date(value)
+        value.nil? ? Time.now : DateTime.parse(value).to_time
+      end
+
+      def reg_exp(value)
+        value['$flags'].nil ? Regexp.new(value['$pattern']) : Regexp.new(value['$pattern'], dec_re_flags(value['$flags']))
+      end
+
     end
   end
 
