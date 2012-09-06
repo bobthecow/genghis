@@ -67,12 +67,9 @@ Genghis.Views.Search = Backbone.View.extend({
         return this;
     },
     updateQuery: function() {
-        var q = (this.model.get('query') || this.model.get('document') || '')
-                .trim()
-                .replace(/^\{\s*\}$/, '')
-                .replace(/^\{\s*(['"]?)_id\1\s*:\s*\{\s*(['"]?)\$id\2\s*:\s*(["'])([a-z\d]+)\3\s*\}\s*\}$/, '$4');
+        var q = this.normalizeQuery(this.model.get('query') || this.model.get('document') || '');
 
-        this.$('input#navbar-query').val(Genghis.JSON.normalize(q, false));
+        this.$('input#navbar-query').val(q);
     },
     handleSearchKeyup: function(e) {
         if (e.keyCode == 13) {
@@ -106,11 +103,40 @@ Genghis.Views.Search = Backbone.View.extend({
         this.$('input#navbar-query').blur();
         this.updateQuery();
     },
+    normalizeQuery: function(q) {
+        q = q.trim();
+
+        if (q !== '') {
+            try {
+                q = Genghis.JSON.normalize(q, false);
+            } catch (e) {
+                // do nothing, we'll use the un-normalized version.
+            }
+        }
+
+        return q.replace(/^\{\s*\}$/, '')
+                .replace(/^\{\s*(['"]?)_id\1\s*:\s*\{\s*(['"]?)\$id\2\s*:\s*(["'])([a-z\d]+)\3\s*\}\s*\}$/, '$4')
+                .replace(/^\{\s*(['"]?)_id\1\s*:\s*(new\s+)?ObjectId\s*\(\s*(["'])([a-z\d]+)\3\s*\)\s*\}$/, '$4');
+    },
     advancedSearchToQuery: function() {
-        this.$('input#navbar-query').val(Genghis.JSON.normalize(this.editor.getValue(), false));
+        this.$('input#navbar-query').val(this.normalizeQuery(this.editor.getValue()));
     },
     queryToAdvancedSearch: function() {
-        this.editor.setValue(Genghis.JSON.normalize(this.$('input#navbar-query').val(), true));
+        var q = this.$('input#navbar-query').val().trim();
+
+        if (q.match(/^[a-z\d]+$/i)) {
+            q = '{_id:ObjectId("'+q+'")}';
+        }
+
+        if (q !== '') {
+            try {
+                q = Genghis.JSON.normalize(q, true);
+            } catch (e) {
+                // Do nothing, we'll copy over the broken JSON
+            }
+        }
+
+        this.editor.setValue(q);
     },
     expandSearch: function(expand) {
         if (!this.editor) {
