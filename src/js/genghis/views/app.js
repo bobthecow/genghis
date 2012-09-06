@@ -1,7 +1,7 @@
 Genghis.Views.App = Backbone.View.extend({
     el: 'section#genghis',
     initialize: function() {
-        _.bindAll(this, 'showSection');
+        _.bindAll(this, 'showMasthead', 'removeMasthead', 'showSection');
 
         // let's save this for later
         var baseUrl   = this.baseUrl   = this.options.baseUrl;
@@ -50,7 +50,25 @@ Genghis.Views.App = Backbone.View.extend({
         // trigger the first selection change. go go gadget app!
         selection.change();
     },
+    showMasthead: function(heading, content, opt) {
+        // remove any old mastheads
+        this.removeMasthead(true);
+        mastheadView = new Genghis.Views.Masthead(_.extend(opt, {
+            heading: heading,
+            content: content || '',
+        }));
+    },
+    removeMasthead: function(force) {
+        var masthead = $('header.masthead');
+        if (!force) {
+            masthead = masthead.not('.sticky');
+        }
+        masthead.remove();
+    },
     showSection: function(section) {
+        // remove mastheads when navigating
+        this.removeMasthead();
+
         $('body')
             .removeClass('section-servers section-databases section-collections section-documents section-document')
             .addClass('section-'+(_.isArray(section) ? section.join(' section-') : section));

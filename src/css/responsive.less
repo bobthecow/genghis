@@ -14,6 +14,17 @@
 }
 
 @media screen and (max-width: 860px) {
+    .masthead {
+        padding: 40px 20px;
+        margin-right: -20px;
+        margin-left:  -20px;
+        &.epic {
+            padding: 40px 20px;
+            h1 { font-size: 90px; }
+            p  { font-size: 24px; }
+        }
+    }
+
     .modal.editor {
         left:  20px;
         right: 20px;
@@ -138,6 +149,17 @@
                     padding: 0;
                 }
             }
+        }
+    }
+
+    .masthead {
+        text-align: center;
+        .container {
+            padding: 0 20px;
+        }
+        &.epic {
+            h1 { font-size: 60px; }
+            p  { font-size: 20px; }
         }
     }
 
