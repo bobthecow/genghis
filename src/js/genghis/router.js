@@ -83,8 +83,11 @@ Genghis.Router = Backbone.Router.extend({
         if (path.replace(/\/$/, '') == app.baseUrl.replace(/\/$/, '')) return this.navigate('', true);
 
         document.title = this.buildTitle('404: Not Found');
-        $('section#genghis section#error').html("<header><h2>404: Not Found</h2></header><p>If you think you've reached this message in error, please press <strong>0</strong> to speak with an operator. Otherwise, hang up and try again.</p>");
-        app.showSection('error');
+        app.showSection();
+        app.showMasthead('404: Not Found', "<p>If you think you've reached this message in error, please press <strong>0</strong> to speak with an operator. Otherwise, hang up and try again.</p>", {
+            error: true,
+            epic:  true
+        });
     },
     buildTitle: function() {
         var args = Array.prototype.slice.call(arguments);
