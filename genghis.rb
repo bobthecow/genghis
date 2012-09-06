@@ -70,9 +70,9 @@ class Genghis < Sinatra::Base
         when Array then o.map { |e| dec(e) }
         when Hash then
           case o['$genghisType']
-          when 'ObjectId' then object_id o['$value']
-          when 'ISODate'  then iso_date  o['$value']
-          when 'RegExp'   then reg_exp   o['$value']
+          when 'ObjectId' then mongo_object_id o['$value']
+          when 'ISODate'  then mongo_iso_date  o['$value']
+          when 'RegExp'   then mongo_reg_exp   o['$value']
           else o.merge(o) { |k, v| dec(v) }
           end
         else o
@@ -84,15 +84,15 @@ class Genghis < Sinatra::Base
         (f.include?('m') ? Regexp::MULTILINE : 0) | (f.include?('i') ? Regexp::IGNORECASE : 0)
       end
 
-      def object_id(value)
+      def mongo_object_id(value)
         value.nil? ? BSON::ObjectId.new : BSON::ObjectId.from_string(value)
       end
 
-      def iso_date(value)
+      def mongo_iso_date(value)
         value.nil? ? Time.now : DateTime.parse(value).to_time
       end
 
-      def reg_exp(value)
+      def mongo_reg_exp(value)
         value['$flags'].nil ? Regexp.new(value['$pattern']) : Regexp.new(value['$pattern'], dec_re_flags(value['$flags']))
       end
 
