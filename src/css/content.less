@@ -1,13 +1,17 @@
 .welcome-links {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-	li {
-		display: inline;
-		padding: 0 10px;
-		color: rgba(255,255,255,.4);
-		a {
-			color: rgba(255,255,255,.7);
-		}
-	}
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    li {
+        display: inline;
+        padding: 0 10px;
+        color: mix(#fff, @linkColor, 40%);
+        a:link, a:visited {
+            color: mix(#fff, @linkColor, 70%);
+            .transition(color .2s ease-in-out);
+        }
+        a:hover, a:active {
+            color: #fff;
+        }
+    }
 }
