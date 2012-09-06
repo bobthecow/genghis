@@ -383,7 +383,7 @@ class Genghis < Sinatra::Base
   end
 end
 
-Genghis.run!
+Genghis.run! if __FILE__==$0
 
 
 __END__
