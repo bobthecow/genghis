@@ -18,17 +18,15 @@
             </div>
         </header>
 
-        <section id="genghis" class="container fluid">
-            <section id="error" style="display:block;">
-                <header><h2>{{ status }}: {{ message }}</h2></header>
-                <div class="content">
-                    <p>
-                        If you think you've reached this message in error, please press <strong>0</strong> to speak with
-                        an operator. Otherwise, hang up and try again.
-                    </p>
-                </div>
-            </section>
-        </section>
+        <header class="masthead epic error">
+            <div class="container">
+                <h1>{{ status }}: {{ message }}</h1>
+                <p>
+                    If you think you've reached this message in error, please press <strong>0</strong> to speak with
+                    an operator. Otherwise, hang up and try again.
+                </p>
+            </div>
+        </header>
 
         <footer class="container"><p>Genghis, by <a href="http://justinhileman.info">Justin Hileman</a>.</p></footer>
     </body>
