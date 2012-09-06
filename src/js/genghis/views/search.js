@@ -30,7 +30,6 @@ Genghis.Views.Search = Backbone.View.extend({
         $('.grippie', this.el).bind('mousedown', function(e) {
             e.preventDefault();
 
-            var iLastMousePos = 0;
             var minHeight = 30;
             var maxHeight = Math.min($(window).height() / 2, 350);
             $(document).mousemove(mouseMove).mouseup(mouseUp);
