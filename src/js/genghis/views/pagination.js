@@ -62,7 +62,7 @@ Genghis.Views.Pagination = Backbone.View.extend({
         // TODO: this is ugly. fix it.
         if (params.q) {
             // swap out the query for a pretty one
-            extra['q'] = encodeURIComponent(Genghis.Selection.get('query'));
+            extra['q'] = encodeURIComponent(app.selection.get('query'));
         }
 
         return base + '?' + Genghis.Util.buildQuery(_.extend(params, extra));
@@ -71,7 +71,7 @@ Genghis.Views.Pagination = Backbone.View.extend({
         e.preventDefault();
         var url = $(e.target).attr('href');
         if (url) {
-            App.Router.navigate(Genghis.Util.route(url), true);
+            app.router.navigate(Genghis.Util.route(url), true);
         }
     },
     nextPage: function(e) {

@@ -1,6 +1,6 @@
 Genghis.Util = {
     route: function(url) {
-        return url.replace(Genghis.baseUrl, '').replace(/^\//, '');
+        return url.replace(app.baseUrl, '').replace(/^\//, '');
     },
 
     parseQuery: function(str) {

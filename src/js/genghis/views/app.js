@@ -4,51 +4,51 @@ Genghis.Views.App = Backbone.View.extend({
         _.bindAll(this, 'showSection');
 
         // let's save this for later
-        Genghis.baseUrl = this.options.base_url;
+        var baseUrl   = this.baseUrl   = this.options.baseUrl;
 
         // for current selection
-        Genghis.Selection    = new Genghis.Models.Selection;
+        var selection = this.selection = new Genghis.Models.Selection;
 
         // for messaging
-        Genghis.Alerts       = new Genghis.Collections.Alerts;
+        var alerts    = this.alerts    = new Genghis.Collections.Alerts;
 
         // initialize all our app views
-        this.NavView               = new Genghis.Views.Nav({model: Genghis.Selection});
-        this.AlertsView            = new Genghis.Views.Alerts({collection: Genghis.Alerts});
-        this.KeyboardShortcutsView = new Genghis.Views.KeyboardShortcuts;
-        this.ServersView           = new Genghis.Views.Servers({collection: Genghis.Selection.Servers});
-        this.DatabasesView         = new Genghis.Views.Databases({
-            model: Genghis.Selection.CurrentServer,
-            collection: Genghis.Selection.Databases
+        this.navView               = new Genghis.Views.Nav({model: selection, baseUrl: baseUrl});
+        this.alertsView            = new Genghis.Views.Alerts({collection: alerts});
+        this.keyboardShortcutsView = new Genghis.Views.KeyboardShortcuts;
+        this.serversView           = new Genghis.Views.Servers({collection: selection.servers});
+        this.databasesView         = new Genghis.Views.Databases({
+            model:      selection.currentServer,
+            collection: selection.databases
         });
-        this.CollectionsView       = new Genghis.Views.Collections({
-            model: Genghis.Selection.CurrentDatabase,
-            collection: Genghis.Selection.Collections
+        this.collectionsView       = new Genghis.Views.Collections({
+            model:      selection.currentDatabase,
+            collection: selection.collections
         });
-        this.DocumentsView         = new Genghis.Views.Documents({collection: Genghis.Selection.Documents});
-        this.DocumentView          = new Genghis.Views.Document({model: Genghis.Selection.CurrentDocument});
+        this.documentsView         = new Genghis.Views.Documents({collection: selection.documents, pagination: selection.pagination});
+        this.documentView          = new Genghis.Views.Document({model: selection.currentDocument});
 
 
         // initialize the router
-        this.Router = new Genghis.Router;
+        var router = this.router = new Genghis.Router;
 
         // route to home when the logo is clicked
         $('.navbar a.brand').click(function(e) {
             e.preventDefault();
-            App.Router.navigate('', true);
+            router.navigate('', true);
         });
 
         // check the server status...
-        $.getJSON(Genghis.baseUrl + 'check-status')
-            .error(Genghis.Alerts.handleError)
+        $.getJSON(this.baseUrl + 'check-status')
+            .error(alerts.handleError)
             .success(function(status) {
                 _.each(status.alerts, function(alert) {
-                    Genghis.Alerts.add(_.extend({block: !alert.msg.search(/<(p|ul|ol|div)[ >]/i)}, alert));
+                    alerts.add(_.extend({block: !alert.msg.search(/<(p|ul|ol|div)[ >]/i)}, alert));
                 });
             });
 
         // trigger the first selection change. go go gadget app!
-        Genghis.Selection.change();
+        selection.change();
     },
     showSection: function(section) {
         $('body')

@@ -10,6 +10,8 @@ Genghis.Views.Documents = Backbone.View.extend({
             'createDocumentIfVisible'
         );
 
+        this.pagination = this.options.pagination;
+
         this.collection.bind('reset', this.addAll,      this);
         this.collection.bind('add',   this.addDocument, this);
 
@@ -20,11 +22,11 @@ Genghis.Views.Documents = Backbone.View.extend({
     render: function() {
         $(this.el).html(this.template.render({}));
 
-        this.HeaderView      = new Genghis.Views.DocumentsHeader({model: Genghis.Selection.Pagination});
-        this.NewDocumentView = new Genghis.Views.NewDocument({collection: Genghis.Selection.Documents});
-        this.PaginationView  = new Genghis.Views.Pagination({
+        this.headerView      = new Genghis.Views.DocumentsHeader({model: this.pagination});
+        this.newDocumentView = new Genghis.Views.NewDocument({collection: this.collection});
+        this.paginationView  = new Genghis.Views.Pagination({
             el: this.$('.pagination-wrapper'),
-            model: Genghis.Selection.Pagination,
+            model: this.pagination,
             collection: this.collection
         });
 
@@ -42,7 +44,7 @@ Genghis.Views.Documents = Backbone.View.extend({
         this.$('.content').append(view.render().el);
     },
     createDocument: function() {
-        this.NewDocumentView.show();
+        this.newDocumentView.show();
     },
     createDocumentIfVisible: function(e) {
         if ($(this.el).is(':visible')) {

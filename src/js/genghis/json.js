@@ -284,7 +284,7 @@ Genghis.JSON = {
     },
 
     stringify: function(value, pretty) {
-        return $('<div>' + this.prettyPrint(value, pretty) + '</div>').text();
+        return jQuery('<div>' + this.prettyPrint(value, pretty) + '</div>').text();
     },
 
     prettyPrint: function (value, pretty) {

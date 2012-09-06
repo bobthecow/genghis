@@ -9,6 +9,7 @@ Genghis.Views.Nav = Backbone.View.extend({
             this, 'render', 'navigate', 'navigateToServers', 'navigateUp'
         );
 
+        this.baseUrl = this.options.baseUrl;
         this.model.bind('change', this.updateQuery);
 
         $('body').bind('click', function(e) {
@@ -21,45 +22,45 @@ Genghis.Views.Nav = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render({baseUrl: Genghis.baseUrl}));
+        $(this.el).html(this.template.render({baseUrl: this.baseUrl}));
 
-        this.ServerNavView = new Genghis.Views.NavSection({
+        this.serverNavView = new Genghis.Views.NavSection({
             el: $('li.server', this.el),
-            model: this.model.CurrentServer,
-            collection: this.model.Servers
+            model: this.model.currentServer,
+            collection: this.model.servers
         });
 
-        this.DatabaseNavView = new Genghis.Views.NavSection({
+        this.databaseNavView = new Genghis.Views.NavSection({
             el: $('li.database', this.el),
-            model: this.model.CurrentDatabase,
-            collection: this.model.Databases
+            model: this.model.currentDatabase,
+            collection: this.model.databases
         });
 
-        this.CollectionNavView = new Genghis.Views.NavSection({
+        this.collectionNavView = new Genghis.Views.NavSection({
             el: $('li.collection', this.el),
-            model: this.model.CurrentCollection,
-            collection: this.model.Collections
+            model: this.model.currentCollection,
+            collection: this.model.collections
         });
 
-        this.SearchView = new Genghis.Views.Search({
+        this.searchView = new Genghis.Views.Search({
             model: this.model
         });
 
-        $(this.el).append(this.SearchView.render().el);
+        $(this.el).append(this.searchView.render().el);
 
         return this;
     },
     navigate: function(e) {
         e.preventDefault();
-        App.Router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
+        app.router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
     },
     navigateToServers: function(e) {
         e.preventDefault();
-        App.Router.redirectToIndex();
+        app.router.redirectToIndex();
     },
     navigateUp: function(e) {
         e.preventDefault();
-        App.Router.redirectTo(
+        app.router.redirectTo(
             this.model.has('database')   && this.model.get('server'),
             this.model.has('collection') && this.model.get('database'),
             (this.model.has('document') || this.model.has('query')) && this.model.get('collection')

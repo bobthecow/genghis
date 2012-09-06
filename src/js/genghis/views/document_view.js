@@ -35,28 +35,28 @@ Genghis.Views.DocumentView = Genghis.Base.DocumentView.extend({
     },
     navigate: function(e) {
         e.preventDefault();
-        App.Router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
+        app.router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
     },
     navigateDb: function(e) {
         var $dbRef = $(e.target).parents('.ref');
         var db     = $dbRef.find('.ref-db .v .s').text();
 
-        App.Router.redirectToDatabase(Genghis.Selection.CurrentServer.id, db);
+        app.router.redirectToDatabase(app.selection.currentServer.id, db);
     },
     navigateColl: function(e) {
         var $dbRef = $(e.target).parents('.ref');
-        var db     = $dbRef.find('.ref-db  .v .s').text() || Genghis.Selection.CurrentDatabase.id;
+        var db     = $dbRef.find('.ref-db  .v .s').text() || app.selection.currentDatabase.id;
         var coll   = $dbRef.find('.ref-ref .v .s').text();
 
-        App.Router.redirectToCollection(Genghis.Selection.CurrentServer.id, db, coll);
+        app.router.redirectToCollection(app.selection.currentServer.id, db, coll);
     },
     navigateId: function(e) {
         var $dbRef = $(e.target).parents('.ref');
-        var db     = $dbRef.find('.ref-db  .v .s').text() || Genghis.Selection.CurrentDatabase.id;
-        var coll   = $dbRef.find('.ref-ref .v .s').text() || Genghis.Selection.CurrentCollection.id;
+        var db     = $dbRef.find('.ref-db  .v .s').text() || app.selection.currentDatabase.id;
+        var coll   = $dbRef.find('.ref-ref .v .s').text() || app.selection.currentCollection.id;
         var id     = $dbRef.find('.ref-id  .v .s, .ref-id .v.n').text();
 
-        App.Router.redirectToDocument(Genghis.Selection.CurrentServer.id, db, coll, id);
+        app.router.redirectToDocument(app.selection.currentServer.id, db, coll, id);
     },
     openEditDialog: function() {
         var $well = this.$('.well');
@@ -121,15 +121,15 @@ Genghis.Views.DocumentView = Genghis.Base.DocumentView.extend({
             },
             function(r) {
                 if (r) {
-                    var selection = Genghis.Selection;
+                    var selection = app.selection;
 
                     model.destroy();
 
-                    selection.Pagination.decrementTotal();
+                    selection.pagination.decrementTotal();
 
                     // if we're currently in single-document view, bust outta this!
                     if (selection.get('document')) {
-                        App.Router.redirectTo(selection.get('server'), selection.get('database'), selection.get('collection'), null, selection.get('query'));
+                        app.router.redirectTo(selection.get('server'), selection.get('database'), selection.get('collection'), null, selection.get('query'));
                     }
                 }
             }

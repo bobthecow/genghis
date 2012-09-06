@@ -71,7 +71,7 @@ Genghis.Views.NewDocument = Genghis.Base.DocumentView.extend({
 
         this.collection.create(data, {wait: true, success: function(doc) {
             closeModal();
-            App.Router.navigate(Genghis.Util.route(doc.url()), true);
+            app.router.navigate(Genghis.Util.route(doc.url()), true);
         }});
     }
 });

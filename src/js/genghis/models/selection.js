@@ -10,16 +10,16 @@ Genghis.Models.Selection = Backbone.Model.extend({
         _.bindAll(this, 'select', 'update', 'nextPage', 'previousPage');
         this.bind('change', this.update);
 
-        this.Pagination        = new Genghis.Models.Pagination;
+        this.pagination        = new Genghis.Models.Pagination;
 
-        this.Servers           = new Genghis.Collections.Servers;
-        this.CurrentServer     = new Genghis.Models.Server;
-        this.Databases         = new Genghis.Collections.Databases;
-        this.CurrentDatabase   = new Genghis.Models.Database;
-        this.Collections       = new Genghis.Collections.Collections;
-        this.CurrentCollection = new Genghis.Models.Collection;
-        this.Documents         = new Genghis.Collections.Documents;
-        this.CurrentDocument   = new Genghis.Models.Document;
+        this.servers           = new Genghis.Collections.Servers;
+        this.currentServer     = new Genghis.Models.Server;
+        this.databases         = new Genghis.Collections.Databases;
+        this.currentDatabase   = new Genghis.Models.Database;
+        this.collections       = new Genghis.Collections.Collections;
+        this.currentCollection = new Genghis.Models.Collection;
+        this.documents         = new Genghis.Collections.Documents;
+        this.currentDocument   = new Genghis.Models.Document;
     },
     select: function(server, database, collection, documentId, query, page) {
         this.set({
@@ -38,43 +38,43 @@ Genghis.Models.Selection = Backbone.Model.extend({
         var documentId = this.get('document');
         var query      = this.get('query');
         var page       = this.get('page');
-        var url        = Genghis.baseUrl;
+        var url        = app.baseUrl;
         var params     = {};
 
         url = url + 'servers';
-        this.Servers.url = url;
-        this.Servers.fetch();
+        this.servers.url = url;
+        this.servers.fetch();
 
         if (server) {
             url = url + '/' + server;
-            this.CurrentServer.url = url;
-            this.CurrentServer.fetch();
+            this.currentServer.url = url;
+            this.currentServer.fetch();
 
             url = url + '/databases';
-            this.Databases.url = url;
-            this.Databases.fetch();
+            this.databases.url = url;
+            this.databases.fetch();
         } else {
-            this.CurrentServer.clear();
-            this.Databases.reset();
+            this.currentServer.clear();
+            this.databases.reset();
         }
 
         if (database) {
             url = url + '/' + database;
-            this.CurrentDatabase.url = url;
-            this.CurrentDatabase.fetch();
+            this.currentDatabase.url = url;
+            this.currentDatabase.fetch();
 
             url = url + '/collections';
-            this.Collections.url = url;
-            this.Collections.fetch();
+            this.collections.url = url;
+            this.collections.fetch();
         } else {
-            this.CurrentDatabase.clear();
-            this.Collections.reset();
+            this.currentDatabase.clear();
+            this.collections.reset();
         }
 
         if (collection) {
             url = url + '/' + collection;
-            this.CurrentCollection.url = url;
-            this.CurrentCollection.fetch();
+            this.currentCollection.url = url;
+            this.currentCollection.fetch();
 
             url = url + '/documents';
 
@@ -85,18 +85,18 @@ Genghis.Models.Selection = Backbone.Model.extend({
                 url_query = '?' + Genghis.Util.buildQuery(params);
             }
 
-            this.Documents.url = url + url_query;
-            this.Documents.fetch();
+            this.documents.url = url + url_query;
+            this.documents.fetch();
         } else {
-            this.CurrentCollection.clear();
-            this.Documents.reset();
+            this.currentCollection.clear();
+            this.documents.reset();
         }
 
         if (documentId) {
-            this.CurrentDocument.clear({silent: true});
-            this.CurrentDocument.id = documentId;
-            this.CurrentDocument.urlRoot = url;
-            this.CurrentDocument.fetch();
+            this.currentDocument.clear({silent: true});
+            this.currentDocument.id = documentId;
+            this.currentDocument.urlRoot = url;
+            this.currentDocument.fetch();
         }
     },
     nextPage: function() {

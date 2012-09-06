@@ -72,7 +72,7 @@ Genghis.Views.Search = Backbone.View.extend({
                 .replace(/^\{\s*\}$/, '')
                 .replace(/^\{\s*(['"]?)_id\1\s*:\s*\{\s*(['"]?)\$id\2\s*:\s*(["'])([a-z\d]+)\3\s*\}\s*\}$/, '$4');
 
-        this.$('input#navbar-query').val(q);
+        this.$('input#navbar-query').val(Genghis.JSON.normalize(q, false));
     },
     handleSearchKeyup: function(e) {
         if (e.keyCode == 13) {
@@ -83,10 +83,11 @@ Genghis.Views.Search = Backbone.View.extend({
         }
     },
     findDocuments: function(q) {
-        var base = Genghis.Util.route(this.model.CurrentCollection.url + '/documents');
+        q = Genghis.JSON.normalize(q, false);
+        var base = Genghis.Util.route(this.model.currentCollection.url + '/documents');
         var url  = base + (q.match(/^([a-z\d]+)$/i) ? '/' + q : '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q)}));
 
-        App.Router.navigate(url, true);
+        app.router.navigate(url, true);
     },
     findDocumentsAdvanced: function(e) {
         this.findDocuments(this.editor.getValue());
@@ -106,10 +107,10 @@ Genghis.Views.Search = Backbone.View.extend({
         this.updateQuery();
     },
     advancedSearchToQuery: function() {
-        this.$('input#navbar-query').val(this.editor.getValue());
+        this.$('input#navbar-query').val(Genghis.JSON.normalize(this.editor.getValue(), false));
     },
     queryToAdvancedSearch: function() {
-        this.editor.setValue(this.$('input#navbar-query').val());
+        this.editor.setValue(Genghis.JSON.normalize(this.$('input#navbar-query').val(), true));
     },
     expandSearch: function(expand) {
         if (!this.editor) {
