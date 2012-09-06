@@ -1,4 +1,4 @@
-Genghis.Views.Collections = Genghis.Base.SectionView.extend({
+Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
     el: 'section#collections',
     template: Genghis.Templates.Collections,
     rowView: Genghis.Views.CollectionRow,

@@ -1,3 +1,3 @@
-Genghis.Collections.Databases = Genghis.Base.Collection.extend({
+Genghis.Collections.Databases = Genghis.Collections.BaseCollection.extend({
     model: Genghis.Models.Database
 });

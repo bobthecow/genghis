@@ -1,4 +1,4 @@
-Genghis.Models.Collection = Genghis.Base.Model.extend({
+Genghis.Models.Collection = Genghis.Models.BaseModel.extend({
     indexesIsPlural: function() {
         this.indexCount() !== 1;
     },

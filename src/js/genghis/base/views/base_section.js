@@ -1,4 +1,4 @@
-Genghis.Base.SectionView = Backbone.View.extend({
+Genghis.Views.BaseSection = Backbone.View.extend({
     events: {
         'click .add-form button.show':   'showAddForm',
         'click .add-form button.add':    'submitAddForm',

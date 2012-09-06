@@ -1,4 +1,4 @@
-Genghis.Views.DatabaseRow = Genghis.Base.RowView.extend({
+Genghis.Views.DatabaseRow = Genghis.Views.BaseRow.extend({
     template: Genghis.Templates.DatabaseRow,
     isParanoid: true
 });

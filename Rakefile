@@ -130,7 +130,7 @@ script_files = FileList[
   'src/js/genghis/collections/**/*',
   'src/js/genghis/views/**/*',
   'src/js/genghis/router.js'
-]
+].select { |f| File.file? f }
 file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files do
   ugly = Uglifier.new(:copyright => false)
   File.open(tmp_dir+'script.js', 'w') do |file|

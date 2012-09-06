@@ -1,4 +1,4 @@
-Genghis.Base.Model = Backbone.Model.extend({
+Genghis.Models.BaseModel = Backbone.Model.extend({
     name: function() {
         return this.get('name');
     },

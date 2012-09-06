@@ -1,4 +1,4 @@
-Genghis.Base.DocumentView = Backbone.View.extend({
+Genghis.Views.BaseDocument = Backbone.View.extend({
     errorMarkers: [],
     clearErrors: function() {
         var editor = this.editor;

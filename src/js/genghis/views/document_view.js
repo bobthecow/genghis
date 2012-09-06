@@ -1,4 +1,4 @@
-Genghis.Views.DocumentView = Genghis.Base.DocumentView.extend({
+Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
     tagName: 'article',
     template: Genghis.Templates.DocumentView,
     events: {

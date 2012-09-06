@@ -1,5 +1,4 @@
 window.Genghis = {
-    Base:        {},
     Models:      {},
     Collections: {},
     Views:       {},

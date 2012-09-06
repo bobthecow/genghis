@@ -1,4 +1,4 @@
-Genghis.Base.RowView = Backbone.View.extend({
+Genghis.Views.BaseRow = Backbone.View.extend({
     tagName: 'tr',
     events: {
         'click a.name':         'navigate',

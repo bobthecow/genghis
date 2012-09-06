@@ -1,3 +1,3 @@
-Genghis.Collections.Servers = Genghis.Base.Collection.extend({
+Genghis.Collections.Servers = Genghis.Collections.BaseCollection.extend({
     model: Genghis.Models.Server
 });

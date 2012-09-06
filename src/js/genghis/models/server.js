@@ -1,4 +1,4 @@
-Genghis.Models.Server = Genghis.Base.Model.extend({
+Genghis.Models.Server = Genghis.Models.BaseModel.extend({
     editable: function() {
         return !!this.get('editable');
     },

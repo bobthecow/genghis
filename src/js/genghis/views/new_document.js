@@ -1,4 +1,4 @@
-Genghis.Views.NewDocument = Genghis.Base.DocumentView.extend({
+Genghis.Views.NewDocument = Genghis.Views.BaseDocument.extend({
     el: '#new-document',
     template: Genghis.Templates.NewDocument,
     initialize: function() {
