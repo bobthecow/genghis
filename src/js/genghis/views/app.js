@@ -69,9 +69,12 @@ Genghis.Views.App = Backbone.View.extend({
         // remove mastheads when navigating
         this.removeMasthead();
 
+        var sectionClass = !!section ? ('section-' + (_.isArray(section) ? section.join(' section-') : section)) : '';
+
         $('body')
             .removeClass('section-servers section-databases section-collections section-documents section-document')
-            .addClass('section-'+(_.isArray(section) ? section.join(' section-') : section));
+            .addClass(sectionClass)
+            .toggleClass('has-section', !!section);
 
         this.$('section').hide()
             .filter('#'+(_.isArray(section) ? section.join(',#') : section))
