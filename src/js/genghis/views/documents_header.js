@@ -13,7 +13,7 @@ Genghis.Views.DocumentsHeader = Backbone.View.extend({
         var total = this.model.get('total');
 
         // n - m of c documents
-        title = '' + total + ' document' + (total != 1 ? 's' : '');
+        title = '' + total + ' Document' + (total != 1 ? 's' : '');
         if (total != count) {
             var from = ((page - 1) * limit) + 1;
             var to   = Math.min((((page - 1) * limit) + count), total);
