@@ -48,7 +48,9 @@ Genghis.Models.Selection = Backbone.Model.extend({
         if (server) {
             url = url + '/' + server;
             this.currentServer.url = url;
-            this.currentServer.fetch();
+            this.currentServer.fetch({
+                error: fetchErrorHandler('databases', 'Server Not Found')
+            });
 
             url = url + '/databases';
             this.databases.url = url;
@@ -61,7 +63,9 @@ Genghis.Models.Selection = Backbone.Model.extend({
         if (database) {
             url = url + '/' + database;
             this.currentDatabase.url = url;
-            this.currentDatabase.fetch();
+            this.currentDatabase.fetch({
+                error: fetchErrorHandler('collections', 'Database Not Found')
+            });
 
             url = url + '/collections';
             this.collections.url = url;
@@ -74,7 +78,9 @@ Genghis.Models.Selection = Backbone.Model.extend({
         if (collection) {
             url = url + '/' + collection;
             this.currentCollection.url = url;
-            this.currentCollection.fetch();
+            this.currentCollection.fetch({
+                error: fetchErrorHandler('documents', 'Collection Not Found')
+            });
 
             url = url + '/documents';
 
@@ -96,7 +102,45 @@ Genghis.Models.Selection = Backbone.Model.extend({
             this.currentDocument.clear({silent: true});
             this.currentDocument.id = documentId;
             this.currentDocument.urlRoot = url;
-            this.currentDocument.fetch();
+            this.currentDocument.fetch({
+                error: fetchErrorHandler(
+                    'document',
+                    'Document Not Found',
+                    'But I&#146;m sure there are plenty of other nice documents out there&hellip;'
+                )
+            });
+        }
+
+        function fetchErrorHandler(section, notFoundTitle, notFoundSubtitle) {
+            notFoundSubtitle = notFoundSubtitle || 'Please try again.';
+
+            return function(model, response) {
+                try {
+                    data = JSON.parse(response.responseText);
+                } catch (e) {
+                    data = {};
+                }
+
+                switch (response.status) {
+                    case 404:
+                        // app.router.notFound(url + '/' + documentId);
+                        $('section#' + section).hide();
+                        app.showMasthead(
+                            '404: ' + notFoundTitle,
+                            '<p>' + notFoundSubtitle + '</p>',
+                            {error: true}
+                        );
+                        break;
+
+                    default:
+                        app.alerts.create({
+                            msg:   response.status + ': ' + (data.error || 'Unknown error'),
+                            level: 'error',
+                            block: true
+                        });
+                        break;
+                }
+            }
         }
     },
     nextPage: function() {
