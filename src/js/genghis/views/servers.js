@@ -4,5 +4,8 @@ Genghis.Views.Servers = Genghis.Views.BaseSection.extend({
     rowView: Genghis.Views.ServerRow,
     updateTitle: function() {
         //noop
+    },
+    formatTitle: function() {
+        return 'Servers';
     }
 });

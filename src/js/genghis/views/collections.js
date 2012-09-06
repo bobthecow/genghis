@@ -3,6 +3,6 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
     template: Genghis.Templates.Collections,
     rowView: Genghis.Views.CollectionRow,
     formatTitle: function(model) {
-        return model.id ? (model.id + ' collections') : 'Collections';
+        return model.id ? (model.id + ' Collections') : 'Collections';
     }
 });

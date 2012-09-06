@@ -26,7 +26,7 @@ Genghis.Views.BaseSection = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render({}));
+        $(this.el).html(this.template.render({title: this.formatTitle(this.model)}));
 
         this.addForm      = this.$('.add-form');
         this.addButton    = this.$('.add-form button.add');
