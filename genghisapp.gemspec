@@ -13,6 +13,7 @@ Gem::Specification.new do |gem|
   gem.required_rubygems_version = Gem::Requirement.new(">= 1.3.6") if gem.respond_to? :required_rubygems_version=
   # gem.rubyforge_project         = 'genghisapp'
 
+  gem.add_dependency 'vegas',            '~> 0.1.8'
   gem.add_dependency 'sinatra',          '~> 1.3.3'
   gem.add_dependency 'sinatra-contrib',  '~> 1.3.1'
   gem.add_dependency 'sinatra-mustache', '~> 0.0.4'
