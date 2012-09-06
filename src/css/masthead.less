@@ -20,6 +20,7 @@
         background-color:    transparent;
         background-repeat:   repeat;
         background-position: center center;
+        background-image:    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAWBAMAAAAyb6E1AAAAFVBMVEX%2F%2F%2F8AAADMzMwzMzMAAAD%2F%2F%2F%2F%2F%2F%2F8yjfZbAAAAB3RSTlMAFBQUDQcU2nuKtgAAADRJREFUCFtjYBEUdGCAAEdBQREoUxAI8DINBQWFoUxFQUEhKDPIUFgVymRVSwpgIAgGwHYA4JUH%2Bddiz14AAAAASUVORK5CYII%3D');
     }
 
     h1 {
@@ -47,7 +48,12 @@
             margin-bottom: 30px;
         }
     }
+
     &.error {
         #gradient > .horizontal(darken(@errorText, 15%), desaturate(@errorText, 10%));
+    }
+
+    &.muted {
+        #gradient > .horizontal(@grayDark, lighten(@grayDark, 10%));
     }
 }
