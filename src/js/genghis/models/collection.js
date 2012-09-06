@@ -7,7 +7,7 @@ Genghis.Models.Collection = Genghis.Base.Model.extend({
     },
     indexes: function() {
         return _.map(this.get('indexes'), function(index) {
-            return Genghis.Util.formatJSON(index.key);
+            return Genghis.JSON.prettyPrint(index.key);
         });
     }
 });

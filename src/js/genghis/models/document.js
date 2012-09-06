@@ -38,12 +38,9 @@ Genghis.Models.Document = Backbone.Model.extend({
         return base + (base.charAt(base.length - 1) == '/' ? '' : '/') + encodeURIComponent(this.id);
     },
     prettyPrint: function() {
-        return Genghis.Util.formatJSON(this.toJSON());
+        return Genghis.JSON.prettyPrint(this.toJSON());
     },
     JSONish: function() {
-        // TODO: update formatJSON to do a string concat version
-        // so we don't have to build a bunch of elements just to
-        // tear 'em down.
-        return $('<div>' + this.prettyPrint() + '</div>').text();
+        return Genghis.JSON.stringify(this.toJSON());
     }
 });
