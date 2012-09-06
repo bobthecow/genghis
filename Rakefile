@@ -125,12 +125,12 @@ script_files = FileList[
   tmp_dir+'templates.js',
   'src/js/genghis/util.js',
   'src/js/genghis/json.js',
-  'src/js/genghis/base/**/*',
-  'src/js/genghis/models/**/*',
-  'src/js/genghis/collections/**/*',
-  'src/js/genghis/views/**/*',
+  'src/js/genghis/base/**/*.js',
+  'src/js/genghis/models/**/*.js',
+  'src/js/genghis/collections/**/*.js',
+  'src/js/genghis/views/**/*.js',
   'src/js/genghis/router.js'
-].select { |f| File.file? f }
+]
 file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files do
   ugly = Uglifier.new(:copyright => false)
   File.open(tmp_dir+'script.js', 'w') do |file|
