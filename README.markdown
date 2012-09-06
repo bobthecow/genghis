@@ -6,14 +6,29 @@ A single-file MongoDB admin app by Justin Hileman.
 http://genghisapp.com
 
 
-Installation
+There are more ways to run Genghis than you can shake a stick at
+----------------------------------------------------------------
+
+ * Drop `genghis.php` in a web-accessible directory on a LAMP server. Don't forget `.htaccess` for perty URLs!
+ * Run `genghis.php` on your nginx server [with some fancy config action](https://github.com/bobthecow/genghis/wiki).
+ * Run `genghis.php` as a PHP 5.4 CLI SAPI standalone server: `php -S localhost:8000 genghis.php`.
+ * Run `genghis.rb` directly: `ruby genghis.rb`.
+ * Or a different way: `bin/genghisapp`.
+ * In fact, if you installed the `genghisapp` Ruby gem, just run `genghisapp`.
+ * Rack it up: `rackup -p 1234 genghis.rb`.
+ * Or add `genghis.rb` to your Rack mount and run it inside another application.
+ * ...
+ * The possibilities are nearly endless!
+
+
+
+Requirements
 ------------
 
-[Make sure you have the PECL MongoDB driver installed](http://www.mongodb.org/display/DOCS/PHP+Language+Center).
+ * `genghis.php` requires [the PECL MongoDB driver](http://www.mongodb.org/display/DOCS/PHP+Language+Center).
 
-Put `genghis.php` somewhere web accessible. If you want pretty urls, add `.htaccess` as well.
-
-That's pretty much it.
+ * `genghis.rb` requires a handful of gems: `sinatra`, `sinatra-contrib`, `sinatra-mustache`, `mongo` and `json`. The
+   easiest way to get them all is `gem install genghisapp`. As a bonus, this gives you a `genghisapp` binary to run.
 
 
 Configuration
