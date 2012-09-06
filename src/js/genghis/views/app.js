@@ -53,7 +53,7 @@ Genghis.Views.App = Backbone.View.extend({
     showMasthead: function(heading, content, opt) {
         // remove any old mastheads
         this.removeMasthead(true);
-        mastheadView = new Genghis.Views.Masthead(_.extend(opt, {
+        mastheadView = new Genghis.Views.Masthead(_.extend(opt || {}, {
             heading: heading,
             content: content || '',
         }));
@@ -69,6 +69,11 @@ Genghis.Views.App = Backbone.View.extend({
         // remove mastheads when navigating
         this.removeMasthead();
 
+        // show a welcome message the first time they hit the servers page
+        if (section == 'servers') {
+            this.showWelcome();
+        }
+
         var sectionClass = !!section ? ('section-' + (_.isArray(section) ? section.join(' section-') : section)) : '';
 
         $('body')
@@ -82,5 +87,8 @@ Genghis.Views.App = Backbone.View.extend({
                 .show();
 
         $(document).scrollTop(0);
-    }
+    },
+    showWelcome: _.once(function() {
+        this.showMasthead('', Genghis.Templates.Welcome.render({version: Genghis.version}), {epic: true});
+    })
 });

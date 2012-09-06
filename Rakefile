@@ -98,6 +98,12 @@ file tmp_dir+'templates.js' => FileList[tmp_dir, 'vendor/hogan/lib/*.js', 'src/t
   end
 end
 
+file tmp_dir+'version.js' => FileList['VERSION'] do
+  File.open(tmp_dir+'version.js', 'w') do |file|
+    file << "Genghis.version = #{GENGHIS_VERSION.inspect};\n"
+  end
+end
+
 script_files = FileList[
   # vendor libraries
   'src/js/modernizr.js',
@@ -122,6 +128,7 @@ script_files = FileList[
 
   # genghis app
   'src/js/genghis/bootstrap.js',
+  tmp_dir+'version.js',
   tmp_dir+'templates.js',
   'src/js/genghis/util.js',
   'src/js/genghis/json.js',
