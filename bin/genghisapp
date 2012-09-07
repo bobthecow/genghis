@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require File.expand_path(File.dirname(__FILE__) + '/../genghis')
+require 'vegas'
+
+Vegas::Runner.new(Genghis::Server, 'genghisapp')

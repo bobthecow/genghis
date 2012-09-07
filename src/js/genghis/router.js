@@ -6,6 +6,7 @@ Genghis.Router = Backbone.Router.extend({
         'servers/:server/databases':                                                         'redirectToServer',
         'servers/:server/databases/:database':                                               'database',
         'servers/:server/databases/:database/collections':                                   'redirectToDatabase',
+        'servers/:server/databases/:database/collections/:collection?*query':                'redirectToCollectionQuery',
         'servers/:server/databases/:database/collections/:collection':                       'collection',
         'servers/:server/databases/:database/collections/:collection/documents':             'redirectToCollection',
         'servers/:server/databases/:database/collections/:collection/documents?*query':      'collectionQuery',
@@ -14,49 +15,52 @@ Genghis.Router = Backbone.Router.extend({
     },
     index: function() {
         document.title = 'Genghis';
-        Genghis.Selection.select();
-        App.showSection('servers');
+        app.selection.select();
+        app.showSection('servers');
     },
     redirectToIndex: function() {
         this.navigate('', true);
     },
     server: function(server) {
         document.title = this.buildTitle(server);
-        Genghis.Selection.select(server);
-        App.showSection('databases');
+        app.selection.select(server);
+        app.showSection('databases');
     },
     redirectToServer: function(server) {
         this.navigate('servers/'+server, true);
     },
     database: function(server, database) {
         document.title = this.buildTitle(server, database);
-        Genghis.Selection.select(server, database);
-        App.showSection('collections');
+        app.selection.select(server, database);
+        app.showSection('collections');
     },
     redirectToDatabase: function(server, database) {
         this.navigate('servers/'+server+'/databases/'+database, true);
     },
     collection: function(server, database, collection) {
         document.title = this.buildTitle(server, database, collection);
-        Genghis.Selection.select(server, database, collection);
-        App.showSection('documents');
+        app.selection.select(server, database, collection);
+        app.showSection('documents');
     },
     redirectToCollection: function(server, database, collection) {
         this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection, true);
     },
+    redirectToCollectionQuery: function(server, database, collection, query) {
+        this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection+'/documents?'+query, true);
+    },
     collectionQuery: function(server, database, collection, query) {
         document.title = this.buildTitle(server, database, collection, 'Query results');
         var params = Genghis.Util.parseQuery(query);
-        Genghis.Selection.select(server, database, collection, null, params.q, params.page);
-        App.showSection('documents');
+        app.selection.select(server, database, collection, null, params.q, params.page);
+        app.showSection('documents');
     },
     redirectToQuery: function(server, database, collection, query) {
         this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection+'/documents?'+Genghis.Util.buildQuery({q: encodeURIComponent(query)}), true);
     },
     document: function(server, database, collection, documentId) {
         document.title = this.buildTitle(server, database, collection, documentId);
-        Genghis.Selection.select(server, database, collection, documentId);
-        App.showSection('document');
+        app.selection.select(server, database, collection, documentId);
+        app.showSection('document');
     },
     redirectToDocument: function(server, database, collection, document) {
         this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection+'/documents/'+document, true);
@@ -76,11 +80,14 @@ Genghis.Router = Backbone.Router.extend({
     },
     notFound: function(path) {
         // fix a weird case where the Backbone router won't route if the root url == the current pathname.
-        if (path.replace(/\/$/, '') == Genghis.baseUrl.replace(/\/$/, '')) return App.Router.navigate('', true);
+        if (path.replace(/\/$/, '') == app.baseUrl.replace(/\/$/, '')) return this.navigate('', true);
 
         document.title = this.buildTitle('404: Not Found');
-        $('section#genghis section#error').html("<header><h2>404: Not Found</h2></header><p>If you think you've reached this message in error, please press <strong>0</strong> to speak with an operator. Otherwise, hang up and try again.</p>");
-        App.showSection('error');
+        app.showSection();
+        app.showMasthead('404: Not Found', "<p>If you think you've reached this message in error, please press <strong>0</strong> to speak with an operator. Otherwise, hang up and try again.</p>", {
+            error: true,
+            epic:  true
+        });
     },
     buildTitle: function() {
         var args = Array.prototype.slice.call(arguments);

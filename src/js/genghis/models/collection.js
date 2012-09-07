@@ -1,1 +1,13 @@
-Genghis.Models.Collection = Backbone.Model.extend({});
+Genghis.Models.Collection = Genghis.Models.BaseModel.extend({
+    indexesIsPlural: function() {
+        this.indexCount() !== 1;
+    },
+    indexCount: function() {
+        return (this.get('indexes') || []).length;
+    },
+    indexes: function() {
+        return _.map(this.get('indexes'), function(index) {
+            return Genghis.JSON.prettyPrint(index.key);
+        });
+    }
+});

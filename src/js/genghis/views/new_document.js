@@ -1,64 +1,77 @@
-Genghis.Views.NewDocument = Backbone.View.extend({
+Genghis.Views.NewDocument = Genghis.Views.BaseDocument.extend({
     el: '#new-document',
-    template: _.template($('#new-document-template').html()),
+    template: Genghis.Templates.NewDocument,
     initialize: function() {
-        _.bindAll(this, 'render', 'show', 'resizeEditor', 'closeModal', 'cancelEdit', 'saveDocument');
+        _.bindAll(this, 'render', 'show', 'refreshEditor', 'closeModal', 'cancelEdit', 'saveDocument');
         this.render();
     },
     render: function() {
-        this.el = $(this.template()).hide().appendTo('body');
+        var wrapper;
 
-        this.modal = this.el.modal('hide');
+        this.el = $(this.template.render()).hide().appendTo('body');
+
+        this.modal = this.el.modal({
+            backdrop: 'static',
+            show: false,
+            keyboard: false
+        });
+
+        wrapper = $('.wrapper', this.el);
+        this.editor = CodeMirror.fromTextArea($('#editor-new', this.el)[0], _.extend(Genghis.defaults.codeMirror, {
+            onFocus: function() { wrapper.addClass('focused');    },
+            onBlur:  function() { wrapper.removeClass('focused'); },
+            extraKeys: {
+                 'Ctrl-Enter': this.saveDocument,
+                 'Cmd-Enter':  this.saveDocument
+             }
+        }));
+
+        $(window).resize(_.throttle(this.refreshEditor, 100));
+
         this.modal.bind('hide', this.cancelEdit);
+        this.modal.bind('shown', this.refreshEditor);
 
-        this.editor = ace.edit('editor-new');
-        this.editor.setTheme("ace/theme/git-hubby");
-        this.editor.setHighlightActiveLine(false);
-        this.editor.setShowPrintMargin(false);
-        this.editor.renderer.setShowGutter(false);
-
-        var JsonMode = require("ace/mode/json").Mode;
-        this.editor.getSession().setMode(new JsonMode());
-
-        $(window).resize(_.throttle(this.resizeEditor, 100));
-        this.modal.bind('shown', this.resizeEditor);
         this.modal.find('button.cancel').bind('click', this.closeModal);
         this.modal.find('button.save').bind('click', this.saveDocument);
 
         return this;
     },
     show: function() {
-        this.el.find('#editor-new').height($(window).height() - 250);
-        this.editor.getSession().setValue("{\n    \n}\n");
-        this.editor.focus();
-        this.modal.css({marginTop: (30 - (this.el.height() / 2)) + 'px'}).modal('show');
+        this.editor.setValue("{\n    \n}\n");
+        this.editor.setCursor({line:1, ch:4});
+        this.modal
+            .css({marginTop: (-10 - (this.el.height() / 2)) + 'px'})
+            .modal('show');
     },
-    resizeEditor: function() {
-        this.editor.resize();
+    refreshEditor: function() {
+        this.editor.refresh();
+        this.editor.focus();
     },
     closeModal: function(e) {
         this.modal.modal('hide');
     },
     cancelEdit: function(e) {
-        this.editor.getSession().setValue('');
+        this.editor.setValue('');
+    },
+    getErrorBlock: function() {
+        var errorBlock = $('div.errors', this.el);
+        if (errorBlock.length == 0) {
+            errorBlock = $('<div class="errors"></div>').prependTo($('.modal-body', this.el));
+        }
+
+        return errorBlock;
     },
     saveDocument: function() {
-        var collection = this.collection,
-            closeModal = this.closeModal;
+        var data = this.getEditorValue();
+        if (data === false) {
+            return;
+        }
 
-        $.ajax({
-            type: 'POST',
-            url: Genghis.baseUrl + 'convert-json',
-            data: this.editor.getSession().getValue(),
-            contentType: 'application/json',
-            async: false,
-            success: function(data) {
-                collection.create(data, {success: function(doc) {
-                    closeModal();
-                    App.Router.navigate(Genghis.Util.route(doc.url()), true);
-                }});
-            },
-            dataType: 'json'
-        });
+        var closeModal = this.closeModal;
+
+        this.collection.create(data, {wait: true, success: function(doc) {
+            closeModal();
+            app.router.navigate(Genghis.Util.route(doc.url()), true);
+        }});
     }
 });

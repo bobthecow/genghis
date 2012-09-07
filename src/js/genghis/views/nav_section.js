@@ -1,6 +1,6 @@
 Genghis.Views.NavSection = Backbone.View.extend({
-    template: _.template($('#nav-section-template').html()),
-    menuTemplate: _.template($('#nav-section-menu-template').html()),
+    template: Genghis.Templates.NavSection,
+    menuTemplate: Genghis.Templates.NavSectionMenu,
     initialize: function() {
         _.bindAll(this, 'render');
 
@@ -10,7 +10,7 @@ Genghis.Views.NavSection = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template({model: this.model}));
+        $(this.el).html(this.template.render(this.model));
 
         this.$('.dropdown-toggle').hoverIntent(function(e) {
             $(e.target)
@@ -24,6 +24,6 @@ Genghis.Views.NavSection = Backbone.View.extend({
         this.$('a.dropdown-toggle').text(this.model.id ? this.model.id : '').attr('href', this.model.id ? this.model.url : '');
     },
     renderMenu: function() {
-        this.$('ul.dropdown-menu').html(this.menuTemplate({model: this.model, collection: this.collection}));
+        this.$('ul.dropdown-menu').html(this.menuTemplate.render({model: this.model, collection: this.collection}));
     }
 });

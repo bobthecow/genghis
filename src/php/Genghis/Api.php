@@ -5,9 +5,6 @@ class Genghis_Api extends Genghis_App
     // api/servers/:serverName/databases/:databaseName/collections/:collectionName/documents/:documentId
     const ROUTE_PATTERN = '~^/?servers(?:/(?P<server>[^/]+)(?P<databases>/databases(?:/(?P<database>[^/]+)(?P<collections>/collections(?:/(?P<collection>[^/]+)(?P<documents>/documents(?:/(?P<document>[^/]+))?)?)?)?)?)?)?/?$~';
 
-    // convert-json
-    const CONVERT_JSON_ROUTE = '~/?convert-json/?$~';
-
     const CHECK_STATUS_ROUTE = '~/?check-status/?$~';
 
     const PAGE_LIMIT = 50;
@@ -31,12 +28,6 @@ class Genghis_Api extends Genghis_App
             return $this->checkStatus();
         }
 
-        if (preg_match(self::CONVERT_JSON_ROUTE, $path)) {
-            $decoder = new Genghis_JsonDecoder;
-
-            return new Genghis_JsonResponse($decoder->decode(file_get_contents('php://input')));
-        }
-
         $p = array();
         if (preg_match(self::ROUTE_PATTERN, $path, $p)) {
             foreach ($p as $i => $val) {
@@ -51,7 +42,7 @@ class Genghis_Api extends Genghis_App
                         case 'GET':
                             return $this->findDocument($p['server'], $p['database'], $p['collection'], $p['document']);
                         case 'PUT':
-                            return $this->updateDocument($p['server'], $p['database'], $p['collection'], $p['document'], $this->getRequestData());
+                            return $this->updateDocument($p['server'], $p['database'], $p['collection'], $p['document'], $this->getRequestData(true));
                         case 'DELETE':
                             return $this->removeDocument($p['server'], $p['database'], $p['collection'], $p['document']);
                         default:
@@ -147,14 +138,38 @@ class Genghis_Api extends Genghis_App
         if (!class_exists('Mongo', false)) {
             $alerts[] = array(
                 'level' => 'error',
-                'msg'   => '<strong>Mongo PHP class not found.</strong> ' .
-                           'Have you installed and enabled the PECL Mongo drivers?',
+                'msg'   => '<h4>Mongo PHP class not found.</h4> ' .
+                           'Have you installed and enabled the <strong>PECL Mongo drivers</strong>?',
             );
+        }
+
+        // check for updates
+        if (!$this->skipUpdateCheck()) {
+            try {
+                $latest = @file_get_contents('https://raw.github.com/bobthecow/genghis/master/VERSION');
+                if ($latest && version_compare($latest, GENGHIS_VERSION, '>')) {
+                    $alerts[] = array(
+                        'level' => 'warning',
+                        'msg'   => '<h4>A Genghis update is available</h4> ' .
+                                   'You are running Genghis version <tt>' . GENGHIS_VERSION . '</tt>. ' .
+                                   'The current version is <tt>' . $latest . '</tt>. ' .
+                                   'Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.'
+                    );
+                }
+            } catch (Exception $e) {
+                // do nothing
+            }
         }
 
         // TODO: more sanity checks?
 
         return new Genghis_JsonResponse(compact('alerts'));
+    }
+
+    protected function skipUpdateCheck()
+    {
+        return (isset($_ENV['GENGHIS_NO_UPDATE_CHECK']) && $_ENV['GENGHIS_NO_UPDATE_CHECK'])
+            || (isset($_SERVER['GENGHIS_NO_UPDATE_CHECK']) && $_SERVER['GENGHIS_NO_UPDATE_CHECK']);
     }
 
     protected function listServers()
@@ -175,31 +190,13 @@ class Genghis_Api extends Genghis_App
             throw new Genghis_HttpException(400, 'Server name must be specified');
         }
 
-        $dsn = $data['name'];
-        if (strpos($dsn, '://') === false) {
-            $dsn = 'mongodb://'.$dsn;
-        } else if (strpos($dsn, 'mongodb://') !== 0) {
-            throw new Genghis_HttpException(400, 'Malformed server dsn');
-        }
-
-        $chunks = parse_url($dsn);
-        if ($chunks === false || isset($chunks['query']) || isset($chunks['fragment']) || !isset($chunks['host'])) {
-            throw new Genghis_HttpException(400, 'Malformed server dsn');
-        }
-
-        $name = $chunks['host'];
-        if (isset($chunks['user'])) {
-            $name = $chunks['user'].'@'.$name;
-        }
-        if (isset($chunks['port']) && $chunks['port'] !== 27017) {
-            $name .= ':'.$chunks['port'];
-        }
+        $server = self::parseServerDsn($data['name']);
 
         $this->initServers();
-        $this->servers[$name] = $dsn;
+        $this->servers[$server['name']] = $server;
         $this->saveServers();
 
-        return $this->showServer($name);
+        return $this->showServer($server['name']);
     }
 
     protected function removeServer($name)
@@ -212,57 +209,136 @@ class Genghis_Api extends Genghis_App
             return new Genghis_JsonResponse(array('success' => true));
         }
 
-        throw new Genghis_HttpException(404);
+        throw new Genghis_HttpException(404, sprintf("Server '%s' not found", $name));
     }
 
     protected function showServer($name)
     {
         $this->initServers();
-        if (isset($this->servers[$name])) {
-            return new Genghis_JsonResponse($this->dumpServer($name));
-        } else {
-            throw new Genghis_HttpException(404);
+        if (!isset($this->servers[$name])) {
+            throw new Genghis_HttpException(404, sprintf("Server '%s' not found", $name));
         }
+
+        return new Genghis_JsonResponse($this->dumpServer($name));
     }
 
     protected function dumpServer($name)
     {
+        $server = array(
+            'id'       => $name,
+            'name'     => $name,
+            'editable' => !(isset($this->servers[$name]['default']) && $this->servers[$name]['default']),
+        );
+
+        if (isset($this->servers[$name]['error'])) {
+            $server['error'] = $this->servers[$name]['error'];
+
+            return $server;
+        }
+
         try {
             $res = $this->getMongo($name)->listDBs();
             $dbs = array_map(function($db) {
                 return $db['name'];
             }, $res['databases']);
 
-            return array(
-                'id'        => $name,
-                'name'      => $name,
+            return array_merge($server, array(
                 'size'      => $res['totalSize'],
                 'count'     => count($dbs),
                 'databases' => $dbs,
-            );
+            ));
         } catch (Exception $e) {
-            return array(
-                'id'    => $name,
-                'name'  => $name,
-                'error' => 'Unable to connect to Mongo server at "'.$name.'".',
-            );
+            $server['error'] = 'Unable to connect to Mongo server at "'.$name.'".';
+
+            return $server;
         }
     }
 
     protected function initServers()
     {
         if (!isset($this->servers)) {
-            if (isset($_COOKIE['genghis_servers']) && $servers = json_decode($_COOKIE['genghis_servers'], true)) {
-                $this->servers = $servers;
-            } else {
-                $this->servers = array('localhost' => 'localhost:27017');
+            $defaultDsns = array_merge(
+                isset($_ENV['GENGHIS_SERVERS'])    ? explode(';', $_ENV['GENGHIS_SERVERS'])    : array(),
+                isset($_SERVER['GENGHIS_SERVERS']) ? explode(';', $_SERVER['GENGHIS_SERVERS']) : array()
+            );
+
+            foreach ($defaultDsns as $dsn) {
+                try {
+                    $server = self::parseServerDsn($dsn);
+                } catch (Genghis_HttpException $e) {
+                    $server = array(
+                        'name'    => $dsn,
+                        'dsn'     => $dsn,
+                        'options' => array(),
+                        'error'   => $e->getMessage(),
+                    );
+                }
+
+                $server['default'] = true;
+                $this->servers[$server['name']] = $server;
+            }
+
+            if (isset($_COOKIE['genghis_servers']) && $localDsns = $this->decodeJson($_COOKIE['genghis_servers'], false)) {
+                foreach (array_map(array($this, 'parseServerDsn'), $localDsns) as $server) {
+                    $this->servers[$server['name']] = $server;
+                }
+            }
+
+            if (empty($this->servers)) {
+                $this->servers['localhost'] = array(
+                    'name' => 'localhost',
+                    'dsn'  => 'localhost:27017',
+                );
             }
         }
     }
 
     protected function saveServers()
     {
-        setcookie('genghis_servers', json_encode($this->servers), time()+60*60*24*365, '/');
+        $servers = array();
+        foreach ($this->servers as $name => $server) {
+            if (!isset($server['default']) || !$server['default']) {
+                $servers[$name] = $server['dsn'];
+            }
+        }
+
+        setcookie('genghis_servers', $this->encodeJson($servers, false), time()+60*60*24*365, '/');
+    }
+
+    public static function parseServerDsn($dsn)
+    {
+        if (strpos($dsn, '://') === false) {
+            $dsn = 'mongodb://'.$dsn;
+        } else if (strpos($dsn, 'mongodb://') !== 0) {
+            throw new Genghis_HttpException(400, 'Malformed server DSN: unknown URI scheme');
+        }
+
+        $chunks = parse_url($dsn);
+        if ($chunks === false || isset($chunks['query']) || isset($chunks['fragment']) || !isset($chunks['host'])) {
+            throw new Genghis_HttpException(400, 'Malformed server DSN');
+        }
+
+        $options = array();
+        if (isset($chunks['query'])) {
+            parse_str($chunks['query'], $options);
+            foreach ($options as $name => $value) {
+                if (!in_array($name, array('replicaSet'))) {
+                    throw new Genghis_HttpException(400, 'Malformed server DSN: Unknown option — ' . $name);
+                }
+
+                $options[$name] = (string) $value;
+            }
+        }
+
+        $name = $chunks['host'];
+        if (isset($chunks['user'])) {
+            $name = $chunks['user'].'@'.$name;
+        }
+        if (isset($chunks['port']) && $chunks['port'] !== 27017) {
+            $name .= ':'.$chunks['port'];
+        }
+
+        return compact('name', 'dsn', 'options');
     }
 
     protected function dumpDatabase($server, $database)
@@ -284,14 +360,13 @@ class Genghis_Api extends Genghis_App
                 );
             }
         }
+
+        throw new Genghis_HttpException(404, sprintf("Database '%s' not found on '%s'", $database, $server));
     }
 
     protected function selectDatabase($server, $database)
     {
-        if ($db = $this->dumpDatabase($server, $database)) {
-            return new Genghis_JsonResponse($db);
-        }
-        throw new Genghis_HttpException(404);
+        return new Genghis_JsonResponse($this->dumpDatabase($server, $database));
     }
 
     protected function dropDatabase($server, $database)
@@ -319,7 +394,12 @@ class Genghis_Api extends Genghis_App
             throw new HttpException(400, 'Database name must be specified');
         }
 
-        $this->getCollection($server, $data['name'], '__genghis_tmp_collection__')->drop();
+        $conn = $this->getMongo($server);
+        if ($this->hasDatabase($conn, $data['name'])) {
+            throw new Genghis_HttpException(500, sprintf("Database '%s' already exists", $data['name']));
+        }
+
+        $conn->selectDB($data['name'])->selectCollection('__genghis_tmp_collection__')->drop();
 
         return $this->selectDatabase($server, $data['name']);
     }
@@ -336,34 +416,27 @@ class Genghis_Api extends Genghis_App
                 );
             }
         }
+
+        throw new Genghis_HttpException(404, sprintf("Collection '%s' not found in '%s'", $collection, $database));
     }
 
     public function selectCollection($server, $database, $collection)
     {
-        if ($coll = $this->dumpCollection($server, $database, $collection)) {
-            return new Genghis_JsonResponse($coll);
-        }
-        throw new Genghis_HttpException(404);
+        return new Genghis_JsonResponse($this->dumpCollection($server, $database, $collection));
     }
 
     public function truncateCollection($server, $database, $collection)
     {
-        if ($coll = $this->getCollection($server, $database, $collection)) {
-            $coll->remove(array());
+        $this->getCollection($server, $database, $collection)->remove(array());
 
-            return $this->selectCollection($server, $database, $collection);
-        }
-        throw new Genghis_HttpException(404);
+        return $this->selectCollection($server, $database, $collection);
     }
 
     public function dropCollection($server, $database, $collection)
     {
-        if ($coll = $this->getCollection($server, $database, $collection)) {
-            $coll->drop();
+        $this->getCollection($server, $database, $collection)->drop();
 
-            return new Genghis_JsonResponse(array('success' => true));
-        }
-        throw new Genghis_HttpException(404);
+        return new Genghis_JsonResponse(array('success' => true));
     }
 
     public function listCollections($server, $database)
@@ -379,8 +452,9 @@ class Genghis_Api extends Genghis_App
     public function createCollection($server, $database, array $data = array())
     {
         if (!isset($data['name'])) {
-            throw new Genghis_HttpException(400, 'Database name must be specified');
+            throw new Genghis_HttpException(400, 'Collection name must be specified');
         }
+
         $this->getDatabase($server, $database)->createCollection($data['name']);
 
         return $this->selectCollection($server, $database, $data['name']);
@@ -389,46 +463,50 @@ class Genghis_Api extends Genghis_App
     public function findDocument($server, $database, $collection, $document)
     {
         $doc = $this->getCollection($server, $database, $collection)->findOne(array(
-            '_id' => new MongoId($document),
+            '_id' => $this->thunkMongoId($document),
         ));
+
         if ($doc) {
             return new Genghis_JsonResponse($doc);
         }
-        throw new Genghis_HttpException(404);
+
+        throw new Genghis_HttpException(404, sprintf("Document '%s' not found in '%s'", $document, $collection));
     }
 
-    public function updateDocument($server, $database, $collection, $document, array $data)
+    public function updateDocument($server, $database, $collection, $document, $data)
     {
-        $coll = $this->getCollection($server, $database, $collection);
-        $query = array('_id' => new MongoId($document));
+        $coll  = $this->getCollection($server, $database, $collection);
+        $query = array('_id' => $this->thunkMongoId($document));
+
         if ($coll->findOne($query)) {
             $result = $coll->update($query, $data, array('safe' => true));
 
-            if (isset($result['ok']) && $result['ok']) {
-                return $this->findDocument($server, $database, $collection, $document);
-            } else {
+            if (!(isset($result['ok']) && $result['ok'])) {
                 throw new Genghis_HttpException;
             }
-        } else {
-            throw new Genghis_HttpException(404);
+
+            return $this->findDocument($server, $database, $collection, $document);
         }
+
+        throw new Genghis_HttpException(404, sprintf("Document '%s' not found in '%s'", $document, $collection));
     }
 
     public function removeDocument($server, $database, $collection, $document)
     {
-        $coll = $this->getCollection($server, $database, $collection);
-        $query = array('_id' => new MongoId($document));
+        $coll  = $this->getCollection($server, $database, $collection);
+        $query = array('_id' => $this->thunkMongoId($document));
+
         if ($coll->findOne($query)) {
             $result = $coll->remove($query, array('safe' => true));
 
-            if (isset($result['ok']) && $result['ok']) {
-                return new Genghis_JsonResponse(array('success' => true));
-            } else {
+            if (!(isset($result['ok']) && $result['ok'])) {
                 throw new Genghis_HttpException;
             }
-        } else {
-            throw new Genghis_HttpException(404);
+
+            return new Genghis_JsonResponse(array('success' => true));
         }
+
+        throw new Genghis_HttpException(404, sprintf("Document '%s' not found in '%s'", $document, $collection));
     }
 
     public function findDocuments($server, $database, $collection, $query = null, $page = 1)
@@ -451,7 +529,7 @@ class Genghis_Api extends Genghis_App
         ));
     }
 
-    public function insertDocument($server, $database, $collection, array $data = null)
+    public function insertDocument($server, $database, $collection, $data = null)
     {
         if (empty($data)) {
             throw new Genghis_HttpException(400, 'Malformed document');
@@ -460,63 +538,93 @@ class Genghis_Api extends Genghis_App
         $result = $this->getCollection($server, $database, $collection)
             ->insert($data, array('safe' => true));
 
-        if (isset($result['ok']) && $result['ok']) {
-            return new Genghis_JsonResponse($data);
-        } else {
+        if (!(isset($result['ok']) && $result['ok'])) {
             throw new Genghis_HttpException;
         }
+
+        return new Genghis_JsonResponse($data);
     }
 
-    protected function decodeJson($data)
+    protected function encodeJson($value, $gfj = true)
     {
-        try {
-            $decoder = new Genghis_JsonDecoder;
-
-            return $this->thunkMongoQuery($decoder->decode($data));
-        } catch (Genghis_JsonException $e) {
-            throw new Genghis_HttpException(400, 'Malformed document');
+        if ($gfj) {
+            return Genghis_Json::encode($value);
+        } else {
+            return json_encode($value);
         }
     }
 
-    protected function thunkMongoQuery(array $query)
+    protected function decodeJson($data, $gfj = true)
     {
-        foreach ($query as $key => $val) {
-            if (is_array($val)) {
-                if (isset($val['$id']) && count($val) == 1) {
-                    $query[$key] = new MongoId($val['$id']);
-                } elseif (count($val) == 2 && isset($val['sec']) && isset($val['usec'])) {
-                    $query[$key] = new MongoDate($val['sec'], $val['usec']);
-                } else {
-                    $query[$key] = $this->thunkMongoQuery($val);
-                }
-            } else if ($val instanceof Genghis_JsonRegex) {
-                $query[$key] = new MongoRegex($val->pattern);
+        if ($gfj) {
+            try {
+                return Genghis_Json::decode($data);
+            } catch (Genghis_JsonException $e) {
+                throw new Genghis_HttpException(400, 'Malformed document');
             }
-        }
+        } else {
+            $json = json_decode($data, true);
+            if ($json === false && trim($data) != '') {
+                throw new Genghis_HttpException(400, 'Malformed document');
+            }
 
-        return $query;
+            return $json;
+        }
     }
 
-    protected function getRequestData()
+    protected function thunkMongoId($id)
     {
-        return $this->decodeJson(file_get_contents('php://input'));
+        return preg_match('/^[a-f0-9]{24}$/i', $id) ? new MongoId($id) : $id;
+    }
+
+    protected function getRequestData($gfj = false)
+    {
+        return $this->decodeJson(file_get_contents('php://input'), $gfj);
     }
 
     protected function getMongo($server)
     {
         $this->initServers();
-        if (isset($this->servers[$server])) {
-            return new Mongo($this->servers[$server]);
+
+        if (!isset($this->servers[$server])) {
+            throw new Genghis_HttpException(404, sprintf("Server '%s' not found", $server));
         }
+
+        $server = $this->servers[$server];
+
+        return new Mongo($server['dsn'], isset($server['options']) ? $server['options'] : array());
     }
 
     protected function getDatabase($server, $database)
     {
-        return $this->getMongo($server)->selectDB($database);
+        $conn = $this->getMongo($server);
+        if (!$this->hasDatabase($conn, $database)) {
+            throw new Genghis_HttpException(404, sprintf("Database '%s' not found on '%s'", $database, $server));
+        }
+
+        return $conn->selectDB($database);
+    }
+
+    protected function hasDatabase($connection, $database)
+    {
+        $dbs = $connection->listDBs();
+        foreach ($dbs['databases'] as $db) {
+            if ($db['name'] === $database) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function getCollection($server, $database, $collection)
     {
-        return $this->getDatabase($server, $database)->selectCollection($collection);
+        foreach ($this->getDatabase($server, $database)->listCollections() as $coll) {
+            if ($coll->getName() === $collection) {
+                return $coll;
+            }
+        }
+
+        throw new Genghis_HttpException(404, sprintf("Collection '%s' not found in '%s'", $collection, $database));
     }
 }
