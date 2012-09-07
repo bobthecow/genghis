@@ -79,9 +79,14 @@ Genghis.Views.Search = Backbone.View.extend({
         }
     },
     findDocuments: function(q) {
-        q = Genghis.JSON.normalize(q, false);
-        var base = Genghis.Util.route(this.model.currentCollection.url + '/documents');
-        var url  = base + (q.match(/^([a-z\d]+)$/i) ? '/' + q : '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q)}));
+        var url = Genghis.Util.route(this.model.currentCollection.url + '/documents');
+
+        q = q.trim();
+        if (q.match(/^([a-z\d]+)$/i)) {
+            url = url + '/' + q;
+        } else {
+            url = url + '?' + Genghis.Util.buildQuery({q: encodeURIComponent(Genghis.JSON.normalize(q, false))});
+        }
 
         app.router.navigate(url, true);
     },
