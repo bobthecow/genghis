@@ -138,8 +138,8 @@ class Genghis_Api extends Genghis_App
         if (!class_exists('Mongo', false)) {
             $alerts[] = array(
                 'level' => 'error',
-                'msg'   => '<strong>Mongo PHP class not found.</strong> ' .
-                           'Have you installed and enabled the PECL Mongo drivers?',
+                'msg'   => '<h4>Mongo PHP class not found.</h4> ' .
+                           'Have you installed and enabled the <strong>PECL Mongo drivers</strong>?',
             );
         }
 
@@ -185,17 +185,17 @@ class Genghis_Api extends Genghis_App
             return new Genghis_JsonResponse(array('success' => true));
         }
 
-        throw new Genghis_HttpException(404);
+        throw new Genghis_HttpException(404, sprintf("Server '%s' not found", $name));
     }
 
     protected function showServer($name)
     {
         $this->initServers();
-        if (isset($this->servers[$name])) {
-            return new Genghis_JsonResponse($this->dumpServer($name));
-        } else {
-            throw new Genghis_HttpException(404);
+        if (!isset($this->servers[$name])) {
+            throw new Genghis_HttpException(404, sprintf("Server '%s' not found", $name));
         }
+
+        return new Genghis_JsonResponse($this->dumpServer($name));
     }
 
     protected function dumpServer($name)
@@ -336,14 +336,13 @@ class Genghis_Api extends Genghis_App
                 );
             }
         }
+
+        throw new Genghis_HttpException(404, sprintf("Database '%s' not found on '%s'", $database, $server));
     }
 
     protected function selectDatabase($server, $database)
     {
-        if ($db = $this->dumpDatabase($server, $database)) {
-            return new Genghis_JsonResponse($db);
-        }
-        throw new Genghis_HttpException(404);
+        return new Genghis_JsonResponse($this->dumpDatabase($server, $database));
     }
 
     protected function dropDatabase($server, $database)
@@ -371,7 +370,12 @@ class Genghis_Api extends Genghis_App
             throw new HttpException(400, 'Database name must be specified');
         }
 
-        $this->getCollection($server, $data['name'], '__genghis_tmp_collection__')->drop();
+        $conn = $this->getMongo($server);
+        if ($this->hasDatabase($conn, $data['name'])) {
+            throw new Genghis_HttpException(500, sprintf("Database '%s' already exists", $data['name']));
+        }
+
+        $conn->selectDB($data['name'])->selectCollection('__genghis_tmp_collection__')->drop();
 
         return $this->selectDatabase($server, $data['name']);
     }
@@ -388,34 +392,27 @@ class Genghis_Api extends Genghis_App
                 );
             }
         }
+
+        throw new Genghis_HttpException(404, sprintf("Collection '%s' not found in '%s'", $collection, $database));
     }
 
     public function selectCollection($server, $database, $collection)
     {
-        if ($coll = $this->dumpCollection($server, $database, $collection)) {
-            return new Genghis_JsonResponse($coll);
-        }
-        throw new Genghis_HttpException(404);
+        return new Genghis_JsonResponse($this->dumpCollection($server, $database, $collection));
     }
 
     public function truncateCollection($server, $database, $collection)
     {
-        if ($coll = $this->getCollection($server, $database, $collection)) {
-            $coll->remove(array());
+        $this->getCollection($server, $database, $collection)->remove(array());
 
-            return $this->selectCollection($server, $database, $collection);
-        }
-        throw new Genghis_HttpException(404);
+        return $this->selectCollection($server, $database, $collection);
     }
 
     public function dropCollection($server, $database, $collection)
     {
-        if ($coll = $this->getCollection($server, $database, $collection)) {
-            $coll->drop();
+        $this->getCollection($server, $database, $collection)->drop();
 
-            return new Genghis_JsonResponse(array('success' => true));
-        }
-        throw new Genghis_HttpException(404);
+        return new Genghis_JsonResponse(array('success' => true));
     }
 
     public function listCollections($server, $database)
@@ -431,8 +428,9 @@ class Genghis_Api extends Genghis_App
     public function createCollection($server, $database, array $data = array())
     {
         if (!isset($data['name'])) {
-            throw new Genghis_HttpException(400, 'Database name must be specified');
+            throw new Genghis_HttpException(400, 'Collection name must be specified');
         }
+
         $this->getDatabase($server, $database)->createCollection($data['name']);
 
         return $this->selectCollection($server, $database, $data['name']);
@@ -443,44 +441,48 @@ class Genghis_Api extends Genghis_App
         $doc = $this->getCollection($server, $database, $collection)->findOne(array(
             '_id' => $this->thunkMongoId($document),
         ));
+
         if ($doc) {
             return new Genghis_JsonResponse($doc);
         }
-        throw new Genghis_HttpException(404);
+
+        throw new Genghis_HttpException(404, sprintf("Document '%s' not found in '%s'", $document, $collection));
     }
 
     public function updateDocument($server, $database, $collection, $document, $data)
     {
-        $coll = $this->getCollection($server, $database, $collection);
+        $coll  = $this->getCollection($server, $database, $collection);
         $query = array('_id' => $this->thunkMongoId($document));
+
         if ($coll->findOne($query)) {
             $result = $coll->update($query, $data, array('safe' => true));
 
-            if (isset($result['ok']) && $result['ok']) {
-                return $this->findDocument($server, $database, $collection, $document);
-            } else {
+            if (!(isset($result['ok']) && $result['ok'])) {
                 throw new Genghis_HttpException;
             }
-        } else {
-            throw new Genghis_HttpException(404);
+
+            return $this->findDocument($server, $database, $collection, $document);
         }
+
+        throw new Genghis_HttpException(404, sprintf("Document '%s' not found in '%s'", $document, $collection));
     }
 
     public function removeDocument($server, $database, $collection, $document)
     {
-        $coll = $this->getCollection($server, $database, $collection);
+        $coll  = $this->getCollection($server, $database, $collection);
         $query = array('_id' => $this->thunkMongoId($document));
+
         if ($coll->findOne($query)) {
             $result = $coll->remove($query, array('safe' => true));
 
-            if (isset($result['ok']) && $result['ok']) {
-                return new Genghis_JsonResponse(array('success' => true));
-            } else {
+            if (!(isset($result['ok']) && $result['ok'])) {
                 throw new Genghis_HttpException;
             }
-        } else {
-            throw new Genghis_HttpException(404);
+
+            return new Genghis_JsonResponse(array('success' => true));
         }
+
+        throw new Genghis_HttpException(404, sprintf("Document '%s' not found in '%s'", $document, $collection));
     }
 
     public function findDocuments($server, $database, $collection, $query = null, $page = 1)
@@ -512,11 +514,11 @@ class Genghis_Api extends Genghis_App
         $result = $this->getCollection($server, $database, $collection)
             ->insert($data, array('safe' => true));
 
-        if (isset($result['ok']) && $result['ok']) {
-            return new Genghis_JsonResponse($data);
-        } else {
+        if (!(isset($result['ok']) && $result['ok'])) {
             throw new Genghis_HttpException;
         }
+
+        return new Genghis_JsonResponse($data);
     }
 
     protected function encodeJson($value, $gfj = true)
@@ -559,20 +561,46 @@ class Genghis_Api extends Genghis_App
     protected function getMongo($server)
     {
         $this->initServers();
-        if (isset($this->servers[$server])) {
-            $server = $this->servers[$server];
 
-            return new Mongo($server['dsn'], isset($server['options']) ? $server['options'] : array());
+        if (!isset($this->servers[$server])) {
+            throw new Genghis_HttpException(404, sprintf("Server '%s' not found", $server));
         }
+
+        $server = $this->servers[$server];
+
+        return new Mongo($server['dsn'], isset($server['options']) ? $server['options'] : array());
     }
 
     protected function getDatabase($server, $database)
     {
-        return $this->getMongo($server)->selectDB($database);
+        $conn = $this->getMongo($server);
+        if (!$this->hasDatabase($conn, $database)) {
+            throw new Genghis_HttpException(404, sprintf("Database '%s' not found on '%s'", $database, $server));
+        }
+
+        return $conn->selectDB($database);
+    }
+
+    protected function hasDatabase($connection, $database)
+    {
+        $dbs = $connection->listDBs();
+        foreach ($dbs['databases'] as $db) {
+            if ($db['name'] === $database) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function getCollection($server, $database, $collection)
     {
-        return $this->getDatabase($server, $database)->selectCollection($collection);
+        foreach ($this->getDatabase($server, $database)->listCollections() as $coll) {
+            if ($coll->getName() === $collection) {
+                return $coll;
+            }
+        }
+
+        throw new Genghis_HttpException(404, sprintf("Collection '%s' not found in '%s'", $collection, $database));
     }
 }
