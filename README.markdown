@@ -48,6 +48,14 @@ You'll need [some fancy config action](https://github.com/bobthecow/genghis/wiki
 
 ### In an existing Rack app
 
+For a super basic Rack config, use a `config.ru` file like this:
+
+```rb
+require 'genghis'
+
+run Genghis::Server
+```
+
 If you want to load Genghis on a subpath, possibly alongside other apps, it's easy to do with Rack's `URLMap`:
 
 ```rb
