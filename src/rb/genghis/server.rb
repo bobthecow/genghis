@@ -45,12 +45,12 @@ module Genghis
 
     get '/assets/style.css' do
       content_type 'text/css'
-      Genghis::Server.templates['style.css'.intern].first
+      self.class.templates['style.css'.intern].first
     end
 
     get '/assets/script.js' do
       content_type 'text/javascript'
-      Genghis::Server.templates['script.js'.intern].first
+      self.class.templates['script.js'.intern].first
     end
 
 
