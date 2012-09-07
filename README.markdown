@@ -1,40 +1,106 @@
-Genghis
-=======
+[Genghis](http://genghisapp.com)
+================================
 
-A single-file MongoDB admin app by Justin Hileman.
+The single-file MongoDB admin app, by [Justin Hileman](http://justinhileman.info)
 
-http://genghisapp.com
 
 
 There are more ways to run Genghis than you can shake a stick at
 ----------------------------------------------------------------
 
- * Drop `genghis.php` in a web-accessible directory on a LAMP server. Don't forget `.htaccess` for perty URLs!
- * Run `genghis.php` on your nginx server [with some fancy config action](https://github.com/bobthecow/genghis/wiki).
- * Run `genghis.php` as a PHP 5.4 CLI SAPI standalone server: `php -S localhost:8000 genghis.php`.
- * Run `genghis.rb` directly: `ruby genghis.rb`.
- * Or a different way: `bin/genghisapp`.
- * In fact, if you installed the `genghisapp` Ruby gem, just run `genghisapp`.
- * Rack it up: `rackup -p 1234 genghis.rb`.
- * Or add `genghis.rb` to your Rack mount and run it inside another application.
- * ...
- * The possibilities are nearly endless!
+
+### Standalone
+
+If you installed Genghis as a Ruby gem, running Genghis standalone is easy:
+
+```
+$ genghisapp
+```
+
+If you didn't go the gem route, you can still run `genghis.rb` standalone:
+
+```
+$ ruby genghis.rb
+```
+
+Or with Rack:
+
+```
+$ rackup genghis.rb
+```
+
+`genghis.php` can also be run as a PHP 5.4 CLI SAPI standalone server:
+
+```
+$ php -S localhost:8000 genghis.php
+```
+
+
+### In your LAMP stack
+
+Simply drop `genghis.php` in a web-accessible directory on a LAMP server. Don't forget `.htaccess` for perty URLs!
+
+
+### With nginx and PHP-fpm (and friends)
+
+You'll need [some fancy config action](https://github.com/bobthecow/genghis/wiki), but it's fairly straightforward.
+
+
+### In an existing Rack app
+
+If you want to load Genghis on a subpath, possibly alongside other apps, it's easy to do with Rack's `URLMap`:
+
+```rb
+require 'genghis'
+
+run Rack::URLMap.new \
+  '/'        => Your::App.new,
+  '/genghis' => Genghis.new
+```
+
+
+### With Rails 3
+
+You can even mount Genghis on a subpath in your existing Rails 3 app by adding `require 'genghis'` to the top of your
+routes file (or in an intializer) and then adding this to `routes.rb`:
+
+```rb
+mount Genghis.new, :at => '/genghis'
+```
 
 
 
-Requirements
-------------
+Genghis Dependencies
+--------------------
 
- * `genghis.php` requires [the PECL MongoDB driver](http://www.mongodb.org/display/DOCS/PHP+Language+Center).
 
- * `genghis.rb` requires a handful of gems: `sinatra`, `sinatra-contrib`, `sinatra-mustache`, `mongo` and `json`. The
-   easiest way to get them all is `gem install genghisapp`. As a bonus, this gives you a `genghisapp` binary to run.
+### PHP
+
+You will need [the PECL MongoDB driver](http://www.mongodb.org/display/DOCS/PHP+Language+Center).
+
+
+### Ruby
+
+The easiest way to install Genghis and all dependencies is via RubyGems:
+
+```
+$ gem install genghisapp
+```
+
+Or you could check out a local copy of the Git repo and install dependencies via Bundler:
+
+```
+$ gem install bundler
+$ bundle install
+```
+
 
 
 Configuration
 -------------
 
 Check [the Genghis wiki](https://github.com/bobthecow/genghis/wiki) for additional configuration information.
+
 
 
 License
