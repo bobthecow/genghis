@@ -11,6 +11,8 @@
 <% includes.each do |inc| %><%= inc.sub("#!/usr/bin/env ruby", '').strip %>
 <% end %>
 
+Genghis::Server.run! if __FILE__ == $0
+
 __END__
 
 <% assets.each do |asset| %>

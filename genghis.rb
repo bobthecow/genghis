@@ -8,32 +8,18 @@
 #
 # @author Justin Hileman <justin@justinhileman.info>
 #
-require 'rubygems'
-require 'sinatra/base'
-require 'sinatra/mustache'
-require 'sinatra/json'
-require 'sinatra/reloader'
 require 'mongo'
 require 'json'
 
-class Genghis < Sinatra::Base
-  PAGE_LIMIT = 50
-
-  enable :inline_templates
-  register Sinatra::Reloader if development?
-
-  helpers Sinatra::JSON
-  set :json_encoder, :to_json
-  set :json_content_type, :json
-
-  class GenghisJson
+module Genghis
+  class JSON
     class << self
       def encode(object)
         enc(object, Array, Hash, BSON::OrderedHash).to_json
       end
 
       def decode(str)
-        dec(JSON.parse(str))
+        dec(::JSON.parse(str))
       end
 
       private
@@ -98,292 +84,310 @@ class Genghis < Sinatra::Base
 
     end
   end
+end
+require 'sinatra/base'
+require 'sinatra/mustache'
+require 'sinatra/json'
+require 'sinatra/reloader'
+require 'mongo'
 
-  def request_json
-    GenghisJson.decode request.body.read
-  end
+module Genghis
+  class Server < Sinatra::Base
+    PAGE_LIMIT = 50
 
-  def connection(server_name)
-    server = servers[server_name] || not_found
-    Mongo::Connection.from_uri(server[:dsn])
-  end
+    enable :inline_templates
+    register Sinatra::Reloader if development?
 
-  def server_info(server_name)
-    server = servers[server_name] || not_found
-    resp = { :id => server_name, :name => server_name, :editable => !server[:default] }
-    if server[:error]
-      resp.merge!({:error => server[:error]})
-    else
-      begin
-        conn = connection(server_name)
-      rescue Mongo::ConnectionFailure => ex
-        resp.merge!({:error => ex.to_s})
+    helpers Sinatra::JSON
+    set :json_encoder,      :to_json
+    set :json_content_type, :json
+
+    def request_json
+      ::Genghis::JSON.decode request.body.read
+    end
+
+    def connection(server_name)
+      server = servers[server_name] || not_found
+      Mongo::Connection.from_uri(server[:dsn])
+    end
+
+    def server_info(server_name)
+      server = servers[server_name] || not_found
+      resp = { :id => server_name, :name => server_name, :editable => !server[:default] }
+      if server[:error]
+        resp.merge!({:error => server[:error]})
       else
-        databases = conn['admin'].command({:listDatabases => true})
-        resp.merge!({
-          :size      => databases['totalSize'],
-          :count     => databases['databases'].count,
-          :databases => databases['databases'].map {|db| db['name']}
-        })
+        begin
+          conn = connection(server_name)
+        rescue Mongo::ConnectionFailure => ex
+          resp.merge!({:error => ex.to_s})
+        else
+          databases = conn['admin'].command({:listDatabases => true})
+          resp.merge!({
+            :size      => databases['totalSize'],
+            :count     => databases['databases'].count,
+            :databases => databases['databases'].map {|db| db['name']}
+          })
+        end
       end
     end
-  end
 
-  def database_info(server_name, database)
-    conn = connection(server_name)
-    collections = conn[database['name']].collections
-    collections.reject! {|collection| collection.name.start_with?('system')}
-    {
-      :id => database['name'],
-      :name => database['name'],
-      :size => database['sizeOnDisk'],
-      :count => collections.count,
-      :collections => collections.map {|collection| collection.name}
-    }
-  end
+    def database_info(server_name, database)
+      conn = connection(server_name)
+      collections = conn[database['name']].collections
+      collections.reject! {|collection| collection.name.start_with?('system')}
+      {
+        :id => database['name'],
+        :name => database['name'],
+        :size => database['sizeOnDisk'],
+        :count => collections.count,
+        :collections => collections.map {|collection| collection.name}
+      }
+    end
 
-  def collection_info(collection)
-    {
-      :id => collection.name,
-      :name => collection.name,
-      :count => collection.count,
-      :indexes => collection.index_information.values
-    }
-  end
+    def collection_info(collection)
+      {
+        :id => collection.name,
+        :name => collection.name,
+        :count => collection.count,
+        :indexes => collection.index_information.values
+      }
+    end
 
-  def document_info(collection, page, query={})
-    offset = PAGE_LIMIT * (page - 1)
+    def document_info(collection, page, query={})
+      offset = PAGE_LIMIT * (page - 1)
 
-    documents = collection.find(
-      query,
-      :limit => PAGE_LIMIT,
-      :skip  => offset
-    )
+      documents = collection.find(
+        query,
+        :limit => PAGE_LIMIT,
+        :skip  => offset
+      )
 
-    {
-      :count => documents.count,
-      :page =>  page,
-      :pages => [0, (documents.count / PAGE_LIMIT.to_f).ceil].max,
-      :per_page => PAGE_LIMIT,
-      :offset   => offset,
-      :documents => documents.to_a
-    }
-  end
+      {
+        :count => documents.count,
+        :page =>  page,
+        :pages => [0, (documents.count / PAGE_LIMIT.to_f).ceil].max,
+        :per_page => PAGE_LIMIT,
+        :offset   => offset,
+        :documents => documents.to_a
+      }
+    end
 
-  def thunk_mongo_id(id)
-    id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(id) : id
-  end
+    def thunk_mongo_id(id)
+      id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(id) : id
+    end
 
-  def init_server(dsn)
-    dsn = 'mongodb://'+dsn unless dsn.include? '://'
+    def init_server(dsn)
+      dsn = 'mongodb://'+dsn unless dsn.include? '://'
 
-    server = {
-      :name => dsn.sub(/^mongodb:\/\//, ''),
-      :dsn  => dsn,
-    }
+      server = {
+        :name => dsn.sub(/^mongodb:\/\//, ''),
+        :dsn  => dsn,
+      }
 
-    begin
-      uri = ::Mongo::URIParser.new dsn
+      begin
+        uri = ::Mongo::URIParser.new dsn
 
-      # name this server something useful
-      name = uri.host
-      if user = uri.auths.map{|a| a['username']}.first
-        name = "#{user}@#{name}"
+        # name this server something useful
+        name = uri.host
+        if user = uri.auths.map{|a| a['username']}.first
+          name = "#{user}@#{name}"
+        end
+        name = "#{name}:#{uri.port}" unless uri.port == 27017
+        server[:name] = name
+      rescue Mongo::MongoArgumentError => e
+        server[:error] = "Malformed server DSN: #{e.message}"
       end
-      name = "#{name}:#{uri.port}" unless uri.port == 27017
-      server[:name] = name
-    rescue Mongo::MongoArgumentError => e
-      server[:error] = "Malformed server DSN: #{e.message}"
+
+      server
     end
 
-    server
-  end
-
-  def init_servers(dsn_list, opts={})
-    Hash[dsn_list.map { |dsn|
-      server = init_server(dsn)
-      server.merge(opts)
-      [server[:name], server]
-    }]
-  end
-
-  def save_servers
-    server_names = servers.collect { |name, server| server[:dsn] unless server[:default] }.compact
-    response.set_cookie(
-      :genghis_rb_servers,
-      :path => '/',
-      :value => JSON.dump(server_names),
-      :expires => Time.now + 60*60*24*365
-    )
-  end
-
-  def default_servers
-    @default_servers ||= begin
-      env_var = (ENV['GENGHIS_SERVERS'] || '').split(';')
-      init_servers(env_var, :default => true)
-    end
-  end
-
-  def servers
-    @servers ||= begin
-      names   = JSON.parse(request.cookies['genghis_rb_servers'] || '[]')
-      servers = default_servers.merge(init_servers(names))
-      servers.empty? ? init_servers(['localhost']) : servers # fall back to 'localhost'
-    end
-  end
-
-  get '/check-status' do
-    alerts = []
-    if ::BSON::BSON_CODER == ::BSON::BSON_RUBY
-      msg = <<-MSG.strip.gsub(/\s+/, " ")
-        <h4>MongoDB driver C extension not found.</h4>
-        Install this extension for better performance: <code>gem install bson_ext</code>
-      MSG
-      alerts << {:level => 'warning', :msg => msg, :block => true}
+    def init_servers(dsn_list, opts={})
+      Hash[dsn_list.map { |dsn|
+        server = init_server(dsn)
+        server.merge(opts)
+        [server[:name], server]
+      }]
     end
 
-    unless defined? JSON::Ext
-      msg = <<-MSG.strip.gsub(/\s+/, " ")
-        <h4>JSON C extension not found.</h4>
-        Falling back to the pure Ruby variant. <code>gem install json</code> for better performance.
-      MSG
-      alerts << {:level => 'warning', :msg => msg, :block => true}
+    def save_servers
+      server_names = servers.collect { |name, server| server[:dsn] unless server[:default] }.compact
+      response.set_cookie(
+        :genghis_rb_servers,
+        :path => '/',
+        :value => JSON.dump(server_names),
+        :expires => Time.now + 60*60*24*365
+      )
     end
 
-    json({:alerts => alerts})
-  end
-
-  get '/assets/style.css' do
-    content_type 'text/css'
-    Genghis.templates['style.css'.intern].first
-  end
-
-  get '/assets/script.js' do
-    content_type 'text/javascript'
-    Genghis.templates['script.js'.intern].first
-  end
-
-  get '*' do
-    if request.xhr?
-      pass
-    else
-      mustache 'index.html.mustache'.intern
+    def default_servers
+      @default_servers ||= begin
+        env_var = (ENV['GENGHIS_SERVERS'] || '').split(';')
+        init_servers(env_var, :default => true)
+      end
     end
-  end
 
-  get '/servers' do
-    json servers.keys.map {|server_name| server_info(server_name)}
-  end
+    def servers
+      @servers ||= begin
+        names   = ::JSON.parse(request.cookies['genghis_rb_servers'] || '[]')
+        servers = default_servers.merge(init_servers(names))
+        servers.empty? ? init_servers(['localhost']) : servers # fall back to 'localhost'
+      end
+    end
 
-  post '/servers' do
-    server = init_server(JSON.parse(request.body.read)['name'])
-    name   = server[:name]
-    raise "Server #{name} already exists" unless servers[name].nil?
-    @servers[name] = server
-    save_servers
-    json server_info name
-  end
+    get '/check-status' do
+      alerts = []
+      if ::BSON::BSON_CODER == ::BSON::BSON_RUBY
+        msg = <<-MSG.strip.gsub(/\s+/, " ")
+          <h4>MongoDB driver C extension not found.</h4>
+          Install this extension for better performance: <code>gem install bson_ext</code>
+        MSG
+        alerts << {:level => 'warning', :msg => msg, :block => true}
+      end
 
-  get '/servers/:server' do |server|
-    json server_info server
-  end
+      unless defined? ::JSON::Ext
+        msg = <<-MSG.strip.gsub(/\s+/, " ")
+          <h4>JSON C extension not found.</h4>
+          Falling back to the pure Ruby variant. <code>gem install json</code> for better performance.
+        MSG
+        alerts << {:level => 'warning', :msg => msg, :block => true}
+      end
 
-  delete '/servers/:server' do
-    not_found if servers[params[:server]].nil?
-    @servers.delete(params[:server])
-    save_servers
-    json({ :success => true })
-  end
+      json({:alerts => alerts})
+    end
 
-  get '/servers/:server/databases' do |server|
-    databases = connection(server)['admin'].command({:listDatabases => true})['databases']
-    json databases.map {|database| database_info(server, database)}
-  end
+    get '/assets/style.css' do
+      content_type 'text/css'
+      Genghis::Server.templates['style.css'.intern].first
+    end
 
-  post '/servers/:server/databases' do |server|
-    name = JSON.parse(request.body.read)['name']
-    connection(server)[name]['__genghis_tmp_collection__'].drop
-    databases = connection(server)['admin'].command({:listDatabases => true})['databases']
-    database  = databases.detect {|d| d['name'] == name}
-    json database_info server, database
-  end
+    get '/assets/script.js' do
+      content_type 'text/javascript'
+      Genghis::Server.templates['script.js'.intern].first
+    end
 
-  get '/servers/:server/databases/:database' do |server, db|
-    databases = connection(server)['admin'].command({:listDatabases => true})['databases']
-    database  = databases.detect {|d| d['name'] == db} || not_found
-    json database_info server, database
-  end
+    get '*' do
+      if request.xhr?
+        pass
+      else
+        mustache 'index.html.mustache'.intern
+      end
+    end
 
-  delete '/servers/:server/databases/:database' do |server, db|
-    not_found unless connection(server).database_names.include? db
-    connection(server).drop_database db
-    json :success => true
-  end
+    get '/servers' do
+      json servers.keys.map {|server_name| server_info(server_name)}
+    end
 
-  get '/servers/:server/databases/:database/collections' do |server, db|
-    database = connection(server)[db]
-    collections = database.collections.reject {|collection| collection.name.start_with?('system')}
-    json collections.map {|collection| collection_info(collection)}
-  end
+    post '/servers' do
+      server = init_server(::JSON.parse(request.body.read)['name'])
+      name   = server[:name]
+      raise "Server #{name} already exists" unless servers[name].nil?
+      @servers[name] = server
+      save_servers
+      json server_info name
+    end
 
-  post '/servers/:server/databases/:database/collections' do |server, db|
-    database = connection(server)[db]
-    name = JSON.parse(request.body.read)['name']
-    collection = database.create_collection name
-    json collection_info collection
-  end
+    get '/servers/:server' do |server|
+      json server_info server
+    end
 
-  get '/servers/:server/databases/:database/collections/:collection' do |server, db, coll|
-    not_found unless connection(server)[db].collection_names.include? coll
-    json collection_info connection(server)[db][coll]
-  end
+    delete '/servers/:server' do
+      not_found if servers[params[:server]].nil?
+      @servers.delete(params[:server])
+      save_servers
+      json({ :success => true })
+    end
 
-  delete '/servers/:server/databases/:database/collections/:collection' do |server, db, coll|
-    not_found unless connection(server)[db].collection_names.include? coll
-    connection(server)[db][coll].drop
-    json :success => true
-  end
+    get '/servers/:server/databases' do |server|
+      databases = connection(server)['admin'].command({:listDatabases => true})['databases']
+      json databases.map {|database| database_info(server, database)}
+    end
 
-  get '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
-    collection = connection(server)[db][coll]
-    page  = params.fetch('page', 1).to_i
-    query = GenghisJson.decode(params.fetch('q', '{}'))
-    json document_info(collection, page, query), :encoder => GenghisJson
-  end
+    post '/servers/:server/databases' do |server|
+      name = ::JSON.parse(request.body.read)['name']
+      connection(server)[name]['__genghis_tmp_collection__'].drop
+      databases = connection(server)['admin'].command({:listDatabases => true})['databases']
+      database  = databases.detect {|d| d['name'] == name}
+      json database_info server, database
+    end
 
-  post '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
-    collection = connection(server)[db][coll]
-    id = collection.insert request_json
-    document = collection.find_one('_id' => id) || not_found
-    json document, :encoder => GenghisJson
-  end
+    get '/servers/:server/databases/:database' do |server, db|
+      databases = connection(server)['admin'].command({:listDatabases => true})['databases']
+      database  = databases.detect {|d| d['name'] == db} || not_found
+      json database_info server, database
+    end
 
-  get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
-    document = connection(server)[db][coll].find_one('_id' => thunk_mongo_id(doc))
-    json document, :encoder => GenghisJson
-  end
+    delete '/servers/:server/databases/:database' do |server, db|
+      not_found unless connection(server).database_names.include? db
+      connection(server).drop_database db
+      json :success => true
+    end
 
-  put '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
-    document = connection(server)[db][coll].find_and_modify \
-      :query => {'_id' => thunk_mongo_id(doc)},
-      :update => request_json,
-      :new => true
-    not_found unless document
-    json document, :encoder => GenghisJson
-  end
+    get '/servers/:server/databases/:database/collections' do |server, db|
+      database = connection(server)[db]
+      collections = database.collections.reject {|collection| collection.name.start_with?('system')}
+      json collections.map {|collection| collection_info(collection)}
+    end
 
-  delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
-    query      = {'_id' => thunk_mongo_id(doc)}
-    collection = connection(server)[db][coll]
-    collection.find_one(query) || not_found
+    post '/servers/:server/databases/:database/collections' do |server, db|
+      database = connection(server)[db]
+      name = ::JSON.parse(request.body.read)['name']
+      collection = database.create_collection name
+      json collection_info collection
+    end
 
-    collection.remove query
-    json :success => true
+    get '/servers/:server/databases/:database/collections/:collection' do |server, db, coll|
+      not_found unless connection(server)[db].collection_names.include? coll
+      json collection_info connection(server)[db][coll]
+    end
+
+    delete '/servers/:server/databases/:database/collections/:collection' do |server, db, coll|
+      not_found unless connection(server)[db].collection_names.include? coll
+      connection(server)[db][coll].drop
+      json :success => true
+    end
+
+    get '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
+      collection = connection(server)[db][coll]
+      page  = params.fetch('page', 1).to_i
+      query = ::Genghis::JSON.decode(params.fetch('q', '{}'))
+      json document_info(collection, page, query), :encoder => ::Genghis::JSON
+    end
+
+    post '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
+      collection = connection(server)[db][coll]
+      id = collection.insert request_json
+      document = collection.find_one('_id' => id) || not_found
+      json document, :encoder => ::Genghis::JSON
+    end
+
+    get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
+      document = connection(server)[db][coll].find_one('_id' => thunk_mongo_id(doc))
+      json document, :encoder => ::Genghis::JSON
+    end
+
+    put '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
+      document = connection(server)[db][coll].find_and_modify \
+        :query => {'_id' => thunk_mongo_id(doc)},
+        :update => request_json,
+        :new => true
+      not_found unless document
+      json document, :encoder => ::Genghis::JSON
+    end
+
+    delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
+      query      = {'_id' => thunk_mongo_id(doc)}
+      collection = connection(server)[db][coll]
+      collection.find_one(query) || not_found
+
+      collection.remove query
+      json :success => true
+    end
   end
 end
 
-Genghis.run! if __FILE__==$0
 
+Genghis::Server.run! if __FILE__ == $0
 
 __END__
 
@@ -426,3 +430,4 @@ e,t,n){this.undone.length=0;var r=+(new Date),i=this.done[this.done.length-1],s=
 d.inIteration,d.inIteration=!0,e=Gt(),d.inIteration=n,V("while"),X("("),t=Ct(),X(")"),$(";")&&I(),{type:r.DoWhileStatement,body:e,test:t}}function Ft(){var e,t,n;return V("while"),X("("),e=Ct(),X(")"),n=d.inIteration,d.inIteration=!0,t=Gt(),d.inIteration=n,{type:r.WhileStatement,test:e,body:t}}function It(){var e=I();return{type:r.VariableDeclaration,declarations:Mt(),kind:e.value}}function qt(){var e,t,n,i,o,u,a;return e=t=n=null,V("for"),X("("),$(";")?I():(J("var")||J("let")?(d.allowIn=!1,e=It(),d.allowIn=!0,e.declarations.length===1&&J("in")&&(I(),i=e,o=Ct(),e=null)):(d.allowIn=!1,e=Ct(),d.allowIn=!0,J("in")&&(G(e)||U({},s.InvalidLHSInForIn),I(),i=e,o=Ct(),e=null)),typeof i=="undefined"&&X(";")),typeof i=="undefined"&&($(";")||(t=Ct()),X(";"),$(")")||(n=Ct())),X(")"),a=d.inIteration,d.inIteration=!0,u=Gt(),d.inIteration=a,typeof i=="undefined"?{type:r.ForStatement,init:e,test:t,update:n,body:u}:{type:r.ForInStatement,left:i,right:o,body:u,each:!1}}function Rt(){var e,n=null;return V("continue"),u[f]===";"?(I(),d.inIteration||U({},s.IllegalContinue),{type:r.ContinueStatement,label:null}):R()?(d.inIteration||U({},s.IllegalContinue),{type:r.ContinueStatement,label:null}):(e=q(),e.type===t.Identifier&&(n=At(),Object.prototype.hasOwnProperty.call(d.labelSet,n.name)||U({},s.UnknownLabel,n.name)),Q(),n===null&&!d.inIteration&&U({},s.IllegalContinue),{type:r.ContinueStatement,label:n})}function Ut(){var e,n=null;return V("break"),u[f]===";"?(I(),!d.inIteration&&!d.inSwitch&&U({},s.IllegalBreak),{type:r.BreakStatement,label:null}):R()?(!d.inIteration&&!d.inSwitch&&U({},s.IllegalBreak),{type:r.BreakStatement,label:null}):(e=q(),e.type===t.Identifier&&(n=At(),Object.prototype.hasOwnProperty.call(d.labelSet,n.name)||U({},s.UnknownLabel,n.name)),Q(),n===null&&!d.inIteration&&!d.inSwitch&&U({},s.IllegalBreak),{type:r.BreakStatement,label:n})}function zt(){var e,n=null;return V("return"),d.inFunctionBody||z({},s.IllegalReturn),u[f]===" "&&x(u[f+1])?(n=Ct(),Q(),{type:r.ReturnStatement,argument:n}):R()?{type:r.ReturnStatement,argument:null}:($(";")||(e=q(),!$("}")&&e.type!==t.EOF&&(n=Ct())),Q(),{type:r.ReturnStatement,argument:n})}function Wt(){var e,t;return a&&z({},s.StrictModeWith),V("with"),X("("),e=Ct(),X(")"),t=Gt(),{type:r.WithStatement,object:e,body:t}}function Xt(){var e,t=[],n;J("default")?(I(),e=null):(V("case"),e=Ct()),X(":");while(f<h){if($("}")||J("default")||J("case"))break;n=Gt();if(typeof n=="undefined")break;t.push(n)}return{type:r.SwitchCase,test:e,consequent:t}}function Vt(){var e,t,n,i,o;V("switch"),X("("),e=Ct(),X(")"),X("{");if($("}"))return I(),{type:r.SwitchStatement,discriminant:e};t=[],i=d.inSwitch,d.inSwitch=!0,o=!1;while(f<h){if($("}"))break;n=Xt(),n.test===null&&(o&&U({},s.MultipleDefaultsInSwitch),o=!0),t.push(n)}return d.inSwitch=i,X("}"),{type:r.SwitchStatement,discriminant:e,cases:t}}function $t(){var e;return V("throw"),R()&&U({},s.NewlineAfterThrow),e=Ct(),Q(),{type:r.ThrowStatement,argument:e}}function Jt(){var e;return V("catch"),X("("),$(")")||(e=Ct(),a&&e.type===r.Identifier&&k(e.name)&&z({},s.StrictCatchVariable)),X(")"),{type:r.CatchClause,param:e,body:Lt()}}function Kt(){var e,t=[],n=null;return V("try"),e=Lt(),J("catch")&&t.push(Jt()),J("finally")&&(I(),n=Lt()),t.length===0&&!n&&U({},s.NoCatchOrFinally),{type:r.TryStatement,block:e,guardedHandlers:[],handlers:t,finalizer:n}}function Qt(){return V("debugger"),Q(),{type:r.DebuggerStatement}}function Gt(){var e=q(),n,i;e.type===t.EOF&&W(e);if(e.type===t.Punctuator)switch(e.value){case";":return Pt();case"{":return Lt();case"(":return Ht();default:}if(e.type===t.Keyword)switch(e.value){case"break":return Ut();case"continue":return Rt();case"debugger":return Qt();case"do":return jt();case"for":return qt();case"function":return Zt();case"if":return Bt();case"return":return zt();case"switch":return Vt();case"throw":return $t();case"try":return Kt();case"var":return _t();case"while":return Ft();case"with":return Wt();default:}return n=Ct(),n.type===r.Identifier&&$(":")?(I(),Object.prototype.hasOwnProperty.call(d.labelSet,n.name)&&U({},s.Redeclaration,"Label",n.name),d.labelSet[n.name]=!0,i=Gt(),delete d.labelSet[n.name],{type:r.LabeledStatement,label:n,body:i}):(Q(),{type:r.ExpressionStatement,expression:n})}function Yt(){var e,n=[],i,o,u,l,c,p,v;X("{");while(f<h){i=q();if(i.type!==t.StringLiteral)break;e=tn(),n.push(e);if(e.expression.type!==r.Literal)break;o=g(i.range[0]+1,i.range[1]-1),o==="use strict"?(a=!0,u&&U(u,s.StrictOctalLiteral)):!u&&i.octal&&(u=i)}l=d.labelSet,c=d.inIteration,p=d.inSwitch,v=d.inFunctionBody,d.labelSet={},d.inIteration=!1,d.inSwitch=!1,d.inFunctionBody=!0;while(f<h){if($("}"))break;e=tn();if(typeof e=="undefined")break;n.push(e)}return X("}"),d.labelSet=l,d.inIteration=c,d.inSwitch=p,d.inFunctionBody=v,{type:r.BlockStatement,body:n}}function Zt(){var e,t,n=[],i,o,u,l,c,p;V("function"),o=q(),e=At(),a?k(o.value)&&U(o,s.StrictFunctionName):k(o.value)?(u=o,l=s.StrictFunctionName):C(o.value)&&(u=o,l=s.StrictReservedWord),X("(");if(!$(")")){p={};while(f<h){o=q(),t=At(),a?(k(o.value)&&U(o,s.StrictParamName),Object.prototype.hasOwnProperty.call(p,o.value)&&U(o,s.StrictParamDupe)):u||(k(o.value)?(u=o,l=s.StrictParamName):C(o.value)?(u=o,l=s.StrictReservedWord):Object.prototype.hasOwnProperty.call(p,o.value)&&(u=o,l=s.StrictParamDupe)),n.push(t),p[t.name]=!0;if($(")"))break;X(",")}}return X(")"),c=a,i=Yt(),a&&u&&U(u,l),a=c,{type:r.FunctionDeclaration,id:e,params:n,defaults:[],body:i,rest:null,generator:!1,expression:!1}}function en(){var e,t=null,n,i,o,u=[],l,c,p;V("function"),$("(")||(e=q(),t=At(),a?k(e.value)&&U(e,s.StrictFunctionName):k(e.value)?(n=e,i=s.StrictFunctionName):C(e.value)&&(n=e,i=s.StrictReservedWord)),X("(");if(!$(")")){p={};while(f<h){e=q(),o=At(),a?(k(e.value)&&U(e,s.StrictParamName),Object.prototype.hasOwnProperty.call(p,e.value)&&U(e,s.StrictParamDupe)):n||(k(e.value)?(n=e,i=s.StrictParamName):C(e.value)?(n=e,i=s.StrictReservedWord):Object.prototype.hasOwnProperty.call(p,e.value)&&(n=e,i=s.StrictParamDupe)),u.push(o),p[o.name]=!0;if($(")"))break;X(",")}}return X(")"),c=a,l=Yt(),a&&n&&U(n,i),a=c,{type:r.FunctionExpression,id:t,params:u,defaults:[],body:l,rest:null,generator:!1,expression:!1}}function tn(){var e=q();if(e.type===t.Keyword)switch(e.value){case"const":case"let":return Dt(e.value);case"function":return Zt();default:return Gt()}if(e.type!==t.EOF)return Gt()}function nn(){var e,n=[],i,o,u;while(f<h){i=q();if(i.type!==t.StringLiteral)break;e=tn(),n.push(e);if(e.expression.type!==r.Literal)break;o=g(i.range[0]+1,i.range[1]-1),o==="use strict"?(a=!0,u&&U(u,s.StrictOctalLiteral)):!u&&i.octal&&(u=i)}while(f<h){e=tn();if(typeof e=="undefined")break;n.push(e)}return n}function rn(){var e;return a=!1,e={type:r.Program,body:nn()},e}function sn(e,t,n,r,i){m(typeof n=="number","Comment must have valid position");if(v.comments.length>0&&v.comments[v.comments.length-1].range[1]>n)return;v.comments.push({type:e,value:t,range:[n,r],loc:i})}function on(){var e,t,n,r,i,o;e="",i=!1,o=!1;while(f<h){t=u[f];if(o)t=A(),S(t)?(n.end={line:l,column:f-c-1},o=!1,sn("Line",e,r,f-1,n),t==="\r"&&u[f]==="\n"&&++f,++l,c=f,e=""):f>=h?(o=!1,e+=t,n.end={line:l,column:h-c},sn("Line",e,r,h,n)):e+=t;else if(i)S(t)?(t==="\r"&&u[f+1]==="\n"?(++f,e+="\r\n"):e+=t,++l,++f,c=f,f>=h&&U({},s.UnexpectedToken,"ILLEGAL")):(t=A(),f>=h&&U({},s.UnexpectedToken,"ILLEGAL"),e+=t,t==="*"&&(t=u[f],t==="/"&&(e=e.substr(0,e.length-1),i=!1,++f,n.end={line:l,column:f-c},sn("Block",e,r,f,n),e="")));else if(t==="/"){t=u[f+1];if(t==="/")n={start:{line:l,column:f-c}},r=f,f+=2,o=!0,f>=h&&(n.end={line:l,column:f-c},o=!1,sn("Line",e,r,f,n));else{if(t!=="*")break;r=f,f+=2,i=!0,n={start:{line:l,column:f-c-2}},f>=h&&U({},s.UnexpectedToken,"ILLEGAL")}}else if(E(t))++f;else{if(!S(t))break;++f,t==="\r"&&u[f]==="\n"&&++f,++l,c=f}}}function un(){var e,t,n,r=[];for(e=0;e<v.comments.length;++e)t=v.comments[e],n={type:t.type,value:t.value},v.range&&(n.range=t.range),v.loc&&(n.loc=t.loc),r.push(n);v.comments=r}function an(){var e,r,i,s,o;return O(),e=f,r={start:{line:l,column:f-c}},i=v.advance(),r.end={line:l,column:f-c},i.type!==t.EOF&&(s=[i.range[0],i.range[1]],o=g(i.range[0],i.range[1]),v.tokens.push({type:n[i.type],value:o,range:s,loc:r})),i}function fn(){var e,t,n,r;return O(),e=f,t={start:{line:l,column:f-c}},n=v.scanRegExp(),t.end={line:l,column:f-c},v.tokens.length>0&&(r=v.tokens[v.tokens.length-1],r.range[0]===e&&r.type==="Punctuator"&&(r.value==="/"||r.value==="/=")&&v.tokens.pop()),v.tokens.push({type:"RegularExpression",value:n.literal,range:[e,f],loc:t}),n}function ln(){var e,t,n,r=[];for(e=0;e<v.tokens.length;++e)t=v.tokens[e],n={type:t.type,value:t.value},v.range&&(n.range=t.range),v.loc&&(n.loc=t.loc),r.push(n);v.tokens=r}function cn(e){return{type:r.Literal,value:e.value}}function hn(e){return{type:r.Literal,value:e.value,raw:g(e.range[0],e.range[1])}}function pn(e,t){return function(n){function i(e){return e.type===r.LogicalExpression||e.type===r.BinaryExpression}function s(n){i(n.left)&&s(n.left),i(n.right)&&s(n.right),e&&typeof n.range=="undefined"&&(n.range=[n.left.range[0],n.right.range[1]]),t&&typeof n.loc=="undefined"&&(n.loc={start:n.left.loc.start,end:n.right.loc.end})}return function(){var o,u,a;O(),u=[f,0],a={start:{line:l,column:f-c}},o=n.apply(null,arguments);if(typeof o!="undefined")return e&&typeof o.range=="undefined"&&(u[1]=f,o.range=u),t&&typeof o.loc=="undefined"&&(a.end={line:l,column:f-c},o.loc=a),i(o)&&s(o),o.type===r.MemberExpression&&(typeof o.object.range!="undefined"&&(o.range[0]=o.object.range[0]),typeof o.object.loc!="undefined"&&(o.loc.start=o.object.loc.start)),o.type===r.CallExpression&&(typeof o.callee.range!="undefined"&&(o.range[0]=o.callee.range[0]),typeof o.callee.loc!="undefined"&&(o.loc.start=o.callee.loc.start)),o}}}function dn(){var e;v.comments&&(v.skipComment=O,O=on),v.raw&&(v.createLiteral=cn,cn=hn);if(v.range||v.loc)e=pn(v.range,v.loc),v.parseAdditiveExpression=vt,v.parseAssignmentExpression=Nt,v.parseBitwiseANDExpression=bt,v.parseBitwiseORExpression=Et,v.parseBitwiseXORExpression=wt,v.parseBlock=Lt,v.parseFunctionSourceElements=Yt,v.parseCallMember=at,v.parseCatchClause=Jt,v.parseComputedMember=ut,v.parseConditionalExpression=Tt,v.parseConstLetDeclaration=Dt,v.parseEqualityExpression=yt,v.parseExpression=Ct,v.parseForVariableDeclaration=It,v.parseFunctionDeclaration=Zt,v.parseFunctionExpression=en,v.parseLogicalANDExpression=St,v.parseLogicalORExpression=xt,v.parseMultiplicativeExpression=dt,v.parseNewExpression=ft,v.parseNonComputedMember=ot,v.parseNonComputedProperty=st,v.parseObjectProperty=tt,v.parseObjectPropertyKey=et,v.parsePostfixExpression=ht,v.parsePrimaryExpression=rt,v.parseProgram=rn,v.parsePropertyFunction=Z,v.parseRelationalExpression=gt,v.parseStatement=Gt,v.parseShiftExpression=mt,v.parseSwitchCase=Xt,v.parseUnaryExpression=pt,v.parseVariableDeclaration=Ot,v.parseVariableIdentifier=At,vt=e(v.parseAdditiveExpression),Nt=e(v.parseAssignmentExpression),bt=e(v.parseBitwiseANDExpression),Et=e(v.parseBitwiseORExpression),wt=e(v.parseBitwiseXORExpression),Lt=e(v.parseBlock),Yt=e(v.parseFunctionSourceElements),at=e(v.parseCallMember),Jt=e(v.parseCatchClause),ut=e(v.parseComputedMember),Tt=e(v.parseConditionalExpression),Dt=e(v.parseConstLetDeclaration),yt=e(v.parseEqualityExpression),Ct=e(v.parseExpression),It=e(v.parseForVariableDeclaration),Zt=e(v.parseFunctionDeclaration),en=e(v.parseFunctionExpression),St=e(v.parseLogicalANDExpression),xt=e(v.parseLogicalORExpression),dt=e(v.parseMultiplicativeExpression),ft=e(v.parseNewExpression),ot=e(v.parseNonComputedMember),st=e(v.parseNonComputedProperty),tt=e(v.parseObjectProperty),et=e(v.parseObjectPropertyKey),ht=e(v.parsePostfixExpression),rt=e(v.parsePrimaryExpression),rn=e(v.parseProgram),Z=e(v.parsePropertyFunction),gt=e(v.parseRelationalExpression),Gt=e(v.parseStatement),mt=e(v.parseShiftExpression),Xt=e(v.parseSwitchCase),pt=e(v.parseUnaryExpression),Ot=e(v.parseVariableDeclaration),At=e(v.parseVariableIdentifier);typeof v.tokens!="undefined"&&(v.advance=F,v.scanRegExp=B,F=an,B=fn)}function vn(){typeof v.skipComment=="function"&&(O=v.skipComment),v.raw&&(cn=v.createLiteral);if(v.range||v.loc)vt=v.parseAdditiveExpression,Nt=v.parseAssignmentExpression,bt=v.parseBitwiseANDExpression,Et=v.parseBitwiseORExpression,wt=v.parseBitwiseXORExpression,Lt=v.parseBlock,Yt=v.parseFunctionSourceElements,at=v.parseCallMember,Jt=v.parseCatchClause,ut=v.parseComputedMember,Tt=v.parseConditionalExpression,Dt=v.parseConstLetDeclaration,yt=v.parseEqualityExpression,Ct=v.parseExpression,It=v.parseForVariableDeclaration,Zt=v.parseFunctionDeclaration,en=v.parseFunctionExpression,St=v.parseLogicalANDExpression,xt=v.parseLogicalORExpression,dt=v.parseMultiplicativeExpression,ft=v.parseNewExpression,ot=v.parseNonComputedMember,st=v.parseNonComputedProperty,tt=v.parseObjectProperty,et=v.parseObjectPropertyKey,rt=v.parsePrimaryExpression,ht=v.parsePostfixExpression,rn=v.parseProgram,Z=v.parsePropertyFunction,gt=v.parseRelationalExpression,Gt=v.parseStatement,mt=v.parseShiftExpression,Xt=v.parseSwitchCase,pt=v.parseUnaryExpression,Ot=v.parseVariableDeclaration,At=v.parseVariableIdentifier;typeof v.scanRegExp=="function"&&(F=v.advance,B=v.scanRegExp)}function mn(e){var t=e.length,n=[],r;for(r=0;r<t;++r)n[r]=e.charAt(r);return n}function gn(e,t){var n,r;r=String,typeof e!="string"&&!(e instanceof String)&&(e=r(e)),u=e,f=0,l=u.length>0?1:0,c=0,h=u.length,p=null,d={allowIn:!0,labelSet:{},lastParenthesized:null,inFunctionBody:!1,inIteration:!1,inSwitch:!1},v={},typeof t!="undefined"&&(v.range=typeof t.range=="boolean"&&t.range,v.loc=typeof t.loc=="boolean"&&t.loc,v.raw=typeof t.raw=="boolean"&&t.raw,typeof t.tokens=="boolean"&&t.tokens&&(v.tokens=[]),typeof t.comment=="boolean"&&t.comment&&(v.comments=[]),typeof t.tolerant=="boolean"&&t.tolerant&&(v.errors=[])),h>0&&typeof u[0]=="undefined"&&(e instanceof String&&(u=e.valueOf()),typeof u[0]=="undefined"&&(u=mn(e))),dn();try{n=rn(),typeof v.comments!="undefined"&&(un(),n.comments=v.comments),typeof v.tokens!="undefined"&&(ln(),n.tokens=v.tokens),typeof v.errors!="undefined"&&(n.errors=v.errors)}catch(i){throw i}finally{vn(),v={}}return n}var t,n,r,i,s,o,u,a,f,l,c,h,p,d,v;t={BooleanLiteral:1,EOF:2,Identifier:3,Keyword:4,NullLiteral:5,NumericLiteral:6,Punctuator:7,StringLiteral:8},n={},n[t.BooleanLiteral]="Boolean",n[t.EOF]="<end>",n[t.Identifier]="Identifier",n[t.Keyword]="Keyword",n[t.NullLiteral]="Null",n[t.NumericLiteral]="Numeric",n[t.Punctuator]="Punctuator",n[t.StringLiteral]="String",r={AssignmentExpression:"AssignmentExpression",ArrayExpression:"ArrayExpression",BlockStatement:"BlockStatement",BinaryExpression:"BinaryExpression",BreakStatement:"BreakStatement",CallExpression:"CallExpression",CatchClause:"CatchClause",ConditionalExpression:"ConditionalExpression",ContinueStatement:"ContinueStatement",DoWhileStatement:"DoWhileStatement",DebuggerStatement:"DebuggerStatement",EmptyStatement:"EmptyStatement",ExpressionStatement:"ExpressionStatement",ForStatement:"ForStatement",ForInStatement:"ForInStatement",FunctionDeclaration:"FunctionDeclaration",FunctionExpression:"FunctionExpression",Identifier:"Identifier",IfStatement:"IfStatement",Literal:"Literal",LabeledStatement:"LabeledStatement",LogicalExpression:"LogicalExpression",MemberExpression:"MemberExpression",NewExpression:"NewExpression",ObjectExpression:"ObjectExpression",Program:"Program",Property:"Property",ReturnStatement:"ReturnStatement",SequenceExpression:"SequenceExpression",SwitchStatement:"SwitchStatement",SwitchCase:"SwitchCase",ThisExpression:"ThisExpression",ThrowStatement:"ThrowStatement",TryStatement:"TryStatement",UnaryExpression:"UnaryExpression",UpdateExpression:"UpdateExpression",VariableDeclaration:"VariableDeclaration",VariableDeclarator:"VariableDeclarator",WhileStatement:"WhileStatement",WithStatement:"WithStatement"},i={Data:1,Get:2,Set:4},s={UnexpectedToken:"Unexpected token %0",UnexpectedNumber:"Unexpected number",UnexpectedString:"Unexpected string",UnexpectedIdentifier:"Unexpected identifier",UnexpectedReserved:"Unexpected reserved word",UnexpectedEOS:"Unexpected end of input",NewlineAfterThrow:"Illegal newline after throw",InvalidRegExp:"Invalid regular expression",UnterminatedRegExp:"Invalid regular expression: missing /",InvalidLHSInAssignment:"Invalid left-hand side in assignment",InvalidLHSInForIn:"Invalid left-hand side in for-in",MultipleDefaultsInSwitch:"More than one default clause in switch statement",NoCatchOrFinally:"Missing catch or finally after try",UnknownLabel:"Undefined label '%0'",Redeclaration:"%0 '%1' has already been declared",IllegalContinue:"Illegal continue statement",IllegalBreak:"Illegal break statement",IllegalReturn:"Illegal return statement",StrictModeWith:"Strict mode code may not include a with statement",StrictCatchVariable:"Catch variable may not be eval or arguments in strict mode",StrictVarName:"Variable name may not be eval or arguments in strict mode",StrictParamName:"Parameter name eval or arguments is not allowed in strict mode",StrictParamDupe:"Strict mode function may not have duplicate parameter names",StrictFunctionName:"Function name may not be eval or arguments in strict mode",StrictOctalLiteral:"Octal literals are not allowed in strict mode.",StrictDelete:"Delete of an unqualified identifier in strict mode.",StrictDuplicateProperty:"Duplicate data property in object literal not allowed in strict mode",AccessorDataProperty:"Object literal may not have data and accessor property with the same name",AccessorGetSet:"Object literal may not have multiple get/set accessors with the same name",StrictLHSAssignment:"Assignment to eval or arguments is not allowed in strict mode",StrictLHSPostfix:"Postfix increment/decrement may not have eval or arguments operand in strict mode",StrictLHSPrefix:"Prefix increment/decrement may not have eval or arguments operand in strict mode",StrictReservedWord:"Use of future reserved word in strict mode"},o={NonAsciiIdentifierStart:new RegExp("[ªµºÀ-ÖØ-öø-ˁˆ-ˑˠ-ˤˬˮͰ-ʹͶͷͺ-ͽΆΈ-ΊΌΎ-ΡΣ-ϵϷ-ҁҊ-ԧԱ-Ֆՙա-ևא-תװ-ײؠ-يٮٯٱ-ۓەۥۦۮۯۺ-ۼۿܐܒ-ܯݍ-ޥޱߊ-ߪߴߵߺࠀ-ࠕࠚࠤࠨࡀ-ࡘࢠࢢ-ࢬऄ-हऽॐक़-ॡॱ-ॷॹ-ॿঅ-ঌএঐও-নপ-রলশ-হঽৎড়ঢ়য়-ৡৰৱਅ-ਊਏਐਓ-ਨਪ-ਰਲਲ਼ਵਸ਼ਸਹਖ਼-ੜਫ਼ੲ-ੴઅ-ઍએ-ઑઓ-નપ-રલળવ-હઽૐૠૡଅ-ଌଏଐଓ-ନପ-ରଲଳଵ-ହଽଡ଼ଢ଼ୟ-ୡୱஃஅ-ஊஎ-ஐஒ-கஙசஜஞடணதந-பம-ஹௐఅ-ఌఎ-ఐఒ-నప-ళవ-హఽౘౙౠౡಅ-ಌಎ-ಐಒ-ನಪ-ಳವ-ಹಽೞೠೡೱೲഅ-ഌഎ-ഐഒ-ഺഽൎൠൡൺ-ൿඅ-ඖක-නඳ-රලව-ෆก-ะาำเ-ๆກຂຄງຈຊຍດ-ທນ-ຟມ-ຣລວສຫອ-ະາຳຽເ-ໄໆໜ-ໟༀཀ-ཇཉ-ཬྈ-ྌက-ဪဿၐ-ၕၚ-ၝၡၥၦၮ-ၰၵ-ႁႎႠ-ჅჇჍა-ჺჼ-ቈቊ-ቍቐ-ቖቘቚ-ቝበ-ኈኊ-ኍነ-ኰኲ-ኵኸ-ኾዀዂ-ዅወ-ዖዘ-ጐጒ-ጕጘ-ፚᎀ-ᎏᎠ-Ᏼᐁ-ᙬᙯ-ᙿᚁ-ᚚᚠ-ᛪᛮ-ᛰᜀ-ᜌᜎ-ᜑᜠ-ᜱᝀ-ᝑᝠ-ᝬᝮ-ᝰក-ឳៗៜᠠ-ᡷᢀ-ᢨᢪᢰ-ᣵᤀ-ᤜᥐ-ᥭᥰ-ᥴᦀ-ᦫᧁ-ᧇᨀ-ᨖᨠ-ᩔᪧᬅ-ᬳᭅ-ᭋᮃ-ᮠᮮᮯᮺ-ᯥᰀ-ᰣᱍ-ᱏᱚ-ᱽᳩ-ᳬᳮ-ᳱᳵᳶᴀ-ᶿḀ-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼιῂ-ῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲ-ῴῶ-ῼⁱⁿₐ-ₜℂℇℊ-ℓℕℙ-ℝℤΩℨK-ℭℯ-ℹℼ-ℿⅅ-ⅉⅎⅠ-ↈⰀ-Ⱞⰰ-ⱞⱠ-ⳤⳫ-ⳮⳲⳳⴀ-ⴥⴧⴭⴰ-ⵧⵯⶀ-ⶖⶠ-ⶦⶨ-ⶮⶰ-ⶶⶸ-ⶾⷀ-ⷆⷈ-ⷎⷐ-ⷖⷘ-ⷞⸯ々-〇〡-〩〱-〵〸-〼ぁ-ゖゝ-ゟァ-ヺー-ヿㄅ-ㄭㄱ-ㆎㆠ-ㆺㇰ-ㇿ㐀-䶵一-鿌ꀀ-ꒌꓐ-ꓽꔀ-ꘌꘐ-ꘟꘪꘫꙀ-ꙮꙿ-ꚗꚠ-ꛯꜗ-ꜟꜢ-ꞈꞋ-ꞎꞐ-ꞓꞠ-Ɦꟸ-ꠁꠃ-ꠅꠇ-ꠊꠌ-ꠢꡀ-ꡳꢂ-ꢳꣲ-ꣷꣻꤊ-ꤥꤰ-ꥆꥠ-ꥼꦄ-ꦲꧏꨀ-ꨨꩀ-ꩂꩄ-ꩋꩠ-ꩶꩺꪀ-ꪯꪱꪵꪶꪹ-ꪽꫀꫂꫛ-ꫝꫠ-ꫪꫲ-ꫴꬁ-ꬆꬉ-ꬎꬑ-ꬖꬠ-ꬦꬨ-ꬮꯀ-ꯢ가-힣ힰ-ퟆퟋ-ퟻ豈-舘並-龎ﬀ-ﬆﬓ-ﬗיִײַ-ﬨשׁ-זּטּ-לּמּנּסּףּפּצּ-ﮱﯓ-ﴽﵐ-ﶏﶒ-ﷇﷰ-ﷻﹰ-ﹴﹶ-ﻼＡ-Ｚａ-ｚｦ-ﾾￂ-ￇￊ-ￏￒ-ￗￚ-ￜ]"),NonAsciiIdentifierPart:new RegExp("[ªµºÀ-ÖØ-öø-ˁˆ-ˑˠ-ˤˬˮ̀-ʹͶͷͺ-ͽΆΈ-ΊΌΎ-ΡΣ-ϵϷ-ҁ҃-҇Ҋ-ԧԱ-Ֆՙա-և֑-ׇֽֿׁׂׅׄא-תװ-ײؐ-ؚؠ-٩ٮ-ۓە-ۜ۟-۪ۨ-ۼۿܐ-݊ݍ-ޱ߀-ߵߺࠀ-࠭ࡀ-࡛ࢠࢢ-ࢬࣤ-ࣾऀ-ॣ०-९ॱ-ॷॹ-ॿঁ-ঃঅ-ঌএঐও-নপ-রলশ-হ়-ৄেৈো-ৎৗড়ঢ়য়-ৣ০-ৱਁ-ਃਅ-ਊਏਐਓ-ਨਪ-ਰਲਲ਼ਵਸ਼ਸਹ਼ਾ-ੂੇੈੋ-੍ੑਖ਼-ੜਫ਼੦-ੵઁ-ઃઅ-ઍએ-ઑઓ-નપ-રલળવ-હ઼-ૅે-ૉો-્ૐૠ-ૣ૦-૯ଁ-ଃଅ-ଌଏଐଓ-ନପ-ରଲଳଵ-ହ଼-ୄେୈୋ-୍ୖୗଡ଼ଢ଼ୟ-ୣ୦-୯ୱஂஃஅ-ஊஎ-ஐஒ-கஙசஜஞடணதந-பம-ஹா-ூெ-ைொ-்ௐௗ௦-௯ఁ-ఃఅ-ఌఎ-ఐఒ-నప-ళవ-హఽ-ౄె-ైొ-్ౕౖౘౙౠ-ౣ౦-౯ಂಃಅ-ಌಎ-ಐಒ-ನಪ-ಳವ-ಹ಼-ೄೆ-ೈೊ-್ೕೖೞೠ-ೣ೦-೯ೱೲംഃഅ-ഌഎ-ഐഒ-ഺഽ-ൄെ-ൈൊ-ൎൗൠ-ൣ൦-൯ൺ-ൿංඃඅ-ඖක-නඳ-රලව-ෆ්ා-ුූෘ-ෟෲෳก-ฺเ-๎๐-๙ກຂຄງຈຊຍດ-ທນ-ຟມ-ຣລວສຫອ-ູົ-ຽເ-ໄໆ່-ໍ໐-໙ໜ-ໟༀ༘༙༠-༩༹༵༷༾-ཇཉ-ཬཱ-྄྆-ྗྙ-ྼ࿆က-၉ၐ-ႝႠ-ჅჇჍა-ჺჼ-ቈቊ-ቍቐ-ቖቘቚ-ቝበ-ኈኊ-ኍነ-ኰኲ-ኵኸ-ኾዀዂ-ዅወ-ዖዘ-ጐጒ-ጕጘ-ፚ፝-፟ᎀ-ᎏᎠ-Ᏼᐁ-ᙬᙯ-ᙿᚁ-ᚚᚠ-ᛪᛮ-ᛰᜀ-ᜌᜎ-᜔ᜠ-᜴ᝀ-ᝓᝠ-ᝬᝮ-ᝰᝲᝳក-៓ៗៜ៝០-៩᠋-᠍᠐-᠙ᠠ-ᡷᢀ-ᢪᢰ-ᣵᤀ-ᤜᤠ-ᤫᤰ-᤻᥆-ᥭᥰ-ᥴᦀ-ᦫᦰ-ᧉ᧐-᧙ᨀ-ᨛᨠ-ᩞ᩠-᩿᩼-᪉᪐-᪙ᪧᬀ-ᭋ᭐-᭙᭫-᭳ᮀ-᯳ᰀ-᰷᱀-᱉ᱍ-ᱽ᳐-᳔᳒-ᳶᴀ-ᷦ᷼-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼιῂ-ῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲ-ῴῶ-ῼ‌‍‿⁀⁔ⁱⁿₐ-ₜ⃐-⃥⃜⃡-⃰ℂℇℊ-ℓℕℙ-ℝℤΩℨK-ℭℯ-ℹℼ-ℿⅅ-ⅉⅎⅠ-ↈⰀ-Ⱞⰰ-ⱞⱠ-ⳤⳫ-ⳳⴀ-ⴥⴧⴭⴰ-ⵧⵯ⵿-ⶖⶠ-ⶦⶨ-ⶮⶰ-ⶶⶸ-ⶾⷀ-ⷆⷈ-ⷎⷐ-ⷖⷘ-ⷞⷠ-ⷿⸯ々-〇〡-〯〱-〵〸-〼ぁ-ゖ゙゚ゝ-ゟァ-ヺー-ヿㄅ-ㄭㄱ-ㆎㆠ-ㆺㇰ-ㇿ㐀-䶵一-鿌ꀀ-ꒌꓐ-ꓽꔀ-ꘌꘐ-ꘫꙀ-꙯ꙴ-꙽ꙿ-ꚗꚟ-꛱ꜗ-ꜟꜢ-ꞈꞋ-ꞎꞐ-ꞓꞠ-Ɦꟸ-ꠧꡀ-ꡳꢀ-꣄꣐-꣙꣠-ꣷꣻ꤀-꤭ꤰ-꥓ꥠ-ꥼꦀ-꧀ꧏ-꧙ꨀ-ꨶꩀ-ꩍ꩐-꩙ꩠ-ꩶꩺꩻꪀ-ꫂꫛ-ꫝꫠ-ꫯꫲ-꫶ꬁ-ꬆꬉ-ꬎꬑ-ꬖꬠ-ꬦꬨ-ꬮꯀ-ꯪ꯬꯭꯰-꯹가-힣ힰ-ퟆퟋ-ퟻ豈-舘並-龎ﬀ-ﬆﬓ-ﬗיִ-ﬨשׁ-זּטּ-לּמּנּסּףּפּצּ-ﮱﯓ-ﴽﵐ-ﶏﶒ-ﷇﷰ-ﷻ︀-️︠-︦︳︴﹍-﹏ﹰ-ﹴﹶ-ﻼ０-９Ａ-Ｚ＿ａ-ｚｦ-ﾾￂ-ￇￊ-ￏￒ-ￗￚ-ￜ]")},typeof "esprima"[0]=="undefined"&&(g=function(t,n){return u.slice(t,n).join("")}),e.version="1.0.0-dev",e.parse=gn,e.Syntax=function(){var e,t={};typeof Object.create=="function"&&(t=Object.create(null));for(e in r)r.hasOwnProperty(e)&&(t[e]=r[e]);return typeof Object.freeze=="function"&&Object.freeze(t),t}()}),function(e){function t(t){if(typeof t.data!="string")return;var n=t.handler,r=t.data.toLowerCase().split(" ");t.handler=function(t){if(!(this===t.target||!/textarea|select/i.test(t.target.nodeName)&&t.target.type!=="text"))return;var i=t.type!=="keypress"&&e.hotkeys.specialKeys[t.which],s=String.fromCharCode(t.which).toLowerCase(),o,u="",a={};t.altKey&&i!=="alt"&&(u+="alt+"),t.ctrlKey&&i!=="ctrl"&&(u+="ctrl+"),t.metaKey&&!t.ctrlKey&&i!=="meta"&&(u+="meta+"),t.shiftKey&&i!=="shift"&&(u+="shift+"),i?a[u+i]=!0:(a[u+s]=!0,a[u+e.hotkeys.shiftNums[s]]=!0,u==="shift+"&&(a[e.hotkeys.shiftNums[s]]=!0));for(var f=0,l=r.length;f<l;f++)if(a[r[f]])return n.apply(this,arguments)}}e.hotkeys={version:"0.8",specialKeys:{8:"backspace",9:"tab",13:"return",16:"shift",17:"ctrl",18:"alt",19:"pause",20:"capslock",27:"esc",32:"space",33:"pageup",34:"pagedown",35:"end",36:"home",37:"left",38:"up",39:"right",40:"down",45:"insert",46:"del",96:"0",97:"1",98:"2",99:"3",100:"4",101:"5",102:"6",103:"7",104:"8",105:"9",106:"*",107:"+",109:"-",110:".",111:"/",112:"f1",113:"f2",114:"f3",115:"f4",116:"f5",117:"f6",118:"f7",119:"f8",120:"f9",121:"f10",122:"f11",123:"f12",144:"numlock",145:"scroll",191:"/",224:"meta"},shiftNums:{"`":"~",1:"!",2:"@",3:"#",4:"$",5:"%",6:"^",7:"&",8:"*",9:"(",0:")","-":"_","=":"+",";":": ","'":'"',",":"<",".":">","/":"?","\\":"|"}},e.each(["keydown","keyup","keypress"],function(){e.event.special[this]={add:t}})}(jQuery);var Hogan={};(function(e,t){function n(e,t,n,r){function i(){}function s(){}i.prototype=e,s.prototype=e.subs;var o,u=new i;u.subs=new s,u.subsText={},u.ib();for(o in t)u.subs[o]=t[o],u.subsText[o]=r;for(o in n)u.partials[o]=n[o];return u}function f(e){return String(e===null||e===undefined?"":e)}function l(e){return e=f(e),a.test(e)?e.replace(r,"&amp;").replace(i,"&lt;").replace(s,"&gt;").replace(o,"&#39;").replace(u,"&quot;"):e}e.Template=function(e,t,n,r){e=e||{},this.r=e.code||this.r,this.c=n,this.options=r,this.text=t||"",this.partials=e.partials||{},this.subs=e.subs||{},this.ib()},e.Template.prototype={r:function(e,t,n){return""},v:l,t:f,render:function(t,n,r){return this.ri([t],n||{},r)},ri:function(e,t,n){return this.r(e,t,n)},ep:function(e,t){var r=this.partials[e],i=t[r.name];if(r.instance&&r.base==i)return r.instance;if(typeof i=="string"){if(!this.c)throw new Error("No compiler available.");i=this.c.compile(i,this.options)}return i?(this.partials[e].base=i,r.subs&&(i=n(i,r.subs,r.partials,this.text)),this.partials[e].instance=i,i):null},rp:function(e,t,n,r){var i=this.ep(e,n);return i?i.ri(t,n,r):""},rs:function(e,t,n){var r=e[e.length-1];if(!c(r)){n(e,t,this);return}for(var i=0;i<r.length;i++)e.push(r[i]),n(e,t,this),e.pop()},s:function(e,t,n,r,i,s,o){var u;return c(e)&&e.length===0?!1:(typeof e=="function"&&(e=this.ms(e,t,n,r,i,s,o)),u=e===""||!!e,!r&&u&&t&&t.push(typeof e=="object"?e:t[t.length-1]),u)},d:function(e,t,n,r){var i=e.split("."),s=this.f(i[0],t,n,r),o=null;if(e==="."&&c(t[t.length-2]))s=t[t.length-1];else for(var u=1;u<i.length;u++)s&&typeof s=="object"&&s[i[u]]!=null?(o=s,s=s[i[u]]):s="";return r&&!s?!1:(!r&&typeof s=="function"&&(t.push(o),s=this.mv(s,t,n),t.pop()),s)},f:function(e,t,n,r){var i=!1,s=null,o=!1;for(var u=t.length-1;u>=0;u--){s=t[u];if(s&&typeof s=="object"&&s[e]!=null){i=s[e],o=!0;break}}return o?(!r&&typeof i=="function"&&(i=this.mv(i,t,n)),i):r?!1:""},ls:function(e,t,n,r,i){var s=this.options.delimiters;return this.options.delimiters=i,this.b(this.ct(f(e.call(t,r)),t,n)),this.options.delimiters=s,!1},ct:function(e,t,n){if(this.options.disableLambda)throw new Error("Lambda features disabled.");return this.c.compile(e,this.options).render(t,n)},b:t?function(e){this.buf.push(e)}:function(e){this.buf+=e},fl:t?function(){var e=this.buf.join("");return this.buf=[],e}:function(){var e=this.buf;return this.buf="",e},ib:function(){this.buf=t?[]:""},ms:function(e,t,n,r,i,s,o){var u,a=t[t.length-1],f=e.call(a);return typeof f=="function"?r?!0:(u=this.activeSub&&this.subsText[this.activeSub]?this.subsText[this.activeSub]:this.text,this.ls(f,a,n,u.substring(i,s),o)):f},mv:function(e,t,n){var r=t[t.length-1],i=e.call(r);return typeof i=="function"?this.ct(f(i.call(r)),r,n):i},sub:function(e,t,n,r){var i=this.subs[e];i&&(this.activeSub=e,i(t,n,this,r),this.activeSub=!1)}};var r=/&/g,i=/</g,s=/>/g,o=/\'/g,u=/\"/g,a=/[&<>\"\']/,c=Array.isArray||function(e){return Object.prototype.toString.call(e)==="[object Array]"}})(typeof exports!="undefined"?exports:Hogan),jQuery.tablesorter.addParser({id:"size",is:function(e){return e.trim().match(/^\d+(\.\d+)? (Bytes|KB|MB|GB|TB|PB)$/)},format:function(e){var t=["Bytes","KB","MB","GB","TB","PB"],n=e.trim().split(" ");return parseFloat(n.shift())*Math.pow(1024,_.indexOf(t,n.shift()))},type:"numeric"}),window.Genghis={Models:{},Collections:{},Views:{},Templates:{},defaults:{codeMirror:{mode:"application/json",lineNumbers:!0,tabSize:4,indentUnit:4,matchBrackets:!0}},boot:function(e){e+=e.charAt(e.length-1)=="/"?"":"/",window.app=new Genghis.Views.App({baseUrl:e}),Backbone.history.start({pushState:!0,root:e})}},Genghis.version="2.0.0-dev",Genghis.Templates.Alert=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b('<div class="alert'),r.s(r.f("block",e,t,1),e,t,0,29,41,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b(" alert-block")}),e.pop()),r.b(" alert-"),r.b(r.v(r.f("level",e,t,0))),r.b('">'),r.b("\n"+n),r.b('  <a class="close" href="#">×</a>'),r.b("\n"+n),r.s(r.f("block",e,t,1),e,t,0,122,148,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("    <p>"),n.b(n.t(n.f("msg",e,t,0))),n.b("</p>"),n.b("\n")}),e.pop()),r.s(r.f("block",e,t,1),e,t,1,0,0,"")||(r.b("    "),r.b(r.t(r.f("msg",e,t,0))),r.b("\n")),r.b("</div>"),r.fl()}}),Genghis.Templates.CollectionRow=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b("<td>"),r.b("\n"+n),r.b('    <a href="'),r.b(r.v(r.f("url",e,t,0))),r.b('" class="name value">'),r.b(r.v(r.f("name",e,t,0))),r.b("</a>"),r.b("\n"+n),r.b("</td>"),r.b("\n"+n),r.b("<td>"),r.b("\n"+n),r.b('    <span class="documents value">'),r.b(r.v(r.f("count",e,t,0))),r.b("</span>"),r.b("\n"+n),r.b("</td>"),r.b("\n"+n),r.b("<td>"),r.b("\n"+n),r.b('    <span class="indexes has-details value">'),r.b(r.v(r.f("indexCount",e,t,0))),r.b("</span>"),r.b("\n"+n),r.b('    <div class="details" title="'),r.b(r.v(r.f("indexCount",e,t,0))),r.b(" Index"),r.s(r.f("indexesIsPlural",e,t,1),e,t,0,282,284,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("es")}),e.pop()),r.b('">'),r.b("\n"+n),r.s(r.f("indexCount",e,t,1),e,t,0,334,501,"{{ }}")&&(r.rs(e,t,function(e,t,r){r.b('            <ul class="index-details">'),r.b("\n"+n),r.s(r.f("indexes",e,t,1),e,t,0,404,460,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("                    <li>"),n.b(n.t(n.d(".",e,t,0))),n.b("</li>"),n.b("\n")}),e.pop()),r.b("            </ul>"),r.b("\n")}),e.pop()),r.s(r.f("indexCount",e,t,1),e,t,1,0,0,"")||(r.b("            <em>None.</em>"),r.b("\n")),r.b("    </div>"),r.b("\n"+n),r.b("</td>"),r.b("\n"+n),r.b('<td class="action-column">'),r.b("\n"+n),r.b('    <button class="btn btn-mini btn-danger destroy">Remove</button>'),r.b("\n"+n),r.b("</td>"),r.b("\n"),r.fl()}}),Genghis.Templates.Collections=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b("<header><h2>"),r.b(r.v(r.f("title",e,t,0))),r.b("</h2></header>"),r.b("\n"+n),r.b('<div class="content">'),r.b("\n"+n),r.b("    <table>"),r.b("\n"+n),r.b("        <thead>"),r.b("\n"+n),r.b("            <tr>"),r.b("\n"+n),r.b("                <th>name</th>"),r.b("\n"+n),r.b("                <th>documents</th>"),r.b("\n"+n),r.b("                <th>indexes</th>"),r.b("\n"+n),r.b("                <th></th>"),r.b("\n"+n),r.b("            </tr>"),r.b("\n"+n),r.b("        </thead>"),r.b("\n"+n),r.b("        <tbody>"),r.b("\n"+n),r.b("        </tbody>"),r.b("\n"+n),r.b("    </table>"),r.b("\n"+n),r.b("</div>"),r.b("\n"+n),r.b('<div class="add-form inactive form-horizontal">'),r.b("\n"+n),r.b('    <input class="name span4" type="text" size="30">'),r.b("\n"+n),r.b('    <button class="show btn">Add collection</button>'),r.b("\n"+n),r.b('    <button class="add btn btn-primary">Add collection</button>'),r.b("\n"+n),r.b('    <button class="cancel btn">Cancel</button>'),r.b("\n"+n),r.b("</div>"),r.b("\n"),r.fl()}}),Genghis.Templates.DatabaseRow=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b("<td>"),r.b("\n"+n),r.b('    <a href="'),r.b(r.v(r.f("url",e,t,0))),r.b('" class="name value">'),r.b(r.v(r.f("name",e,t,0))),r.b("</a>"),r.b("\n"+n),r.b("</td>"),r.b("\n"+n),r.b("<td>"),r.b("\n"+n),r.b('    <span class="collections has-details value">'),r.b(r.v(r.f("count",e,t,0))),r.b("</span>"),r.b("\n"+n),r.b('    <div class="details" title="'),r.b(r.v(r.f("count",e,t,0))),r.b(" Collection"),r.s(r.f("isPlural",e,t,1),e,t,0,210,211,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("s")}),e.pop()),r.b('">'),r.b("\n"+n),r.s(r.f("count",e,t,1),e,t,0,249,520,"{{ }}")&&(r.rs(e,t,function(e,t,r){r.b("            <ul>"),r.b("\n"+n),r.s(r.f("firstChildren",e,t,1),e,t,0,303,357,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("                    <li>"),n.b(n.v(n.d(".",e,t,0))),n.b("</li>"),n.b("\n")}),e.pop()),r.s(r.f("hasMoreChildren",e,t,1),e,t,0,416,471,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("                    <li>&hellip;</li>"),n.b("\n")}),e.pop()),r.b("            </ul>"),r.b("\n")}),e.pop()),r.s(r.f("count",e,t,1),e,t,1,0,0,"")||(r.b("            <em>None.</em>"),r.b("\n")),r.b("    </div>"),r.b("\n"+n),r.b("</td>"),r.b("\n"+n),r.b("<td>"),r.b("\n"+n),r.b('    <span class="size value">'),r.b(r.v(r.f("humanSize",e,t,0))),r.b("</span>"),r.b("\n"+n),r.b("</td>"),r.b("\n"+n),r.b('<td class="action-column">'),r.b("\n"+n),r.b('    <button class="btn btn-mini btn-danger destroy">Remove</button>'),r.b("\n"+n),r.b("</td>"),r.fl()}}),Genghis.Templates.Databases=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b("<header><h2>"),r.b(r.v(r.f("title",e,t,0))),r.b("</h2></header>"),r.b("\n"+n),r.b('<div class="content">'),r.b("\n"+n),r.b("    <table>"),r.b("\n"+n),r.b("        <thead>"),r.b("\n"+n),r.b("            <tr>"),r.b("\n"+n),r.b("                <th>name</th>"),r.b("\n"+n),r.b("                <th>collections</th>"),r.b("\n"+n),r.b("                <th>size</th>"),r.b("\n"+n),r.b("                <th></th>"),r.b("\n"+n),r.b("            </tr>"),r.b("\n"+n),r.b("        </thead>"),r.b("\n"+n),r.b("        <tbody>"),r.b("\n"+n),r.b("        </tbody>"),r.b("\n"+n),r.b("    </table>"),r.b("\n"+n),r.b("</div>"),r.b("\n"+n),r.b('<div class="add-form inactive form-horizontal">'),r.b("\n"+n),r.b('    <input class="name span4" type="text" size="30">'),r.b("\n"+n),r.b('    <button class="show btn">Add database</button>'),r.b("\n"+n),r.b('    <button class="add btn btn-primary">Add database</button>'),r.b("\n"+n),r.b('    <button class="cancel btn">Cancel</button>'),r.b("\n"+n),r.b("</div>"),r.fl()}}),Genghis.Templates.Document=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b("<header><h2>"),r.b(r.v(r.d("model.id",e,t,0))),r.b("</h2></header>"),r.b("\n"+n),r.b('<div class="content document-wrapper"></div>'),r.fl()}}),Genghis.Templates.DocumentView=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b('<div class="well">'),r.b("\n"+n),r.b('    <div class="document-actions">'),r.b("\n"+n),r.b('        <button class="btn btn-small btn-primary save">Save</button>'),r.b("\n"+n),r.b('        <button class="btn btn-small cancel">Cancel</button>'),r.b("\n"+n),r.b('        <button class="btn btn-small edit">Edit</button>'),r.b("\n"+n),r.b('        <button class="btn btn-small btn-danger destroy">Delete</button>'),r.b("\n"+n),r.b("    </div>"),r.b("\n"+n),r.b("\n"+n),r.b("    <h3>"),r.b("\n"+n),r.b('        <a class="id" href="'),r.b(r.v(r.f("url",e,t,0))),r.b('">'),r.b(r.v(r.f("id",e,t,0))),r.b("</a>"),r.b("\n"+n),r.b("    </h3>"),r.b("\n"+n),r.b("\n"+n),r.b('    <div class="document"></div>'),r.b("\n"+n),r.b("</div>"),r.b("\n"),r.fl()}}),Genghis.Templates.Documents=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b("<header><h2>Documents</h2></header>"),r.b("\n"+n),r.b('<div class="controls">'),r.b("\n"+n),r.b('    <button class="add-document btn btn-large">Add document</button>'),r.b("\n"+n),r.b('    <div class="pagination-wrapper top"></div>'),r.b("\n"+n),r.
 b("</div>"),r.b("\n"+n),r.b('<div class="content document-wrapper"></div>'),r.b("\n"+n),r.b('<div class="controls">'),r.b("\n"+n),r.b('    <button class="add-document btn btn-large">Add document</button>'),r.b("\n"+n),r.b('    <div class="pagination-wrapper top"></div>'),r.b("\n"+n),r.b("</div>"),r.b("\n"),r.fl()}}),Genghis.Templates.KeyboardShortcuts=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b('<div id="keyboard-shortcuts" class="modal">'),r.b("\n"+n),r.b('  <div class="modal-header">'),r.b("\n"+n),r.b('    <a href="#" class="close">×</a>'),r.b("\n"+n),r.b("    <h3>Keyboard shortcuts</h3>"),r.b("\n"+n),r.b("  </div>"),r.b("\n"+n),r.b('  <div class="modal-body">'),r.b("\n"+n),r.b("    <ul>"),r.b("\n"+n),r.b("      <li>"),r.b("\n"+n),r.b("        <h4>Global</h4>"),r.b("\n"+n),r.b("        <dl>"),r.b("\n"+n),r.b("          <dt><kbd>?</kbd></dt>"),r.b("\n"+n),r.b("          <dd>This cheat sheet</dd>"),r.b("\n"+n),r.b("\n"+n),r.b("          <dt><kbd>s</kbd></dt>"),r.b("\n"+n),r.b("          <dd>Go to servers</dd>"),r.b("\n"+n),r.b("\n"+n),r.b("          <dt><kbd>u</kbd></dt>"),r.b("\n"+n),r.b("          <dd>Go up one level</dd>"),r.b("\n"+n),r.b("        </dl>"),r.b("\n"+n),r.b("\n"+n),r.b("        <h4>Servers</h4>"),r.b("\n"+n),r.b("        <dl>"),r.b("\n"+n),r.b("          <dt><kbd>c</kbd></dt>"),r.b("\n"+n),r.b("          <dd>New server</dd>"),r.b("\n"+n),r.b("        </dl>"),r.b("\n"+n),r.b("\n"+n),r.b("        <h4>Databases</h4>"),r.b("\n"+n),r.b("        <dl>"),r.b("\n"+n),r.b("          <dt><kbd>c</kbd></dt>"),r.b("\n"+n),r.b("          <dd>New database</dd>"),r.b("\n"+n),r.b("        </dl>"),r.b("\n"+n),r.b("      </li>"),r.b("\n"+n),r.b("      <li>"),r.b("\n"+n),r.b("        <h4>Collections</h4>"),r.b("\n"+n),r.b("        <dl>"),r.b("\n"+n),r.b("          <dt><kbd>c</kbd></dt>"),r.b("\n"+n),r.b("          <dd>New collection</dd>"),r.b("\n"+n),r.b("        </dl>"),r.b("\n"+n),r.b("\n"+n),r.b("        <h4>Documents</h4>"),r.b("\n"+n),r.b("        <dl>"),r.b("\n"+n),r.b("          <dt><kbd>/</kbd></dt>"),r.b("\n"+n),r.b("          <dd>Search</dd>"),r.b("\n"+n),r.b("\n"+n),r.b("          <dt><kbd>c</kbd></dt>"),r.b("\n"+n),r.b("          <dd>New document</dd>"),r.b("\n"+n),r.b("\n"+n),r.b("          <dt><kbd>n</kbd></dt>"),r.b("\n"+n),r.b("          <dd>Next page</dd>"),r.b("\n"+n),r.b("\n"+n),r.b("          <dt><kbd>p</kbd></dt>"),r.b("\n"+n),r.b("          <dd>Previous page</dd>"),r.b("\n"+n),r.b("\n"+n),r.b("<!--"),r.b("\n"+n),r.b("          <dt><kbd>-</kbd></dt>"),r.b("\n"+n),r.b("          <dd>Collapse all</dd>"),r.b("\n"+n),r.b("\n"+n),r.b("          <dt><kbd>+</kbd></dt>"),r.b("\n"+n),r.b("          <dd>Expand all</dd>"),r.b("\n"+n),r.b("\n"+n),r.b("          <dt><kbd>Alt+1</kbd> &ndash; <kbd>Alt+9</kbd></dt>"),r.b("\n"+n),r.b("          <dd>Expand to depth</dd>"),r.b("\n"+n),r.b("-->"),r.b("\n"+n),r.b("        </dl>"),r.b("\n"+n),r.b("      </li>"),r.b("\n"+n),r.b("    </ul>"),r.b("\n"+n),r.b("  </div>"),r.b("\n"+n),r.b("</div>"),r.fl()}}),Genghis.Templates.Masthead=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b('<div class="container">'),r.b("\n"+n),r.b("    "),r.s(r.f("heading",e,t,1),e,t,0,42,64,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("<h1>"),n.b(n.v(n.f("heading",e,t,0))),n.b("</h1>")}),e.pop()),r.b("\n"+n),r.b("    "),r.b(r.t(r.f("content",e,t,0))),r.b("\n"+n),r.b("</div>"),r.fl()}}),Genghis.Templates.Nav=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b('<ul class="nav">'),r.b("\n"+n),r.b('	<li class="nav-section servers"><a class="btn-servers" href="'),r.b(r.v(r.f("baseUrl",e,t,0))),r.b('">Servers</a></li>'),r.b("\n"+n),r.b('	<li class="nav-section dropdown server"></li>'),r.b("\n"+n),r.b('	<li class="nav-section dropdown database"></li>'),r.b("\n"+n),r.b('	<li class="nav-section dropdown collection"></li>'),r.b("\n"+n),r.b("</ul>"),r.b("\n"),r.fl()}}),Genghis.Templates.NavSection=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b('<a href="#" class="dropdown-toggle" data-toggle="dropdown">'),r.b(r.v(r.f("id",e,t,0))),r.b("</a>"),r.b("\n"+n),r.b('<ul class="dropdown-menu"></ul>'),r.b("\n"),r.fl()}}),Genghis.Templates.NavSectionMenu=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.s(r.d("collection.firstChildren",e,t,1),e,t,0,31,130,"{{ }}")&&(r.rs(e,t,function(e,t,r){r.b('    <li><a href="'),r.b(r.v(r.f("url",e,t,0))),r.b('">'),r.b("\n"+n),r.b("        "),r.b(r.v(r.f("id",e,t,0))),r.b("\n"+n),r.b("        <span>"),r.b(r.v(r.f("humanCount",e,t,0))),r.b("</span>"),r.b("\n"+n),r.b("    </a></li>"),r.b("\n")}),e.pop()),r.s(r.d("collection.hasMoreChildren",e,t,1),e,t,0,195,287,"{{ }}")&&(r.rs(e,t,function(e,t,r){r.b('    <li class="divider"></li>'),r.b("\n"+n),r.b('    <li><a href="'),r.b(r.v(r.d("collection.url",e,t,0))),r.b('">More &raquo;</a></li>'),r.b("\n")}),e.pop()),r.fl()}}),Genghis.Templates.NewDocument=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b('<div id="new-document" class="modal editor">'),r.b("\n"+n),r.b('    <div class="modal-header">'),r.b("\n"+n),r.b('        <a class="close" data-dismiss="modal">&times;</a>'),r.b("\n"+n),r.b("        <h3>New Document</h3>"),r.b("\n"+n),r.b("    </div>"),r.b("\n"+n),r.b('    <div class="modal-body">'),r.b("\n"+n),r.b('        <div class="wrapper">'),r.b("\n"+n),r.b('            <div id="editor-new" class="genghis-document-editor"></div>'),r.b("\n"+n),r.b("        </div>"),r.b("\n"+n),r.b("    </div>"),r.b("\n"+n),r.b('    <div class="modal-footer">'),r.b("\n"+n),r.b('        <button class="btn cancel">Cancel</button>'),r.b("\n"+n),r.b('        <button class="btn btn-primary save">Save</button>'),r.b("\n"+n),r.b("    </div>"),r.b("\n"+n),r.b("</div>"),r.fl()}}),Genghis.Templates.Pagination=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b('<div class="pagination pagination-right">'),r.b("\n"+n),r.b("  <ul>"),r.b("\n"+n),r.b('    <li class="prev'),r.s(r.f("isFirst",e,t,1),e,t,0,82,91,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b(" disabled")}),e.pop()),r.b('">'),r.b("\n"+n),r.b("        <a"),r.s(r.f("isFirst",e,t,1),e,t,1,0,0,"")||(r.b(' href="'),r.b(r.v(r.f("prevUrl",e,t,0))),r.b('"')),r.b(">&larr;</a>"),r.b("\n"+n),r.b("    </li>"),r.b("\n"+n),r.b("\n"+n),r.s(r.f("isStart",e,t,1),e,t,1,0,0,"")||(r.b('        <li class="first"><a href="'),r.b(r.v(r.f("firstUrl",e,t,0))),r.b('">1</a></li>'),r.b("\n"+n),r.b('        <li class="disabled"><a>&hellip;</a></li>'),r.b("\n")),r.b("\n"+n),r.b("\n"+n),r.s(r.f("pageUrls",e,t,1),e,t,0,361,460,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("        <li"),n.s(n.f("active",e,t,1),e,t,0,386,401,"{{ }}")&&(n.rs(e,t,function(e,t,n){n.b(' class="active"')}),e.pop()),n.b('><a href="'),n.b(n.v(n.f("url",e,t,0))),n.b('">'),n.b(n.v(n.f("index",e,t,0))),n.b("</a></li>"),n.b("\n")}),e.pop()),r.b("\n"+n),r.s(r.f("isEnd",e,t,1),e,t,1,0,0,"")||(r.b('        <li class="disabled"><a>&hellip;</a></li>'),r.b("\n"+n),r.b('        <li class="last"><a href="'),r.b(r.v(r.f("lastUrl",e,t,0))),r.b('">'),r.b(r.v(r.f("last",e,t,0))),r.b("</a></li>"),r.b("\n")),r.b("\n"+n),r.b('    <li class="next'),r.s(r.f("isLast",e,t,1),e,t,0,663,672,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b(" disabled")}),e.pop()),r.b('">'),r.b("\n"+n),r.b("        <a"),r.s(r.f("isLast",e,t,1),e,t,1,0,0,"")||(r.b(' href="'),r.b(r.v(r.f("nextUrl",e,t,0))),r.b('"')),r.b(">&rarr;</a>"),r.b("\n"+n),r.b("    </li>"),r.b("\n"+n),r.b("  </ul>"),r.b("\n"+n),r.b("</div>"),r.fl()}}),Genghis.Templates.Search=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b('<input id="navbar-query" class="search-query" name="q" type="text" value="'),r.b(r.v(r.f("query",e,t,0))),r.b('" />'),r.b("\n"+n),r.b('<div class="search-advanced">'),r.b("\n"+n),r.b('	<div class="well"></div>'),r.b("\n"+n),r.b('	<div class="form-actions">'),r.b("\n"+n),r.b('		<button class="search btn btn-primary">Search</button>'),r.b("\n"+n),r.b('		<button class="cancel btn">Cancel</button>'),r.b("\n"+n),r.b("	</div>"),r.b("\n"+n),r.b("</div>"),r.b("\n"+n),r.b('<span class="grippie"></span>'),r.b("\n"),r.fl()}}),Genghis.Templates.ServerRow=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.s(r.f("error",e,t,1),e,t,0,12,167,"{{ }}")&&(r.rs(e,t,function(e,t,r){r.b('    <td colspan="3">'),r.b("\n"+n),r.b('        <span class="value">'),r.b(r.v(r.f("name",e,t,0))),r.b("</span>"),r.b("\n"+n),r.b('        <span class="label label-important" title="'),r.b(r.v(r.f("error",e,t,0))),r.b('">Error</span>'),r.b("\n"+n),r.b("    </td>"),r.b("\n")}),e.pop()),r.s(r.f("error",e,t,1),e,t,1,0,0,"")||(r.b("    <td>"),r.b("\n"+n),r.b('        <a href="'),r.b(r.v(r.f("url",e,t,0))),r.b('" class="name value">'),r.b(r.v(r.f("name",e,t,0))),r.b("</a>"),r.b("\n"+n),r.b("    </td>"),r.b("\n"+n),r.b("    <td>"),r.b("\n"+n),r.b('        <span class="databases has-details value">'),r.b(r.v(r.f("count",e,t,0))),r.b("</span>"),r.b("\n"+n),r.b('        <div class="details" title="'),r.b(r.v(r.f("count",e,t,0))),r.b(" Database"),r.s(r.f("isPlural",e,t,1),e,t,0,423,424,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("s")}),e.pop()),r.b('">'),r.b("\n"+n),r.s(r.f("count",e,t,1),e,t,0,466,773,"{{ }}")&&(r.rs(e,t,function(e,t,r){r.b("                <ul>"),r.b("\n"+n),r.s(r.f("firstChildren",e,t,1),e,t,0,528,590,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("                        <li>"),n.b(n.v(n.d(".",e,t,0))),n.b("</li>"),n.b("\n")}),e.pop()),r.s(r.f("hasMoreChildren",e,t,1),e,t,0,653,716,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b("                        <li>&hellip;</li>"),n.b("\n")}),e.pop()),r.b("                </ul>"),r.b("\n")}),e.pop()),r.s(r.f("count",e,t,1),e,t,1,0,0,"")||(r.b("                <em>None.</em>"),r.b("\n")),r.b("        </div>"),r.b("\n"+n),r.b("    </td>"),r.b("\n"+n),r.b("    <td>"),r.b("\n"+n),r.b('        <span class="size value">'),r.b(r.v(r.f("humanSize",e,t,0))),r.b("</span>"),r.b("\n"+n),r.b("    </td>"),r.b("\n")),r.b('<td class="action-column">'),r.b("\n"+n),r.b("    "),r.s(r.f("editable",e,t,1),e,t,0,1026,1089,"{{ }}")&&(r.rs(e,t,function(e,t,n){n.b('<button class="btn btn-mini btn-danger destroy">Remove</button>')}),e.pop()),r.b("\n"+n),r.b("</td>"),r.b("\n"),r.fl()}}),Genghis.Templates.Servers=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b("<header><h2>Servers</h2></header>"),r.b("\n"+n),r.b('<div class="content">'),r.b("\n"+n),r.b("    <table>"),r.b("\n"+n),r.b("        <thead>"),r.b("\n"+n),r.b("            <tr>"),r.b("\n"+n),r.b("                <th>name</th>"),r.b("\n"+n),r.b("                <th>databases</th>"),r.b("\n"+n),r.b("                <th>size</th>"),r.b("\n"+n),r.b("                <th></th>"),r.b("\n"+n),r.b("            </tr>"),r.b("\n"+n),r.b("        </thead>"),r.b("\n"+n),r.b("        <tbody>"),r.b("\n"+n),r.b("        </tbody>"),r.b("\n"+n),r.b("    </table>"),r.b("\n"+n),r.b("</div>"),r.b("\n"+n),r.b('<div class="add-form inactive form-horizontal">'),r.b("\n"+n),r.b('    <span class="input-append">'),r.b("\n"+n),r.b('        <input class="name span4" type="text" size="30"><span class="add-on help" title="user:pass@localhost:27017">?</span>'),r.b("\n"+n),r.b("    </span>"),r.b("\n"+n),r.b('    <button class="show btn">Add server</button>'),r.b("\n"+n),r.b('    <button class="add btn btn-primary">Add server</button>'),r.b("\n"+n),r.b('    <button class="cancel btn">Cancel</button>'),r.b("\n"+n),r.b("</div>"),r.b("\n"),r.fl()}}),Genghis.Templates.Welcome=new Hogan.Template({code:function(e,t,n){var r=this;return r.b(n=n||""),r.b("<h2>Welcome to</h2>"),r.b("\n"+n),r.b("<h1>Genghis</h1>"),r.b("\n"+n),r.b("<p>The single-file MongoDB admin app.</p>"),r.b("\n"+n),r.b('<ul class="welcome-links">'),r.b("\n"+n),r.b('	<li><a href="http://genghisapp.com">Homepage</a></li>'),r.b("\n"+n),r.b('	<li><a href="https://github.com/bobthecow/genghis/issues">Issues</a></li>'),r.b("\n"+n),r.b("	<li>Version "),r.b(r.v(r.f("version",e,t,0))),r.b("</li>"),r.b("\n"+n),r.b("</ul>"),r.fl()}}),Genghis.Util={route:function(e){return e.replace(app.baseUrl,"").replace(/^\//,"")},parseQuery:function(e){var t={};return e.length&&_.each(e.split("&"),function(e){var n=e.split("="),r=n.shift();t[r]=decodeURIComponent(n.join("="))}),t},buildQuery:function(e){return _.map(e,function(e,t){return t+"="+e}).join("&")},humanizeSize:function(e){if(e==-0)return"n/a";var t=["Bytes","KB","MB","GB","TB","PB"],n=parseInt(Math.floor(Math.log(e)/Math.log(1024)),10);return(n===0?e/Math.pow(1024,n):(e/Math.pow(1024,n)).toFixed(1))+" "+t[n]},humanizeCount:function(e){var t="";return e=e||0,e>1e3&&(e=Math.floor(e/1e3),t=" k"),e>1e3&&(e=Math.floor(e/1e3),t=" M"),e>1e3?"...":e+t},escape:function(e){if(e)return String(e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")},attachCollapsers:function(e){$(".document",e).on("click","button,span.e",function(e){var t=$(this).parent(),n=t.children(".v"),r=/^\s*(name|title)\s*/i,i=n.hasClass("o"),s="",o,u;t.children(".e").length||(i&&(u=$(_.detect(n.find("> span.p > var"),function(e){return r.test($(e).text())})).siblings("span.v"),u.length===0&&(u=$(_.detect(n.find("> span.p > span.v"),function(e){var t=$(e);return t.hasClass("n")||t.hasClass("b")||t.hasClass("q")&&t.text().length<64}))),u&&u.length&&(o=u.siblings("var").text(),s=(o?o+": ":"")+Genghis.Util.escape(u.text()))),t.append('<span class="e">'+(i?"{":"[")+" <q>"+s+" &hellip;</q> "+(i?"}":"]")+"</span>")),t.toggleClass("collapsed"),e.preventDefault()})}},Genghis.JSON={parse:function(src){function addError(e,t){t.error||(error=new Error(e),error.loc=t.loc,error.node=t,t.error=error,errors.push(error))}function throwErrors(e){var t=new Error(""+e.length+" parse error"+(e.length===1?"":"s"));throw t.errors=e,t}function replaceCallExpression(src){function ObjectId(e){return{$genghisType:"ObjectId",$value:e?e.toString():null}}function GenghisDate(e){return{$genghisType:"ISODate",$value:e?(new Date(e)).toString():null}}function ISODate(e){if(!e)return new GenghisDate;var t=/(\d{4})-?(\d{2})-?(\d{2})([T ](\d{2})(:?(\d{2})(:?(\d{2}(\.\d+)?))?)?(Z|([+-])(\d{2}):?(\d{2})?)?)?/,n=t.exec(e);if(!n)throw"Invalid ISO date";var r=parseInt(n[1],10)||1970,i=(parseInt(n[2],10)||1)-1,s=parseInt(n[3],10)||0,o=parseInt(n[5],10)||0,u=parseInt(n[7],10)||0,a=parseFloat(n[9])||0,f=Math.round(a%1*1e3);a-=f/1e3;var l=Date.UTC(r,i,s,o,u,a,f);if(n[11]&&n[11]!="Z"){var c=0;c+=(parseInt(n[13],10)||0)*60*60*1e3,c+=(parseInt(n[14],10)||0)*60*1e3,n[12]=="+"&&(c*=-1),l+=c}return new GenghisDate(l)}function DBRef(e,t){return{$ref:e,$id:t}}function GenghisRegExp(e,t){return{$genghisType:"RegExp",$value:{$pattern:e?e.toString():null,$flags:t?t.toString():null}}}return src=src.replace(/^\s*(new\s+)?(Date|RegExp)(\b)/,"$1Genghis$2$3"),JSON.stringify(eval(src))}function replaceRegExpLiteral(e){var t="";return e.global&&(t+="g"),e.multiline&&(t+="m"),e.ignoreCase&&(t+="i"),replaceCallExpression("GenghisRegExp("+JSON.stringify(e.source)+', "'+t+'")')}function insertHelpers(e){function n(t){chunks[e.range[0]]=t;for(var n=e.range[0]+1;n<e.range[1];n++)chunks[n]=""}if(!e.range)return;e.source=function(){return chunks.slice(e.range[0],e.range[1]).join("")};if(e.update&&typeof e.update=="object"){var t=e.update;Object.keys(t).forEach(function(e){n[e]=t[e]}),e.update=n}else e.update=n}function assertType(e,t){t.type!==e&&addError("Expecting "+e+" but found "+t.type,t)}typeof src!="string"&&(src=String(src)),src="var __genghis_json__ = "+src;var opts={loc:!0,raw:!0,tokens:!0,tolerant:!0,range:!0},allowedCalls={ObjectId:!0,Date:!0,ISODate:!0,DBRef:!0,RegExp:!0},allowedPropertyValues={Literal:!0,ObjectExpression:!0,ArrayExpression:!0,NewExpression:!0,CallExpression:!0},errors=[],chunks=src.split("");try{var ast=esprima.parse(src,opts)}catch(e){throwErrors([e])}ast.errors.length&&throwErrors(ast.errors);var node;return node=ast,assertType("Program",node),node=node.body,node.length!==1&&addError("Unexpected statement "+node[1].type,node[1]),node=node[0],assertType("VariableDeclaration",node),node=node.declarations,node.length!==1&&addError("Unexpected variable declarations "+node.length,node[1]),node=node[0],assertType("VariableDeclarator",node),node=node.init,node.type!=="ObjectExpression"&&addError("Expected an object expression, found "+node.type,node),errors.length&&throwErrors(errors),function walk(e){insertHelpers(e),Object.keys(e).forEach(function(t){var n=e[t];if(Array.isArray(n)){var r=[];n.forEach(function(e){e&&typeof e.type=="string"&&walk(e)})}else n&&typeof n.type=="string"&&(insertHelpers(e),walk(n))});switch(e.type){case"NewExpression":case"CallExpression":e.callee&&!allowedCalls[e.callee.name]?addError("Bad call, bro: "+e.callee.name,e):e.update(replaceCallExpression(e.source()));break;case"Property":e.value&&!allowedPropertyValues[e.value.type]&&addError("Unexpected value: "+e.value.source(),e.value);break;case"Identifier":case"ArrayExpression":case"ObjectExpression":break;case"Literal":_.isRegExp(e.value)&&e.update(replaceRegExpLiteral(e.value));break;default:addError("Unexpected "+e.type,e)}}(node),errors.length&&throwErrors(errors),function(node){var __genghis_json__;return eval("__genghis_json__ = "+node.source()),__genghis_json__}(node)},stringify:function(e,t){return jQuery("<div>"+this.prettyPrint(e,t)+"</div>").text()},prettyPrint:function(e,t){function n(e){function d(e,t){return m("SPAN",e,t)}function m(e,t,n){var r=document.createElement(e);return t&&(r.className=t),n&&(typeof n=="string"&&(n=g(n)),r.appendChild(n)),r}function g(e){return document.createTextNode(e)}function y(e){var t=d("v q"),n;return t.appendChild(g('"')),r.lastIndex=0,r.test(e)&&(e=e.replace(r,function(e){var t=h[e];return typeof t=="string"?t:"\\u"+("0000"+e.charCodeAt(0).toString(16)).slice(-4)})),s.lastIndex=0,s.test(e)&&(e=e.replace(s,function(e){var t=p[e];return typeof t=="string"?t:e})),i.test(e)?(n=m("A","s"),n.href=e):n=d("s"),n.appendChild(g(e)),t.appendChild(n),t.appendChild(g('"')),t}function b(e){if(f.test(e)||!a.test(e))e='"'+e.replace(r,function(e){var t=h[e];return typeof t=="string"?t:"\\u"+("0000"+e.charCodeAt(0).toString(16)).slice(-4)})+'"';return m("VAR",!1,e)}function w(e,t,n){var r=d("call "+n);return r.appendChild(g(e+"(")),_.each(t,function(e){r.appendChild(y(e))}),r.appendChild(g(")")),r}function E(e,t){var n,r,i,s,o=l,u,a,f,h="",p=t[e],v;_.isObject(p)&&typeof p.toJSON=="function"&&(p=p.toJSON(e));switch(typeof p){case"string":return y(p);case"number":return d("v n",isFinite(p)?String(p):"null");case"boolean":return d("v b",String(p));case"object":if(_.isNull(p))return d("v z","null");if(Object.hasOwnProperty.call(p,"$genghisType"))switch(p.$genghisType){case"ObjectId":return w("ObjectId",[p.$value],"oid");case"ISODate":return w("ISODate",[p.$value],"date");case"RegExp":var S=p.$value.$pattern,x=p.$value.$flags||"";return d("v re","/"+S+"/"+x)}l+=c;if(_.isArray(p)){if(p.length===0)return d("v a","[]");a=d("v a"),l&&(a.collapsible=!0,p.length>10&&(a.collapsed=!0)),a.appendChild(g(l?"[\n"+l:"[")),h=g(l?",\n"+l:","),s=p.length;for(n=0;n<s;n+=1)n>0&&a.appendChild(h.cloneNode(!1)),a.appendChild(E(n,p)||d("v z","null"));return a.appendChild(g(l?"\n"+o+"]":"]")),l=o,a}u=[];var T=g(l?": ":":");for(r in p)if(Object.hasOwnProperty.call(p,r)){i=E(r,p);if(i){v="p"+(i.collapsed?" collapsed":"");if(r=="$ref"||r=="$id"||r=="$db")v=v+" ref-"+r.substr(1);f=d(v),i.collapsible&&f.appendChild(m("button")),f.appendChild(b(r)),f.appendChild(T.cloneNode(!1)),f.appendChild(i),i.collapsed&&(child=d("e"),child.appendChild(g("[ ")),child.appendChild(m("Q",!1,g(" …"))),child.appendChild(g(" ]")),f.appendChild(child)),u.push(f)}}v="v o";if(u.length===0)return d(v,g("{}"));p.$ref&&p.$id&&(v+=" ref"),a=d(v),a.collapsible=!0,a.appendChild(g(l?"{\n"+l:"{")),h=g(l?",\n"+l:","),s=u.length;for(n=0;n<u.length;n++)n>0&&a.appendChild(h.cloneNode(!0)),a.appendChild(u[n]);return a.appendChild(g(l?"\n"+o+"}":"}")),l=o,a}}var n=/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,r=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,i=/^https?:\/\/[^\s]+$/,s=/[&"<>]/g,o="$A-Z_a-zªµºÀ-ÖØ-öø-ˁˆ-ˑˠ-ˤˬˮͰ-ʹͶͷͺ-ͽΆΈ-ΊΌΎ-ΡΣ-ϵϷ-ҁҊ-ԧԱ-Ֆՙա-ևא-תװ-ײؠ-يٮٯٱ-ۓەۥۦۮۯۺ-ۼۿܐܒ-ܯݍ-ޥޱߊ-ߪߴߵߺࠀ-ࠕࠚࠤࠨࡀ-ࡘࢠࢢ-ࢬऄ-हऽॐक़-ॡॱ-ॷॹ-ॿঅ-ঌএঐও-নপ-রলশ-হঽৎড়ঢ়য়-ৡৰৱਅ-ਊਏਐਓ-ਨਪ-ਰਲਲ਼ਵਸ਼ਸਹਖ਼-ੜਫ਼ੲ-ੴઅ-ઍએ-ઑઓ-નપ-રલળવ-હઽૐૠૡଅ-ଌଏଐଓ-ନପ-ରଲଳଵ-ହଽଡ଼ଢ଼ୟ-ୡୱஃஅ-ஊஎ-ஐஒ-கஙசஜஞடணதந-பம-ஹௐఅ-ఌఎ-ఐఒ-నప-ళవ-హఽౘౙౠౡಅ-ಌಎ-ಐಒ-ನಪ-ಳವ-ಹಽೞೠೡೱೲഅ-ഌഎ-ഐഒ-ഺഽൎൠൡൺ-ൿඅ-ඖක-නඳ-රලව-ෆก-ะาำเ-ๆກຂຄງຈຊຍດ-ທນ-ຟມ-ຣລວສຫອ-ະາຳຽເ-ໄໆໜ-ໟༀཀ-ཇཉ-ཬྈ-ྌက-ဪဿၐ-ၕၚ-ၝၡၥၦၮ-ၰၵ-ႁႎႠ-ჅჇჍა-ჺჼ-ቈቊ-ቍቐ-ቖቘቚ-ቝበ-ኈኊ-ኍነ-ኰኲ-ኵኸ-ኾዀዂ-ዅወ-ዖዘ-ጐጒ-ጕጘ-ፚᎀ-ᎏᎠ-Ᏼᐁ-ᙬᙯ-ᙿᚁ-ᚚᚠ-ᛪᛮ-ᛰᜀ-ᜌᜎ-ᜑᜠ-ᜱᝀ-ᝑᝠ-ᝬᝮ-ᝰក-ឳៗៜᠠ-ᡷᢀ-ᢨᢪᢰ-ᣵᤀ-ᤜᥐ-ᥭᥰ-ᥴᦀ-ᦫᧁ-ᧇᨀ-ᨖᨠ-ᩔᪧᬅ-ᬳᭅ-ᭋᮃ-ᮠᮮᮯᮺ-ᯥᰀ-ᰣᱍ-ᱏᱚ-ᱽᳩ-ᳬᳮ-ᳱᳵᳶᴀ-ᶿḀ-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼιῂ-ῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲ-ῴῶ-ῼⁱⁿₐ-ₜℂℇℊ-ℓℕℙ-ℝℤΩℨK-ℭℯ-ℹℼ-ℿⅅ-ⅉⅎⅠ-ↈⰀ-Ⱞⰰ-ⱞⱠ-ⳤⳫ-ⳮⳲⳳⴀ-ⴥⴧⴭⴰ-ⵧⵯⶀ-ⶖⶠ-ⶦⶨ-ⶮⶰ-ⶶⶸ-ⶾⷀ-ⷆⷈ-ⷎⷐ-ⷖⷘ-ⷞⸯ々-〇〡-〩〱-〵〸-〼ぁ-ゖゝ-ゟァ-ヺー-ヿㄅ-ㄭㄱ-ㆎㆠ-ㆺㇰ-ㇿ㐀-䶵一-鿌ꀀ-ꒌꓐ-ꓽꔀ-ꘌꘐ-ꘟꘪꘫꙀ-ꙮꙿ-ꚗꚠ-ꛯꜗ-ꜟꜢ-ꞈꞋ-ꞎꞐ-ꞓꞠ-Ɦꟸ-ꠁꠃ-ꠅꠇ-ꠊꠌ-ꠢꡀ-ꡳꢂ-ꢳꣲ-ꣷꣻꤊ-ꤥꤰ-ꥆꥠ-ꥼꦄ-ꦲꧏꨀ-ꨨꩀ-ꩂꩄ-ꩋꩠ-ꩶꩺꪀ-ꪯꪱꪵꪶꪹ-ꪽꫀꫂꫛ-ꫝꫠ-ꫪꫲ-ꫴꬁ-ꬆꬉ-ꬎꬑ-ꬖꬠ-ꬦꬨ-ꬮꯀ-ꯢ가-힣ힰ-ퟆퟋ-ퟻ豈-舘並-龎ﬀ-ﬆﬓ-ﬗיִײַ-ﬨשׁ-זּטּ-לּמּנּסּףּפּצּ-ﮱﯓ-ﴽﵐ-ﶏﶒ-ﷇﷰ-ﷻﹰ-ﹴﹶ-ﻼＡ-Ｚａ-ｚｦ-ﾾￂ-ￇￊ-ￏￒ-ￗￚ-ￜ",u="0-9̀-ͯ҃-֑҇-ׇֽֿׁׂׅׄؐ-ًؚ-٩ٰۖ-ۜ۟-۪ۤۧۨ-ۭ۰-۹ܑܰ-݊ަ-ް߀-߉߫-߳ࠖ-࠙ࠛ-ࠣࠥ-ࠧࠩ-࡙࠭-࡛ࣤ-ࣾऀ-ःऺ-़ा-ॏ॑-ॗॢॣ०-९ঁ-ঃ়া-ৄেৈো-্ৗৢৣ০-৯ਁ-ਃ਼ਾ-ੂੇੈੋ-੍ੑ੦-ੱੵઁ-ઃ઼ા-ૅે-ૉો-્ૢૣ૦-૯ଁ-ଃ଼ା-ୄେୈୋ-୍ୖୗୢୣ୦-୯ஂா-ூெ-ைொ-்ௗ௦-௯ఁ-ఃా-ౄె-ైొ-్ౕౖౢౣ౦-౯ಂಃ಼ಾ-ೄೆ-ೈೊ-್ೕೖೢೣ೦-೯ംഃാ-ൄെ-ൈൊ-്ൗൢൣ൦-൯ංඃ්ා-ුූෘ-ෟෲෳัิ-ฺ็-๎๐-๙ັິ-ູົຼ່-ໍ໐-໙༘༙༠-༩༹༵༷༾༿ཱ-྄྆྇ྍ-ྗྙ-ྼ࿆ါ-ှ၀-၉ၖ-ၙၞ-ၠၢ-ၤၧ-ၭၱ-ၴႂ-ႍႏ-ႝ፝-፟ᜒ-᜔ᜲ-᜴ᝒᝓᝲᝳ឴-៓៝០-៩᠋-᠍᠐-᠙ᢩᤠ-ᤫᤰ-᤻᥆-᥏ᦰ-ᧀᧈᧉ᧐-᧙ᨗ-ᨛᩕ-ᩞ᩠-᩿᩼-᪉᪐-᪙ᬀ-ᬄ᬴-᭄᭐-᭙᭫-᭳ᮀ-ᮂᮡ-ᮭ᮰-᮹᯦-᯳ᰤ-᰷᱀-᱉᱐-᱙᳐-᳔᳒-᳨᳭ᳲ-᳴᷀-ᷦ᷼-᷿‌‍‿⁀⁔⃐-⃥⃜⃡-⃰⳯-⵿⳱ⷠ-〪ⷿ-゙゚〯꘠-꘩꙯ꙴ-꙽ꚟ꛰꛱ꠂ꠆ꠋꠣ-ꠧꢀꢁꢴ-꣄꣐-꣙꣠-꣱꤀-꤉ꤦ-꤭ꥇ-꥓ꦀ-ꦃ꦳-꧀꧐-꧙ꨩ-ꨶꩃꩌꩍ꩐-꩙ꩻꪰꪲ-ꪴꪷꪸꪾ꪿꫁ꫫ-ꫯꫵ꫶ꯣ-ꯪ꯬꯭꯰-꯹ﬞ︀-️︠-︦︳︴﹍-﹏０-９＿",a=RegExp("^["+o+"]["+o+u+"]*$"),f=/^(?:do|if|in|for|let|new|try|var|case|else|enum|eval|false|null|this|true|void|with|break|catch|class|const|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/,l="",c=t===!1?"":"    ",h={"\b":"\\b","	":"\\t","\n":"\\n","\f":"\\f","\r":"\\r",'"':'\\"',"\\":"\\\\"},p={"&":"&amp;",'"':"&quot;","<":"&lt;",">":"&gt;"};return l="",v=E("_",{_:e}).innerHTML,v}return n(e)},normalize:function(e,t){return Genghis.JSON.stringify(Genghis.JSON.parse(e),t)}},Genghis.Collections.BaseCollection=Backbone.Collection.extend({firstChildren:function(){return this.collection.toArray().slice(0,10)},hasMoreChildren:function(){return this.collection.length>10}}),Genghis.Models.BaseModel=Backbone.Model.extend({name:function(){return this.get("name")},count:function(){return this.get("count")},humanCount:function(){return Genghis.Util.humanizeCount(this.get("count")||0)},isPlural:function(){return this.get("count")!==1},humanSize:function(){return Genghis.Util.humanizeSize(this.get("size"))},hasMoreChildren:function(){return this.get("count")>15}}),Genghis.Views.BaseDocument=Backbone.View.extend({errorMarkers:[],clearErrors:function(){var e=this.editor;this.getErrorBlock().html(""),_.each(this.errorMarkers,function(t){e.clearMarker(t)}),this.errorMarkers=[]},getEditorValue:function(){this.clearErrors();var e=this.getErrorBlock(),t=this.editor,n=this.errorMarkers;try{return Genghis.JSON.parse(t.getValue())}catch(r){_.each(r.errors||[r],function(r){var i=r.message;r.lineNumber&&!/Line \d+/i.test(i)&&(i="Line "+r.lineNumber+": "+r.message);var s=new Genghis.Views.Alert({model:new Genghis.Models.Alert({level:"error",msg:i,block:!0})});e.append(s.render().el),r.lineNumber&&n.push(t.setMarker(r.lineNumber-1,null,"line-error"))})}return!1}}),Genghis.Views.BaseRow=Backbone.View.extend({tagName:"tr",events:{"click a.name":"navigate","click button.destroy":"destroy"},initialize:function(){_.bindAll(this,"render","navigate","remove","destroy"),this.model.bind("change",this.render),this.model.bind("destroy",this.remove)},render:function(){return $(this.el).html(this.template.render(this.model)).toggleClass("error",!!this.model.get("error")).find(".label[title]").tooltip({placement:"bottom"}),this.$(".has-details").popover({html:!0,content:function(){return $(this).siblings(".details").html()},title:function(){return $(this).siblings(".details").attr("title")},trigger:"manual"}).hoverIntent(function(){$(this).popover("show")},function(){$(this).popover("hide")}),this},navigate:function(e){e.preventDefault(),app.router.navigate(Genghis.Util.route($(e.target).attr("href")),!0)},remove:function(){$(this.el).remove()},isParanoid:!1,destroy:function(){var e=this.model,t=e.has("name")?e.get("name"):"";if(this.isParanoid){if(!t)throw"Unable to confirm destruction without a confirmation string.";apprise("<strong>Deleting is forever.</strong><br><br>Type <strong>"+t+"</strong> to continue:",{input:!0,textOk:"Delete "+t+" forever"},function(n){n==t?e.destroy():apprise("<strong>Phew. That was close.</strong><br><br>"+t+" was not deleted.")})}else apprise("Really? There is no undo.",{confirm:!0,textOk:this.destroyConfirmButton(t)},function(t){t&&e.destroy()})},destroyConfirmButton:function(e){return"<strong>Yes</strong>, delete "+e+" forever"}}),Genghis.Views.BaseSection=Backbone.View.extend({events:{"click .add-form button.show":"showAddForm","click .add-form button.add":"submitAddForm","click .add-form button.cancel":"closeAddForm","keyup .add-form input.name":"updateOnKeyup"},initialize:function(){_.bindAll(this,"render","updateTitle","showAddForm","showAddFormIfVisible","submitAddForm","closeAddForm","updateOnKeyup","addModel","addModelAndUpdate","addAll"),this.model&&this.model.bind("change",this.updateTitle),this.collection&&(this.collection.bind("reset",this.render),this.collection.bind("add",this.addModelAndUpdate)),$(document).bind("keyup","c",this.showAddFormIfVisible),this.render()},render:function(){$(this.el).html(this.template.render({title:this.formatTitle(this.model)})),this.addForm=this.$(".add-form"),this.addButton=this.$(".add-form button.add"),this.addInput=this.$(".add-form input"),this.cancelButton=this.$(".add-form button.cancel"),this.addAll(),this.$(".help",this.addForm).tooltip();var e={};return e[this.$("table thead th").length-1]={sorter:!1},this.$("table").tablesorter({headers:e,textExtraction:function(e){return $(".value",e).text()||$(e).text()}}),this.collection.size()&&this.$("table").trigger("sorton",[[[0,0]]]),this},updateTitle:function(){this.$("> header h2").text(this.formatTitle(this.model))},showAddForm:function(){this.addForm.removeClass("inactive"),this.addInput.focus()},showAddFormIfVisible:function(e){$(this.el).is(":visible")&&(e.preventDefault(),this.showAddForm())},submitAddForm:function(){this.collection.create({name:this.addInput.val()}),this.closeAddForm()},closeAddForm:function(){this.addForm.addClass("inactive"),this.addInput.val("")},updateOnKeyup:function(e){e.keyCode==13&&this.submitAddForm(),e.keyCode==27&&this.closeAddForm()},addModel:function(e){var t=new this.rowView({model:e});this.$("table tbody").append(t.render().el)},addModelAndUpdate:function(e){this.addModel(e),this.$("table").trigger("update")},addAll:function(){this.$("table tbody").html(""),this.collection.each(this.addModel),$(this.el).removeClass("spinning")}}),Genghis.Models.Alert=Backbone.Model.extend({defaults:{level:"warning",block:!1}}),Genghis.Models.Collection=Genghis.Models.BaseModel.extend({indexesIsPlural:function(){this.indexCount()!==1},indexCount:function(){return(this.get("indexes")||[]).length},indexes:function(){return _.map(this.get("indexes"),function(e){return Genghis.JSON.prettyPrint(e.key)})}}),Genghis.Models.Database=Genghis.Models.BaseModel.extend({firstChildren:function(){return _.first(this.get("collections")||[],15)}}),Genghis.Models.Document=Backbone.Model.extend({initialize:function(){_.bindAll(this,"prettyPrint","JSONish");var e=this.thunkId(this.get("_id"));e&&(this.id=e)},thunkId:function(e){return typeof e=="object"&&e["$genghisType"]=="ObjectId"?e.$value:e},parse:function(e){var t=this.thunkId(e._id);return t&&(this.id=t),e},url:function(){var e=function(e){return!e||!e.url?null:_.isFunction(e.url)?e.url():e.url},t=e(this.collection)||this.urlRoot||urlError();return t=t.split("?").shift(),this.isNew()?t:t+(t.charAt(t.length-1)=="/"?"":"/")+encodeURIComponent(this.id)},prettyPrint:function(){return Genghis.JSON.prettyPrint(this.toJSON())},JSONish:function(){return Genghis.JSON.stringify(this.toJSON())}}),Genghis.Models.Pagination=Backbone.Model.extend({defaults:{page:1,pages:1,limit:50,count:0,total:0},initialize:function(){_.bindAll(this,"decrementTotal")},decrementTotal:function(){this.set({total:this.get("total")-1,count:this.get("count")-1})}}),Genghis.Models.Selection=Backbone.Model.extend({defaults:{server:null,database:null,collection:null,query:null,page:null},initialize:function(){_.bindAll(this,"select","update","nextPage","previousPage"),this.bind("change",this.update),this.pagination=new Genghis.Models.Pagination,this.servers=new Genghis.Collections.Servers,this.currentServer=new Genghis.Models.Server,this.databases=new Genghis.Collections.Databases,this.currentDatabase=new Genghis.Models.Database,this.collections=new Genghis.Collections.Collections,this.currentCollection=new Genghis.Models.Collection,this.documents=new Genghis.Collections.Documents,this.currentDocument=new Genghis.Models.Document},select:function(e,t,n,r,i,s){this.set({server:e||null,database:t||null,collection:n||null,document:r||null,query:i||null,page:s||null})},update:function(){function f(e,t,n){return n=n||"Please try again.",function(r,i){try{data=JSON.parse(i.responseText)}catch(s){data={}}switch(i.status){case 404:$("section#"+e).hide(),app.showMasthead("404: "+t,"<p>"+n+"</p>",{error:!0});break;default:app.alerts.create({msg:i.status+": "+(data.error||"Unknown error"),level:"error",block:!0})}}}var e=this.get("server"),t=this.get("database"),n=this.get("collection"),r=this.get("document"),i=this.get("query"),s=this.get("page"),o=app.baseUrl,u={};o+="servers",this.servers.url=o,this.servers.fetch(),e?(o=o+"/"+e,this.currentServer.url=o,this.currentServer.fetch({error:f("databases","Server Not Found")}),o+="/databases",this.databases.url=o,this.databases.fetch()):(this.currentServer.clear(),this.databases.reset()),t?(o=o+"/"+t,this.currentDatabase.url=o,this.currentDatabase.fetch({error:f("collections","Database Not Found")}),o+="/collections",this.collections.url=o,this.collections.fetch()):(this.currentDatabase.clear(),this.collections.reset());if(n){o=o+"/"+n,this.currentCollection.url=o,this.currentCollection.fetch({error:f("documents","Collection Not Found")}),o+="/documents";var a="";if(i||s)i&&(u.q=encodeURIComponent(JSON.stringify(Genghis.JSON.parse(i)))),s&&(u.page=encodeURIComponent(s)),a="?"+Genghis.Util.buildQuery(u);this.documents.url=o+a,this.documents.fetch()}else this.currentCollection.clear(),this.documents.reset();r&&(this.currentDocument.clear({silent:!0}),this.currentDocument.id=r,this.currentDocument.urlRoot=o,this.currentDocument.fetch({error:f("document","Document Not Found","But I&#146;m sure there are plenty of other nice documents out there&hellip;")}))},nextPage:function(){return 1+(this.get("page")||1)},previousPage:function(){return Math.max(1,(this.get("page")||1)-1)}}),Genghis.Models.Server=Genghis.Models.BaseModel.extend({editable:function(){return!!this.get("editable")},firstChildren:function(){return _.first(this.get("databases")||[],15)},error:function(){return this.get("error")}}),Genghis.Collections.Alerts=Backbone.Collection.extend({model:Genghis.Models.Alert,initialize:function(){_.bindAll(this,"handleError")},handleError:function(e){if(e.readyState===0)return;try{data=JSON.parse(e.responseText)}catch(t){data={error:e.responseText}}msg=data.error||"<strong>FAIL</strong> An unexpected server error has occurred.",this.add({level:"error",msg:msg,block:!msg.search(/<(p|ul|ol|div)[ >]/)})}}),Genghis.Collections.Collections=Genghis.Collections.BaseCollection.extend({model:Genghis.Models.Collection}),Genghis.Collections.Databases=Genghis.Collections.BaseCollection.extend({model:Genghis.Models.Database}),Genghis.Collections.Documents=Backbone.Collection.extend({model:Genghis.Models.Document,parse:function(e){return app.selection.pagination.set({page:e.page,pages:e.pages,count:e.documents.length,total:e.count}),e.documents}}),Genghis.Collections.Servers=Backbone.Collection.extend({model:Genghis.Models.Server,firstChildren:function(){return this.collection.reject(function(e){return e.has("error")}).slice(0,10)},hasMoreChildren:function(){return this.collection.length>10||this.collection.detect(function(e){return e.has("error")})}}),Genghis.Views.Alert=Backbone.View.extend({tagName:"div",template:Genghis.Templates.Alert,events:{"click a.close":"destroy"},initialize
 :function(){_.bindAll(this,"render","remove","destroy"),this.model.bind("change",this.render),this.model.bind("destroy",this.remove)},render:function(){return $(this.el).html(this.template.render(this.model.toJSON())),this},destroy:function(){this.model.destroy()},remove:function(){$(this.el).remove()}}),Genghis.Views.Alerts=Backbone.View.extend({el:"aside#alerts",initialize:function(){_.bindAll(this,"render","addModel"),this.collection.bind("reset",this.render),this.collection.bind("add",this.addModel)},render:function(){return $(this.el).html(""),this},addModel:function(e){var t=new Genghis.Views.Alert({model:e});$(this.el).append(t.render().el)}}),Genghis.Views.App=Backbone.View.extend({el:"section#genghis",initialize:function(){_.bindAll(this,"showMasthead","removeMasthead","showSection");var e=this.baseUrl=this.options.baseUrl,t=this.selection=new Genghis.Models.Selection,n=this.alerts=new Genghis.Collections.Alerts;this.navView=new Genghis.Views.Nav({model:t,baseUrl:e}),this.alertsView=new Genghis.Views.Alerts({collection:n}),this.keyboardShortcutsView=new Genghis.Views.KeyboardShortcuts,this.serversView=new Genghis.Views.Servers({collection:t.servers}),this.databasesView=new Genghis.Views.Databases({model:t.currentServer,collection:t.databases}),this.collectionsView=new Genghis.Views.Collections({model:t.currentDatabase,collection:t.collections}),this.documentsView=new Genghis.Views.Documents({collection:t.documents,pagination:t.pagination}),this.documentView=new Genghis.Views.Document({model:t.currentDocument});var r=this.router=new Genghis.Router;$(".navbar a.brand").click(function(e){e.preventDefault(),r.navigate("",!0)}),$.getJSON(this.baseUrl+"check-status").error(n.handleError).success(function(e){_.each(e.alerts,function(e){n.add(_.extend({block:!e.msg.search(/<(p|ul|ol|div)[ >]/i)},e))})}),t.change()},showMasthead:function(e,t,n){this.removeMasthead(!0),mastheadView=new Genghis.Views.Masthead(_.extend(n||{},{heading:e,content:t||""}))},removeMasthead:function(e){var t=$("header.masthead");e||(t=t.not(".sticky")),t.remove()},showSection:function(e){this.removeMasthead(),e=="servers"&&this.showWelcome();var t=e?"section-"+(_.isArray(e)?e.join(" section-"):e):"";$("body").removeClass("section-servers section-databases section-collections section-documents section-document").addClass(t).toggleClass("has-section",!!e),this.$("section").hide().filter("#"+(_.isArray(e)?e.join(",#"):e)).addClass("spinning").show(),$(document).scrollTop(0)},showWelcome:_.once(function(){this.showMasthead("",Genghis.Templates.Welcome.render({version:Genghis.version}),{epic:!0})})}),Genghis.Views.CollectionRow=Genghis.Views.BaseRow.extend({template:Genghis.Templates.CollectionRow,isParanoid:!0}),Genghis.Views.Collections=Genghis.Views.BaseSection.extend({el:"section#collections",template:Genghis.Templates.Collections,rowView:Genghis.Views.CollectionRow,formatTitle:function(e){return e.id?e.id+" Collections":"Collections"}}),Genghis.Views.DatabaseRow=Genghis.Views.BaseRow.extend({template:Genghis.Templates.DatabaseRow,isParanoid:!0}),Genghis.Views.Databases=Genghis.Views.BaseSection.extend({el:"section#databases",template:Genghis.Templates.Databases,rowView:Genghis.Views.DatabaseRow,formatTitle:function(e){return e.id?e.id+" Databases":"Databases"}}),Genghis.Views.Document=Backbone.View.extend({el:"section#document",template:Genghis.Templates.Document,initialize:function(){_.bindAll(this,"render"),this.model.bind("change",this.render)},render:function(){var e=new Genghis.Views.DocumentView({model:this.model});return $(this.el).removeClass("spinning").html(this.template.render({model:this.model})),this.$(".content").html(e.render().el),this}}),Genghis.Views.DocumentView=Genghis.Views.BaseDocument.extend({tagName:"article",template:Genghis.Templates.DocumentView,events:{"click a.id":"navigate","click button.edit":"openEditDialog","click button.save":"saveDocument","click button.cancel":"cancelEdit","click button.destroy":"destroy","click .ref .ref-ref .v .s":"navigateColl","click .ref .ref-db .v .s":"navigateDb","click .ref .ref-id .v .s, .ref .ref-id .v.n":"navigateId"},initialize:function(){_.bindAll(this,"render","updateDocument","navigate","openEditDialog","cancelEdit","saveDocument","destroy","remove","navigateColl","navigateDb","navigateId"),this.model.bind("change",this.updateDocument),this.model.bind("destroy",this.remove)},render:function(){return $(this.el).html(this.template.render(this.model)),Genghis.Util.attachCollapsers(this.el),setTimeout(this.updateDocument,1),this},updateDocument:function(){this.$(".document").html("").append(this.model.prettyPrint()).show()},navigate:function(e){e.preventDefault(),app.router.navigate(Genghis.Util.route($(e.target).attr("href")),!0)},navigateDb:function(e){var t=$(e.target).parents(".ref"),n=t.find(".ref-db .v .s").text();app.router.redirectToDatabase(app.selection.currentServer.id,n)},navigateColl:function(e){var t=$(e.target).parents(".ref"),n=t.find(".ref-db  .v .s").text()||app.selection.currentDatabase.id,r=t.find(".ref-ref .v .s").text();app.router.redirectToCollection(app.selection.currentServer.id,n,r)},navigateId:function(e){var t=$(e.target).parents(".ref"),n=t.find(".ref-db  .v .s").text()||app.selection.currentDatabase.id,r=t.find(".ref-ref .v .s").text()||app.selection.currentCollection.id,i=t.find(".ref-id  .v .s, .ref-id .v.n").text();app.router.redirectToDocument(app.selection.currentServer.id,n,r,i)},openEditDialog:function(){var e=this.$(".well"),t=Math.max(180,Math.min(600,e.height()+40));e.height(t);var n=$('<textarea id="editor-'+this.model.id+'"></textarea>').text(this.model.JSONish()).appendTo(e).height(t);this.$(".document").hide();var r=$(this.el).addClass("edit");this.editor=CodeMirror.fromTextArea($("#editor-"+this.model.id)[0],_.extend(Genghis.defaults.codeMirror,{onFocus:function(){r.addClass("focused")},onBlur:function(){r.removeClass("focused")},extraKeys:{"Ctrl-Enter":this.saveDocument,"Cmd-Enter":this.saveDocument}})),setTimeout(this.editor.focus,50),n.resize(_.throttle(this.editor.refresh,100))},cancelEdit:function(){$(this.el).removeClass("edit focused"),this.editor.toTextArea(),$("textarea",this.el).remove(),this.updateDocument(),this.$(".well").height("auto")},getErrorBlock:function(){var e=this.$("div.errors");return e.length==0&&(e=$('<div class="errors"></div>').prependTo(this.el)),e},saveDocument:function(){var e=this.getEditorValue();if(e===!1)return;this.model.clear({silent:!0}),this.model.set(e),this.model.save(),this.cancelEdit()},destroy:function(){var e=this.model;apprise("Really? There is no undo.",{confirm:!0,textCancel:"Cancel",textOk:"<strong>Yes</strong>, delete document forever"},function(t){if(t){var n=app.selection;e.destroy(),n.pagination.decrementTotal(),n.get("document")&&app.router.redirectTo(n.get("server"),n.get("database"),n.get("collection"),null,n.get("query"))}})},remove:function(){$(this.el).remove()}}),Genghis.Views.Documents=Backbone.View.extend({el:"section#documents",template:Genghis.Templates.Documents,events:{"click button.add-document":"createDocument"},initialize:function(){_.bindAll(this,"render","addAll","addDocument","createDocument","createDocumentIfVisible"),this.pagination=this.options.pagination,this.collection.bind("reset",this.addAll,this),this.collection.bind("add",this.addDocument,this),$(document).bind("keyup","c",this.createDocumentIfVisible),this.render()},render:function(){return $(this.el).html(this.template.render({})),this.headerView=new Genghis.Views.DocumentsHeader({model:this.pagination}),this.newDocumentView=new Genghis.Views.NewDocument({collection:this.collection}),this.paginationView=new Genghis.Views.Pagination({el:this.$(".pagination-wrapper"),model:this.pagination,collection:this.collection}),this.addAll(),this},addAll:function(){this.$(".content").html(""),this.collection.each(this.addDocument),$(this.el).removeClass("spinning")},addDocument:function(e){var t=new Genghis.Views.DocumentView({model:e});this.$(".content").append(t.render().el)},createDocument:function(){this.newDocumentView.show()},createDocumentIfVisible:function(e){$(this.el).is(":visible")&&(e.preventDefault(),this.createDocument())}}),Genghis.Views.DocumentsHeader=Backbone.View.extend({el:"section#documents > header h2",initialize:function(){_.bindAll(this,"render"),this.model.bind("change",this.render)},render:function(){var e,t=this.model.get("count"),n=this.model.get("page"),r=this.model.get("pages"),i=this.model.get("limit"),s=this.model.get("total");e=""+s+" Document"+(s!=1?"s":"");if(s!=t){var o=(n-1)*i+1,u=Math.min((n-1)*i+t,s);e=""+o+" - "+u+" of "+e}return $(this.el).html(e),this}}),Genghis.Views.KeyboardShortcuts=Backbone.View.extend({tagName:"div",template:Genghis.Templates.KeyboardShortcuts,events:{"click a.close":"hide"},initialize:function(){_.bindAll(this,"render","show","hide","toggle"),$(document).bind("keyup","shift+/",this.toggle),$("footer a.keyboard-shortcuts").click(this.show),this.render()},render:function(){return $(this.el).html(this.template.render()).modal({backdrop:!0,keyboard:!0,show:!1}),this},show:function(e){e.preventDefault(),$(this.el).modal("show")},hide:function(e){e.preventDefault(),$(this.el).modal("hide")},toggle:function(){$(this.el).modal("toggle")}}),Genghis.Views.Masthead=Backbone.View.extend({tagName:"header",attributes:{"class":"masthead"},template:Genghis.Templates.Masthead,initialize:function(){this.heading=this.options.heading,this.content=this.options.content||"",this.error=this.options.error||!1,this.epic=this.options.epic||!1,this.sticky=this.options.sticky||!1,this.render()},render:function(){return this.$el.html(this.template.render({heading:this.heading,content:this.content})).toggleClass("error",this.error).toggleClass("epic",this.epic).toggleClass("sticky",this.sticky).insertAfter("header.navbar"),this}}),Genghis.Views.Nav=Backbone.View.extend({el:".navbar nav",template:Genghis.Templates.Nav,events:{"click a":"navigate"},initialize:function(){_.bindAll(this,"render","navigate","navigateToServers","navigateUp"),this.baseUrl=this.options.baseUrl,this.model.bind("change",this.updateQuery),$("body").bind("click",function(e){$(".dropdown-toggle, .menu").parent("li").removeClass("open")}),$(document).bind("keyup","s",this.navigateToServers),$(document).bind("keyup","u",this.navigateUp),this.render()},render:function(){return $(this.el).html(this.template.render({baseUrl:this.baseUrl})),this.serverNavView=new Genghis.Views.NavSection({el:$("li.server",this.el),model:this.model.currentServer,collection:this.model.servers}),this.databaseNavView=new Genghis.Views.NavSection({el:$("li.database",this.el),model:this.model.currentDatabase,collection:this.model.databases}),this.collectionNavView=new Genghis.Views.NavSection({el:$("li.collection",this.el),model:this.model.currentCollection,collection:this.model.collections}),this.searchView=new Genghis.Views.Search({model:this.model}),$(this.el).append(this.searchView.render().el),this},navigate:function(e){e.preventDefault(),app.router.navigate(Genghis.Util.route($(e.target).attr("href")),!0)},navigateToServers:function(e){e.preventDefault(),app.router.redirectToIndex()},navigateUp:function(e){e.preventDefault(),app.router.redirectTo(this.model.has("database")&&this.model.get("server"),this.model.has("collection")&&this.model.get("database"),(this.model.has("document")||this.model.has("query"))&&this.model.get("collection"))}}),Genghis.Views.NavSection=Backbone.View.extend({template:Genghis.Templates.NavSection,menuTemplate:Genghis.Templates.NavSectionMenu,initialize:function(){_.bindAll(this,"render"),this.model.bind("change",this.updateLink,this),this.collection.bind("reset",this.renderMenu,this),this.render()},render:function(){return $(this.el).html(this.template.render(this.model)),this.$(".dropdown-toggle").hoverIntent(function(e){$(e.target).parent("li").addClass("open").siblings("li").removeClass("open")},$.noop),this},updateLink:function(){this.$("a.dropdown-toggle").text(this.model.id?this.model.id:"").attr("href",this.model.id?this.model.url:"")},renderMenu:function(){this.$("ul.dropdown-menu").html(this.menuTemplate.render({model:this.model,collection:this.collection}))}}),Genghis.Views.NewDocument=Genghis.Views.BaseDocument.extend({el:"#new-document",template:Genghis.Templates.NewDocument,initialize:function(){_.bindAll(this,"render","show","refreshEditor","closeModal","cancelEdit","saveDocument"),this.render()},render:function(){var e;return this.el=$(this.template.render()).hide().appendTo("body"),this.modal=this.el.modal({backdrop:"static",show:!1,keyboard:!1}),e=$(".wrapper",this.el),this.editor=CodeMirror.fromTextArea($("#editor-new",this.el)[0],_.extend(Genghis.defaults.codeMirror,{onFocus:function(){e.addClass("focused")},onBlur:function(){e.removeClass("focused")},extraKeys:{"Ctrl-Enter":this.saveDocument,"Cmd-Enter":this.saveDocument}})),$(window).resize(_.throttle(this.refreshEditor,100)),this.modal.bind("hide",this.cancelEdit),this.modal.bind("shown",this.refreshEditor),this.modal.find("button.cancel").bind("click",this.closeModal),this.modal.find("button.save").bind("click",this.saveDocument),this},show:function(){this.editor.setValue("{\n    \n}\n"),this.editor.setCursor({line:1,ch:4}),this.modal.css({marginTop:-10-this.el.height()/2+"px"}).modal("show")},refreshEditor:function(){this.editor.refresh(),this.editor.focus()},closeModal:function(e){this.modal.modal("hide")},cancelEdit:function(e){this.editor.setValue("")},getErrorBlock:function(){var e=$("div.errors",this.el);return e.length==0&&(e=$('<div class="errors"></div>').prependTo($(".modal-body",this.el))),e},saveDocument:function(){var e=this.getEditorValue();if(e===!1)return;var t=this.closeModal;this.collection.create(e,{wait:!0,success:function(e){t(),app.router.navigate(Genghis.Util.route(e.url()),!0)}})}}),Genghis.Views.Pagination=Backbone.View.extend({template:Genghis.Templates.Pagination,events:{"click a":"navigate"},initialize:function(){_.bindAll(this,"render","urlTemplate","navigate","nextPage","prevPage"),this.model.bind("change",this.render),$(document).bind("keyup","n",this.nextPage),$(document).bind("keyup","p",this.prevPage)},render:function(){if(this.model.get("pages")==1)$(this.el).hide();else{var e=9,t=Math.ceil(e/2),n=this.model.get("page"),r=this.model.get("pages"),i=n>t?Math.max(n-(t-3),1):1,s=r-n>t?Math.min(n+(t-3),r):r,o=s==r?Math.max(r-(e-3),1):i,u=i==1?Math.min(o+(e-3),r):s;u>=r-2&&(u=r),o<=3&&(o=1);var a=this.urlTemplate;$(this.el).html(this.template.render({page:n,last:r,firstUrl:a(1),prevUrl:a(Math.max(1,n-1)),nextUrl:a(Math.min(n+1,r)),lastUrl:a(r),pageUrls:_.range(o,u+1).map(function(e){return{index:e,url:a(e),active:e===n}}),isFirst:n===1,isStart:o===1,isEnd:u>=r,isLast:n===r})).show()}return this},urlTemplate:function(e){var t=this.collection.url,n=t.split("?"),r=n.shift(),i=Genghis.Util.parseQuery(n.join("?")),s={page:e};return i.q&&(s.q=encodeURIComponent(app.selection.get("query"))),r+"?"+Genghis.Util.buildQuery(_.extend(i,s))},navigate:function(e){e.preventDefault();var t=$(e.target).attr("href");t&&app.router.navigate(Genghis.Util.route(t),!0)},nextPage:function(e){$(this.el).is(":visible")&&(e.preventDefault(),this.$("li.next a[href]").click())},prevPage:function(e){$(this.el).is(":visible")&&(e.preventDefault(),this.$("li.prev a[href]").click())}}),Genghis.Views.Search=Backbone.View.extend({tagName:"form",className:"navbar-search form-search",template:Genghis.Templates.Search,events:{"keyup input#navbar-query":"handleSearchKeyup","click span.grippie":"toggleExpanded","dragmove span.grippie":"handleGrippieDrag","click button.cancel":"collapseSearch","click button.search":"findDocumentsAdvanced"},initialize:function(){_.bindAll(this,"render","updateQuery","handleSearchKeyup","findDocuments","findDocumentsAdvanced","focusSearch","blurSearch","advancedSearchToQuery","queryToAdvancedSearch","expandSearch","collapseSearch","toggleExpanded","handleGrippieDrag"),this.model.bind("change",this.updateQuery)},render:function(){$(this.el).html(this.template.render({query:this.model.get("query")})),$(this.el).submit(function(e){e.preventDefault()}),$(document).bind("keyup","/",this.focusSearch);var e=$(this.el),t=e.find(".well"),n=this.expandSearch,r=this.collapseSearch;return $(".grippie",this.el).bind("mousedown",function(t){function o(t){var o=t.clientY+document.documentElement.scrollTop-e.offset().top;return o>=i&&o<=s&&e.height(o+"px"),e.hasClass("expanded")?o<i&&r():o>100&&n(),!1}function u(t){$(document).unbind("mousemove",o).unbind("mouseup",u),e.hasClass("expanded")||r(),t.preventDefault()}t.preventDefault();var i=30,s=Math.min($(window).height()/2,350);$(document).mousemove(o).mouseup(u)}),this},updateQuery:function(){var e=this.normalizeQuery(this.model.get("query")||this.model.get("document")||"");this.$("input#navbar-query").val(e)},handleSearchKeyup:function(e){e.keyCode==13?(e.preventDefault(),this.findDocuments($(e.target).val())):e.keyCode==27&&this.blurSearch()},findDocuments:function(e){e=Genghis.JSON.normalize(e,!1);var t=Genghis.Util.route(this.model.currentCollection.url+"/documents"),n=t+(e.match(/^([a-z\d]+)$/i)?"/"+e:"?"+Genghis.Util.buildQuery({q:encodeURIComponent(e)}));app.router.navigate(n,!0)},findDocumentsAdvanced:function(e){this.findDocuments(this.editor.getValue()),this.collapseSearch()},focusSearch:function(e){this.$("input#navbar-query").is(":visible")?(e&&e.preventDefault(),this.$("input#navbar-query").focus()):this.editor&&this.$(".well").is(":visible")&&(e&&e.preventDefault(),this.editor.focus())},blurSearch:function(){this.$("input#navbar-query").blur(),this.updateQuery()},normalizeQuery:function(e){e=e.trim();if(e!=="")try{e=Genghis.JSON.normalize(e,!1)}catch(t){}return e.replace(/^\{\s*\}$/,"").replace(/^\{\s*(['"]?)_id\1\s*:\s*\{\s*(['"]?)\$id\2\s*:\s*(["'])([a-z\d]+)\3\s*\}\s*\}$/,"$4").replace(/^\{\s*(['"]?)_id\1\s*:\s*(new\s+)?ObjectId\s*\(\s*(["'])([a-z\d]+)\3\s*\)\s*\}$/,"$4")},advancedSearchToQuery:function(){this.$("input#navbar-query").val(this.normalizeQuery(this.editor.getValue()))},queryToAdvancedSearch:function(){var e=this.$("input#navbar-query").val().trim();e.match(/^[a-z\d]+$/i)&&(e='{_id:ObjectId("'+e+'")}');if(e!=="")try{e=Genghis.JSON.normalize(e,!0)}catch(t){}this.editor.setValue(e)},expandSearch:function(e){if(!this.editor){var t=$(".search-advanced",this.el);this.editor=CodeMirror($(".well",this.el)[0],_.extend(Genghis.defaults.codeMirror,{lineNumbers:!1,onFocus:function(){t.addClass("focused")},onBlur:function(){t.removeClass("focused")},extraKeys:{"Ctrl-Enter":this.findDocumentsAdvanced,"Cmd-Enter":this.findDocumentsAdvanced,Esc:this.findDocumentsAdvanced},onChange:this.advancedSearchToQuery}))}this.queryToAdvancedSearch(),$(this.el).addClass("expanded");var n=this.editor,r=this.focusSearch;_.defer(function(){n.refresh(),r()})},collapseSearch:function(){$(this.el).removeClass("expanded").css("height","auto"),this.focusSearch()},toggleExpanded:function(){$(this.el).hasClass("expanded")?this.collapseSearch():(this.expandSearch(),$(this.el).height(Math.floor($(window).height()/4)+"px"))},handleGrippieDrag:function(e){console.log(e)}}),Genghis.Views.ServerRow=Genghis.Views.BaseRow.extend({template:Genghis.Templates.ServerRow,destroyConfirmButton:function(e){return"<strong>Yes</strong>, remove "+e+" from server list"}}),Genghis.Views.Servers=Genghis.Views.BaseSection.extend({el:"section#servers",template:Genghis.Templates.Servers,rowView:Genghis.Views.ServerRow,updateTitle:function(){},formatTitle:function(){return"Servers"}}),Genghis.Router=Backbone.Router.extend({routes:{"":"index",servers:"redirectToIndex","servers/:server":"server","servers/:server/databases":"redirectToServer","servers/:server/databases/:database":"database","servers/:server/databases/:database/collections":"redirectToDatabase","servers/:server/databases/:database/collections/:collection?*query":"redirectToCollectionQuery","servers/:server/databases/:database/collections/:collection":"collection","servers/:server/databases/:database/collections/:collection/documents":"redirectToCollection","servers/:server/databases/:database/collections/:collection/documents?*query":"collectionQuery","servers/:server/databases/:database/collections/:collection/documents/:documentId":"document","*path":"notFound"},index:function(){document.title="Genghis",app.selection.select(),app.showSection("servers")},redirectToIndex:function(){this.navigate("",!0)},server:function(e){document.title=this.buildTitle(e),app.selection.select(e),app.showSection("databases")},redirectToServer:function(e){this.navigate("servers/"+e,!0)},database:function(e,t){document.title=this.buildTitle(e,t),app.selection.select(e,t),app.showSection("collections")},redirectToDatabase:function(e,t){this.navigate("servers/"+e+"/databases/"+t,!0)},collection:function(e,t,n){document.title=this.buildTitle(e,t,n),app.selection.select(e,t,n),app.showSection("documents")},redirectToCollection:function(e,t,n){this.navigate("servers/"+e+"/databases/"+t+"/collections/"+n,!0)},redirectToCollectionQuery:function(e,t,n,r){this.navigate("servers/"+e+"/databases/"+t+"/collections/"+n+"/documents?"+r,!0)},collectionQuery:function(e,t,n,r){document.title=this.buildTitle(e,t,n,"Query results");var i=Genghis.Util.parseQuery(r);app.selection.select(e,t,n,null,i.q,i.page),app.showSection("documents")},redirectToQuery:function(e,t,n,r){this.navigate("servers/"+e+"/databases/"+t+"/collections/"+n+"/documents?"+Genghis.Util.buildQuery({q:encodeURIComponent(r)}),!0)},document:function(e,t,n,r){document.title=this.buildTitle(e,t,n,r),app.selection.select(e,t,n,r),app.showSection("document")},redirectToDocument:function(e,t,n,r){this.navigate("servers/"+e+"/databases/"+t+"/collections/"+n+"/documents/"+r,!0)},redirectTo:function(e,t,n,r,i){return e?t?n?!r&&!i?this.redirectToCollection(e,t,n):i?this.redirectToQuery(e,t,n,i):this.redirectToDocument(e,t,n,r):this.redirectToDatabase(e,t):this.redirectToServer(e):this.redirectToIndex()},notFound:function(e){if(e.replace(/\/$/,"")==app.baseUrl.replace(/\/$/,""))return this.navigate("",!0);document.title=this.buildTitle("404: Not Found"),app.showSection(),app.showMasthead("404: Not Found","<p>If you think you've reached this message in error, please press <strong>0</strong> to speak with an operator. Otherwise, hang up and try again.</p>",{error:!0,epic:!0})},buildTitle:function(){var e=Array.prototype.slice.call(arguments);return e.length?"Genghis — "+e.join(" › "):"Genghis"}});
+

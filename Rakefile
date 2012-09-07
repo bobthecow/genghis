@@ -208,7 +208,10 @@ file 'genghis.php' => php_include_files + asset_files do
   end
 end
 
-rb_include_files = FileList['src/rb/*.rb']
+rb_include_files = FileList[
+  'src/rb/genghis/json.rb',
+  'src/rb/genghis/server.rb',
+]
 asset_files = [tmp_dir+'index.html.mustache', tmp_dir+'error.html.mustache', tmp_dir+'style.css', tmp_dir+'script.js']
 file 'genghis.rb' => rb_include_files + asset_files do
   File.open('genghis.rb', 'w') do |file|

@@ -1,7 +1,7 @@
 [Genghis](http://genghisapp.com)
 ================================
 
-The single-file MongoDB admin app, by [Justin Hileman](http://justinhileman.info)
+The single-file MongoDB admin app, by [Justin Hileman](http://justinhileman.info).
 
 
 
@@ -55,7 +55,7 @@ require 'genghis'
 
 run Rack::URLMap.new \
   '/'        => Your::App.new,
-  '/genghis' => Genghis.new
+  '/genghis' => Genghis::Server.new
 ```
 
 
@@ -65,7 +65,7 @@ You can even mount Genghis on a subpath in your existing Rails 3 app by adding `
 routes file (or in an intializer) and then adding this to `routes.rb`:
 
 ```rb
-mount Genghis.new, :at => '/genghis'
+mount Genghis::Server.new, :at => '/genghis'
 ```
 
 
