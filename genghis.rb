@@ -494,15 +494,39 @@ require 'mongo'
 
 module Genghis
   class Server < Sinatra::Base
-    enable :inline_templates
+    # default to 'production' because yeah
+    set :environment, :production
 
-    register Sinatra::Reloader if development?
+    enable :inline_templates
 
     helpers Sinatra::JSON
     set :json_encoder,      :to_json
     set :json_content_type, :json
 
     helpers Genghis::Helpers
+
+
+    ### Error handling ###
+
+    helpers do
+      def error_response(status, message)
+        @status, @message = status, message
+        if request.xhr?
+          content_type :json
+          {:error => message}.to_json
+        else
+          mustache 'error.html.mustache'.intern
+        end
+      end
+    end
+
+    not_found do
+      error_response(404, env['sinatra.error'].message || 'Not Found')
+    end
+
+    error do
+      error_response(500, env['sinatra.error'].message || 'Server Error')
+    end
 
 
     ### Asset routes ###
