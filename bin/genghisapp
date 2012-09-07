@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 
-$LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/..')
-
+require File.expand_path(File.dirname(__FILE__) + '/../genghis')
 require 'vegas'
-require 'genghis'
 
-Vegas::Runner.new(Genghis, 'genghisapp')
+Vegas::Runner.new(Genghis::Server, 'genghisapp')
