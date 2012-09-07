@@ -279,7 +279,7 @@ class Genghis < Sinatra::Base
   end
 
   delete '/servers/:server' do
-    raise "Unknown server: #{name}" if servers[params[:server]].nil?
+    not_found if servers[params[:server]].nil?
     @servers.delete(params[:server])
     save_servers
     json({ :success => true })
