@@ -99,8 +99,7 @@ class Genghis < Sinatra::Base
   end
 
   def server_info(server_name)
-    server = servers[server_name]
-    puts server.inspect
+    server = servers[server_name] || not_found
     resp = { :id => server_name, :name => server_name, :editable => !server[:default] }
     if server[:error]
       resp.merge!({:error => server[:error]})
