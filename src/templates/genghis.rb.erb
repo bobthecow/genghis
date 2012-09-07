@@ -8,6 +8,8 @@
 #
 # @author Justin Hileman <justin@justinhileman.info>
 #
+GENGHIS_VERSION = <%= GENGHIS_VERSION.inspect %>
+
 <% includes.each do |inc| %><%= inc.sub("#!/usr/bin/env ruby", '').strip %>
 <% end %>
 

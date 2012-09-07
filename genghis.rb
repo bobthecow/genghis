@@ -8,6 +8,8 @@
 #
 # @author Justin Hileman <justin@justinhileman.info>
 #
+GENGHIS_VERSION = "2.0.0-dev"
+
 require 'mongo'
 require 'json'
 
@@ -423,7 +425,7 @@ module Genghis
           <h4>MongoDB driver C extension not found.</h4>
           Install this extension for better performance: <code>gem install bson_ext</code>
         MSG
-        alerts << {:level => 'warning', :msg => msg, :block => true}
+        alerts << {:level => 'warning', :msg => msg}
       end
 
       unless defined? ::JSON::Ext
@@ -431,7 +433,27 @@ module Genghis
           <h4>JSON C extension not found.</h4>
           Falling back to the pure Ruby variant. <code>gem install json</code> for better performance.
         MSG
-        alerts << {:level => 'warning', :msg => msg, :block => true}
+        alerts << {:level => 'warning', :msg => msg}
+      end
+
+      unless ENV['GENGHIS_NO_UPDATE_CHECK']
+        begin
+          require 'open-uri'
+          open('https://raw.github.com/bobthecow/genghis/master/VERSION') do |f|
+            latest   = f.read
+            outdated = Gem::Version.new(GENGHIS_VERSION.gsub(/[\+_-]/, '.')) < Gem::Version.new(latest.gsub(/[\+_-]/, '.'))
+            if latest && outdated
+              msg = <<-MSG.strip.gsub(/\s+/, " ")
+                <h4>A Genghis update is available</h4>
+                You are running Genghis version <tt>#{GENGHIS_VERSION}</tt>. The current version is <tt>#{latest}</tt>.
+                Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.
+              MSG
+              alerts << {:level => 'warning', :msg => msg}
+            end
+          end
+        rescue
+          # do nothing
+        end
       end
 
       alerts

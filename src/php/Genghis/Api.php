@@ -143,9 +143,33 @@ class Genghis_Api extends Genghis_App
             );
         }
 
+        // check for updates
+        if (!$this->skipUpdateCheck()) {
+            try {
+                $latest = @file_get_contents('https://raw.github.com/bobthecow/genghis/master/VERSION');
+                if ($latest && version_compare($latest, GENGHIS_VERSION, '>')) {
+                    $alerts[] = array(
+                        'level' => 'warning',
+                        'msg'   => '<h4>A Genghis update is available</h4> ' .
+                                   'You are running Genghis version <tt>' . GENGHIS_VERSION . '</tt>. ' .
+                                   'The current version is <tt>' . $latest . '</tt>. ' .
+                                   'Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.'
+                    );
+                }
+            } catch (Exception $e) {
+                // do nothing
+            }
+        }
+
         // TODO: more sanity checks?
 
         return new Genghis_JsonResponse(compact('alerts'));
+    }
+
+    protected function skipUpdateCheck()
+    {
+        return (isset($_ENV['GENGHIS_NO_UPDATE_CHECK']) && $_ENV['GENGHIS_NO_UPDATE_CHECK'])
+            || (isset($_SERVER['GENGHIS_NO_UPDATE_CHECK']) && $_SERVER['GENGHIS_NO_UPDATE_CHECK']);
     }
 
     protected function listServers()
