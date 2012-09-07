@@ -36,6 +36,7 @@ And a handful of bug fixes:
  * Fix – handful of rare (and relatively benign) error messages.
  * Fix — malformed server DSN could prevent servers list from rendering.
  * Fix — rare bug where properties with a specific structure might be mistaken for ObjectIds or Dates.
+ * Fix — no longer recreates missing dbs and collections on GET requests.
  * Improve error handling in a couple of places.
 
 
