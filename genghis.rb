@@ -15,7 +15,7 @@ module Genghis
   class JSON
     class << self
       def encode(object)
-        enc(object, Array, Hash, BSON::OrderedHash).to_json
+        enc(object, Array, Hash, BSON::OrderedHash, Genghis::Models::Query).to_json
       end
 
       def decode(str)
@@ -28,6 +28,7 @@ module Genghis
         o = o.to_s if o.is_a? Symbol
         fail "invalid: #{o.inspect}" unless a.empty? or a.include? o.class
         case o
+        when Genghis::Models::Query then enc(o.as_json)
         when Array then o.map { |e| enc(e) }
         when Hash then o.merge(o) { |k, v| enc(v) }
         when Time then thunk('ISODate', o.strftime('%FT%T%:z'))
@@ -79,163 +80,343 @@ module Genghis
       end
 
       def mongo_reg_exp(value)
-        value['$flags'].nil ? Regexp.new(value['$pattern']) : Regexp.new(value['$pattern'], dec_re_flags(value['$flags']))
+        Regexp.new(value['$pattern'], dec_re_flags(value['$flags']))
       end
 
     end
   end
 end
-require 'sinatra/base'
-require 'sinatra/mustache'
-require 'sinatra/json'
-require 'sinatra/reloader'
-require 'mongo'
+require 'sinatra'
 
 module Genghis
-  class Server < Sinatra::Base
-    PAGE_LIMIT = 50
-
-    enable :inline_templates
-    register Sinatra::Reloader if development?
-
-    helpers Sinatra::JSON
-    set :json_encoder,      :to_json
-    set :json_content_type, :json
-
-    def request_json
-      ::Genghis::JSON.decode request.body.read
+  class ServerNotFound < Sinatra::NotFound
+    def initialize(name)
+      @name = name
     end
 
-    def connection(server_name)
-      server = servers[server_name] || not_found
-      Mongo::Connection.from_uri(server[:dsn])
+    def message
+      "Server #{@name.inspect} not found"
+    end
+  end
+
+  class DatabaseNotFound < Sinatra::NotFound
+    def initialize(server, name)
+      @server = server
+      @name   = name
     end
 
-    def server_info(server_name)
-      server = servers[server_name] || not_found
-      resp = { :id => server_name, :name => server_name, :editable => !server[:default] }
-      if server[:error]
-        resp.merge!({:error => server[:error]})
-      else
-        begin
-          conn = connection(server_name)
-        rescue Mongo::ConnectionFailure => ex
-          resp.merge!({:error => ex.to_s})
-        else
-          databases = conn['admin'].command({:listDatabases => true})
-          resp.merge!({
-            :size      => databases['totalSize'],
-            :count     => databases['databases'].count,
-            :databases => databases['databases'].map {|db| db['name']}
-          })
+    def message
+      "Database #{@name.inspect} not found on #{@server.name.inspect}"
+    end
+  end
+
+  class CollectionNotFound < Sinatra::NotFound
+    def initialize(database, name)
+      @database = database
+      @name     = name
+    end
+
+    def message
+      "Collection #{@name.inspect} not found in #{@database.name.inspect}"
+    end
+  end
+
+  class DocumentNotFound < Sinatra::NotFound
+    def initialize(collection, doc_id)
+      @collection = collection
+      @doc_id     = doc_id
+    end
+
+    def message
+      "Document #{@doc_id.inspect} not found in #{@collection.name.inspect}"
+    end
+  end
+end
+module Genghis
+  module Models
+    class Collection
+      def initialize(collection)
+        @collection = collection
+      end
+
+      def name
+        @collection.name
+      end
+
+      def drop!
+        @collection.drop
+      end
+
+      def insert(data)
+        id = @collection.insert data
+        @collection.find_one('_id' => id)
+      end
+
+      def remove(doc_id)
+        query = {'_id' => thunk_mongo_id(doc_id)}
+        raise Genghis::DocumentNotFound.new(self, doc_id) unless @collection.find_one(query)
+        @collection.remove query
+      end
+
+      def update(doc_id, data)
+        document = @collection.find_and_modify \
+          :query  => {'_id' => thunk_mongo_id(doc_id)},
+          :update => data,
+          :new    => true
+
+        raise Genghis::DocumentNotFound.new(self, doc_id) unless document
+        document
+      end
+
+      def documents(query={}, page=1)
+        Query.new(@collection, query, page)
+      end
+
+      def [](doc_id)
+        doc = @collection.find_one('_id' => thunk_mongo_id(doc_id))
+        raise Genghis::DocumentNotFound.new(self, doc_id) unless doc
+        doc
+      end
+
+      def as_json(*)
+        {
+          :id      => @collection.name,
+          :name    => @collection.name,
+          :count   => @collection.count,
+          :indexes => @collection.index_information.values,
+        }
+      end
+
+      def to_json(*)
+        as_json.to_json
+      end
+
+      private
+
+      def thunk_mongo_id(doc_id)
+        doc_id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(doc_id) : doc_id
+      end
+    end
+  end
+end
+module Genghis
+  module Models
+    class Database
+      def initialize(database)
+        @database = database
+      end
+
+      def name
+        @database.name
+      end
+
+      def drop!
+        @database.connection.drop_database(@database.name)
+      end
+
+      def create_collection(coll_name)
+        @database.create_collection coll_name
+        Collection.new(@database[coll_name])
+      end
+
+      def collections
+        # TODO: should I be rejecting all of these `system*` collections?
+        @collections ||= @database.collections.map { |c| Collection.new(c) unless c.name.start_with? 'system' }.compact
+      end
+
+      def [](coll_name)
+        raise Genghis::CollectionNotFound.new(self, coll_name) unless @database.collection_names.include? coll_name
+        Collection.new(@database[coll_name])
+      end
+
+      def as_json(*)
+        {
+          :id          => @database.name,
+          :name        => @database.name,
+          :size        => info['sizeOnDisk'],
+          :count       => collections.count,
+          :collections => collections.map { |c| c.name }
+        }
+      end
+
+      def to_json(*)
+        as_json.to_json
+      end
+
+      private
+
+      def info
+        @info ||= begin
+          name = @database.name
+          @database.connection['admin'].command({:listDatabases => true})['databases'].detect do |db|
+            db['name'] == name
+          end
         end
       end
     end
+  end
+end
+module Genghis
+  module Models
+    class Query
+      PAGE_LIMIT = 50
 
-    def database_info(server_name, database)
-      conn = connection(server_name)
-      collections = conn[database['name']].collections
-      collections.reject! {|collection| collection.name.start_with?('system')}
-      {
-        :id => database['name'],
-        :name => database['name'],
-        :size => database['sizeOnDisk'],
-        :count => collections.count,
-        :collections => collections.map {|collection| collection.name}
-      }
+      def initialize(collection, query={}, page=1)
+        @collection = collection
+        @page       = page
+        @query      = query
+      end
+
+      def as_json(*)
+        {
+          :count     => documents.count,
+          :page      => @page,
+          :pages     => pages,
+          :per_page  => PAGE_LIMIT,
+          :offset    => offset,
+          :documents => documents.to_a
+        }
+      end
+
+      def to_json(*)
+        as_json.to_json
+      end
+
+      private
+
+      def pages
+        [0, (documents.count / PAGE_LIMIT.to_f).ceil].max
+      end
+
+      def offset
+        PAGE_LIMIT * (@page - 1)
+      end
+
+      def documents
+        @document ||= @collection.find(@query, :limit => PAGE_LIMIT, :skip  => offset)
+      end
+
+    end
+  end
+end
+module Genghis
+  module Models
+    class Server
+      attr_reader   :name
+      attr_reader   :dsn
+      attr_accessor :default
+
+      def initialize(dsn)
+        dsn = 'mongodb://'+dsn unless dsn.include? '://'
+
+        begin
+          uri = ::Mongo::URIParser.new dsn
+
+          # name this server something useful
+          name = uri.host
+          if user = uri.auths.map{|a| a['username']}.first
+            name = "#{user}@#{name}"
+          end
+          name = "#{name}:#{uri.port}" unless uri.port == 27017
+          @name = name
+        rescue Mongo::MongoArgumentError => e
+          @error = "Malformed server DSN: #{e.message}"
+        end
+        @dsn = dsn
+      end
+
+      def create_database(db_name)
+        connection[db_name]['__genghis_tmp_collection__'].drop
+        Database.new(connection[db_name])
+      end
+
+      def databases
+        connection['admin'].command({:listDatabases => true})['databases'].map do |db|
+          Database.new(connection[db['name']])
+        end
+      end
+
+      def [](db_name)
+        raise Genghis::DatabaseNotFound.new(self, db_name) unless connection.database_names.include? db_name
+        Database.new(connection[db_name])
+      end
+
+      def as_json(*)
+        json = {
+          :id       => @name,
+          :name     => @name,
+          :editable => !@default,
+        }
+
+        if @error
+          json.merge!({:error => @error})
+        else
+          begin
+            connection
+          rescue Mongo::ConnectionFailure => ex
+            json.merge!({:error => ex.to_s})
+          else
+            json.merge!({
+              :size      => info['totalSize'],
+              :count     => info['databases'].count,
+              :databases => info['databases'].map { |db| db['name'] },
+            })
+          end
+        end
+
+        json
+      end
+
+      def to_json(*)
+        as_json.to_json
+      end
+
+      private
+
+      def connection
+        @connection ||= Mongo::Connection.from_uri(@dsn)
+      end
+
+      def info
+        @info ||= connection['admin'].command({:listDatabases => true})
+      end
+    end
+  end
+end
+require 'mongo'
+require 'json'
+
+module Genghis
+  module Helpers
+    PAGE_LIMIT = 50
+
+
+    ### Misc request parsing helpers ###
+
+    def query_param
+      ::Genghis::JSON.decode(params.fetch('q', '{}'))
     end
 
-    def collection_info(collection)
-      {
-        :id => collection.name,
-        :name => collection.name,
-        :count => collection.count,
-        :indexes => collection.index_information.values
-      }
+    def page_param
+      params.fetch('page', 1).to_i
     end
 
-    def document_info(collection, page, query={})
-      offset = PAGE_LIMIT * (page - 1)
+    def request_json
+      ::JSON.parse request.body.read
+    end
 
-      documents = collection.find(
-        query,
-        :limit => PAGE_LIMIT,
-        :skip  => offset
-      )
-
-      {
-        :count => documents.count,
-        :page =>  page,
-        :pages => [0, (documents.count / PAGE_LIMIT.to_f).ceil].max,
-        :per_page => PAGE_LIMIT,
-        :offset   => offset,
-        :documents => documents.to_a
-      }
+    def request_genghis_json
+      ::Genghis::JSON.decode request.body.read
     end
 
     def thunk_mongo_id(id)
       id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(id) : id
     end
 
-    def init_server(dsn)
-      dsn = 'mongodb://'+dsn unless dsn.include? '://'
 
-      server = {
-        :name => dsn.sub(/^mongodb:\/\//, ''),
-        :dsn  => dsn,
-      }
+    ### Seemed like a good place to put this ###
 
-      begin
-        uri = ::Mongo::URIParser.new dsn
-
-        # name this server something useful
-        name = uri.host
-        if user = uri.auths.map{|a| a['username']}.first
-          name = "#{user}@#{name}"
-        end
-        name = "#{name}:#{uri.port}" unless uri.port == 27017
-        server[:name] = name
-      rescue Mongo::MongoArgumentError => e
-        server[:error] = "Malformed server DSN: #{e.message}"
-      end
-
-      server
-    end
-
-    def init_servers(dsn_list, opts={})
-      Hash[dsn_list.map { |dsn|
-        server = init_server(dsn)
-        server.merge(opts)
-        [server[:name], server]
-      }]
-    end
-
-    def save_servers
-      server_names = servers.collect { |name, server| server[:dsn] unless server[:default] }.compact
-      response.set_cookie(
-        :genghis_rb_servers,
-        :path => '/',
-        :value => JSON.dump(server_names),
-        :expires => Time.now + 60*60*24*365
-      )
-    end
-
-    def default_servers
-      @default_servers ||= begin
-        env_var = (ENV['GENGHIS_SERVERS'] || '').split(';')
-        init_servers(env_var, :default => true)
-      end
-    end
-
-    def servers
-      @servers ||= begin
-        names   = ::JSON.parse(request.cookies['genghis_rb_servers'] || '[]')
-        servers = default_servers.merge(init_servers(names))
-        servers.empty? ? init_servers(['localhost']) : servers # fall back to 'localhost'
-      end
-    end
-
-    get '/check-status' do
+    def server_status_alerts
       alerts = []
       if ::BSON::BSON_CODER == ::BSON::BSON_RUBY
         msg = <<-MSG.strip.gsub(/\s+/, " ")
@@ -253,8 +434,78 @@ module Genghis
         alerts << {:level => 'warning', :msg => msg, :block => true}
       end
 
-      json({:alerts => alerts})
+      alerts
     end
+
+
+    ### Server management ###
+
+    def servers
+      @servers ||= begin
+        dsn_list = ::JSON.parse(request.cookies['genghis_rb_servers'] || '[]')
+        servers  = default_servers.merge(init_servers(dsn_list))
+        servers.empty? ? init_servers(['localhost']) : servers # fall back to 'localhost'
+      end
+    end
+
+    def default_servers
+      @default_servers ||= init_servers((ENV['GENGHIS_SERVERS'] || '').split(';'), :default => true)
+    end
+
+    def init_servers(dsn_list, opts={})
+      Hash[dsn_list.map { |dsn|
+        server = Genghis::Models::Server.new(dsn)
+        server.default = opts[:default] || false
+        [server.name, server]
+      }]
+    end
+
+    def add_server(dsn)
+      raise "Server #{name} already exists" unless servers[name].nil?
+      server = Genghis::Models::Server.new!(dsn)
+      servers[server.name] = server
+      save_servers
+      server
+    end
+
+    def remove_server(name)
+      not_found if servers[name].nil?
+      @servers.delete(servers[name])
+      save_servers
+    end
+
+    def save_servers
+      dsn_list = servers.collect { |name, server| server.dsn unless server.default }.compact
+      response.set_cookie(
+        :genghis_rb_servers,
+        :path    => '/',
+        :value   => dsn_list.to_json,
+        :expires => Time.now + 60*60*24*365
+      )
+    end
+
+  end
+end
+require 'sinatra/base'
+require 'sinatra/mustache'
+require 'sinatra/json'
+require 'sinatra/reloader'
+require 'mongo'
+
+module Genghis
+  class Server < Sinatra::Base
+    enable :inline_templates
+
+    register Sinatra::Reloader if development?
+
+    helpers Sinatra::JSON
+    set :json_encoder,      :to_json
+    set :json_content_type, :json
+
+    helpers Genghis::Helpers
+
+
+    ### Asset routes ###
 
     get '/assets/style.css' do
       content_type 'text/css'
@@ -266,121 +517,93 @@ module Genghis
       Genghis::Server.templates['script.js'.intern].first
     end
 
+
+    ### Default route ###
+
     get '*' do
-      if request.xhr?
-        pass
-      else
-        mustache 'index.html.mustache'.intern
-      end
+      # Unless this is XHR, render index and let the client-side app handle routing
+      pass if request.xhr?
+      mustache 'index.html.mustache'.intern
+    end
+
+
+    ### Genghis API ###
+
+    get '/check-status' do
+      json({:alerts => server_status_alerts})
     end
 
     get '/servers' do
-      json servers.keys.map {|server_name| server_info(server_name)}
+      json servers.values
     end
 
     post '/servers' do
-      server = init_server(::JSON.parse(request.body.read)['name'])
-      name   = server[:name]
-      raise "Server #{name} already exists" unless servers[name].nil?
-      @servers[name] = server
-      save_servers
-      json server_info name
+      json add_server request_json['name']
     end
 
     get '/servers/:server' do |server|
-      json server_info server
+      json servers[server]
     end
 
-    delete '/servers/:server' do
-      not_found if servers[params[:server]].nil?
-      @servers.delete(params[:server])
-      save_servers
-      json({ :success => true })
+    delete '/servers/:server' do |server|
+      remove_server server
+      json :success => true
     end
 
     get '/servers/:server/databases' do |server|
-      databases = connection(server)['admin'].command({:listDatabases => true})['databases']
-      json databases.map {|database| database_info(server, database)}
+      json servers[server].databases
     end
 
     post '/servers/:server/databases' do |server|
-      name = ::JSON.parse(request.body.read)['name']
-      connection(server)[name]['__genghis_tmp_collection__'].drop
-      databases = connection(server)['admin'].command({:listDatabases => true})['databases']
-      database  = databases.detect {|d| d['name'] == name}
-      json database_info server, database
+      json servers[server].create_database request_json['name']
     end
 
-    get '/servers/:server/databases/:database' do |server, db|
-      databases = connection(server)['admin'].command({:listDatabases => true})['databases']
-      database  = databases.detect {|d| d['name'] == db} || not_found
-      json database_info server, database
+    get '/servers/:server/databases/:database' do |server, database|
+      json servers[server][database]
     end
 
-    delete '/servers/:server/databases/:database' do |server, db|
-      not_found unless connection(server).database_names.include? db
-      connection(server).drop_database db
+    delete '/servers/:server/databases/:database' do |server, database|
+      servers[server][database].drop!
       json :success => true
     end
 
-    get '/servers/:server/databases/:database/collections' do |server, db|
-      database = connection(server)[db]
-      collections = database.collections.reject {|collection| collection.name.start_with?('system')}
-      json collections.map {|collection| collection_info(collection)}
+    get '/servers/:server/databases/:database/collections' do |server, database|
+      json servers[server][database].collections
     end
 
-    post '/servers/:server/databases/:database/collections' do |server, db|
-      database = connection(server)[db]
-      name = ::JSON.parse(request.body.read)['name']
-      collection = database.create_collection name
-      json collection_info collection
+    post '/servers/:server/databases/:database/collections' do |server, database|
+      json servers[server][database].create_collection request_json['name']
     end
 
-    get '/servers/:server/databases/:database/collections/:collection' do |server, db, coll|
-      not_found unless connection(server)[db].collection_names.include? coll
-      json collection_info connection(server)[db][coll]
+    get '/servers/:server/databases/:database/collections/:collection' do |server, database, collection|
+      json servers[server][database][collection]
     end
 
-    delete '/servers/:server/databases/:database/collections/:collection' do |server, db, coll|
-      not_found unless connection(server)[db].collection_names.include? coll
-      connection(server)[db][coll].drop
+    delete '/servers/:server/databases/:database/collections/:collection' do |server, database, collection|
+      servers[server][database][collection].drop!
       json :success => true
     end
 
-    get '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
-      collection = connection(server)[db][coll]
-      page  = params.fetch('page', 1).to_i
-      query = ::Genghis::JSON.decode(params.fetch('q', '{}'))
-      json document_info(collection, page, query), :encoder => ::Genghis::JSON
+    get '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
+      json servers[server][database][collection].documents(query_param, page_param), :encoder => ::Genghis::JSON
     end
 
-    post '/servers/:server/databases/:database/collections/:collection/documents' do |server, db, coll|
-      collection = connection(server)[db][coll]
-      id = collection.insert request_json
-      document = collection.find_one('_id' => id) || not_found
+    post '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
+      document = servers[server][database][collection].insert request_genghis_json
       json document, :encoder => ::Genghis::JSON
     end
 
-    get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
-      document = connection(server)[db][coll].find_one('_id' => thunk_mongo_id(doc))
+    get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
+      json servers[server][database][collection][document], :encoder => ::Genghis::JSON
+    end
+
+    put '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
+      document = servers[server][database][collection].update document, request_genghis_json
       json document, :encoder => ::Genghis::JSON
     end
 
-    put '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
-      document = connection(server)[db][coll].find_and_modify \
-        :query => {'_id' => thunk_mongo_id(doc)},
-        :update => request_json,
-        :new => true
-      not_found unless document
-      json document, :encoder => ::Genghis::JSON
-    end
-
-    delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, db, coll, doc|
-      query      = {'_id' => thunk_mongo_id(doc)}
-      collection = connection(server)[db][coll]
-      collection.find_one(query) || not_found
-
-      collection.remove query
+    delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
+      collection = servers[server][database][collection].remove document
       json :success => true
     end
   end

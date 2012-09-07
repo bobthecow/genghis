@@ -5,7 +5,7 @@ module Genghis
   class JSON
     class << self
       def encode(object)
-        enc(object, Array, Hash, BSON::OrderedHash).to_json
+        enc(object, Array, Hash, BSON::OrderedHash, Genghis::Models::Query).to_json
       end
 
       def decode(str)
@@ -18,6 +18,7 @@ module Genghis
         o = o.to_s if o.is_a? Symbol
         fail "invalid: #{o.inspect}" unless a.empty? or a.include? o.class
         case o
+        when Genghis::Models::Query then enc(o.as_json)
         when Array then o.map { |e| enc(e) }
         when Hash then o.merge(o) { |k, v| enc(v) }
         when Time then thunk('ISODate', o.strftime('%FT%T%:z'))
@@ -69,7 +70,7 @@ module Genghis
       end
 
       def mongo_reg_exp(value)
-        value['$flags'].nil ? Regexp.new(value['$pattern']) : Regexp.new(value['$pattern'], dec_re_flags(value['$flags']))
+        Regexp.new(value['$pattern'], dec_re_flags(value['$flags']))
       end
 
     end

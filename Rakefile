@@ -210,6 +210,9 @@ end
 
 rb_include_files = FileList[
   'src/rb/genghis/json.rb',
+  'src/rb/genghis/errors.rb',
+  'src/rb/genghis/models/**/*',
+  'src/rb/genghis/helpers.rb',
   'src/rb/genghis/server.rb',
 ]
 asset_files = [tmp_dir+'index.html.mustache', tmp_dir+'error.html.mustache', tmp_dir+'style.css', tmp_dir+'script.js']
