@@ -23,12 +23,6 @@ If you didn't go the gem route, you can still run `genghis.rb` standalone:
 $ ruby genghis.rb
 ```
 
-Or with Rack:
-
-```
-$ rackup genghis.rb
-```
-
 `genghis.php` can also be run as a PHP 5.4 CLI SAPI standalone server:
 
 ```
