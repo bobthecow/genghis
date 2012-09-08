@@ -1,6 +1,11 @@
 #!/usr/bin/env ruby
 
+begin
+  require 'vegas'
+rescue LoadError
+  require 'rubygems'
+  require 'vegas'
+end
 require File.expand_path(File.dirname(__FILE__) + '/../genghis')
-require 'vegas'
 
 Vegas::Runner.new(Genghis::Server, 'genghisapp')
