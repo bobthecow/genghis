@@ -8,4 +8,14 @@ rescue LoadError
 end
 require File.expand_path(File.dirname(__FILE__) + '/../genghis')
 
-Vegas::Runner.new(Genghis::Server, 'genghisapp')
+Vegas::Runner.new(Genghis::Server, 'genghisapp') do |runner, opts, app|
+  opts.on('-N', "--no-update-check", "Skip the Genghis update check") {
+    runner.logger.info "Skipping Genghis update check"
+    ENV['GENGHIS_NO_UPDATE_CHECK'] = "1"
+  }
+
+  opts.on('-s SERVERS', "--servers SERVERS", "Specify default server list") { |servers|
+    runner.logger.info "Using Genghis servers #{servers.inspect}"
+    ENV['GENGHIS_SERVERS'] = servers
+  }
+end
