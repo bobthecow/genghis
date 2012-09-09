@@ -4,8 +4,12 @@ require 'json'
 module Genghis
   class JSON
     class << self
+      def as_json(object)
+        enc(object, Array, Hash, BSON::OrderedHash, Genghis::Models::Query)
+      end
+
       def encode(object)
-        enc(object, Array, Hash, BSON::OrderedHash, Genghis::Models::Query).to_json
+        as_json(object).to_json
       end
 
       def decode(str)
@@ -20,13 +24,18 @@ module Genghis
         case o
         when Genghis::Models::Query then enc(o.as_json)
         when Array then o.map { |e| enc(e) }
-        when Hash then o.merge(o) { |k, v| enc(v) }
+        when Hash then enc_hash(o.clone)
         when Time then thunk('ISODate', o.strftime('%FT%T%:z'))
         when Regexp then thunk('RegExp', {'$pattern' => o.source, '$flags' => enc_re_flags(o.options)})
         when BSON::ObjectId then thunk('ObjectId', o.to_s)
         when BSON::DBRef then db_ref(o)
         else o
         end
+      end
+
+      def enc_hash(o)
+        o.keys.each { |k| o[k] = enc(o[k]) }
+        o
       end
 
       def thunk(name, value)

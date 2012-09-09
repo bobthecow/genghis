@@ -16,8 +16,12 @@ require 'json'
 module Genghis
   class JSON
     class << self
+      def as_json(object)
+        enc(object, Array, Hash, BSON::OrderedHash, Genghis::Models::Query)
+      end
+
       def encode(object)
-        enc(object, Array, Hash, BSON::OrderedHash, Genghis::Models::Query).to_json
+        as_json(object).to_json
       end
 
       def decode(str)
@@ -32,13 +36,18 @@ module Genghis
         case o
         when Genghis::Models::Query then enc(o.as_json)
         when Array then o.map { |e| enc(e) }
-        when Hash then o.merge(o) { |k, v| enc(v) }
+        when Hash then enc_hash(o.clone)
         when Time then thunk('ISODate', o.strftime('%FT%T%:z'))
         when Regexp then thunk('RegExp', {'$pattern' => o.source, '$flags' => enc_re_flags(o.options)})
         when BSON::ObjectId then thunk('ObjectId', o.to_s)
         when BSON::DBRef then db_ref(o)
         else o
         end
+      end
+
+      def enc_hash(o)
+        o.keys.each { |k| o[k] = enc(o[k]) }
+        o
       end
 
       def thunk(name, value)
@@ -295,7 +304,7 @@ module Genghis
       end
 
       def documents
-        @document ||= @collection.find(@query, :limit => PAGE_LIMIT, :skip  => offset)
+        @documents ||= @collection.find(@query, :limit => PAGE_LIMIT, :skip  => offset)
       end
 
     end
@@ -391,6 +400,13 @@ require 'json'
 module Genghis
   module Helpers
     PAGE_LIMIT = 50
+
+
+    ### Genghis JSON responses ###
+
+    def genghis_json(doc, *args)
+      json(::Genghis::JSON.as_json(doc), *args)
+    end
 
 
     ### Misc request parsing helpers ###
@@ -522,7 +538,7 @@ module Genghis
     enable :inline_templates
 
     helpers Sinatra::JSON
-    set :json_encoder,      ::Genghis::JSON
+    set :json_encoder,      :to_json
     set :json_content_type, :json
 
     helpers Genghis::Helpers
@@ -631,21 +647,21 @@ module Genghis
     end
 
     get '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
-      json servers[server][database][collection].documents(query_param, page_param)
+      genghis_json servers[server][database][collection].documents(query_param, page_param)
     end
 
     post '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
       document = servers[server][database][collection].insert request_genghis_json
-      json document
+      genghis_json document
     end
 
     get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
-      json servers[server][database][collection][document]
+      genghis_json servers[server][database][collection][document]
     end
 
     put '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
       document = servers[server][database][collection].update document, request_genghis_json
-      json document
+      genghis_json document
     end
 
     delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|

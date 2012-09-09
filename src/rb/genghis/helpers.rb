@@ -6,6 +6,13 @@ module Genghis
     PAGE_LIMIT = 50
 
 
+    ### Genghis JSON responses ###
+
+    def genghis_json(doc, *args)
+      json(::Genghis::JSON.as_json(doc), *args)
+    end
+
+
     ### Misc request parsing helpers ###
 
     def query_param

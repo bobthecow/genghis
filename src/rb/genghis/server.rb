@@ -12,7 +12,7 @@ module Genghis
     enable :inline_templates
 
     helpers Sinatra::JSON
-    set :json_encoder,      ::Genghis::JSON
+    set :json_encoder,      :to_json
     set :json_content_type, :json
 
     helpers Genghis::Helpers
@@ -121,21 +121,21 @@ module Genghis
     end
 
     get '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
-      json servers[server][database][collection].documents(query_param, page_param)
+      genghis_json servers[server][database][collection].documents(query_param, page_param)
     end
 
     post '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
       document = servers[server][database][collection].insert request_genghis_json
-      json document
+      genghis_json document
     end
 
     get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
-      json servers[server][database][collection][document]
+      genghis_json servers[server][database][collection][document]
     end
 
     put '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
       document = servers[server][database][collection].update document, request_genghis_json
-      json document
+      genghis_json document
     end
 
     delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
