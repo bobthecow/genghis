@@ -1,4 +1,4 @@
-## v2.0.0-rc.1
+## v2.0.0
 
 Brand new features:
 
