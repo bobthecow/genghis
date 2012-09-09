@@ -1,3 +1,3 @@
-Genghis.Collections.Collections = Backbone.Collection.extend({
+Genghis.Collections.Collections = Genghis.Collections.BaseCollection.extend({
     model: Genghis.Models.Collection
 });

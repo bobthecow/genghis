@@ -1,3 +1,4 @@
-Genghis.Views.CollectionRow = Genghis.Base.RowView.extend({
-    template: _.template($('#collection-row-template').html())
+Genghis.Views.CollectionRow = Genghis.Views.BaseRow.extend({
+    template: Genghis.Templates.CollectionRow,
+    isParanoid: true
 });

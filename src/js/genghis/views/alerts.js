@@ -4,7 +4,7 @@ Genghis.Views.Alerts = Backbone.View.extend({
         _.bindAll(this, 'render', 'addModel');
 
         this.collection.bind('reset', this.render);
-	    this.collection.bind('add',   this.addModel);
+        this.collection.bind('add',   this.addModel);
     },
     render: function() {
         $(this.el).html('');

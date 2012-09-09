@@ -1,0 +1,24 @@
+<td>
+    <a href="{{ url }}" class="name value">{{ name }}</a>
+</td>
+<td>
+    <span class="documents value">{{ count }}</span>
+</td>
+<td>
+    <span class="indexes has-details value">{{ indexCount }}</span>
+    <div class="details" title="{{ indexCount }} Index{{# indexesIsPlural }}es{{/ indexesIsPlural }}">
+        {{# indexCount }}
+            <ul class="index-details">
+                {{# indexes }}
+                    <li>{{{ . }}}</li>
+                {{/ indexes }}
+            </ul>
+        {{/ indexCount }}
+        {{^ indexCount }}
+            <em>None.</em>
+        {{/ indexCount }}
+    </div>
+</td>
+<td class="action-column">
+    <button class="btn btn-mini btn-danger destroy">Remove</button>
+</td>
