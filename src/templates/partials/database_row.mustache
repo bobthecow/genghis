@@ -1,0 +1,27 @@
+<td>
+    <a href="{{ url }}" class="name value">{{ name }}</a>
+</td>
+<td>
+    <span class="collections has-details value">{{ count }}</span>
+    <div class="details" title="{{ count }} Collection{{# isPlural }}s{{/ isPlural }}">
+        {{# count }}
+            <ul>
+                {{# firstChildren }}
+                    <li>{{ . }}</li>
+                {{/ firstChildren }}
+                {{# hasMoreChildren }}
+                    <li>&hellip;</li>
+                {{/ hasMoreChildren }}
+            </ul>
+        {{/ count }}
+        {{^ count }}
+            <em>None.</em>
+        {{/ count }}
+    </div>
+</td>
+<td>
+    <span class="size value">{{ humanSize }}</span>
+</td>
+<td class="action-column">
+    <button class="btn btn-mini btn-danger destroy">Remove</button>
+</td>

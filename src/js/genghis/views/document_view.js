@@ -1,6 +1,6 @@
-Genghis.Views.DocumentView = Backbone.View.extend({
+Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
     tagName: 'article',
-    template: _.template($('#document-view-template').html()),
+    template: Genghis.Templates.DocumentView,
     events: {
         'click a.id':               'navigate',
         'click button.edit':        'openEditDialog',
@@ -8,9 +8,11 @@ Genghis.Views.DocumentView = Backbone.View.extend({
         'click button.save':        'saveDocument',
         'click button.cancel':      'cancelEdit',
         'click button.destroy':     'destroy',
-        'click .db-ref-ref .value': 'navigateColl',
-        'click .db-ref-db .value':  'navigateDb',
-        'click .db-ref-id .value':  'navigateId'
+
+        // navigation!
+        'click .ref .ref-ref .v .s':                    'navigateColl',
+        'click .ref .ref-db .v .s':                     'navigateDb',
+        'click .ref .ref-id .v .s, .ref .ref-id .v.n':  'navigateId'    // handle numeric IDs too
     },
     initialize: function() {
         _.bindAll(
@@ -22,89 +24,91 @@ Genghis.Views.DocumentView = Backbone.View.extend({
         this.model.bind('destroy', this.remove);
     },
     render: function() {
-        $(this.el).html(this.template(this.model));
+        $(this.el).html(this.template.render(this.model));
+        Genghis.Util.attachCollapsers(this.el);
+        setTimeout(this.updateDocument, 1);
+
         return this;
     },
     updateDocument: function() {
-        this.$('.document').html(this.model.prettyPrint()).show();
-        Genghis.Util.attachCollapsers(this.el);
+        this.$('.document').html('').append(this.model.prettyPrint()).show();
     },
     navigate: function(e) {
         e.preventDefault();
-        App.Router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
+        app.router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
     },
     navigateDb: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref'),
-            db     = $dbRef.find('.db-ref-db .value').text();
+        var $dbRef = $(e.target).parents('.ref');
+        var db     = $dbRef.find('.ref-db .v .s').text();
 
-        App.Router.redirectToDatabase(Genghis.Selection.CurrentServer.id, db);
+        app.router.redirectToDatabase(app.selection.currentServer.id, db);
     },
     navigateColl: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref'),
-            db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id,
-            coll   = $dbRef.find('.db-ref-ref .value').text();
+        var $dbRef = $(e.target).parents('.ref');
+        var db     = $dbRef.find('.ref-db  .v .s').text() || app.selection.currentDatabase.id;
+        var coll   = $dbRef.find('.ref-ref .v .s').text();
 
-        App.Router.redirectToCollection(Genghis.Selection.CurrentServer.id, db, coll);
+        app.router.redirectToCollection(app.selection.currentServer.id, db, coll);
     },
     navigateId: function(e) {
-        var $dbRef = $(e.target).parents('.db-ref'),
-            db     = $dbRef.find('.db-ref-db  .value').text() || Genghis.Selection.CurrentDatabase.id,
-            coll   = $dbRef.find('.db-ref-ref .value').text() || Genghis.Selection.CurrentCollection.id,
-            id     = $dbRef.find('.db-ref-id  .value').text();
+        var $dbRef = $(e.target).parents('.ref');
+        var db     = $dbRef.find('.ref-db  .v .s').text() || app.selection.currentDatabase.id;
+        var coll   = $dbRef.find('.ref-ref .v .s').text() || app.selection.currentCollection.id;
+        var id     = $dbRef.find('.ref-id  .v .s, .ref-id .v.n').text();
 
-        App.Router.redirectToDocument(Genghis.Selection.CurrentServer.id, db, coll, id);
+        app.router.redirectToDocument(app.selection.currentServer.id, db, coll, id);
     },
     openEditDialog: function() {
-        var $well = this.$('.well'),
-            height = Math.max(180, Math.min(600, $well.height() + 40));
+        var $well = this.$('.well');
+        var height = Math.max(180, Math.min(600, $well.height() + 40));
 
-        $(this.el).addClass('edit');
         $well.height(height);
-
-        var div = $('<div id="editor-'+this.model.id+'" class="genghis-document-editor"></div>')
+        var textarea = $('<textarea id="editor-'+this.model.id+'"></textarea>')
             .text(this.model.JSONish())
             .appendTo($well)
             .height(height);
 
-
         this.$('.document').hide();
 
-        this.editor = ace.edit('editor-'+this.model.id);
-        this.editor.setTheme("ace/theme/git-hubby");
-        this.editor.setHighlightActiveLine(false);
-        this.editor.setShowPrintMargin(false);
-        this.editor.renderer.setShowGutter(false);
+        var el = $(this.el).addClass('edit');
+        this.editor = CodeMirror.fromTextArea($('#editor-'+this.model.id)[0], _.extend(Genghis.defaults.codeMirror, {
+            onFocus: function() { el.addClass('focused');    },
+            onBlur:  function() { el.removeClass('focused'); },
+            extraKeys: {
+                 'Ctrl-Enter': this.saveDocument,
+                 'Cmd-Enter':  this.saveDocument
+             }
+        }));
 
-        var JsonMode = require("ace/mode/json").Mode;
-        this.editor.getSession().setMode(new JsonMode());
+        setTimeout(this.editor.focus, 50);
 
-        div.resize(_.throttle(this.editor.resize, 100));
+        textarea.resize(_.throttle(this.editor.refresh, 100));
     },
     cancelEdit: function() {
-        $(this.el).removeClass('edit');
-        this.editor.destroy();
-        this.$('.genghis-document-editor').remove();
+        $(this.el).removeClass('edit focused');
+        this.editor.toTextArea();
+        $('textarea', this.el).remove();
         this.updateDocument();
         this.$('.well').height('auto');
     },
-    saveDocument: function() {
-        var doc = this.model,
-            cancelEdit = this.cancelEdit;
+    getErrorBlock: function() {
+        var errorBlock = this.$('div.errors');
+        if (errorBlock.length == 0) {
+            errorBlock = $('<div class="errors"></div>').prependTo(this.el);
+        }
 
-        $.ajax({
-            type: 'POST',
-            url: Genghis.baseUrl + 'convert-json',
-            data: this.editor.getSession().getValue(),
-            contentType: 'application/json',
-            async: false,
-            success: function(data) {
-                doc.clear({silent: true});
-                doc.set(data);
-                doc.save();
-                cancelEdit();
-            },
-            dataType: 'json'
-        });
+        return errorBlock;
+    },
+    saveDocument: function() {
+        var data = this.getEditorValue();
+        if (data === false) {
+            return;
+        }
+
+        this.model.clear({silent: true});
+        this.model.set(data);
+        this.model.save();
+        this.cancelEdit();
     },
     destroy: function() {
         var model = this.model;
@@ -117,8 +121,16 @@ Genghis.Views.DocumentView = Backbone.View.extend({
             },
             function(r) {
                 if (r) {
+                    var selection = app.selection;
+
                     model.destroy();
-                    Genghis.Selection.Pagination.decrementTotal();
+
+                    selection.pagination.decrementTotal();
+
+                    // if we're currently in single-document view, bust outta this!
+                    if (selection.get('document')) {
+                        app.router.redirectTo(selection.get('server'), selection.get('database'), selection.get('collection'), null, selection.get('query'));
+                    }
                 }
             }
         );
