@@ -12,10 +12,12 @@ Genghis.Views.Search = Backbone.View.extend({
     initialize: function() {
         _.bindAll(
             this, 'render', 'updateQuery', 'handleSearchKeyup', 'findDocuments', 'findDocumentsAdvanced', 'focusSearch', 'blurSearch',
-            'advancedSearchToQuery', 'queryToAdvancedSearch', 'expandSearch', 'collapseSearch', 'toggleExpanded', 'handleGrippieDrag'
+            'advancedSearchToQuery', 'queryToAdvancedSearch', 'expandSearch', 'collapseSearch', 'collapseNoFocus', 'toggleExpanded',
+            'handleGrippieDrag'
         );
 
         this.model.bind('change', this.updateQuery);
+        this.model.bind('change:collection', this.collapseNoFocus);
     },
     render: function() {
         $(this.el).html(this.template.render({query: this.model.get('query')}));
@@ -170,8 +172,11 @@ Genghis.Views.Search = Backbone.View.extend({
         });
     },
     collapseSearch: function() {
-        $(this.el).removeClass('expanded').css('height', 'auto');
+        this.collapseNoFocus();
         this.focusSearch();
+    },
+    collapseNoFocus: function() {
+        $(this.el).removeClass('expanded').css('height', 'auto');
     },
     toggleExpanded: function() {
         if ($(this.el).hasClass('expanded')) {
