@@ -1,6 +1,6 @@
 Genghis.Views.KeyboardShortcuts = Backbone.View.extend({
     tagName:  'div',
-    template: _.template($('#keyboard-shortcuts-template').html()),
+    template: Genghis.Templates.KeyboardShortcuts,
     events: {
         'click a.close': 'hide'
     },
@@ -11,7 +11,8 @@ Genghis.Views.KeyboardShortcuts = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template()).modal({backdrop: true, keyboard: true, show: false});
+        $(this.el).html(this.template.render()).modal({backdrop: true, keyboard: true, show: false});
+
         return this;
     },
     show: function(e) {

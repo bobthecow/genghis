@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+begin
+  require 'vegas'
+rescue LoadError
+  require 'rubygems'
+  require 'vegas'
+end
+require File.expand_path(File.dirname(__FILE__) + '/../genghis')
+
+Vegas::Runner.new(Genghis::Server, 'genghisapp') do |runner, opts, app|
+  opts.on('-N', "--no-update-check", "Skip the Genghis update check") do
+    runner.logger.info "Skipping Genghis update check"
+    ENV['GENGHIS_NO_UPDATE_CHECK'] = "1"
+  end
+
+  opts.on('-s SERVERS', "--servers SERVERS", "Specify default server list") do |servers|
+    runner.logger.info "Using Genghis servers #{servers.inspect}"
+    ENV['GENGHIS_SERVERS'] = servers
+  end
+end

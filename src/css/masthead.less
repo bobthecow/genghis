@@ -1,0 +1,62 @@
+.masthead {
+    position: relative;
+    padding: 40px 0;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 30px rgba(0,0,0,.1);
+    #gradient > .horizontal(darken(@mongoGreen, 15%), desaturate(@mongoGreen, 10%));
+    .box-shadow(~"inset 0 3px 7px rgba(0,0,0,.2), inset 0 -3px 7px rgba(0,0,0,.2)");
+    .container {
+        position: relative;
+        z-index:  2;
+    }
+    &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        top:    0;
+        right:  0;
+        bottom: 0;
+        left:   0;
+        background-color:    transparent;
+        background-repeat:   repeat;
+        background-position: center center;
+        background-image:    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAWBAMAAAAyb6E1AAAAFVBMVEX%2F%2F%2F8AAADMzMwzMzMAAAD%2F%2F%2F%2F%2F%2F%2F8yjfZbAAAAB3RSTlMAFBQUDQcU2nuKtgAAADRJREFUCFtjYBEUdGCAAEdBQREoUxAI8DINBQWFoUxFQUEhKDPIUFgVymRVSwpgIAgGwHYA4JUH%2Bddiz14AAAAASUVORK5CYII%3D');
+    }
+
+    h1 {
+        font-size: 60px;
+        font-weight: bold;
+        letter-spacing: -1px;
+        line-height: 1;
+    }
+    p {
+        font-size: 24px;
+        line-height: 1.25;
+        margin-bottom: 20px;
+        font-weight: 300;
+    }
+
+    &.epic {
+        text-align: center;
+        padding: 70px 80px;
+        h1 {
+            font-size: 120px;
+        }
+        h2 {
+            font-size: 80px;
+        }
+        p {
+            font-size: 40px;
+            font-weight: 200;
+            margin-bottom: 30px;
+        }
+    }
+
+    &.error {
+        #gradient > .horizontal(darken(@errorText, 15%), desaturate(@errorText, 10%));
+    }
+
+    &.muted {
+        #gradient > .horizontal(@grayDark, lighten(@grayDark, 10%));
+    }
+}

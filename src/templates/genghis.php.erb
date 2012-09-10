@@ -9,6 +9,8 @@
  *
  * @author Justin Hileman <justin@justinhileman.info>
  */
+define('GENGHIS_VERSION', <%= GENGHIS_VERSION.inspect %>);
+
 <% includes.each do |inc| %><%= inc.sub(/(^<\?php\n|\?>\n?$)/, '').strip %>
 <% end %>
 
