@@ -78,6 +78,14 @@
     }
 }
 
+// too much border — work around twitter/bootstrap#4512
+.navbar-fixed-top,
+.navbar-static-top {
+  .navbar-inner {
+    .box-shadow(0 1px 10px rgba(0,0,0,.1));
+  }
+}
+
 // Green glows.
 textarea,
 input[type="text"],
