@@ -1,0 +1,35 @@
+{{# error }}
+    <td colspan="3">
+        <span class="value">{{ name }}</span>
+        <span class="label label-important" title="{{ error }}">Error</span>
+    </td>
+{{/ error }}
+{{^ error }}
+    <td>
+        <a href="{{ url }}" class="name value">{{ name }}</a>
+    </td>
+    <td>
+        <span class="databases has-details value">{{ count }}</span>
+        <div class="details" title="{{ count }} Database{{# isPlural }}s{{/ isPlural }}">
+            {{# count }}
+                <ul>
+                    {{# firstChildren }}
+                        <li>{{ . }}</li>
+                    {{/ firstChildren }}
+                    {{# hasMoreChildren }}
+                        <li>&hellip;</li>
+                    {{/ hasMoreChildren }}
+                </ul>
+            {{/ count }}
+            {{^ count }}
+                <em>None.</em>
+            {{/ count }}
+        </div>
+    </td>
+    <td>
+        <span class="size value">{{ humanSize }}</span>
+    </td>
+{{/ error }}
+<td class="action-column">
+    {{# editable }}<button class="btn btn-mini btn-danger destroy">Remove</button>{{/ editable }}
+</td>

@@ -1,0 +1,10 @@
+{{# collection.firstChildren }}
+    <li><a href="{{ url }}">
+        {{ id }}
+        <span>{{ humanCount }}</span>
+    </a></li>
+{{/ collection.firstChildren }}
+{{# collection.hasMoreChildren }}
+    <li class="divider"></li>
+    <li><a href="{{ collection.url }}">More &raquo;</a></li>
+{{/ collection.hasMoreChildren }}

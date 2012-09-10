@@ -54,7 +54,13 @@ class Genghis_App
     protected function isJsonRequest()
     {
         if (in_array($this->getRequestMethod(), array('POST', 'PUT'))) {
-            $type = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : 'x-www-form-urlencoded';
+            if (array_key_exists('HTTP_CONTENT_TYPE', $_SERVER)) {
+                $type = $_SERVER['HTTP_CONTENT_TYPE'];
+            } elseif (array_key_exists('CONTENT_TYPE', $_SERVER)) {
+                $type = $_SERVER['CONTENT_TYPE'];
+            } else {
+                $type = 'x-www-form-urlencoded';
+            }
         } else {
             $type = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : 'text/html';
         }
@@ -90,7 +96,7 @@ class Genghis_App
             $last    = count($chunks);
             $baseUrl = '';
             do {
-                $seg     = $segs[$index];
+                $seg     = $chunks[$index];
                 $baseUrl = '/'.$seg.$baseUrl;
                 ++$index;
             } while (($last > $index) && (false !== ($pos = strpos($path, $baseUrl))) && (0 != $pos));
@@ -137,7 +143,13 @@ class Genghis_App
 
     protected function getRequestPath()
     {
-        return isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '/';
+        if (isset($_SERVER['PATH_INFO'])) {
+            return $_SERVER['PATH_INFO'];
+        } elseif (isset($_SERVER['REQUEST_URI'])) {
+            return $_SERVER['REQUEST_URI'];
+        } else {
+            return '/';
+        }
     }
 
     protected function getQueryParams()

@@ -1,8 +1,8 @@
-Genghis.Views.Collections = Genghis.Base.SectionView.extend({
+Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
     el: 'section#collections',
-    template: _.template($('#collections-template').html()),
+    template: Genghis.Templates.Collections,
     rowView: Genghis.Views.CollectionRow,
     formatTitle: function(model) {
-        return model.id ? (model.id + ' collections') : 'Collections';
+        return model.id ? (model.id + ' Collections') : 'Collections';
     }
 });

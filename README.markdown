@@ -1,19 +1,108 @@
-Genghis
-=======
+[Genghis](http://genghisapp.com)
+================================
 
-A single-file MongoDB admin app by Justin Hileman.
+The single-file MongoDB admin app, by [Justin Hileman](http://justinhileman.info).
 
-http://genghisapp.com
+[![Genghis](http://genghisapp.com/genghis.png)](http://genghisapp.com)
+
+There are more ways to run Genghis than you can shake a stick at
+----------------------------------------------------------------
 
 
-Installation
-------------
+### Standalone
 
-[Make sure you have the PECL MongoDB driver installed](http://www.mongodb.org/display/DOCS/PHP+Language+Center).
+If you installed Genghis as a Ruby gem, running Genghis standalone is easy:
 
-Put `genghis.php` somewhere web accessible. If you want pretty urls, add `.htaccess` as well.
+```
+$ genghisapp
+```
 
-That's pretty much it.
+If you didn't go the gem route, you can still run `genghis.rb` standalone:
+
+```
+$ ruby genghis.rb
+```
+
+`genghis.php` can also be run as a PHP 5.4 CLI SAPI standalone server:
+
+```
+$ php -S localhost:8000 genghis.php
+```
+
+
+### In your LAMP stack
+
+Simply drop `genghis.php` in a web-accessible directory on a LAMP server. Don't forget `.htaccess` for perty URLs!
+
+
+### With nginx and PHP-fpm (and friends)
+
+You'll need [some fancy config action](https://github.com/bobthecow/genghis/wiki), but it's fairly straightforward.
+
+
+### In an existing Rack app
+
+For a super basic Rack config, use a `config.ru` file like this:
+
+```rb
+require 'genghis'
+
+run Genghis::Server
+```
+
+If you want to load Genghis on a subpath, possibly alongside other apps, it's easy to do with Rack's `URLMap`:
+
+```rb
+require 'genghis'
+
+run Rack::URLMap.new \
+  '/'        => Your::App.new,
+  '/genghis' => Genghis::Server.new
+```
+
+
+### With Rails 3
+
+You can even mount Genghis on a subpath in your existing Rails 3 app by adding `require 'genghis'` to the top of your
+routes file (or in an intializer) and then adding this to `routes.rb`:
+
+```rb
+mount Genghis::Server.new, :at => '/genghis'
+```
+
+
+
+Genghis Dependencies
+--------------------
+
+
+### PHP
+
+You will need [the PECL MongoDB driver](http://www.mongodb.org/display/DOCS/PHP+Language+Center).
+
+
+### Ruby
+
+The easiest way to install Genghis and all dependencies is via RubyGems:
+
+```
+$ gem install genghisapp
+```
+
+Or you could check out a local copy of the Git repo and install dependencies via Bundler:
+
+```
+$ gem install bundler
+$ bundle install
+```
+
+
+
+Configuration
+-------------
+
+Check [the Genghis wiki](https://github.com/bobthecow/genghis/wiki) for additional configuration information.
+
 
 
 License
@@ -21,3 +110,36 @@ License
 
  * Copyright 2011 [Justin Hileman](http://justinhileman.com)
  * Distributed under the [MIT License](http://creativecommons.org/licenses/MIT/)
+
+
+### Genghis uses a number of amazing open source libraries, distributed under the following licenses
+
+ * [Apprise][apprise]                     — MIT License
+ * [Apprise Bootstrap][apprise-bootstrap] — Apache License v2.0
+ * [Backbone.js][backbone]                — MIT License
+ * [CodeMirror][codemirror]               — MIT-style License
+ * [Esprima][esprima]                     — "Simplified" BSD License (2-clause)
+ * [Hogan.js][hogan]                      — Apache License v2.0
+ * [hoverIntent][hoverintent]             — MIT or GPLv2 License
+ * [jQuery][jquery]                       — MIT License
+ * [jQuery Hotkeys][hotkeys]              — MIT or GPLv2 License
+ * [KEYS.css][keyscss]                    — MIT License
+ * [Modernizr][modernizr]                 — MIT or BSD (3-clause) License
+ * [TableSorter][tablesorter]             — MIT or GPLv2 License
+ * [Twitter Bootstrap][bootstrap]         — Apache License v2.0
+ * [Underscore.js][underscore]            — MIT License
+
+ [apprise]:           http://thrivingkings.com/apprise
+ [apprise-bootstrap]: https://github.com/bobthecow/apprise-bootstrap
+ [backbone]:          http://backbonejs.org
+ [codemirror]:        http://codemirror.net
+ [esprima]:           http://esprima.org
+ [hogan]:             http://twitter.github.com/hogan.js/
+ [hoverintent]:       http://cherne.net/brian/resources/jquery.hoverIntent.html
+ [jquery]:            http://jquery.com
+ [hotkeys]:           https://github.com/jeresig/jquery.hotkeys
+ [keyscss]:           http://michaelhue.com/keyscss
+ [modernizr]:         http://modernizr.com
+ [tablesorter]:       http://tablesorter.com
+ [bootstrap]:         http://twitter.github.com/bootstrap/
+ [underscore]:        http://underscorejs.org
