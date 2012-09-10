@@ -80,7 +80,7 @@ Genghis.Router = Backbone.Router.extend({
     },
     notFound: function(path) {
         // fix a weird case where the Backbone router won't route if the root url == the current pathname.
-        if (path.replace(/\/$/, '') == app.baseUrl.replace(/\/$/, '')) return this.navigate('', true);
+        if (path.replace(/(^\/|\/$)/g, '') == app.baseUrl.replace(/(^\/|\/$)/g, '')) return this.redirectToIndex();
 
         document.title = this.buildTitle('404: Not Found');
         app.showSection();
