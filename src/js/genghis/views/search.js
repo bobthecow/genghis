@@ -21,7 +21,7 @@ Genghis.Views.Search = Backbone.View.extend({
         $(this.el).html(this.template.render({query: this.model.get('query')}));
         $(this.el).submit(function(e) { e.preventDefault(); });
 
-        $(document).bind('keyup', '/', this.focusSearch);
+        $(document).bind('keydown', '/', this.focusSearch);
 
         var wrapper   = $(this.el);
         var resizable = wrapper.find('.well');
