@@ -3,7 +3,7 @@
 
 The single-file MongoDB admin app, by [Justin Hileman](http://justinhileman.info).
 
-
+![Genghis](http://genghisapp.com/genghis.png)
 
 There are more ways to run Genghis than you can shake a stick at
 ----------------------------------------------------------------
