@@ -48,6 +48,7 @@ And a handful of bug fixes:
  * Fix — rare bug where properties with a specific structure might be mistaken for ObjectIds or Dates.
  * Fix — no longer recreates missing dbs and collections on GET requests.
  * Fix — all sorts of things now 404 if they're missing, rather than rendering an empty page.
+ * Fix — assorted issues with running in subdirectories, and under nginx.
  * Improve error handling in a couple of places.
 
 
