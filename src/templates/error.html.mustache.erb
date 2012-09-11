@@ -4,6 +4,7 @@
         <meta charset="utf-8" />
         <title>Genghis &mdash; {{ status }}: {{ message }}</title>
         <link rel="shortcut icon" type="image/png" href="<%= favicon_uri %>">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Rokkitt:400,700">
         <link type="text/css" rel="stylesheet" href="{{ base_url }}/assets/style.css">
     </head>
@@ -11,24 +12,26 @@
         <header class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container fixed">
-                    <h3><a class="magic brand" href="{{ base_url }}">Genghis</a></h3>
+                    <a class="magic brand" href="{{ base_url }}/">Genghis</a>
                     <nav></nav>
                 </div>
             </div>
         </header>
 
-        <section id="genghis" class="container fluid">
-            <section id="error" style="display:block;">
-                <header><h2>{{ status }}: {{ message }}</h2></header>
-                <div class="content">
-                    <p>
-                        If you think you've reached this message in error, please press <strong>0</strong> to speak with
-                        an operator. Otherwise, hang up and try again.
-                    </p>
-                </div>
-            </section>
-        </section>
+        <header class="masthead epic error">
+            <div class="container">
+                <h1>{{ status }}: {{ message }}</h1>
+                <p>
+                    If you think you've reached this message in error, please press <strong>0</strong> to speak with
+                    an operator. Otherwise, hang up and try again.
+                </p>
+            </div>
+        </header>
 
-        <footer class="container"><p>Genghis, by <a href="http://justinhileman.info">Justin Hileman</a>.</p></footer>
+        <section id="genghis" class="container fluid"></section>
+
+        <footer class="container">
+            <p><a href="http://genghisapp.com">Genghis</a>, by <a href="http://justinhileman.info">Justin Hileman</a>.</p>
+        </footer>
     </body>
 </html>

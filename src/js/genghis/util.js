@@ -1,6 +1,6 @@
 Genghis.Util = {
     route: function(url) {
-        return url.replace(Genghis.baseUrl, '').replace(/^\//, '');
+        return url.replace(app.baseUrl, '').replace(/^\//, '');
     },
 
     parseQuery: function(str) {
@@ -8,10 +8,10 @@ Genghis.Util = {
 
         if (str.length) {
             _.each(str.split('&'), function(val) {
-                var chunks = val.split('='),
-                    name   = chunks.shift();
+                var chunks = val.split('=');
+                var name   = chunks.shift();
 
-                params[name] = chunks.join('=');
+                params[name] = decodeURIComponent(chunks.join('='));
             });
         }
 
@@ -24,8 +24,9 @@ Genghis.Util = {
 
     humanizeSize: function(bytes) {
         if (bytes ==- 0) return 'n/a';
-        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'],
-            i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
+
         return ((i === 0)? (bytes / Math.pow(1024, i)) : (bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + sizes[i];
     },
 
@@ -56,107 +57,50 @@ Genghis.Util = {
         }
     },
 
-    formatJSON: function(value) {
-        function htmlEncode(t) {
-            return t !== null ? t.toString().replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
-        }
+    attachCollapsers: function(scope) {
+        $('.document', scope).on('click', 'button,span.e', function(e) {
 
-        function wrap(value, className, raw) {
-            return '<span class="' + className + '">' + (raw ? value : htmlEncode(value)) + '</span>';
-        }
+            var $property = $(this).parent();
+            var $value    = $property.children('.v');
+            var isName    = /^\s*(name|title)\s*/i;
+            var isObject  = $value.hasClass('o');
+            var summary   = '';
+            var prop;
+            var $s;
 
-        function valueToHTML(value) {
-            var valueType = typeof value,
-                output = [];
-            if (value === null) {
-                output.push(wrap('null', 'null'));
-            } else if (value && value.constructor == Array) {
-                output.push(arrayToHTML(value));
-            } else if (valueType == 'object') {
-                output.push(objectToHTML(value));
-            } else if (valueType == 'number') {
-                output.push(wrap(value, 'num'));
-            } else if (valueType == 'string') {
-                var valueHTML = wrap(value, 'value');
-                if (/^https?:\/\/[^\s]+$/.test(value)) {
-                    valueHTML = '<a href="' + value + '">' + valueHTML + '</a>';
-                }
-                output.push(wrap('"' + valueHTML + '"', 'string', true));
-            } else if (valueType == 'boolean') {
-                output.push(wrap(value, 'bool'));
-            }
-
-            return output.join('');
-        }
-
-        function arrayToHTML(json) {
-            var output = _.map(json, function(value) { return '<li>' + valueToHTML(value) + '</li>'; });
-            return output.length ? '[<ul class="array">' + output.join('') + '</ul>]' : '[ ]';
-        }
-
-        function objectToHTML(json) {
-            var isRef     = (_.detect(json, function(v, p) { return _.include(['$id', '_id'], p); }) && _.detect(json, function(v, p) { return (p === '$ref'); })),
-                className = 'obj' + (isRef ? ' db-ref' : ''),
-                output    = _.map(json, function(value, prop) {
-                    var isRefProp = (isRef && _.include(['$ref', '$id', '_id', '$db'], prop));
-                    return '<li' + (isRefProp ? (' class="db-ref-' + prop.substring(1) + '"') : '') + '>' + wrap(prop, 'prop') + valueToHTML(value) + '</li>';
-                });
-            return output.length ? '{<ul class="' + className + '">' + output.join('') + '</ul>}' : '{ }';
-        }
-
-        return valueToHTML(value);
-    },
-
-    attachCollapsers: function(scope, andCollapse) {
-        $('<div class="collapser">-</div>')
-            .prependTo($('.document ul', scope).parent('li, .document'));
-
-        $('.document', scope).on('click', 'div.collapser', function(e) {
-            var $parent    = $(this).parent(),
-                $target    = $parent.children('ul'),
-                $collapser = $parent.children('.collapser');
-
-            function summary(target) {
-                if (!('collapserSummary' in target.data())) {
-                    var prop,
-                        $s = $(_.detect(target.find('> li > span.prop'), function(el) {
-                            return (/^\s*(name|title)\s*/i.test($(el).text()));
-                        })).siblings('span');
+            if (!$property.children('.e').length) {
+                if (isObject) {
+                    $s = $(_.detect($value.find('> span.p > var'), function(el) {
+                        return isName.test($(el).text());
+                    })).siblings('span.v');
 
                     if ($s.length === 0) {
-                        $s = $(_.detect(target.find('> li > span:not(.prop)'), function(el) {
+                        $s = $(_.detect($value.find('> span.p > span.v'), function(el) {
                             var $el = $(el);
-                            return $el.hasClass('num') || $el.hasClass('boolean') ||
-                                ($el.hasClass('string') && $el.text().length < 64);
+                            return $el.hasClass('n') || $el.hasClass('b') ||
+                                ($el.hasClass('q') && $el.text().length < 64);
                         }));
                     }
 
-                    if ($s.length) {
-                        prop = $s.siblings('.prop').text();
-                        target.data('collapserSummary', '<span class="summary">' + (prop ? prop + ': ' : '') + Genghis.Util.escape($s.text()) + '</span>');
-                    } else {
-                        target.data('collapserSummary', '');
+                    if ($s && $s.length) {
+                        prop = $s.siblings('var').text();
+                        summary = (prop ? prop + ': ' : '') + Genghis.Util.escape($s.text());
                     }
                 }
 
-                return target.data('collapserSummary');
+                $property.append(
+                    '<span class="e">' +
+                    (isObject ? '{' : '[') +
+                    ' <q>' +
+                    summary +
+                    ' &hellip;</q> ' +
+                    (isObject ? '}' : ']') +
+                    '</span>'
+                );
             }
 
-            if ($target.is(':visible')) {
-                $target.hide();
-                $('<span class="ellipsis"> ' + summary($target) + ' &hellip; </span>').insertBefore($target).click(arguments.callee);
-                $collapser.addClass('collapsed').text('+');
-            } else {
-                $target.siblings('.ellipsis').remove();
-                $target.show();
-                $collapser.removeClass('collapsed').text('-');
-            }
-
+            $property.toggleClass('collapsed');
             e.preventDefault();
         });
-
-        if (andCollapse) {
-            $('.document > .collapser', scope).click();
-        }
     }
 };
