@@ -543,6 +543,10 @@ module Genghis
 
     helpers Genghis::Helpers
 
+    def self.version
+      GENGHIS_VERSION
+    end
+
 
     ### Error handling ###
 
