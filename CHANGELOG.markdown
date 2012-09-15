@@ -1,6 +1,7 @@
 ## v2.1
 
  * Fix #28 — Handle BSON BinData properly in documents and ids.
+ * Fix — Handle connection auth errors more gracefully.
 
 
 ## v2.0.2

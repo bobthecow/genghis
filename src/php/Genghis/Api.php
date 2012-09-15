@@ -238,6 +238,13 @@ class Genghis_Api extends Genghis_App
 
         try {
             $res = $this->getMongo($name)->listDBs();
+
+            if (isset($res['errmsg'])) {
+                $server['error'] = 'Unable to connect to Mongo server at "'.$name.'": '.$res['errmsg'].'.';
+
+                return $server;
+            }
+
             $dbs = array_map(function($db) {
                 return $db['name'];
             }, $res['databases']);
