@@ -1,3 +1,7 @@
+## v2.0.1
+
+ * Fix #26 — Don't double-encode HTML entities in JSON output.
+
 ## v2.0.0
 
 Brand new features:
