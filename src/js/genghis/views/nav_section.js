@@ -25,5 +25,14 @@ Genghis.Views.NavSection = Backbone.View.extend({
     },
     renderMenu: function() {
         this.$('ul.dropdown-menu').html(this.menuTemplate.render({model: this.model, collection: this.collection}));
+
+        // Handle really wide badges on the menu dropdown
+        this.$('ul.dropdown-menu a span').each(function(i, el) {
+            var $el = $(el);
+            var len = $el.text().length;
+            if (len > 3) {
+                $el.parent().css('padding-right', '' + (len + 0.5) + 'em');
+            }
+        });
     }
 });
