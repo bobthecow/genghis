@@ -62,11 +62,9 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         var $well = this.$('.well');
         var height = Math.max(180, Math.min(600, $well.height() + 40));
 
-        $well.height(height);
         var textarea = $('<textarea id="editor-'+this.model.id+'"></textarea>')
             .text(this.model.JSONish())
-            .appendTo($well)
-            .height(height);
+            .appendTo($well);
 
         this.$('.document').hide();
 
@@ -79,6 +77,8 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
                  'Cmd-Enter':  this.saveDocument
              }
         }));
+
+        this.editor.setSize(null, height);
 
         setTimeout(this.editor.focus, 50);
 
