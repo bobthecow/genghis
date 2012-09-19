@@ -1,3 +1,7 @@
+## v2.0.2
+
+ * Fix unexpected unary expression error when parsing negative numbers.
+
 ## v2.0.1
 
  * Fix #26 — Don't double-encode HTML entities in JSON output.
