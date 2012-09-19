@@ -27,7 +27,8 @@ Genghis.JSON = {
             'ObjectExpression': true,
             'ArrayExpression':  true,
             'NewExpression':    true,
-            'CallExpression':   true
+            'CallExpression':   true,
+            'UnaryExpression':  true
         };
 
         var errors = [];
@@ -255,6 +256,7 @@ Genghis.JSON = {
                 case 'Identifier':
                 case 'ArrayExpression':
                 case 'ObjectExpression':
+                case 'UnaryExpression':
                     break;
 
                // Normally literals get a pass
