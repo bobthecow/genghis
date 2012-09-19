@@ -2,6 +2,7 @@
 
  * Fix #29 — Don't throw unexpected unary expression error when parsing negative numbers.
  * Fix #22 — Handle high badge counts on nav dropdown.
+ * Fix #30 — Weird content clipping when editing really long documents.
 
 
 ## v2.0.1
