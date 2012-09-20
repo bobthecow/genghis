@@ -49,6 +49,15 @@ class Genghis_Json
                             '$flags'   => $object->flags ? $object->flags : null
                         )
                     );
+
+                case 'MongoBinData':
+                    return array(
+                        '$genghisType' => 'BinData',
+                        '$value' => array(
+                            '$subtype' => $object->type,
+                            '$binary'  => base64_encode($object->bin),
+                        )
+                    );
             }
 
             // everything else is likely a StdClass...
@@ -96,6 +105,12 @@ class Genghis_Json
                         $flags   = self::getProp($value, 'flags');
 
                         return new MongoRegex(sprintf('/%s/%s', $pattern, $flags));
+
+                    case 'BinData':
+                        $data = base64_decode(self::getProp($value, 'binary'));
+                        $type = self::getProp($value, 'subtype');
+
+                        return new MongoBinData($data, $type);
                 }
             } else {
                 foreach ($object as $prop => $value) {

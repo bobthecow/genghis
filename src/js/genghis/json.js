@@ -19,7 +19,8 @@ Genghis.JSON = {
             'Date':     true,
             'ISODate':  true,
             'DBRef':    true,
-            'RegExp':   true
+            'RegExp':   true,
+            'BinData':  true,
         };
 
         var allowedPropertyValues = {
@@ -116,6 +117,16 @@ Genghis.JSON = {
                     '$value': {
                         '$pattern': pattern ? pattern.toString() : null,
                         '$flags': flags ? flags.toString() : null
+                    }
+                };
+            }
+
+            function BinData(subtype, base64str) {
+                return {
+                    '$genghisType': 'BinData',
+                    '$value': {
+                        '$subtype': subtype,
+                        '$binary': base64str
                     }
                 };
             }
@@ -403,8 +414,11 @@ Genghis.JSON = {
 
                 s.appendChild(t(fn + '('));
 
-                _.each(values, function(value) {
+                _.each(values, function(value, i) {
                     s.appendChild(quote(value));
+                    if (i < (values.length - 1)) {
+                        s.appendChild(t(', '));
+                    }
                 });
 
                 s.appendChild(t(')'));
@@ -469,6 +483,9 @@ Genghis.JSON = {
                                     var flags   = value['$value']['$flags'] || '';
 
                                     return span('v re', '/' + pattern + '/' + flags);
+
+                                case 'BinData':
+                                    return c('BinData', [value['$value']['$subtype'], value['$value']['$binary']], 'bindata');
                             }
                         }
 
