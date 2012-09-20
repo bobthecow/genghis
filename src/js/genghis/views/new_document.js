@@ -55,7 +55,7 @@ Genghis.Views.NewDocument = Genghis.Views.BaseDocument.extend({
     },
     getErrorBlock: function() {
         var errorBlock = $('div.errors', this.el);
-        if (errorBlock.length == 0) {
+        if (errorBlock.length === 0) {
             errorBlock = $('<div class="errors"></div>').prependTo($('.modal-body', this.el));
         }
 

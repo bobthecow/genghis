@@ -93,7 +93,7 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
     },
     getErrorBlock: function() {
         var errorBlock = this.$('div.errors');
-        if (errorBlock.length == 0) {
+        if (errorBlock.length === 0) {
             errorBlock = $('<div class="errors"></div>').prependTo(this.el);
         }
 

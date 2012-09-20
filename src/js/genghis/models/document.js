@@ -54,7 +54,7 @@ Genghis.Models.Document = Backbone.Model.extend({
                         }
                     }
 
-                    return id['$value']['$binary'].replace(/=+$/, '');
+                    return id['$value']['$binary'].replace(/\=+$/, '');
             }
         }
 

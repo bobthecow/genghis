@@ -20,7 +20,7 @@ Genghis.JSON = {
             'ISODate':  true,
             'DBRef':    true,
             'RegExp':   true,
-            'BinData':  true,
+            'BinData':  true
         };
 
         var allowedPropertyValues = {
@@ -71,7 +71,7 @@ Genghis.JSON = {
                     return new GenghisDate();
                 }
 
-                var pattern = /(\d{4})-?(\d{2})-?(\d{2})([T ](\d{2})(:?(\d{2})(:?(\d{2}(\.\d+)?))?)?(Z|([+-])(\d{2}):?(\d{2})?)?)?/;
+                var pattern = /(\d{4})-?(\d{2})-?(\d{2})([T ](\d{2})(:?(\d{2})(:?(\d{2}(\.\d+)?))?)?(Z|([+\-])(\d{2}):?(\d{2})?)?)?/;
                 var matches = pattern.exec(date);
 
                 if (!matches) {
@@ -85,7 +85,7 @@ Genghis.JSON = {
                 var min   = parseInt(matches[7], 10) || 0;
                 var sec   = parseFloat(matches[9]) || 0;
                 var ms    = Math.round((sec % 1) * 1000);
-                sec -= ms / 1000
+                sec -= ms / 1000;
 
                 var timestamp = Date.UTC(year, month, day, hour, min, sec, ms);
 
@@ -96,7 +96,7 @@ Genghis.JSON = {
                     if (matches[12] == '+') // if ahead subtract
                         offset *= -1;
 
-                    timestamp += offset
+                    timestamp += offset;
                 }
 
                 return new GenghisDate(timestamp);
@@ -178,11 +178,12 @@ Genghis.JSON = {
                 for (var i = node.range[0] + 1; i < node.range[1]; i++) {
                     chunks[i] = '';
                 }
-            };
+            }
         }
 
+        var ast;
         try {
-            var ast = esprima.parse(src, opts);
+            ast = esprima.parse(src, opts);
         } catch (e) {
             throwErrors([e]);
         }
