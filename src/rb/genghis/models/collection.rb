@@ -1,3 +1,5 @@
+require 'base64'
+
 module Genghis
   module Models
     class Collection
@@ -60,7 +62,11 @@ module Genghis
       private
 
       def thunk_mongo_id(doc_id)
-        doc_id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(doc_id) : doc_id
+        if (doc_id[0] == '~')
+          ::Genghis::JSON.decode(Base64.decode64(doc_id[1..-1]))
+        else
+          doc_id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(doc_id) : doc_id
+        end
       end
     end
   end

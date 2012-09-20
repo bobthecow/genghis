@@ -8,10 +8,10 @@ Genghis.Models.Document = Backbone.Model.extend({
         }
     },
     thunkId: function(id) {
-        if (typeof id === 'object' && id['$genghisType'] == 'ObjectId') {
+        if (typeof id === 'object' && id.hasOwnProperty('$genghisType') && id['$genghisType'] == 'ObjectId') {
             return id['$value'];
-        } else {
-            return id;
+        } else if (typeof id !== 'undefined') {
+            return '~' + Genghis.Util.base64Encode(JSON.stringify(id));
         }
     },
     parse: function(resp) {

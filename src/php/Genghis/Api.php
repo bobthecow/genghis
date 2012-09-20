@@ -574,6 +574,10 @@ class Genghis_Api extends Genghis_App
 
     protected function thunkMongoId($id)
     {
+        if ($id[0] == '~') {
+            return Genghis_Json::decode(base64_decode(substr($id, 1)));
+        }
+
         return preg_match('/^[a-f0-9]{24}$/i', $id) ? new MongoId($id) : $id;
     }
 
