@@ -1,3 +1,8 @@
+## v2.1
+
+ * Fix #28 — Handle BSON BinData properly in documents and ids.
+
+
 ## v2.0.2
 
  * Fix #29 — Don't throw unexpected unary expression error when parsing negative numbers.
