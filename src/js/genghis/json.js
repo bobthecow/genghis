@@ -416,7 +416,7 @@ Genghis.JSON = {
                 s.appendChild(t(fn + '('));
 
                 _.each(values, function(value, i) {
-                    s.appendChild(quote(value));
+                    s.appendChild(value);
                     if (i < (values.length - 1)) {
                         s.appendChild(t(', '));
                     }
@@ -472,10 +472,10 @@ Genghis.JSON = {
                         if (Object.hasOwnProperty.call(value, '$genghisType')) {
                             switch(value['$genghisType']) {
                                 case 'ObjectId':
-                                    return c('ObjectId', [value['$value']], 'oid');
+                                    return c('ObjectId', [quote(value['$value'])], 'oid');
 
                                 case 'ISODate':
-                                    return c('ISODate', [value['$value']], 'date');
+                                    return c('ISODate', [quote(value['$value'])], 'date');
 
                                 case 'RegExp':
                                     // we'll render regexp as a literal
@@ -486,7 +486,7 @@ Genghis.JSON = {
                                     return span('v re', '/' + pattern + '/' + flags);
 
                                 case 'BinData':
-                                    return c('BinData', [value['$value']['$subtype'], value['$value']['$binary']], 'bindata');
+                                    return c('BinData', [span('n', String(value['$value']['$subtype'])), quote(value['$value']['$binary'])], 'bindata');
                             }
                         }
 
