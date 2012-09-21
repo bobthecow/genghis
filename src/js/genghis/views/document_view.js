@@ -61,15 +61,16 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
     openEditDialog: function() {
         var $well = this.$('.well');
         var height = Math.max(180, Math.min(600, $well.height() + 40));
+        var editorId = 'editor-' + this.model.id.replace('~', '-');
 
-        var textarea = $('<textarea id="editor-'+this.model.id+'"></textarea>')
+        var textarea = $('<textarea id="'+editorId+'"></textarea>')
             .text(this.model.JSONish())
             .appendTo($well);
 
         this.$('.document').hide();
 
         var el = $(this.el).addClass('edit');
-        this.editor = CodeMirror.fromTextArea($('#editor-'+this.model.id)[0], _.extend(Genghis.defaults.codeMirror, {
+        this.editor = CodeMirror.fromTextArea(textarea[0], _.extend(Genghis.defaults.codeMirror, {
             onFocus: function() { el.addClass('focused');    },
             onBlur:  function() { el.removeClass('focused'); },
             extraKeys: {
