@@ -173,7 +173,8 @@ class Genghis_App
     {
         $this->initAssets();
         $defaults = array(
-            'base_url' => $this->getBaseUrl(),
+            'base_url'        => $this->getBaseUrl(),
+            'genghis_version' => GENGHIS_VERSION,
         );
 
         return new Genghis_Response(strtr($this->assets[$name], $this->prepareVars(array_merge($defaults, $vars))), $status);
