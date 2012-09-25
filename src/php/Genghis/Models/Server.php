@@ -68,7 +68,16 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
             throw new Genghis_HttpException(500, sprintf("Database '%s' already exists", $name));
         }
 
-        $this->connection->selectDB($name)->selectCollection('__genghis_tmp_collection__')->drop();
+        try {
+            $db = $this->connection->selectDB($name);
+        } catch (Exception $e) {
+            if (strpos($e->getMessage(), 'invalid name') !== false) {
+                throw new Genghis_HttpException(400, 'Invalid database name');
+            }
+            throw $e;
+        }
+
+        $db->selectCollection('__genghis_tmp_collection__')->drop();
 
         return $this[$name];
     }

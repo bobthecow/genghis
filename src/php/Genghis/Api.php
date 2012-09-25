@@ -121,7 +121,7 @@ class Genghis_Api extends Genghis_App
             case 'PUT':
                 $this->servers[$server][$db][$coll][$id] = $this->getRequestData();
 
-                return $this->findDocument($server, $db, $coll, $id);
+                return $this->servers[$server][$db][$coll][$id];
 
             case 'DELETE':
                 unset($this->servers[$server][$db][$coll][$id]);

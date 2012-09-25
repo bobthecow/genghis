@@ -16,6 +16,11 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
         $this->name     = (string) $database;
     }
 
+    public function drop()
+    {
+        $this->database->drop();
+    }
+
     public function offsetExists($name)
     {
         return ($this->getMongoCollection($name) !== null);
@@ -67,7 +72,15 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
             throw new Genghis_HttpException(500, sprintf("Collection '%s' already exists in '%s'", $name, $this->name));
         }
 
-        $this->database->createCollection($name);
+        try {
+            $this->database->createCollection($name);
+        } catch (Exception $e) {
+            if (strpos($e->getMessage(), 'invalid name') !== false) {
+                throw new Genghis_HttpException(400, 'Invalid collection name');
+            }
+            throw $e;
+        }
+
         unset($this->mongoCollections);
 
         return $this[$name];
