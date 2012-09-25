@@ -193,7 +193,7 @@ end
 
 asset_files = [tmp_dir+'index.html.mustache', tmp_dir+'error.html.mustache', tmp_dir+'style.css', tmp_dir+'script.js']
 
-php_include_files = FileList['src/php/**/*.php']
+php_include_files = FileList['src/php/**/*.php'].sort
 file 'genghis.php' => php_include_files + asset_files do
   File.open('genghis.php', 'w') do |file|
     template = ERB.new(File.read('src/templates/genghis.php.erb'))

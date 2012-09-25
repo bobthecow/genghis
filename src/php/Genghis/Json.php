@@ -25,6 +25,10 @@ class Genghis_Json
 
     private static function doEncode($object)
     {
+        if (is_object($object) && $object instanceof Genghis_JsonEncodable) {
+            $object = $object->asJson();
+        }
+
         if (is_object($object)) {
 
             // Genghisify Mongo objects.
