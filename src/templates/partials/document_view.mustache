@@ -8,6 +8,9 @@
 
     <h3>
         <a class="id" href="{{ url }}">{{ prettyId }}</a>
+        {{# prettyTime }}
+            <small><time datetime="{{ prettyTime }}">{{ prettyTime }}</time></small>
+        {{/ prettyTime }}
     </h3>
 
     <div class="document"></div>

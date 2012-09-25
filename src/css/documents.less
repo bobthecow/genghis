@@ -19,6 +19,13 @@ section#documents {
 }
 
 section#document {
+    h2 {
+        small {
+            font-size:    12px;
+            font-family:  @sansFontFamily;
+            padding-left: 10px;
+        }
+    }
     article h3 { display: none; }
 }
 
@@ -37,6 +44,11 @@ section#document {
                 &:hover, &:active {
                     color: @linkColor;
                 }
+            }
+            small {
+                font-size:    12px;
+                font-family:  @sansFontFamily;
+                padding-left: 10px;
             }
         }
     }

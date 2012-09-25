@@ -1,6 +1,6 @@
 Genghis.Models.Document = Backbone.Model.extend({
     initialize: function() {
-        _.bindAll(this, 'prettyId', 'prettyPrint', 'JSONish');
+        _.bindAll(this, 'prettyId', 'prettyTime', 'prettyPrint', 'JSONish');
 
         var id = this.thunkId(this.get('_id'));
         if (id) {
@@ -59,6 +59,21 @@ Genghis.Models.Document = Backbone.Model.extend({
         }
 
         return id;
+    },
+    prettyTime: function() {
+        if (typeof this._prettyTime == 'undefined') {
+            var id = this.get('_id');
+            if (typeof id == 'object' && id.hasOwnProperty('$genghisType')) {
+                if (id['$genghisType'] === 'ObjectId' && id['$value'].length == 24) {
+                    var time = new Date();
+                    time.setTime(parseInt(id['$value'].substring(0,8), 16) * 1000);
+
+                    this._prettyTime = time.toUTCString();
+                }
+            }
+        }
+
+        return this._prettyTime;
     },
     prettyPrint: function() {
         return Genghis.JSON.prettyPrint(this.toJSON());
