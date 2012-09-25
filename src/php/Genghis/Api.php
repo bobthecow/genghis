@@ -91,6 +91,22 @@ class Genghis_Api extends Genghis_App
             }
         }
 
+        // Check for Timezone issues
+        try {
+            $d = new DateTime;
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+
+            if (strpos($msg, 'date.timezone') === false) {
+                throw $e;
+            }
+
+            $alerts[] = array(
+                'level' => 'warning',
+                'msg'   => preg_replace('/^(?:DateTime::__construct\(\): )?([^\.]+\.)/', '<h4>\1</h4> ', $msg),
+            );
+        }
+
         // TODO: more sanity checks?
 
         return compact('alerts');
