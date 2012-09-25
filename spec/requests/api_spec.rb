@@ -357,6 +357,10 @@ describe 'Genghis API', :type => :request do
       }
     end
 
+    after :all do
+      @conn.drop_database '__genghis_spec_test__'
+    end
+
     describe 'GET /servers/:server/databases/:db/collections/:coll/documents' do
       it 'returns a list of documents' do
         res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
