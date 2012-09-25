@@ -146,7 +146,7 @@ class Genghis_App
         if (isset($_SERVER['PATH_INFO'])) {
             return $_SERVER['PATH_INFO'];
         } elseif (isset($_SERVER['REQUEST_URI'])) {
-            return $_SERVER['REQUEST_URI'];
+            return parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         } else {
             return '/';
         }

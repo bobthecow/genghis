@@ -2,6 +2,7 @@
 
  * Fix #28 — Handle BSON BinData properly in documents and ids.
  * Fix — Handle connection auth errors more gracefully.
+ * Fix — Query bug when running under PHP 5.4 SAPI CLI server.
  * Add a sanity check for PHP `date.timezone` settings.
  * Add an asset cachebuster param so nobody has to force refresh after updating.
 
