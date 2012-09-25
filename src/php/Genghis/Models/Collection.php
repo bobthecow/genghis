@@ -54,8 +54,6 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         if (!(isset($result['ok']) && $result['ok'])) {
             throw new Genghis_HttpException;
         }
-
-        throw new Exception;
     }
 
     public function findDocuments($query = null, $page = 1)

@@ -89,7 +89,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
         $names = array();
         $list = $this->getConnection()->listDBs();
         foreach ($list['databases'] as $db) {
-            $names = $db['name'];
+            $names[] = $db['name'];
         }
 
         return $names;
