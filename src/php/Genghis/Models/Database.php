@@ -69,7 +69,7 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
     public function createCollection($name)
     {
         if (isset($this[$name])) {
-            throw new Genghis_HttpException(500, sprintf("Collection '%s' already exists in '%s'", $name, $this->name));
+            throw new Genghis_HttpException(400, sprintf("Collection '%s' already exists in '%s'", $name, $this->name));
         }
 
         try {

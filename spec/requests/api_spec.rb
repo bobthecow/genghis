@@ -175,7 +175,7 @@ describe 'Genghis API', :type => :request do
           status: 400
       end
 
-      it 'returns 500 if db already exists' do
+      it 'returns 400 if db already exists' do
         @conn['__genghis_spec_create_db_test__']['__tmp__'].drop
         res = @api.post do |req|
           req.url '/servers/localhost/databases'
@@ -183,10 +183,10 @@ describe 'Genghis API', :type => :request do
           req.body = { name: '__genghis_spec_create_db_test__' }.to_json
         end
 
-        res.status.should eq 500
+        res.status.should eq 400
         res.body.should match_json_expression \
           error:  "Database '__genghis_spec_create_db_test__' already exists",
-          status: 500
+          status: 400
       end
     end
 
@@ -287,7 +287,7 @@ describe 'Genghis API', :type => :request do
           status: 400
       end
 
-      it 'returns 500 if db already exists' do
+      it 'returns 400 if collection already exists' do
         @conn['__genghis_spec_test__'].create_collection 'already_exists'
         res = @api.post do |req|
           req.url '/servers/localhost/databases/__genghis_spec_test__/collections'
@@ -295,10 +295,10 @@ describe 'Genghis API', :type => :request do
           req.body = { name: 'already_exists' }.to_json
         end
 
-        res.status.should eq 500
+        res.status.should eq 400
         res.body.should match_json_expression \
           error:  "Collection 'already_exists' already exists in '__genghis_spec_test__'",
-          status: 500
+          status: 400
       end
     end
 

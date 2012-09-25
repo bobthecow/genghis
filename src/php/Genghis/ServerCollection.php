@@ -44,7 +44,7 @@ class Genghis_ServerCollection implements ArrayAccess, Genghis_JsonEncodable
         }
 
         if (isset($this->serverDsns[$server->name])) {
-            throw new Genghis_HttpException(500, sprintf("Server '%s' already exists", $server->name));
+            throw new Genghis_HttpException(400, sprintf("Server '%s' already exists", $server->name));
         }
 
         $this->serverDsns[$server->name] = $server->dsn;

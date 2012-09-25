@@ -65,7 +65,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     public function createDatabase($name)
     {
         if (isset($this[$name])) {
-            throw new Genghis_HttpException(500, sprintf("Database '%s' already exists", $name));
+            throw new Genghis_HttpException(400, sprintf("Database '%s' already exists", $name));
         }
 
         try {
