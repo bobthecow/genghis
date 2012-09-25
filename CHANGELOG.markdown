@@ -6,6 +6,7 @@
  * Add a sanity check for PHP `date.timezone` settings.
  * Add an asset cachebuster param so nobody has to force refresh after updating.
  * Add a full API spec. Yey tests!
+ * Refactor PHP API. For the children.
 
 
 ## v2.0.2
