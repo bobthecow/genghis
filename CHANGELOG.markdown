@@ -1,6 +1,7 @@
 ## v2.1
 
  * Fix #28 — Handle BSON BinData properly in documents and ids.
+ * Fix #33 — Remove unexpected collapsed document representation in edit mode.
  * Fix — Handle connection auth errors more gracefully.
  * Fix — Query bug when running under PHP 5.4 SAPI CLI server.
  * Add ObjectId timestamps to document headers.

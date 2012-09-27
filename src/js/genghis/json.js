@@ -298,13 +298,15 @@ Genghis.JSON = {
     },
 
     stringify: function(value, pretty) {
-        return jQuery('<div>' + this.prettyPrint(value, pretty) + '</div>').text();
+        return jQuery('<div>' + this.prettyPrint(value, pretty, false) + '</div>').text();
     },
 
-    prettyPrint: function (value, pretty) {
+    prettyPrint: function (value, pretty, autoCollapse) {
         // This function borrows heavily from json2.js, a project in the public domain.
         //
         // See See http://www.JSON.org/js.html
+
+        autoCollapse = (autoCollapse !== false);
 
         function JsonView(value) {
 
@@ -501,7 +503,7 @@ Genghis.JSON = {
 
                             el = span('v a');
 
-                            if (gap) {
+                            if (autoCollapse && gap) {
                                 el.collapsible = true;
 
                                 if (value.length > 10) {
@@ -583,7 +585,7 @@ Genghis.JSON = {
                         }
 
                         el = span(spanClass);
-                        el.collapsible = true;
+                        el.collapsible = !!autoCollapse;
                         el.appendChild(t(gap ? ('{\n' + gap) : '{'));
 
                         glue = t(gap ? (',\n' + gap) : ',');
