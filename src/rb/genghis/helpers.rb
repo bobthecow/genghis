@@ -103,8 +103,8 @@ module Genghis
     end
 
     def add_server(dsn)
-      raise "Server #{name} already exists" unless servers[name].nil?
-      server = Genghis::Models::Server.new!(dsn)
+      server = Genghis::Models::Server.new(dsn)
+      raise "Server #{server.name} already exists" unless servers[server.name].nil?
       servers[server.name] = server
       save_servers
       server

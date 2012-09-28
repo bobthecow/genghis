@@ -3,6 +3,7 @@
  * Fix #28 — Handle BSON BinData properly in documents and ids.
  * Fix #33 — Remove unexpected collapsed document representation in edit mode.
  * Fix #32 — No more mixed-content warning when Genghis is running over SSL.
+ * Fix #35 — No more "Add Server" fail in Ruby.
  * Fix — Handle connection auth errors more gracefully.
  * Fix — Query bug when running under PHP 5.4 SAPI CLI server.
  * Add ObjectId timestamps to document headers.
