@@ -5,6 +5,8 @@ module Genghis
       attr_reader   :dsn
       attr_accessor :default
 
+      @default = false
+
       def initialize(dsn)
         dsn = 'mongodb://'+dsn unless dsn.include? '://'
 
@@ -20,6 +22,7 @@ module Genghis
           @name = name
         rescue Mongo::MongoArgumentError => e
           @error = "Malformed server DSN: #{e.message}"
+          @name  = dsn
         end
         @dsn = dsn
       end
