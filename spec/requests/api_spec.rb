@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'faraday'
 require 'mongo'
 
-describe 'Genghis API', :type => :request do
+describe 'Genghis API' do
   before :all do
     @api = Faraday.new url: "http://localhost:#{@genghis_port}"
     @api.headers['Accept']       = 'application/json'
