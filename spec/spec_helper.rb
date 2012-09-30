@@ -1,6 +1,7 @@
 require 'rspec/autorun'
 require 'json_expressions/rspec'
 require 'net/http'
+require_relative '../genghis.rb'
 
 RSpec.configure do |config|
   def find_available_port
@@ -10,13 +11,26 @@ RSpec.configure do |config|
     server.close if server
   end
 
-  config.before :all do
+  def start_backend(backend)
     @genghis_port = find_available_port
-    @genghis_pid  = spawn 'php', '-S', "localhost:#{@genghis_port}", 'genghis.php', :out => '/dev/null'
-    sleep 0.1
+
+    case backend
+    when :php
+      puts "booting genghis.php"
+      @genghis_pid = spawn 'php', '-S', "localhost:#{@genghis_port}", 'genghis.php', :out => '/dev/null'
+      sleep 0.1
+      Faraday.new url: "http://localhost:#{@genghis_port}"
+    when :ruby
+      puts "\n\nusing genghis.rb"
+      Faraday.new do |conn|
+        conn.adapter :rack, Genghis::Server.new
+      end
+    end
   end
 
   config.after :all do
-    Process.kill('HUP', @genghis_pid)
+    # Kill any outstanding Genghis backend
+    Process.kill('HUP', @genghis_pid) unless @genghis_pid.nil?
+    @genghis_pid = nil
   end
 end
