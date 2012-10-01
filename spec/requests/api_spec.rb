@@ -99,7 +99,11 @@ require 'mongo'
 
       describe 'DELETE /servers/:server' do
         it 'deletes a server if it exists' do
-          res = @api.delete '/servers/localhost'
+          res = @api.delete do |req|
+            req.url '/servers/mongo.example.com'
+            servers = CGI::escape('["mongodb:\/\/mongo.example.com"]')
+            req.headers['Cookie'] = 'genghis_servers=%s;genghis_rb_servers=%s' % [servers, servers]
+          end
           res.status.should eq 200
         end
 
