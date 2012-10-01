@@ -28,7 +28,12 @@ module Genghis
       end
 
       def create_database(db_name)
-        connection[db_name]['__genghis_tmp_collection__'].drop
+        raise Genghis::DatabaseAlreadyExists.new(self, db_name) if connection.database_names.include? db_name
+        begin
+          connection[db_name]['__genghis_tmp_collection__'].drop
+        rescue Mongo::InvalidNSName
+          raise Genghis::MalformedDocument.new('Invalid database name')
+        end
         Database.new(connection[db_name])
       end
 
