@@ -593,7 +593,7 @@ module Genghis
 
     def remove_server(name)
       raise Genghis::ServerNotFound.new(name) if servers[name].nil?
-      @servers.delete(servers[name])
+      @servers.delete(name)
       save_servers
     end
 
