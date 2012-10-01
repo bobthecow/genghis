@@ -50,18 +50,16 @@ require 'mongo'
           res = @api.post do |req|
             req.url '/servers'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { name: 'localhost:27017' }.to_json
+            req.body = { name: 'mongo.example.com:27017' }.to_json
           end
 
           res.status.should eq 200
-          res.headers['content-type'].should eq 'application/json'
+          res.headers['content-type'].should start_with 'application/json'
           res.body.should match_json_expression \
-            id:        'localhost',
-            name:      'localhost',
+            id:        'mongo.example.com',
+            name:      'mongo.example.com',
             editable:  true,
-            size:      Fixnum,
-            count:     Fixnum,
-            databases: Array
+            error:     String # mongo.example.com is valid, but unable to connect
         end
 
         it 'adds the server but returns an error if the DSN is not valid' do
@@ -76,7 +74,7 @@ require 'mongo'
             id:       'http://foo/bar',
             name:     'http://foo/bar',
             editable: true,
-            error:    'Malformed server DSN: unknown URI scheme'
+            error:    /^Malformed server DSN: .*URI/
         end
       end
 
@@ -154,7 +152,7 @@ require 'mongo'
           end
 
           res.status.should eq 200
-          res.headers['content-type'].should eq 'application/json'
+          res.headers['content-type'].should start_with 'application/json'
           res.body.should match_json_expression \
             id:          '__genghis_spec_create_db_test__',
             name:        '__genghis_spec_create_db_test__',
@@ -186,7 +184,7 @@ require 'mongo'
 
           res.status.should eq 400
           res.body.should match_json_expression \
-            error:  "Database '__genghis_spec_create_db_test__' already exists",
+            error:  "Database '__genghis_spec_create_db_test__' already exists on 'localhost'",
             status: 400
         end
       end
@@ -267,7 +265,7 @@ require 'mongo'
           end
 
           res.status.should eq 200
-          res.headers['content-type'].should eq 'application/json'
+          res.headers['content-type'].should start_with 'application/json'
           res.body.should match_json_expression \
             id:      'spec_create_collection',
             name:    'spec_create_collection',
@@ -481,7 +479,6 @@ require 'mongo'
             req.headers['Content-Type'] = 'application/json'
             req.body = "..."
           end
-
           res.status.should eq 400
         end
 
