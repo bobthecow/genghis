@@ -33,9 +33,9 @@ module Genghis
         {
           :id          => @database.name,
           :name        => @database.name,
-          :size        => info['sizeOnDisk'],
           :count       => collections.count,
-          :collections => collections.map { |c| c.name }
+          :collections => collections.map { |c| c.name },
+          :size        => info['sizeOnDisk'].to_i,
         }
       end
 

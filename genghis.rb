@@ -110,46 +110,106 @@ end
 require 'sinatra'
 
 module Genghis
-  class ServerNotFound < Sinatra::NotFound
+  class Exception < ::Exception
+  end
+
+  class MalformedDocument < Exception
+    def http_status; 400 end
+
+    def initialize(msg=nil)
+      @msg = msg
+    end
+
+    def message
+      @msg || "Malformed document"
+    end
+  end
+
+  class NotFound < Exception
+    def http_status; 404 end
+
+    def message
+      "Not found"
+    end
+  end
+
+  class AlreadyExists < Exception
+    def http_status; 400 end
+  end
+
+  class ServerNotFound < NotFound
     def initialize(name)
       @name = name
     end
 
     def message
-      "Server #{@name.inspect} not found"
+      "Server '#{@name}' not found"
     end
   end
 
-  class DatabaseNotFound < Sinatra::NotFound
+  class ServerAlreadyExists < AlreadyExists
+    def initialize(name)
+      @name = name
+    end
+
+    def message
+      "Server '#{@name}' already exists"
+    end
+  end
+
+  class DatabaseNotFound < NotFound
     def initialize(server, name)
       @server = server
       @name   = name
     end
 
     def message
-      "Database #{@name.inspect} not found on #{@server.name.inspect}"
+      "Database '#{@name}' not found on '#{@server.name}'"
     end
   end
 
-  class CollectionNotFound < Sinatra::NotFound
+  class DatabaseAlreadyExists < AlreadyExists
+    def initialize(server, name)
+      @server = server
+      @name   = name
+    end
+
+    def message
+      "Database '#{@name}' already exists on '#{@server.name}'"
+    end
+  end
+
+
+  class CollectionNotFound < NotFound
     def initialize(database, name)
       @database = database
       @name     = name
     end
 
     def message
-      "Collection #{@name.inspect} not found in #{@database.name.inspect}"
+      "Collection '#{@name}' not found in '#{@database.name}'"
     end
   end
 
-  class DocumentNotFound < Sinatra::NotFound
+  class CollectionAlreadyExists < AlreadyExists
+    def initialize(database, name)
+      @database = database
+      @name     = name
+    end
+
+    def message
+      "Collection '#{@name}' already exists in '#{@database.name}'"
+    end
+  end
+
+  class DocumentNotFound < NotFound
     def initialize(collection, doc_id)
       @collection = collection
       @doc_id     = doc_id
     end
 
     def message
-      "Document #{@doc_id.inspect} not found in #{@collection.name.inspect}"
+      "Document '#{@doc_id}' not found in '#{@collection.name}'"
     end
   end
 end
@@ -242,7 +302,8 @@ module Genghis
       end
 
       def create_collection(coll_name)
-        @database.create_collection coll_name
+        raise Genghis::CollectionAlreadyExists.new(self, coll_name) if @database.collection_names.include? coll_name
+        @database.create_collection coll_name rescue raise Genghis::MalformedDocument.new("Invalid collection name")
         Collection.new(@database[coll_name])
       end
 
@@ -260,9 +321,9 @@ module Genghis
         {
           :id          => @database.name,
           :name        => @database.name,
-          :size        => info['sizeOnDisk'],
           :count       => collections.count,
-          :collections => collections.map { |c| c.name }
+          :collections => collections.map { |c| c.name },
+          :size        => info['sizeOnDisk'].to_i,
         }
       end
 
@@ -356,7 +417,12 @@ module Genghis
       end
 
       def create_database(db_name)
-        connection[db_name]['__genghis_tmp_collection__'].drop
+        raise Genghis::DatabaseAlreadyExists.new(self, db_name) if connection.database_names.include? db_name
+        begin
+          connection[db_name]['__genghis_tmp_collection__'].drop
+        rescue Mongo::InvalidNSName
+          raise Genghis::MalformedDocument.new('Invalid database name')
+        end
         Database.new(connection[db_name])
       end
 
@@ -387,7 +453,7 @@ module Genghis
             json.merge!({:error => ex.to_s})
           else
             json.merge!({
-              :size      => info['totalSize'],
+              :size      => info['totalSize'].to_i,
               :count     => info['databases'].count,
               :databases => info['databases'].map { |db| db['name'] },
             })
@@ -439,11 +505,11 @@ module Genghis
     end
 
     def request_json
-      ::JSON.parse request.body.read
+      ::JSON.parse request.body.read rescue raise Genghis::MalformedDocument.new
     end
 
     def request_genghis_json
-      ::Genghis::JSON.decode request.body.read
+      ::Genghis::JSON.decode request.body.read rescue raise Genghis::MalformedDocument.new
     end
 
     def thunk_mongo_id(id)
@@ -519,14 +585,14 @@ module Genghis
 
     def add_server(dsn)
       server = Genghis::Models::Server.new(dsn)
-      raise "Server #{server.name} already exists" unless servers[server.name].nil?
+      raise Genghis::ServerAlreadyExists.new(server.name) unless servers[server.name].nil?
       servers[server.name] = server
       save_servers
       server
     end
 
     def remove_server(name)
-      not_found if servers[name].nil?
+      raise Genghis::ServerNotFound.new(name) if servers[name].nil?
       @servers.delete(servers[name])
       save_servers
     end
@@ -575,19 +641,20 @@ module Genghis
         @genghis_version = GENGHIS_VERSION
         if request.xhr?
           content_type :json
-          {:error => message}.to_json
+          error(status, {error: message, status: status}.to_json)
         else
-          mustache 'error.html.mustache'.intern
+          error(status, mustache('error.html.mustache'.intern))
         end
       end
     end
 
     not_found do
-      error_response(404, env['sinatra.error'].message || 'Not Found')
+      error_response(404, env['sinatra.error'].message.sub(/^Sinatra::NotFound$/, 'Not Found'))
     end
 
     error do
-      error_response(500, env['sinatra.error'].message || 'Server Error')
+      err = env['sinatra.error']
+      error_response(err.respond_to?(:http_status) ? err.http_status : 500, err.message)
     end
 
 
@@ -629,6 +696,7 @@ module Genghis
     end
 
     get '/servers/:server' do |server|
+      raise Genghis::ServerNotFound.new(server) if servers[server].nil?
       json servers[server]
     end
 

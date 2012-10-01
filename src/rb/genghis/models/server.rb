@@ -64,7 +64,7 @@ module Genghis
             json.merge!({:error => ex.to_s})
           else
             json.merge!({
-              :size      => info['totalSize'],
+              :size      => info['totalSize'].to_i,
               :count     => info['databases'].count,
               :databases => info['databases'].map { |db| db['name'] },
             })
