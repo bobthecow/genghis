@@ -2,11 +2,12 @@ require 'spec_helper'
 require 'faraday'
 require 'mongo'
 
-[:php].each do |backend|
+[:php, :ruby].each do |backend|
   describe "Genghis #{backend} API" do
     before :all do
       @api = start_backend backend
       @api.headers['Accept'] = 'application/json'
+      @api.headers['X-Requested-With'] = 'XMLHttpRequest'
     end
 
     it 'boots up' do
