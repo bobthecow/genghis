@@ -16,12 +16,10 @@ RSpec.configure do |config|
 
     case backend
     when :php
-      puts "booting genghis.php"
       @genghis_pid = spawn 'php', '-S', "localhost:#{@genghis_port}", 'genghis.php', :out => '/dev/null'
       sleep 0.1
       Faraday.new url: "http://localhost:#{@genghis_port}"
     when :ruby
-      puts "\n\nusing genghis.rb"
       Faraday.new do |conn|
         conn.adapter :rack, Genghis::Server.new
       end
