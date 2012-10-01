@@ -140,7 +140,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
                         });
                         break;
                 }
-            }
+            };
         }
     },
     nextPage: function() {

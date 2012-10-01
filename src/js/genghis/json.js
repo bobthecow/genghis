@@ -19,7 +19,8 @@ Genghis.JSON = {
             'Date':     true,
             'ISODate':  true,
             'DBRef':    true,
-            'RegExp':   true
+            'RegExp':   true,
+            'BinData':  true
         };
 
         var allowedPropertyValues = {
@@ -70,7 +71,7 @@ Genghis.JSON = {
                     return new GenghisDate();
                 }
 
-                var pattern = /(\d{4})-?(\d{2})-?(\d{2})([T ](\d{2})(:?(\d{2})(:?(\d{2}(\.\d+)?))?)?(Z|([+-])(\d{2}):?(\d{2})?)?)?/;
+                var pattern = /(\d{4})-?(\d{2})-?(\d{2})([T ](\d{2})(:?(\d{2})(:?(\d{2}(\.\d+)?))?)?(Z|([+\-])(\d{2}):?(\d{2})?)?)?/;
                 var matches = pattern.exec(date);
 
                 if (!matches) {
@@ -84,7 +85,7 @@ Genghis.JSON = {
                 var min   = parseInt(matches[7], 10) || 0;
                 var sec   = parseFloat(matches[9]) || 0;
                 var ms    = Math.round((sec % 1) * 1000);
-                sec -= ms / 1000
+                sec -= ms / 1000;
 
                 var timestamp = Date.UTC(year, month, day, hour, min, sec, ms);
 
@@ -95,7 +96,7 @@ Genghis.JSON = {
                     if (matches[12] == '+') // if ahead subtract
                         offset *= -1;
 
-                    timestamp += offset
+                    timestamp += offset;
                 }
 
                 return new GenghisDate(timestamp);
@@ -116,6 +117,16 @@ Genghis.JSON = {
                     '$value': {
                         '$pattern': pattern ? pattern.toString() : null,
                         '$flags': flags ? flags.toString() : null
+                    }
+                };
+            }
+
+            function BinData(subtype, base64str) {
+                return {
+                    '$genghisType': 'BinData',
+                    '$value': {
+                        '$subtype': subtype,
+                        '$binary': base64str
                     }
                 };
             }
@@ -167,11 +178,12 @@ Genghis.JSON = {
                 for (var i = node.range[0] + 1; i < node.range[1]; i++) {
                     chunks[i] = '';
                 }
-            };
+            }
         }
 
+        var ast;
         try {
-            var ast = esprima.parse(src, opts);
+            ast = esprima.parse(src, opts);
         } catch (e) {
             throwErrors([e]);
         }
@@ -286,13 +298,15 @@ Genghis.JSON = {
     },
 
     stringify: function(value, pretty) {
-        return jQuery('<div>' + this.prettyPrint(value, pretty) + '</div>').text();
+        return jQuery('<div>' + this.prettyPrint(value, pretty, false) + '</div>').text();
     },
 
-    prettyPrint: function (value, pretty) {
+    prettyPrint: function (value, pretty, autoCollapse) {
         // This function borrows heavily from json2.js, a project in the public domain.
         //
         // See See http://www.JSON.org/js.html
+
+        autoCollapse = (autoCollapse !== false);
 
         function JsonView(value) {
 
@@ -403,8 +417,11 @@ Genghis.JSON = {
 
                 s.appendChild(t(fn + '('));
 
-                _.each(values, function(value) {
-                    s.appendChild(quote(value));
+                _.each(values, function(value, i) {
+                    s.appendChild(value);
+                    if (i < (values.length - 1)) {
+                        s.appendChild(t(', '));
+                    }
                 });
 
                 s.appendChild(t(')'));
@@ -457,10 +474,10 @@ Genghis.JSON = {
                         if (Object.hasOwnProperty.call(value, '$genghisType')) {
                             switch(value['$genghisType']) {
                                 case 'ObjectId':
-                                    return c('ObjectId', [value['$value']], 'oid');
+                                    return c('ObjectId', [quote(value['$value'])], 'oid');
 
                                 case 'ISODate':
-                                    return c('ISODate', [value['$value']], 'date');
+                                    return c('ISODate', [quote(value['$value'])], 'date');
 
                                 case 'RegExp':
                                     // we'll render regexp as a literal
@@ -469,6 +486,9 @@ Genghis.JSON = {
                                     var flags   = value['$value']['$flags'] || '';
 
                                     return span('v re', '/' + pattern + '/' + flags);
+
+                                case 'BinData':
+                                    return c('BinData', [span('n', String(value['$value']['$subtype'])), quote(value['$value']['$binary'])], 'bindata');
                             }
                         }
 
@@ -483,7 +503,7 @@ Genghis.JSON = {
 
                             el = span('v a');
 
-                            if (gap) {
+                            if (autoCollapse && gap) {
                                 el.collapsible = true;
 
                                 if (value.length > 10) {
@@ -565,7 +585,7 @@ Genghis.JSON = {
                         }
 
                         el = span(spanClass);
-                        el.collapsible = true;
+                        el.collapsible = !!autoCollapse;
                         el.appendChild(t(gap ? ('{\n' + gap) : '{'));
 
                         glue = t(gap ? (',\n' + gap) : ',');

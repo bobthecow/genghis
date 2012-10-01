@@ -14,7 +14,8 @@ module Genghis
       end
 
       def create_collection(coll_name)
-        @database.create_collection coll_name
+        raise Genghis::CollectionAlreadyExists.new(self, coll_name) if @database.collection_names.include? coll_name
+        @database.create_collection coll_name rescue raise Genghis::MalformedDocument.new("Invalid collection name")
         Collection.new(@database[coll_name])
       end
 
@@ -32,9 +33,9 @@ module Genghis
         {
           :id          => @database.name,
           :name        => @database.name,
-          :size        => info['sizeOnDisk'],
           :count       => collections.count,
-          :collections => collections.map { |c| c.name }
+          :collections => collections.map { |c| c.name },
+          :size        => info['sizeOnDisk'].to_i,
         }
       end
 

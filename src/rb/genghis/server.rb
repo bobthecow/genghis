@@ -27,21 +27,23 @@ module Genghis
     helpers do
       def error_response(status, message)
         @status, @message = status, message
+        @genghis_version = GENGHIS_VERSION
         if request.xhr?
           content_type :json
-          {:error => message}.to_json
+          error(status, {error: message, status: status}.to_json)
         else
-          mustache 'error.html.mustache'.intern
+          error(status, mustache('error.html.mustache'.intern))
         end
       end
     end
 
     not_found do
-      error_response(404, env['sinatra.error'].message || 'Not Found')
+      error_response(404, env['sinatra.error'].message.sub(/^Sinatra::NotFound$/, 'Not Found'))
     end
 
     error do
-      error_response(500, env['sinatra.error'].message || 'Server Error')
+      err = env['sinatra.error']
+      error_response(err.respond_to?(:http_status) ? err.http_status : 500, err.message)
     end
 
 
@@ -63,6 +65,7 @@ module Genghis
     get '*' do
       # Unless this is XHR, render index and let the client-side app handle routing
       pass if request.xhr?
+      @genghis_version = GENGHIS_VERSION
       mustache 'index.html.mustache'.intern
     end
 
@@ -82,6 +85,7 @@ module Genghis
     end
 
     get '/servers/:server' do |server|
+      raise Genghis::ServerNotFound.new(server) if servers[server].nil?
       json servers[server]
     end
 

@@ -68,9 +68,17 @@ Genghis.Views.Search = Backbone.View.extend({
         return this;
     },
     updateQuery: function() {
-        var q = this.normalizeQuery(this.model.get('query') || this.model.get('document') || '');
+        var q = this.normalizeQuery(this.model.get('query') || this.getDocumentQuery() || '');
 
         this.$('input#navbar-query').val(q);
+    },
+    getDocumentQuery: function() {
+        var q = this.model.get('document');
+        if (typeof q === 'string' && q[0] === '~') {
+            q = Genghis.JSON.normalize('{"_id":' + Genghis.Util.base64Decode(q.substr(1)) + '}');
+        }
+
+        return q;
     },
     handleSearchKeyup: function(e) {
         if (e.keyCode == 13) {

@@ -29,6 +29,7 @@ module Genghis
         when Regexp then thunk('RegExp', {'$pattern' => o.source, '$flags' => enc_re_flags(o.options)})
         when BSON::ObjectId then thunk('ObjectId', o.to_s)
         when BSON::DBRef then db_ref(o)
+        when BSON::Binary then thunk('BinData', {'$subtype' => o.subtype, '$binary' => enc_bin_data(o)})
         else o
         end
       end
@@ -46,6 +47,10 @@ module Genghis
         ((opt & Regexp::MULTILINE != 0) ? 'm' : '') + ((opt & Regexp::IGNORECASE != 0) ? 'i' : '')
       end
 
+      def enc_bin_data(o)
+        Base64.strict_encode64(o.to_s)
+      end
+
       def db_ref(o)
         o = o.to_hash
         {'$ref' => o['$ns'], '$id' => enc(o['$id'])}
@@ -59,6 +64,7 @@ module Genghis
           when 'ObjectId' then mongo_object_id o['$value']
           when 'ISODate'  then mongo_iso_date  o['$value']
           when 'RegExp'   then mongo_reg_exp   o['$value']
+          when 'BinData'  then mongo_bin_data  o['$value']
           else o.merge(o) { |k, v| dec(v) }
           end
         else o
@@ -80,6 +86,10 @@ module Genghis
 
       def mongo_reg_exp(value)
         Regexp.new(value['$pattern'], dec_re_flags(value['$flags']))
+      end
+
+      def mongo_bin_data(value)
+        BSON::Binary.new(Base64.decode64(value['$binary']), value['$subtype'])
       end
 
     end
