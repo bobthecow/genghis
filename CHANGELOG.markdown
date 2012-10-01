@@ -10,6 +10,7 @@
  * Add a sanity check for PHP `date.timezone` settings.
  * Add an asset cachebuster param so nobody has to force refresh after updating.
  * Add a full API spec. Yey tests!
+ * Improve consistency between PHP and Ruby APIs. This update brought to you by Full Test Coverage.
  * Refactor PHP API. For the children.
 
 
