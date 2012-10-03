@@ -12,6 +12,7 @@
  * Add a full API spec. Yey tests!
  * Improve consistency between PHP and Ruby APIs. This update brought to you by Full Test Coverage.
  * Refactor PHP API. For the children.
+ * Added `CONTRIBUTING.markdown`.
 
 
 ## v2.0.2
