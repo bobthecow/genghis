@@ -1,6 +1,6 @@
 Genghis.Models.Collection = Genghis.Models.BaseModel.extend({
     indexesIsPlural: function() {
-        this.indexCount() !== 1;
+        return this.indexCount() !== 1;
     },
     indexCount: function() {
         return (this.get('indexes') || []).length;

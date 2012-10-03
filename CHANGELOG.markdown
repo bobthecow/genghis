@@ -1,3 +1,20 @@
+## v2.1
+
+ * Fix #28 — Handle BSON BinData properly in documents and ids.
+ * Fix #33 — Remove unexpected collapsed document representation in edit mode.
+ * Fix #32 — No more mixed-content warning when Genghis is running over SSL.
+ * Fix #35 — No more "Add Server" fail in Ruby.
+ * Fix — Handle connection auth errors more gracefully.
+ * Fix — Query bug when running under PHP 5.4 SAPI CLI server.
+ * Add ObjectId timestamps to document headers.
+ * Add a sanity check for PHP `date.timezone` settings.
+ * Add an asset cachebuster param so nobody has to force refresh after updating.
+ * Add a full API spec. Yey tests!
+ * Improve consistency between PHP and Ruby APIs. This update brought to you by Full Test Coverage.
+ * Refactor PHP API. For the children.
+ * Added `CONTRIBUTING.markdown`.
+
+
 ## v2.0.2
 
  * Fix #29 — Don't throw unexpected unary expression error when parsing negative numbers.

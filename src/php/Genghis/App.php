@@ -146,7 +146,7 @@ class Genghis_App
         if (isset($_SERVER['PATH_INFO'])) {
             return $_SERVER['PATH_INFO'];
         } elseif (isset($_SERVER['REQUEST_URI'])) {
-            return $_SERVER['REQUEST_URI'];
+            return parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         } else {
             return '/';
         }
@@ -173,7 +173,8 @@ class Genghis_App
     {
         $this->initAssets();
         $defaults = array(
-            'base_url' => $this->getBaseUrl(),
+            'base_url'        => $this->getBaseUrl(),
+            'genghis_version' => GENGHIS_VERSION,
         );
 
         return new Genghis_Response(strtr($this->assets[$name], $this->prepareVars(array_merge($defaults, $vars))), $status);

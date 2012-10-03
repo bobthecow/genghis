@@ -55,7 +55,7 @@ Genghis.Views.App = Backbone.View.extend({
         this.removeMasthead(true);
         mastheadView = new Genghis.Views.Masthead(_.extend(opt || {}, {
             heading: heading,
-            content: content || '',
+            content: content || ''
         }));
     },
     removeMasthead: function(force) {

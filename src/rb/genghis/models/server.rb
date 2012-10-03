@@ -5,6 +5,8 @@ module Genghis
       attr_reader   :dsn
       attr_accessor :default
 
+      @default = false
+
       def initialize(dsn)
         dsn = 'mongodb://'+dsn unless dsn.include? '://'
 
@@ -20,12 +22,18 @@ module Genghis
           @name = name
         rescue Mongo::MongoArgumentError => e
           @error = "Malformed server DSN: #{e.message}"
+          @name  = dsn
         end
         @dsn = dsn
       end
 
       def create_database(db_name)
-        connection[db_name]['__genghis_tmp_collection__'].drop
+        raise Genghis::DatabaseAlreadyExists.new(self, db_name) if connection.database_names.include? db_name
+        begin
+          connection[db_name]['__genghis_tmp_collection__'].drop
+        rescue Mongo::InvalidNSName
+          raise Genghis::MalformedDocument.new('Invalid database name')
+        end
         Database.new(connection[db_name])
       end
 
@@ -56,7 +64,7 @@ module Genghis
             json.merge!({:error => ex.to_s})
           else
             json.merge!({
-              :size      => info['totalSize'],
+              :size      => info['totalSize'].to_i,
               :count     => info['databases'].count,
               :databases => info['databases'].map { |db| db['name'] },
             })

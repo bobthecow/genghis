@@ -24,11 +24,11 @@ module Genghis
     end
 
     def request_json
-      ::JSON.parse request.body.read
+      ::JSON.parse request.body.read rescue raise Genghis::MalformedDocument.new
     end
 
     def request_genghis_json
-      ::Genghis::JSON.decode request.body.read
+      ::Genghis::JSON.decode request.body.read rescue raise Genghis::MalformedDocument.new
     end
 
     def thunk_mongo_id(id)
@@ -103,16 +103,16 @@ module Genghis
     end
 
     def add_server(dsn)
-      raise "Server #{name} already exists" unless servers[name].nil?
-      server = Genghis::Models::Server.new!(dsn)
+      server = Genghis::Models::Server.new(dsn)
+      raise Genghis::ServerAlreadyExists.new(server.name) unless servers[server.name].nil?
       servers[server.name] = server
       save_servers
       server
     end
 
     def remove_server(name)
-      not_found if servers[name].nil?
-      @servers.delete(servers[name])
+      raise Genghis::ServerNotFound.new(name) if servers[name].nil?
+      @servers.delete(name)
       save_servers
     end
 
