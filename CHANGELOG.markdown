@@ -1,3 +1,8 @@
+## v2.1.1
+
+ * Fix #38 — JSON rendering weirdness with empty array properties.
+
+
 ## v2.1
 
  * Fix #28 — Handle BSON BinData properly in documents and ids.

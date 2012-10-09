@@ -498,6 +498,8 @@ Genghis.JSON = {
                         // Is the value an array?
                         if (_.isArray(value)) {
                             if (value.length === 0) {
+                                gap = mind;
+
                                 return span('v a', '[]');
                             }
 
