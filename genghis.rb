@@ -641,7 +641,7 @@ module Genghis
         @genghis_version = GENGHIS_VERSION
         if request.xhr?
           content_type :json
-          error(status, {error: message, status: status}.to_json)
+          error(status, {:error => message, :status => status}.to_json)
         else
           error(status, mustache('error.html.mustache'.intern))
         end
