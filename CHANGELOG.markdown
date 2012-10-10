@@ -1,3 +1,9 @@
+## v2.1.1
+
+ * Fix #38 — JSON rendering weirdness with empty array properties.
+ * Fix #40 — Ruby 1.8.7 regression.
+
+
 ## v2.1
 
  * Fix #28 — Handle BSON BinData properly in documents and ids.
