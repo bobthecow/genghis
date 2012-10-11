@@ -2,7 +2,9 @@
 language: php
 
 php:
- - 5.3
+ - 5.4
+
+services: mongodb
 
 before_script:
  - 'pecl -q install mongo && echo "extension=mongo.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`'

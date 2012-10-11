@@ -14,7 +14,7 @@ require 'mongo'
       res = @api.get '/check-status'
       res.status.should eq 200
       res.body.should match_json_expression({
-        alerts: []
+        alerts: Array
       })
     end
 
