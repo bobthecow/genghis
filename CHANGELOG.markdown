@@ -1,3 +1,8 @@
+## v2.2.0
+
+ * Get CI working with Travis, add build status badge to README.
+
+
 ## v2.1.1
 
  * Fix #38 — JSON rendering weirdness with empty array properties.
