@@ -639,6 +639,7 @@ module Genghis
       def error_response(status, message)
         @status, @message = status, message
         @genghis_version = GENGHIS_VERSION
+        @base_url = request.env['SCRIPT_NAME']
         if request.xhr?
           content_type :json
           error(status, {:error => message, :status => status}.to_json)
@@ -677,6 +678,7 @@ module Genghis
       # Unless this is XHR, render index and let the client-side app handle routing
       pass if request.xhr?
       @genghis_version = GENGHIS_VERSION
+      @base_url = request.env['SCRIPT_NAME']
       mustache 'index.html.mustache'.intern
     end
 
