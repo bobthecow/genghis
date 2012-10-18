@@ -1,6 +1,7 @@
-## v2.2.0
+## v2.1.2
 
  * Get CI working with Travis, add build status badge to README.
+ * Fix Genghis asset URI when mounted on a non-root route (thanks Johan Buts).
 
 
 ## v2.1.1
