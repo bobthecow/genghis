@@ -2,6 +2,7 @@
 
  * Get CI working with Travis, add build status badge to README.
  * Fix Genghis asset URI when mounted on a non-root route (thanks Johan Buts).
+ * Swap out masthead bg image for some CSS3 hotness.
 
 
 ## v2.1.1

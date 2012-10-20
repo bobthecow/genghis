@@ -1,9 +1,55 @@
+.mastheadbg(@bgColor) {
+    background:
+        -webkit-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 0 0,
+        -webkit-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 16px 16px,
+        -webkit-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 0 -1px,
+        -webkit-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 16px 15px,
+        -webkit-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 0 1px,
+        -webkit-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 16px 17px;
+    background:
+           -moz-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 0 0,
+           -moz-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 16px 16px,
+           -moz-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 0 -1px,
+           -moz-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 16px 15px,
+           -moz-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 0 1px,
+           -moz-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 16px 17px;
+    background:
+           -ms-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 0 0,
+           -ms-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 16px 16px,
+           -ms-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 0 -1px,
+           -ms-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 16px 15px,
+           -ms-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 0 1px,
+           -ms-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 16px 17px;
+    background:
+            -o-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 0 0,
+            -o-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 16px 16px,
+            -o-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 0 -1px,
+            -o-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 16px 15px,
+            -o-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 0 1px,
+            -o-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 16px 17px;
+    background:
+               radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 0 0,
+               radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 16px 16px,
+               radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 0 -1px,
+               radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 16px 15px,
+               radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 0 1px,
+               radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 16px 17px;
+
+    -webkit-background-size: 32px 32px;
+       -moz-background-size: 32px 32px;
+        -ms-background-size: 32px 32px;
+         -o-background-size: 32px 32px;
+            background-size: 32px 32px;
+
+    background-color: @bgColor;
+}
+
 .masthead {
     position: relative;
     padding: 40px 0;
     color: #fff;
     text-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 30px rgba(0,0,0,.1);
-    #gradient > .horizontal(darken(@mongoGreen, 15%), desaturate(@mongoGreen, 10%));
+    .mastheadbg(darken(@mongoGreen, 10%);
     .box-shadow(~"inset 0 3px 7px rgba(0,0,0,.2), inset 0 -3px 7px rgba(0,0,0,.2)");
     .container {
         position: relative;
@@ -17,10 +63,7 @@
         right:  0;
         bottom: 0;
         left:   0;
-        background-color:    transparent;
-        background-repeat:   repeat;
-        background-position: center center;
-        background-image:    url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAWBAMAAAAyb6E1AAAAFVBMVEX%2F%2F%2F8AAADMzMwzMzMAAAD%2F%2F%2F%2F%2F%2F%2F8yjfZbAAAAB3RSTlMAFBQUDQcU2nuKtgAAADRJREFUCFtjYBEUdGCAAEdBQREoUxAI8DINBQWFoUxFQUEhKDPIUFgVymRVSwpgIAgGwHYA4JUH%2Bddiz14AAAAASUVORK5CYII%3D');
+        #gradient > .horizontal(rgba(0,0,0,.5), rgba(255,255,255,.01));
     }
 
     h1 {
@@ -52,11 +95,6 @@
         }
     }
 
-    &.error {
-        #gradient > .horizontal(darken(@errorText, 15%), desaturate(@errorText, 10%));
-    }
-
-    &.muted {
-        #gradient > .horizontal(@grayDark, lighten(@grayDark, 10%));
-    }
+    &.error { .mastheadbg(darken(@errorText, 10%)); }
+    &.muted { .mastheadbg(@grayDark);               }
 }
