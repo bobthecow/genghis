@@ -1,0 +1,14 @@
+# we're exploiting the promise that there's "at least one version of Ruby available"...
+language: php
+
+php:
+ - 5.4
+
+services: mongodb
+
+before_script:
+ - 'pecl -q install mongo'
+ - 'bundle install'
+
+# wheee!
+script: rspec
