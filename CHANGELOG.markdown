@@ -1,6 +1,7 @@
 ## v2.1.3
 
  * Optical correction for masthead background image aspect.
+ * Use Adobe's beautiful Source Code Pro rather than relying on the default system monospace.
 
 
 ## v2.1.2
