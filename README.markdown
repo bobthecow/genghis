@@ -19,6 +19,8 @@ If you installed Genghis as a Ruby gem, running Genghis standalone is easy:
 $ genghisapp
 ```
 
+Now that it's running, you can use `genghisapp --kill` to stop it.
+
 If you didn't go the gem route, you can still run `genghis.rb` standalone:
 
 ```
