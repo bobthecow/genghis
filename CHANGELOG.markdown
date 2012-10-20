@@ -1,3 +1,8 @@
+## v2.1.3
+
+ * Optical correction for masthead background image aspect.
+
+
 ## v2.1.2
 
  * Get CI working with Travis, add build status badge to README.
