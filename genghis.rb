@@ -524,7 +524,7 @@ module Genghis
 
     def server_status_alerts
       alerts = []
-      if ::BSON::BSON_CODER == ::BSON::BSON_RUBY
+      unless defined? ::BSON::BSON_C
         msg = <<-MSG.strip.gsub(/\s+/, " ")
           <h4>MongoDB driver C extension not found.</h4>
           Install this extension for better performance: <code>gem install bson_ext</code>
