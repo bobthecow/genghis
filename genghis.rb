@@ -8,7 +8,10 @@
 #
 # @author Justin Hileman <justin@justinhileman.info>
 #
-GENGHIS_VERSION = "2.1.2"
+module Genghis
+  VERSION = "2.1.2"
+end
+GENGHIS_VERSION = Genghis::VERSION
 
 require 'mongo'
 require 'json'
@@ -542,11 +545,11 @@ module Genghis
           require 'open-uri'
           open('https://raw.github.com/bobthecow/genghis/master/VERSION') do |f|
             latest   = f.read
-            outdated = Gem::Version.new(GENGHIS_VERSION.gsub(/[\+_-]/, '.')) < Gem::Version.new(latest.gsub(/[\+_-]/, '.'))
+            outdated = Gem::Version.new(Genghis::VERSION.gsub(/[\+_-]/, '.')) < Gem::Version.new(latest.gsub(/[\+_-]/, '.'))
             if latest && outdated
               msg = <<-MSG.strip.gsub(/\s+/, " ")
                 <h4>A Genghis update is available</h4>
-                You are running Genghis version <tt>#{GENGHIS_VERSION}</tt>. The current version is <tt>#{latest}</tt>.
+                You are running Genghis version <tt>#{Genghis::VERSION}</tt>. The current version is <tt>#{latest}</tt>.
                 Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.
               MSG
               alerts << {:level => 'warning', :msg => msg}
@@ -629,7 +632,7 @@ module Genghis
     helpers Genghis::Helpers
 
     def self.version
-      GENGHIS_VERSION
+      Genghis::VERSION
     end
 
 
@@ -638,7 +641,7 @@ module Genghis
     helpers do
       def error_response(status, message)
         @status, @message = status, message
-        @genghis_version = GENGHIS_VERSION
+        @genghis_version = Genghis::VERSION
         @base_url = request.env['SCRIPT_NAME']
         if request.xhr?
           content_type :json
@@ -677,7 +680,7 @@ module Genghis
     get '*' do
       # Unless this is XHR, render index and let the client-side app handle routing
       pass if request.xhr?
-      @genghis_version = GENGHIS_VERSION
+      @genghis_version = Genghis::VERSION
       @base_url = request.env['SCRIPT_NAME']
       mustache 'index.html.mustache'.intern
     end

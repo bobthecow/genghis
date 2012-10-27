@@ -8,7 +8,10 @@
 #
 # @author Justin Hileman <justin@justinhileman.info>
 #
-GENGHIS_VERSION = <%= GENGHIS_VERSION.inspect %>
+module Genghis
+  VERSION = <%= GENGHIS_VERSION.inspect %>
+end
+GENGHIS_VERSION = Genghis::VERSION
 
 <% includes.each do |inc| %><%= inc.sub("#!/usr/bin/env ruby", '').strip %>
 <% end %>
