@@ -96,7 +96,7 @@ module Genghis
       end
 
       def mongo_iso_date(value)
-        value.nil? ? Time.now : DateTime.parse(value).to_time
+        value.nil? ? Time.now : Time.at(DateTime.parse(value).strftime('%s').to_i)
       end
 
       def mongo_reg_exp(value)
