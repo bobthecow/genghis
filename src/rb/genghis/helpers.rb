@@ -40,7 +40,7 @@ module Genghis
 
     def server_status_alerts
       alerts = []
-      if ::BSON::BSON_CODER == ::BSON::BSON_RUBY
+      unless defined? ::BSON::BSON_C
         msg = <<-MSG.strip.gsub(/\s+/, " ")
           <h4>MongoDB driver C extension not found.</h4>
           Install this extension for better performance: <code>gem install bson_ext</code>
@@ -61,11 +61,11 @@ module Genghis
           require 'open-uri'
           open('https://raw.github.com/bobthecow/genghis/master/VERSION') do |f|
             latest   = f.read
-            outdated = Gem::Version.new(GENGHIS_VERSION.gsub(/[\+_-]/, '.')) < Gem::Version.new(latest.gsub(/[\+_-]/, '.'))
+            outdated = Gem::Version.new(Genghis::VERSION.gsub(/[\+_-]/, '.')) < Gem::Version.new(latest.gsub(/[\+_-]/, '.'))
             if latest && outdated
               msg = <<-MSG.strip.gsub(/\s+/, " ")
                 <h4>A Genghis update is available</h4>
-                You are running Genghis version <tt>#{GENGHIS_VERSION}</tt>. The current version is <tt>#{latest}</tt>.
+                You are running Genghis version <tt>#{Genghis::VERSION}</tt>. The current version is <tt>#{latest}</tt>.
                 Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.
               MSG
               alerts << {:level => 'warning', :msg => msg}
