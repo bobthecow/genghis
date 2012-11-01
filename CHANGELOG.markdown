@@ -3,6 +3,7 @@
  * Optical correction for masthead background image aspect.
  * Use Adobe's beautiful Source Code Pro rather than relying on the default system monospace.
  * Fix #48 — ActiveRecord messes up DateTime#to_time.
+ * Fix #52 — MongoDate parsing regression in PHP.
 
 
 ## v2.1.2

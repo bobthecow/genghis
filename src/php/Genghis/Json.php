@@ -102,7 +102,7 @@ class Genghis_Json
                         return new MongoId($value);
 
                     case 'ISODate':
-                        return ($value === null) ? new MongoDate : new MongoDate($value);
+                        return ($value === null) ? new MongoDate : new MongoDate(strtotime($value));
 
                     case 'RegExp':
                         $pattern = self::getProp($value, 'pattern');
