@@ -1,3 +1,9 @@
+## v2.1.4
+
+ * Add warning messages for `magic_quotes_gpc` and `magic_quotes_runtime` — See #49.
+
+
+
 ## v2.1.3
 
  * Optical correction for masthead background image aspect.

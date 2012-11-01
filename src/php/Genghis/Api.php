@@ -107,6 +107,31 @@ class Genghis_Api extends Genghis_App
             );
         }
 
+        // Check for magic quotes
+        if (get_magic_quotes_gpc()) {
+            $alerts[] = array(
+                'level' => 'error',
+                'msg'   => '<h4>Looks like you\'re rockin\' it retro style</h4>' .
+                           'You are running PHP with <tt>magic_quotes_gpc</tt> enabled. Not only is this ' .
+                           '<a href="http://us1.php.net/manual/en/security.magicquotes.php">dangerous and ' .
+                           'deprecated</a>, but it will keep Genghis from properly querying and saving documents. ' .
+                           'Please <a href="http://us1.php.net/manual/en/security.magicquotes.disabling.php">disable ' .
+                           '<tt>magic_quotes_gpc</tt></a>.',
+            );
+        }
+
+        if (get_magic_quotes_runtime()) {
+            $alerts[] = array(
+                'level' => 'error',
+                'msg'   => '<h4>Looks like you\'re rockin\' it retro style</h4>' .
+                           'You are running PHP with <tt>magic_quotes_runtime</tt> enabled. Not only is this ' .
+                           '<a href="http://us1.php.net/manual/en/security.magicquotes.php">dangerous and ' .
+                           'deprecated</a>, but it will keep Genghis from properly querying and saving documents. ' .
+                           'Please <a href="http://us1.php.net/manual/en/info.configuration.php#ini.magic-quotes-runtime">disable ' .
+                           '<tt>magic_quotes_runtime</tt></a>.',
+            );
+        }
+
         // TODO: more sanity checks?
 
         return compact('alerts');
