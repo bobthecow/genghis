@@ -4,6 +4,7 @@
  * Work around PHP driver issue with non-scalar ids — See #51.
  * Fix error handling documents with `null` identifiers — See #51.
  * Make document headers prettier for non-string and non-ObjectId identifiers.
+ * Handle URI decoding and routing for non-string and non-ObjectId identifiers in some browsers.
 
 
 ## v2.1.3
