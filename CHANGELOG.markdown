@@ -1,6 +1,7 @@
 ## v2.1.4
 
  * Add warning messages for `magic_quotes_gpc` and `magic_quotes_runtime` — See #49.
+ * Work around PHP driver issue with non-scalar ids — See #51.
 
 
 
