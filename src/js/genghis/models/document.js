@@ -59,7 +59,7 @@ Genghis.Models.Document = Backbone.Model.extend({
         }
 
         // Make null and hash IDs prettier
-        return JSON.stringify(id);
+        return Genghis.JSON.stringify(id, false);
     },
     prettyTime: function() {
         if (typeof this._prettyTime == 'undefined') {
