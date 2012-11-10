@@ -163,7 +163,7 @@ Genghis.JSON = {
                 return chunks.slice(node.range[0], node.range[1]).join('');
             };
 
-            if (node.update && typeof node.update === 'object') {
+            if (node.update && _.isObject(node.update)) {
                 var prev = node.update;
                 Object.keys(prev).forEach(function (key) {
                     update[key] = prev[key];

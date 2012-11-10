@@ -2,7 +2,7 @@
 
  * Add warning messages for `magic_quotes_gpc` and `magic_quotes_runtime` — See #49.
  * Work around PHP driver issue with non-scalar ids — See #51.
-
+ * Fix error handling documents with `null` identifiers — See #51.
 
 
 ## v2.1.3

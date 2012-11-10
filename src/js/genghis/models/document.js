@@ -8,7 +8,7 @@ Genghis.Models.Document = Backbone.Model.extend({
         }
     },
     thunkId: function(id) {
-        if (typeof id === 'object' && id.hasOwnProperty('$genghisType') && id['$genghisType'] == 'ObjectId') {
+        if (_.isObject(id) && id.hasOwnProperty('$genghisType') && id['$genghisType'] == 'ObjectId') {
             return id['$value'];
         } else if (typeof id !== 'undefined') {
             return '~' + Genghis.Util.base64Encode(JSON.stringify(id));
@@ -39,7 +39,7 @@ Genghis.Models.Document = Backbone.Model.extend({
     },
     prettyId: function() {
         var id = this.get('_id');
-        if (typeof id == 'object' && id.hasOwnProperty('$genghisType')) {
+        if (_.isObject(id) && id.hasOwnProperty('$genghisType')) {
             switch (id['$genghisType']) {
                 case 'ObjectId':
                     return id['$value'];
@@ -63,7 +63,7 @@ Genghis.Models.Document = Backbone.Model.extend({
     prettyTime: function() {
         if (typeof this._prettyTime == 'undefined') {
             var id = this.get('_id');
-            if (typeof id == 'object' && id.hasOwnProperty('$genghisType')) {
+            if (_.isObject(id) && id.hasOwnProperty('$genghisType')) {
                 if (id['$genghisType'] === 'ObjectId' && id['$value'].length == 24) {
                     var time = new Date();
                     time.setTime(parseInt(id['$value'].substring(0,8), 16) * 1000);
