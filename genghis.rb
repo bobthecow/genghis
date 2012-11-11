@@ -473,7 +473,7 @@ module Genghis
       private
 
       def connection
-        @connection ||= Mongo::Connection.from_uri(@dsn)
+        @connection ||= Mongo::Connection.from_uri(@dsn, :connect_timeout => 1)
       end
 
       def info
