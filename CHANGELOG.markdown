@@ -1,6 +1,7 @@
 ## v2.1.5
 
  * Prevent connection errors from messing up `/servers` response (Ruby backend) — See #46
+ * Handle `connectTimeoutMS` and `ssl` server options (Ruby backend) — See #42
 
 
 ## v2.1.4

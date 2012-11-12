@@ -403,6 +403,7 @@ module Genghis
         dsn = 'mongodb://'+dsn unless dsn.include? '://'
 
         begin
+          dsn = extract_extra_options(dsn)
           uri = ::Mongo::URIParser.new dsn
 
           # name this server something useful
@@ -452,8 +453,8 @@ module Genghis
         else
           begin
             connection
-          rescue Mongo::ConnectionFailure => ex
-            json.merge!({:error => ex.to_s})
+          rescue Mongo::ConnectionFailure => e
+            json.merge!({:error => "Connection error: #{e.message}"})
           else
             json.merge!({
               :size      => info['totalSize'].to_i,
@@ -472,8 +473,37 @@ module Genghis
 
       private
 
+      def extract_extra_options(dsn)
+        host, opts = dsn.split('?', 2)
+
+        keep  = {}
+        @opts = {}
+        Rack::Utils.parse_query(opts).each do |opt, value|
+          case opt
+          when 'replicaSet'
+            keep[opt] = value
+          when 'connectTimeoutMS'
+            unless value =~ /^\d+$/
+              raise Mongo::MongoArgumentError.new("Unexpected #{opt} option value: #{value}")
+            end
+            @opts[:connect_timeout] = (value.to_f / 1000)
+          when 'ssl'
+            unless value == 'true'
+              raise Mongo::MongoArgumentError.new("Unexpected #{opt} option value: #{value}")
+            end
+            @opts[opt.to_sym] = true
+          else
+            raise Mongo::MongoArgumentError.new("Unknown option #{opt}")
+          end
+        end
+        opts = Rack::Utils.build_query keep
+        opts.empty? ? host : [host, opts].join('?')
+      end
+
       def connection
-        @connection ||= Mongo::Connection.from_uri(@dsn, :connect_timeout => 1)
+        @connection ||= Mongo::Connection.from_uri(@dsn, {:connect_timeout => 1}.merge(@opts))
+      rescue OpenSSL::SSL::SSLError => e
+        raise Mongo::ConnectionFailure.new("SSL connection error")
       rescue StandardError => e
         raise Mongo::ConnectionFailure.new(e.message)
       end
