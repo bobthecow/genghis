@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 Gem::Specification.new do |gem|
   gem.name        = 'genghisapp'
   gem.version     = File.read('VERSION').strip.gsub('-', '.')

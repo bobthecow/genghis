@@ -76,13 +76,19 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
             throw new Genghis_HttpException(400, $count['errmsg']);
         }
 
+        // Can't use iterator_to_array because Mongo doesn't use sane keys.
+        $documents = array();
+        foreach ($cursor as $doc) {
+            $documents[] = $doc;
+        }
+
         return array(
             'count'     => $count,
             'page'      => $page,
             'pages'     => max(1, ceil($count / Genghis_Api::PAGE_LIMIT)),
             'per_page'  => Genghis_Api::PAGE_LIMIT,
             'offset'    => $offset,
-            'documents' => array_values(iterator_to_array($cursor)),
+            'documents' => $documents,
         );
     }
 

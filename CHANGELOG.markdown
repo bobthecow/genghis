@@ -1,3 +1,15 @@
+## v2.1.4
+
+ * Add warning messages for `magic_quotes_gpc` and `magic_quotes_runtime` — See #49.
+ * Work around PHP driver issue with non-scalar ids — See #51.
+ * Fix error handling documents with `null` identifiers — See #51.
+ * Make document headers prettier for non-string and non-ObjectId identifiers.
+ * Handle URI decoding and routing for non-string and non-ObjectId identifiers in some browsers.
+ * Saner connection timeouts — See #44.
+ * Fix "add server" regression in PHP — See #50.
+ * Never daemonize `genghisapp` for Windows users — See #54.
+
+
 ## v2.1.3
 
  * Optical correction for masthead background image aspect.

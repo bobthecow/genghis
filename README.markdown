@@ -21,6 +21,8 @@ $ genghisapp
 
 Now that it's running, you can use `genghisapp --kill` to stop it.
 
+**Windows users**: Due to [this bug](https://github.com/quirkey/vegas/issues/3) Genghis always runs in foreground mode.
+
 If you didn't go the gem route, you can still run `genghis.rb` standalone:
 
 ```

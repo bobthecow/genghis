@@ -22,6 +22,8 @@ class Genghis_ServerCollection implements ArrayAccess, Genghis_JsonEncodable
 
     public function offsetGet($name)
     {
+        $this->initServers();
+
         if (!isset($this[$name])) {
             throw new Genghis_HttpException(404, sprintf("Server '%s' not found", $name));
         }
@@ -39,6 +41,8 @@ class Genghis_ServerCollection implements ArrayAccess, Genghis_JsonEncodable
 
     public function offsetSet($name, $server)
     {
+        $this->initServers();
+
         if (!$server instanceof Genghis_Models_Server) {
             throw new Exception('Invalid Server instance');
         }
@@ -104,11 +108,14 @@ class Genghis_ServerCollection implements ArrayAccess, Genghis_JsonEncodable
 
     private function initServers()
     {
-        $this->initDsns();
+        if (!isset($this->servers)) {
+            $this->servers = array();
+            $this->initDsns();
 
-        // warm 'em up
-        foreach (array_merge(array_keys($this->serverDsns), array_keys($this->defaultServerDsns)) as $name) {
-            $this[$name];
+            // warm 'em up
+            foreach (array_merge(array_keys($this->serverDsns), array_keys($this->defaultServerDsns)) as $name) {
+                $this[$name];
+            }
         }
     }
 
@@ -127,7 +134,7 @@ class Genghis_ServerCollection implements ArrayAccess, Genghis_JsonEncodable
         $servers = array();
         foreach ($this->servers as $server) {
             if (!$server->default) {
-                $servers[$server->name] = $server->dsn;
+                $servers[] = $server->dsn;
             }
         }
 

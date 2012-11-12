@@ -8,7 +8,8 @@ rescue LoadError
 end
 require File.expand_path(File.dirname(__FILE__) + '/../genghis')
 
-Vegas::Runner.new(Genghis::Server, 'genghisapp') do |runner, opts, app|
+options = Vegas::WINDOWS ? {:foreground => true} : {}
+Vegas::Runner.new(Genghis::Server, 'genghisapp', options) do |runner, opts, app|
   opts.on('-N', "--no-update-check", "Skip the Genghis update check") do
     runner.logger.info "Skipping Genghis update check"
     ENV['GENGHIS_NO_UPDATE_CHECK'] = "1"

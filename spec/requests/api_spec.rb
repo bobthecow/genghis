@@ -41,7 +41,7 @@ require 'mongo'
                 count:     Fixnum,
                 databases: Array
               }
-            ].ignore_extra_values!
+            ]
         end
       end
 
@@ -61,6 +61,23 @@ require 'mongo'
             editable:  true,
             error:     String # mongo.example.com is valid, but unable to connect
         end
+
+        it 'remembers old servers when you add a new one' do
+          res = @api.post do |req|
+            req.url '/servers'
+            req.headers['Content-Type'] = 'application/json'
+            req.headers['Cookie'] = 'genghis_servers=%7B%22localhost%22%3A%22mongodb%3A%5C%2F%5C%2Flocalhost%3A27017%22%7D'
+            req.body = { name: 'mongo.example.com:27017' }.to_json
+          end
+          res.headers['set-cookie'].should_not be_empty
+          servers_cookie = URI.decode(res.headers['set-cookie'].split(';').first.split('=').last)
+          servers_cookie.should match_json_expression \
+            [
+              %r{^(mongodb://)?localhost(:27017)?$},
+              %r{^(mongodb://)?mongo.example.com(:27017)?$}
+            ]
+        end
+
 
         it 'adds the server but returns an error if the DSN is not valid' do
           res = @api.post do |req|
