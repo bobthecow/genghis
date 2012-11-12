@@ -6,6 +6,7 @@
  * Make document headers prettier for non-string and non-ObjectId identifiers.
  * Handle URI decoding and routing for non-string and non-ObjectId identifiers in some browsers.
  * Saner connection timeouts — See #44.
+ * Fix "add server" regression in PHP — See #50.
 
 
 ## v2.1.3
