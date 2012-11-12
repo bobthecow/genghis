@@ -82,6 +82,8 @@ module Genghis
 
       def connection
         @connection ||= Mongo::Connection.from_uri(@dsn, :connect_timeout => 1)
+      rescue StandardError => e
+        raise Mongo::ConnectionFailure.new(e.message)
       end
 
       def info

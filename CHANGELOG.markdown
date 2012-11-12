@@ -1,3 +1,8 @@
+## v2.1.5
+
+ * Prevent connection errors from messing up `/servers` response (Ruby backend) — See #46
+
+
 ## v2.1.4
 
  * Add warning messages for `magic_quotes_gpc` and `magic_quotes_runtime` — See #49.
