@@ -16,10 +16,9 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
 
         try {
             $config = self::parseDsn($dsn);
-
-            $this->name       = $config['name'];
-            $this->dsn        = $config['dsn'];
-            $this->options    = $config['options'];
+            $this->name    = $config['name'];
+            $this->dsn     = $config['dsn'];
+            $this->options = $config['options'];
         } catch (Genghis_HttpException $e) {
             $this->name  = $dsn;
             $this->dsn   = $dsn;
@@ -151,28 +150,40 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
         }
     }
 
+    const DSN_PATTERN = "~^(?:mongodb://)?(?:(?P<username>[^:@]+):(?P<password>[^@]+)@)?(?P<host>[^,/@:]+)(?::(?P<port>\d+))?(?:/(?P<database>[^\?]+)?(?:\?(?P<options>.*))?)?$~";
+
     public static function parseDsn($dsn)
     {
-        if (strpos($dsn, '://') === false) {
-            $dsn = 'mongodb://'.$dsn;
-        } else if (strpos($dsn, 'mongodb://') !== 0) {
-            throw new Genghis_HttpException(400, 'Malformed server DSN: unknown URI scheme');
-        }
-
-        $chunks = parse_url($dsn);
-        if ($chunks === false || isset($chunks['query']) || isset($chunks['fragment']) || !isset($chunks['host'])) {
+        $chunks = array();
+        if (!preg_match(self::DSN_PATTERN, $dsn, $chunks)) {
             throw new Genghis_HttpException(400, 'Malformed server DSN');
         }
 
         $options = array();
-        if (isset($chunks['query'])) {
-            parse_str($chunks['query'], $options);
+        if (isset($chunks['options'])) {
+            parse_str($chunks['options'], str_replace(';', '&', $options));
             foreach ($options as $name => $value) {
-                if (!in_array($name, array('replicaSet'))) {
-                    throw new Genghis_HttpException(400, 'Malformed server DSN: Unknown option — ' . $name);
-                }
+                switch ($name) {
+                    case 'replicaSet':
+                        $options['replicaSet'] = (string) $value;
+                        break;
 
-                $options[$name] = (string) $value;
+                    case 'connectTimeoutMS':
+                        $options['timeout'] = intval($value);
+                        break;
+
+                    case 'slaveOk':
+                    case 'safe':
+                    case 'w':
+                    case 'wtimeoutMS':
+                    case 'fsync':
+                    case 'journal':
+                    case 'socketTimeoutMS':
+                        throw new Genghis_HttpException(400, 'Unsupported connection option - ' . $name);
+
+                    default:
+                        throw new Genghis_HttpException(400, 'Malformed server DSN: Unknown connection option - ' . $name);
+                }
             }
         }
 
@@ -180,8 +191,11 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
         if (isset($chunks['user'])) {
             $name = $chunks['user'].'@'.$name;
         }
-        if (isset($chunks['port']) && $chunks['port'] !== 27017) {
-            $name .= ':'.$chunks['port'];
+        if (isset($chunks['port'])) {
+            $port = intval($chunks['port']);
+            if ($port !== 27017) {
+                $name .= ':'.$port;
+            }
         }
 
         return compact('name', 'dsn', 'options');

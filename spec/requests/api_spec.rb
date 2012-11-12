@@ -91,7 +91,7 @@ require 'mongo'
             id:       'http://foo/bar',
             name:     'http://foo/bar',
             editable: true,
-            error:    /^Malformed server DSN: .*URI/
+            error:    /^Malformed server DSN/
         end
       end
 
