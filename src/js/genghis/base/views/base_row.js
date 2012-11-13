@@ -57,6 +57,18 @@ Genghis.Views.BaseRow = Backbone.View.extend({
                     }
                 }
             );
+
+            _.defer(function() {
+                var btn = $('.appriseOuter button[value="ok"]').attr('disabled', true);
+                $('.appriseOuter .aTextbox').on('keyup', function() {
+                    if ($(this).val() == name) {
+                        btn.removeAttr('disabled');
+                    } else {
+                        btn.attr('disabled', true);
+                    }
+                });
+            });
+
         } else {
             apprise(
                 'Really? There is no undo.',
