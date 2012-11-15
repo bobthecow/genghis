@@ -4,6 +4,7 @@
  * Handle `connectTimeoutMS` and `ssl` server options (Ruby backend) — See #42
  * Cleaner mobile back buttons in WebKit browsers.
  * Disable submit button in paranoid db/collection confirm dialog until name is confirmed.
+ * Handle crazy characters in collection names (PHP backend) – See #56
 
 
 ## v2.1.4
