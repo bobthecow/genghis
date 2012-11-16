@@ -1,3 +1,6 @@
+#encoding: utf-8
+
+
 require 'spec_helper'
 require 'faraday'
 require 'mongo'
@@ -91,7 +94,7 @@ require 'mongo'
             id:       'http://foo/bar',
             name:     'http://foo/bar',
             editable: true,
-            error:    /^Malformed server DSN: .*URI/
+            error:    /^Malformed server DSN/
         end
       end
 
@@ -360,6 +363,98 @@ require 'mongo'
         it 'returns 404 when the database is not found' do
           res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/fake_collection'
           res.status.should eq 404
+        end
+      end
+
+      context 'collections with weird names' do
+        before :all do
+          @conn = Mongo::Connection.new
+          @conn.drop_database('__genghis_spec_test__') if @conn.database_names.include? '__genghis_spec_test__'
+          @db = @conn['__genghis_spec_test__']
+          @db.create_collection 'one with a few spaces'
+          @db.create_collection 'another.with.dots'
+          @db.create_collection 'forward/slashes'
+          @db.create_collection 'back\\slashes'
+          @db.create_collection 'and unicode…'
+        end
+
+        after :all do
+          @conn.drop_database '__genghis_spec_test__'
+        end
+
+        describe 'GET /servers/:server/databases/:db/collections' do
+          it 'can handle collections with weird names' do
+            res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections'
+            res.status.should eq 200
+            res.body.should match_json_expression \
+              [
+                {
+                  id:      'one with a few spaces',
+                  name:    'one with a few spaces',
+                  count:   0,
+                  indexes: Array
+                },
+                {
+                  id:      'another.with.dots',
+                  name:    'another.with.dots',
+                  count:   0,
+                  indexes: Array
+                },
+                {
+                  id:      'forward/slashes',
+                  name:    'forward/slashes',
+                  count:   0,
+                  indexes: Array
+                },
+                {
+                  id:      'back\\slashes',
+                  name:    'back\\slashes',
+                  count:   0,
+                  indexes: Array
+                },
+                {
+                  id:      'and unicode…',
+                  name:    'and unicode…',
+                  count:   0,
+                  indexes: Array
+                },
+              ]
+          end
+        end
+
+        describe 'POST /servers/:server/databases/:db/collections' do
+          it 'creates a new collection just like you would expect' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = { name: 'a b.c/d\\e…' }.to_json
+            end
+
+            res.status.should eq 200
+            res.headers['content-type'].should start_with 'application/json'
+            res.body.should match_json_expression \
+              id:      'a b.c/d\\e…',
+              name:    'a b.c/d\\e…',
+              count:   0,
+              indexes: Array
+          end
+        end
+
+        describe 'GET /servers/:server/databases/:db/collections/:coll' do
+          before :all do
+            @db.create_collection 'foo bar.baz/qux\\quux…'
+          end
+
+          it 'returns collection info' do
+            res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/foo%20bar.baz%2Fqux%5Cquux%E2%80%A6'
+
+            res.status.should eq 200
+            res.body.should match_json_expression \
+              id:      'foo bar.baz/qux\\quux…',
+              name:    'foo bar.baz/qux\\quux…',
+              count:   0,
+              indexes: Array
+          end
         end
       end
     end

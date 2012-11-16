@@ -24,7 +24,7 @@ class Genghis_Api extends Genghis_App
 
         $p = array();
         if (preg_match(self::ROUTE_PATTERN, $path, $p)) {
-            $p = array_filter($p);
+            $p = array_map('urldecode', array_filter($p));
 
             if (isset($p['id'])) {
                 return new Genghis_JsonResponse($this->documentAction($method, $p['server'], $p['db'], $p['coll'], $p['id']));
