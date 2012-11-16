@@ -446,7 +446,7 @@ require 'mongo'
           end
 
           it 'returns collection info' do
-            res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/foo%20bar.baz%2fqux%5Cquux%E2%80%A6'
+            res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/foo%20bar.baz%2Fqux%5Cquux%E2%80%A6'
 
             res.status.should eq 200
             res.body.should match_json_expression \
