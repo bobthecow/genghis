@@ -38,7 +38,7 @@ To run the test suite, you'll need PHP 5.4+ and a Mongo instance running on `loc
 rspec
 ```
 
-If you don't have PHP 5.4+, you can test just the Ruby API by editing `spec/requests/api_spec.rb` and removing `:php`
+If you don't have PHP 5.4+, you can test just the Ruby API by editing `spec/spec_helper.rb` and removing `:php`
 from the backend list:
 
 ```diff
