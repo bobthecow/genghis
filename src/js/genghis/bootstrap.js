@@ -5,7 +5,7 @@ window.Genghis = {
     Templates:   {},
     defaults: {
         codeMirror: {
-            mode:          "application/json",
+            mode:          'application/json',
             lineNumbers:   true,
             tabSize:       4,
             indentUnit:    4,

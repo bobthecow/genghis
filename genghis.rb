@@ -124,7 +124,7 @@ module Genghis
     end
 
     def message
-      @msg || "Malformed document"
+      @msg || 'Malformed document'
     end
   end
 
@@ -132,7 +132,7 @@ module Genghis
     def http_status; 404 end
 
     def message
-      "Not found"
+      'Not found'
     end
   end
 
@@ -306,7 +306,7 @@ module Genghis
 
       def create_collection(coll_name)
         raise Genghis::CollectionAlreadyExists.new(self, coll_name) if @database.collection_names.include? coll_name
-        @database.create_collection coll_name rescue raise Genghis::MalformedDocument.new("Invalid collection name")
+        @database.create_collection coll_name rescue raise Genghis::MalformedDocument.new('Invalid collection name')
         Collection.new(@database[coll_name])
       end
 
@@ -503,7 +503,7 @@ module Genghis
       def connection
         @connection ||= Mongo::Connection.from_uri(@dsn, {:connect_timeout => 1}.merge(@opts))
       rescue OpenSSL::SSL::SSLError => e
-        raise Mongo::ConnectionFailure.new("SSL connection error")
+        raise Mongo::ConnectionFailure.new('SSL connection error')
       rescue StandardError => e
         raise Mongo::ConnectionFailure.new(e.message)
       end

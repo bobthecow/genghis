@@ -40,7 +40,7 @@ Genghis.Views.BaseRow = Backbone.View.extend({
 
         if (this.isParanoid) {
             if (!name) {
-                throw "Unable to confirm destruction without a confirmation string.";
+                throw 'Unable to confirm destruction without a confirmation string.';
             }
 
             apprise(

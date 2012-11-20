@@ -12,7 +12,7 @@ module Genghis
     end
 
     def message
-      @msg || "Malformed document"
+      @msg || 'Malformed document'
     end
   end
 
@@ -20,7 +20,7 @@ module Genghis
     def http_status; 404 end
 
     def message
-      "Not found"
+      'Not found'
     end
   end
 

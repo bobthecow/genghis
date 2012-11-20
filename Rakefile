@@ -27,23 +27,23 @@ class String
   end
 end
 
-desc "Compile Genghis"
+desc 'Compile Genghis'
 task :build => 'build:all'
 
 namespace :build do
-  desc "Compile Genghis CSS assets"
+  desc 'Compile Genghis CSS assets'
   task :css => [ tmp_dir+'style.css' ]
 
-  desc "Compile Genghis JavaScript assets"
+  desc 'Compile Genghis JavaScript assets'
   task :js  => [ tmp_dir+'script.js' ]
 
-  desc "Compile PHP Genghis w/ CSS and JS"
+  desc 'Compile PHP Genghis w/ CSS and JS'
   task :all_php => [ 'genghis.php', 'build:js', 'build:css' ]
 
-  desc "Compile Ruby Genghis w/ CSS and JS"
+  desc 'Compile Ruby Genghis w/ CSS and JS'
   task :all_rb => [ 'genghis.rb', 'build:js', 'build:css' ]
 
-  desc "Compile Both PHP and Ruby versions of Genghis"
+  desc 'Compile Both PHP and Ruby versions of Genghis'
   task :all => [ 'genghis.php', 'genghis.rb', 'build:js', 'build:css' ]
 end
 
