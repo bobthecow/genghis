@@ -5,7 +5,7 @@ require 'spec_helper'
 require 'faraday'
 require 'mongo'
 
-[:php, :ruby].each do |backend|
+genghis_backends.each do |backend|
   describe "Genghis #{backend} API" do
     before :all do
       @api = start_backend backend

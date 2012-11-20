@@ -4,6 +4,10 @@ require 'net/http'
 require_relative '../genghis.rb'
 
 RSpec.configure do |config|
+  def genghis_backends
+    [:php, :ruby]
+  end
+
   def find_available_port
     server = TCPServer.new('127.0.0.1', 0)
     server.addr[1]
