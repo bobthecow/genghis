@@ -16,6 +16,10 @@ GENGHIS_VERSION = File.read('VERSION').strip
 
 tmp_dir = ENV['NOCOMPRESS'] ? 'tmp/uncompressed/' : 'tmp/compressed/'
 
+def data_uri(filename)
+  "data:image/#{File.extname(filename)[1..-1]};base64,#{Base64.strict_encode64(File.read(filename))}"
+end
+
 # sweet mixin action
 class String
   def unindent
@@ -49,9 +53,26 @@ end
 
 directory tmp_dir
 
+file tmp_dir+'backgrounds.css' => FileList[
+  tmp_dir,
+  'src/img/backgrounds/*.png',
+  'src/templates/backgrounds.css.erb'
+] do
+  File.open(tmp_dir+'backgrounds.css', 'w') do |file|
+    body         = data_uri('src/img/backgrounds/body.png')
+    grippie      = data_uri('src/img/backgrounds/grippie.png')
+    nav          = data_uri('src/img/backgrounds/nav.png')
+    servers_spin = data_uri('src/img/backgrounds/servers_spin.gif')
+    section_spin = data_uri('src/img/backgrounds/section_spin.gif')
+
+    file << ERB.new(File.read('src/templates/backgrounds.css.erb')).result(binding)
+  end
+end
+
 css_files = [
   'vendor/codemirror/lib/codemirror.css',
   'vendor/keyscss/keys.css',
+  tmp_dir+'backgrounds.css',
 ]
 
 file tmp_dir+'style.css' => FileList[
@@ -164,8 +185,8 @@ file tmp_dir+'index.html.mustache' => FileList[
   File.open(tmp_dir+'index.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
 
-    favicon_uri  = "data:image/png;base64,#{Base64.encode64(File.read('src/img/favicon.png'))}"
-    keyboard_uri = "data:image/png;base64,#{Base64.encode64(File.read('src/img/keyboard.png'))}"
+    favicon_uri  = data_uri('src/img/favicon.png')
+    keyboard_uri = data_uri('src/img/keyboard.png')
 
     index = ERB.new(File.read('src/templates/index.html.mustache.erb')).result(binding)
     if ENV['NOCOMPRESS']
