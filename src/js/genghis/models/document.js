@@ -62,19 +62,21 @@ Genghis.Models.Document = Backbone.Model.extend({
         return Genghis.JSON.stringify(id, false);
     },
     prettyTime: function() {
-        if (typeof this._prettyTime == 'undefined') {
-            var id = this.get('_id');
-            if (_.isObject(id) && id.hasOwnProperty('$genghisType')) {
-                if (id['$genghisType'] === 'ObjectId' && id['$value'].length == 24) {
-                    var time = new Date();
-                    time.setTime(parseInt(id['$value'].substring(0,8), 16) * 1000);
+        if (!this.collection || this.collection.guessCreationTime) {
+            if (typeof this._prettyTime == 'undefined') {
+                var id = this.get('_id');
+                if (_.isObject(id) && id.hasOwnProperty('$genghisType')) {
+                    if (id['$genghisType'] === 'ObjectId' && id['$value'].length == 24) {
+                        var time = new Date();
+                        time.setTime(parseInt(id['$value'].substring(0,8), 16) * 1000);
 
-                    this._prettyTime = time.toUTCString();
+                        this._prettyTime = time.toUTCString();
+                    }
                 }
             }
-        }
 
-        return this._prettyTime;
+            return this._prettyTime;
+        }
     },
     prettyPrint: function() {
         return Genghis.JSON.prettyPrint(this.toJSON());
