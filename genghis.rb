@@ -593,22 +593,37 @@ module Genghis
       end
 
       unless ENV['GENGHIS_NO_UPDATE_CHECK']
+        require 'open-uri'
+        require 'rubygems'
+
+        Gem.refresh
+
+        latest    = nil
+        installed = Gem::Specification.find_all { |s| s.name == 'genghisapp'}.map { |s| s.version }.sort.last
+        running   = Gem::Version.new(Genghis::VERSION.gsub(/[\+_-]/, '.'))
+
         begin
-          require 'open-uri'
           open('https://raw.github.com/bobthecow/genghis/master/VERSION') do |f|
-            latest   = f.read
-            outdated = Gem::Version.new(Genghis::VERSION.gsub(/[\+_-]/, '.')) < Gem::Version.new(latest.gsub(/[\+_-]/, '.'))
-            if latest && outdated
-              msg = <<-MSG.strip.gsub(/\s+/, " ")
-                <h4>A Genghis update is available</h4>
-                You are running Genghis version <tt>#{Genghis::VERSION}</tt>. The current version is <tt>#{latest}</tt>.
-                Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.
-              MSG
-              alerts << {:level => 'warning', :msg => msg}
-            end
+            latest = Gem::Version.new(f.read.gsub(/[\+_-]/, '.'))
           end
         rescue
-          # do nothing
+          # do nothing...
+        end
+
+        if latest && installed < latest
+          msg = <<-MSG.strip.gsub(/\s+/, " ")
+            <h4>A Genghis update is available</h4>
+            You are running Genghis version <tt>#{Genghis::VERSION}</tt>. The current version is <tt>#{latest}</tt>.
+            Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.
+          MSG
+          alerts << {:level => 'warning', :msg => msg}
+        elsif running < installed
+          msg = <<-MSG.strip.gsub(/\s+/, " ")
+            <h4>You are not running the latest version</h4>
+            You have installed Genghis version <tt>#{installed}</tt> but are still running <tt>#{Genghis::VERSION}</tt>.
+            Run <tt>genghisapp&nbsp;--kill</tt> then restart <tt>genghisapp</tt>.
+          MSG
+          alerts << {:level => 'info', :msg => msg}
         end
       end
 

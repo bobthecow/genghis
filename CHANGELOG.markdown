@@ -1,3 +1,8 @@
+## v2.1.7
+
+ * Add an "updated but not restarted" info message (Ruby backend) — See #41
+
+
 ## v2.1.6
 
  * Better heuristic for guessing document creation date from ObjectId — See #55
