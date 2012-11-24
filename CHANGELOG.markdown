@@ -4,6 +4,7 @@
  * Catch more connection auth errors (Ruby backend).
  * Support authenticating directly against a DB for non-admin users — See #16
  * Make the welcome masthead vertically responsive — See #61
+ * Source code and asset cleanup.
 
 
 ## v2.1.5
