@@ -16,10 +16,20 @@ module Genghis
 
           # name this server something useful
           name = uri.host
+
           if user = uri.auths.map{|a| a['username']}.first
             name = "#{user}@#{name}"
           end
+
           name = "#{name}:#{uri.port}" unless uri.port == 27017
+
+          if db = uri.auths.map{|a| a['db_name']}.first
+            unless db == 'admin'
+              name = "#{name}/#{db}"
+              @db = db
+            end
+          end
+
           @name = name
         rescue Mongo::MongoArgumentError => e
           @error = "Malformed server DSN: #{e.message}"
@@ -39,9 +49,7 @@ module Genghis
       end
 
       def databases
-        connection['admin'].command({:listDatabases => true})['databases'].map do |db|
-          Database.new(connection[db['name']])
-        end
+        info['databases'].map { |db| Database.new(connection[db['name']]) }
       end
 
       def [](db_name)
@@ -61,8 +69,11 @@ module Genghis
         else
           begin
             connection
+            info
           rescue Mongo::ConnectionFailure => e
             json.merge!({:error => "Connection error: #{e.message}"})
+          rescue Mongo::OperationFailure => e
+            json.merge!({:error => "Connection error: #{e.result['errmsg']}"})
           else
             json.merge!({
               :size      => info['totalSize'].to_i,
@@ -111,13 +122,22 @@ module Genghis
       def connection
         @connection ||= Mongo::Connection.from_uri(@dsn, {:connect_timeout => 1}.merge(@opts))
       rescue OpenSSL::SSL::SSLError => e
-        raise Mongo::ConnectionFailure.new("SSL connection error")
+        raise Mongo::ConnectionFailure.new('SSL connection error')
       rescue StandardError => e
         raise Mongo::ConnectionFailure.new(e.message)
       end
 
       def info
-        @info ||= connection['admin'].command({:listDatabases => true})
+        @info ||= begin
+          if @db.nil?
+            connection['admin'].command({:listDatabases => true})
+          else
+            {
+              'databases' => [{'name' => @db}],
+              'totalSize' => connection[@db].stats['fileSize']
+            }
+          end
+        end
       end
     end
   end

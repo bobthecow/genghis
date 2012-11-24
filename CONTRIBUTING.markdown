@@ -38,21 +38,21 @@ To run the test suite, you'll need PHP 5.4+ and a Mongo instance running on `loc
 rspec
 ```
 
-If you don't have PHP 5.4+, you can test just the Ruby API by editing `spec/requests/api_spec.rb` and removing `:php`
+If you don't have PHP 5.4+, you can test just the Ruby API by editing `spec/spec_helper.rb` and removing `:php`
 from the backend list:
 
 ```diff
---- a/spec/requests/api_spec.rb
-+++ b/spec/requests/api_spec.rb
-@@ -2,7 +2,7 @@ require 'spec_helper'
- require 'faraday'
- require 'mongo'
+--- a/spec/spec_helper.rb
++++ b/spec/spec_helper.rb
+@@ -5,7 +5,7 @@ require_relative '../genghis.rb'
  
--[:php, :ruby].each do |backend|
-+[:ruby].each do |backend|
-   describe "Genghis #{backend} API" do
-     before :all do
-       @api = start_backend backend
+ RSpec.configure do |config|
+   def genghis_backends
+-    [:php, :ruby]
++    [:ruby]
+   end
+ 
+   def find_available_port
 ```
 
 

@@ -89,6 +89,6 @@ Genghis.Views.App = Backbone.View.extend({
         $(document).scrollTop(0);
     },
     showWelcome: _.once(function() {
-        this.showMasthead('', Genghis.Templates.Welcome.render({version: Genghis.version}), {epic: true});
+        this.showMasthead('', Genghis.Templates.Welcome.render({version: Genghis.version}), {epic: true, className: 'masthead welcome'});
     })
 });

@@ -10,12 +10,12 @@ require File.expand_path(File.dirname(__FILE__) + '/../genghis')
 
 options = Vegas::WINDOWS ? {:foreground => true} : {}
 Vegas::Runner.new(Genghis::Server, 'genghisapp', options) do |runner, opts, app|
-  opts.on('-N', "--no-update-check", "Skip the Genghis update check") do
-    runner.logger.info "Skipping Genghis update check"
-    ENV['GENGHIS_NO_UPDATE_CHECK'] = "1"
+  opts.on('-N', '--no-update-check', 'Skip the Genghis update check') do
+    runner.logger.info 'Skipping Genghis update check'
+    ENV['GENGHIS_NO_UPDATE_CHECK'] = '1'
   end
 
-  opts.on('-s SERVERS', "--servers SERVERS", "Specify default server list") do |servers|
+  opts.on('-s SERVERS', '--servers SERVERS', 'Specify default server list') do |servers|
     runner.logger.info "Using Genghis servers #{servers.inspect}"
     ENV['GENGHIS_SERVERS'] = servers
   end

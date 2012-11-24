@@ -7,7 +7,7 @@ end
 
 guard 'rspec' do
   watch(%r{^spec/.+_spec\.rb$})
-  watch('spec/spec_helper.rb')   { "spec" }
-  watch(%r{^genghis\.(php|rb)$}) { "spec" }
+  watch('spec/spec_helper.rb')   { 'spec' }
+  watch(%r{^genghis\.(php|rb)$}) { 'spec' }
 end
 

@@ -5,7 +5,7 @@ require 'spec_helper'
 require 'faraday'
 require 'mongo'
 
-[:php, :ruby].each do |backend|
+genghis_backends.each do |backend|
   describe "Genghis #{backend} API" do
     before :all do
       @api = start_backend backend
@@ -593,7 +593,7 @@ require 'mongo'
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
-            req.body = "..."
+            req.body = '...'
           end
           res.status.should eq 400
         end

@@ -195,7 +195,7 @@ class Genghis_App
         $this->initAssets();
         if (isset($this->assets[$name])) {
             return new Genghis_AssetResponse($name, $this->assets[$name], array(
-                'Last-Modified' => gmdate("D, d M Y H:i:s", filemtime(__FILE__))." GMT",
+                'Last-Modified' => gmdate('D, d M Y H:i:s', filemtime(__FILE__)) . ' GMT',
                 'Etag'          => sprintf('"%s"', $this->assetEtags[$name]),
             ));
         }
@@ -209,7 +209,7 @@ class Genghis_App
             foreach (preg_split("/^@@(?=[\w\d\.]+( [\w\d\.]+)?$)/m", $data, -1) as $asset) {
                 if (trim($asset)) {
                     list($line, $content)    = explode("\n", $asset, 2);
-                    list($name, $etag)       = explode(" ",  $line,  2);
+                    list($name, $etag)       = explode(' ',  $line,  2);
                     $this->assets[$name]     = trim($content);
                     $this->assetEtags[$name] = $etag;
                 }
