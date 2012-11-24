@@ -6,6 +6,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     public $name;
     public $options;
     public $default;
+    public $db;
 
     private $connection;
     private $databases = array();
@@ -19,6 +20,10 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
             $this->name    = $config['name'];
             $this->dsn     = $config['dsn'];
             $this->options = $config['options'];
+
+            if (isset($config['db'])) {
+                $this->db = $config['db'];
+            }
         } catch (Genghis_HttpException $e) {
             $this->name  = $dsn;
             $this->dsn   = $dsn;
@@ -28,8 +33,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
 
     public function offsetExists($name)
     {
-        $list = $this->getConnection()->listDBs();
-
+        $list = $this->listDBs();
         foreach ($list['databases'] as $db) {
             if ($db['name'] === $name) {
                 return true;
@@ -84,7 +88,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     public function listDatabases()
     {
         $dbs = array();
-        $list = $this->getConnection()->listDBs();
+        $list = $this->listDBs();
         foreach ($list['databases'] as $db) {
             $dbs[] = $this[$db['name']];
         }
@@ -95,7 +99,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     public function getDatabaseNames()
     {
         $names = array();
-        $list = $this->getConnection()->listDBs();
+        $list = $this->listDBs();
         foreach ($list['databases'] as $db) {
             $names[] = $db['name'];
         }
@@ -128,7 +132,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
         }
 
         try {
-            $res = $this->getConnection()->listDBs();
+            $res = $this->listDBs();
 
             if (isset($res['errmsg'])) {
                 $server['error'] = sprintf("Unable to connect to Mongo server at '%s': %s", $this->name, $res['errmsg']);
@@ -157,6 +161,10 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
         $chunks = array();
         if (!preg_match(self::DSN_PATTERN, $dsn, $chunks)) {
             throw new Genghis_HttpException(400, 'Malformed server DSN');
+        }
+
+        if (strpos($dsn, 'mongodb://') !== 0) {
+            $dsn = 'mongodb://'.$dsn;
         }
 
         $options = array();
@@ -188,16 +196,39 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
         }
 
         $name = $chunks['host'];
-        if (isset($chunks['user'])) {
-            $name = $chunks['user'].'@'.$name;
+        if (isset($chunks['username']) && !empty($chunks['username'])) {
+            $name = $chunks['username'].'@'.$name;
         }
-        if (isset($chunks['port'])) {
+        if (isset($chunks['port']) && !empty($chunks['port'])) {
             $port = intval($chunks['port']);
             if ($port !== 27017) {
                 $name .= ':'.$port;
             }
         }
+        if (isset($chunks['database']) && !empty($chunks['database']) && $chunks['database'] != 'admin') {
+            $db   = $chunks['database'];
+            $name .= '/'.$db;
+        }
 
-        return compact('name', 'dsn', 'options');
+        $ret = compact('name', 'dsn', 'options');
+
+        if (isset($db)) {
+            $ret['db'] = $db;
+        }
+
+        return $ret;
+    }
+
+    private function listDbs()
+    {
+        // Fake it if we've got a single-db connection.
+        if (isset($this->db)) {
+            return array(
+                'totalSize' => 0,
+                'databases' => array(array('name' => $this->db)),
+            );
+        }
+
+        return $this->getConnection()->listDBs();
     }
 }
