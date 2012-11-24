@@ -8,6 +8,7 @@
  * Better heuristic for guessing document creation date from ObjectId — See #55
  * Catch more connection auth errors (Ruby backend).
  * Support authenticating directly against a DB for non-admin users — See #16
+ * Make the welcome masthead vertically responsive — See #61
 
 
 ## v2.1.4
