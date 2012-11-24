@@ -223,8 +223,12 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     {
         // Fake it if we've got a single-db connection.
         if (isset($this->db)) {
+            $stats = $this->getConnection()
+                ->selectDB($this->db)
+                ->command(array('dbStats' => true));
+
             return array(
-                'totalSize' => 0,
+                'totalSize' => $stats['fileSize'],
                 'databases' => array(array('name' => $this->db)),
             );
         }
