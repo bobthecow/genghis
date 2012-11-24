@@ -6,6 +6,7 @@
  * Disable submit button in paranoid db/collection confirm dialog until name is confirmed.
  * Handle crazy characters in collection names (PHP backend) – See #56
  * Better heuristic for guessing document creation date from ObjectId — See #55
+ * Catch more connection auth errors (Ruby backend).
 
 
 ## v2.1.4

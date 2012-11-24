@@ -431,9 +431,7 @@ module Genghis
       end
 
       def databases
-        connection['admin'].command({:listDatabases => true})['databases'].map do |db|
-          Database.new(connection[db['name']])
-        end
+        info['databases'].map { |db| Database.new(connection[db['name']]) }
       end
 
       def [](db_name)
@@ -453,8 +451,11 @@ module Genghis
         else
           begin
             connection
+            info
           rescue Mongo::ConnectionFailure => e
             json.merge!({:error => "Connection error: #{e.message}"})
+          rescue Mongo::OperationFailure => e
+            json.merge!({:error => "Connection error: #{e.result['errmsg']}"})
           else
             json.merge!({
               :size      => info['totalSize'].to_i,
