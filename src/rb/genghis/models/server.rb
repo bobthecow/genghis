@@ -16,10 +16,20 @@ module Genghis
 
           # name this server something useful
           name = uri.host
+
           if user = uri.auths.map{|a| a['username']}.first
             name = "#{user}@#{name}"
           end
+
           name = "#{name}:#{uri.port}" unless uri.port == 27017
+
+          if db = uri.auths.map{|a| a['db_name']}.first
+            unless db == 'admin'
+              name = "#{name}/#{db}"
+              @db = db
+            end
+          end
+
           @name = name
         rescue Mongo::MongoArgumentError => e
           @error = "Malformed server DSN: #{e.message}"
@@ -118,7 +128,16 @@ module Genghis
       end
 
       def info
-        @info ||= connection['admin'].command({:listDatabases => true})
+        @info ||= begin
+          if @db.nil?
+            connection['admin'].command({:listDatabases => true})
+          else
+            {
+              'databases' => [{'name' => @db}],
+              'totalSize' => connection[@db].stats['fileSize']
+            }
+          end
+        end
       end
     end
   end

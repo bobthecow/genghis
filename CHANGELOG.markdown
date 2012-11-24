@@ -7,6 +7,7 @@
  * Handle crazy characters in collection names (PHP backend) – See #56
  * Better heuristic for guessing document creation date from ObjectId — See #55
  * Catch more connection auth errors (Ruby backend).
+ * Support authenticating directly against a DB for non-admin users (Ruby backend) — See #16
 
 
 ## v2.1.4
