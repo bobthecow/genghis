@@ -74,14 +74,14 @@ module Genghis
           # do nothing...
         end
 
-        if latest && installed < latest
+        if latest && (installed || running) < latest
           msg = <<-MSG.strip.gsub(/\s+/, " ")
             <h4>A Genghis update is available</h4>
             You are running Genghis version <tt>#{Genghis::VERSION}</tt>. The current version is <tt>#{latest}</tt>.
             Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.
           MSG
           alerts << {:level => 'warning', :msg => msg}
-        elsif running < installed
+        elsif installed && running < installed
           msg = <<-MSG.strip.gsub(/\s+/, " ")
             <h4>You are not running the latest version</h4>
             You have installed Genghis version <tt>#{installed}</tt> but are still running <tt>#{Genghis::VERSION}</tt>.
