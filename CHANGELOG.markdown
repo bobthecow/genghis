@@ -1,6 +1,7 @@
 ## v2.1.7
 
  * [Fix #41][i41] — Add an "updated but not restarted" info message (Ruby backend).
+ * Bump Bootstrap, Esprima, CodeMirror and Hogan.js vendor libraries — faster parsing, highlighting and rendering!
 
 [i41]: https://github.com/bobthecow/genghis/issues/41
 
