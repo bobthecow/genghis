@@ -1,44 +1,64 @@
 ## v2.1.7
 
- * Add an "updated but not restarted" info message (Ruby backend) — See #41
+ * [Fix #41][i41] — Add an "updated but not restarted" info message (Ruby backend).
+
+[i41]: https://github.com/bobthecow/genghis/issues/41
 
 
 ## v2.1.6
 
- * Better heuristic for guessing document creation date from ObjectId — See #55
+ * [Fix #55][i55] — Better heuristic for guessing document creation date from ObjectId.
  * Catch more connection auth errors (Ruby backend).
- * Support authenticating directly against a DB for non-admin users — See #16
- * Make the welcome masthead vertically responsive — See #61
+ * [Fix #16][i16] — Support authenticating directly against a DB for non-admin users.
+ * [Fix #61][i61] — Make the welcome masthead vertically responsive.
  * Source code and asset cleanup.
+
+[i55]: https://github.com/bobthecow/genghis/issues/55
+[i16]: https://github.com/bobthecow/genghis/issues/16
+[i61]: https://github.com/bobthecow/genghis/issues/61
 
 
 ## v2.1.5
 
- * Prevent connection errors from messing up `/servers` response (Ruby backend) — See #46
- * Handle `connectTimeoutMS` and `ssl` server options (Ruby backend) — See #42
+ * [Fix #46][i46] — Prevent connection errors from messing up `/servers` response (Ruby backend).
+ * [Fix #42][i42] — Handle `connectTimeoutMS` and `ssl` server options (Ruby backend).
  * Cleaner mobile back buttons in WebKit browsers.
  * Disable submit button in paranoid db/collection confirm dialog until name is confirmed.
- * Handle crazy characters in collection names (PHP backend) – See #56
+ * [Fix #56][i56] — Handle crazy characters in collection names (PHP backend).
+
+[i46]: https://github.com/bobthecow/genghis/issues/46
+[i42]: https://github.com/bobthecow/genghis/issues/42
+[i56]: https://github.com/bobthecow/genghis/issues/56
 
 
 ## v2.1.4
 
- * Add warning messages for `magic_quotes_gpc` and `magic_quotes_runtime` — See #49.
- * Work around PHP driver issue with non-scalar ids — See #51.
- * Fix error handling documents with `null` identifiers — See #51.
+ * [Fix #49][i49] — Add warning messages for `magic_quotes_gpc` and `magic_quotes_runtime`.
+ * [Fix #51][i51] — Work around PHP driver issue with non-scalar ids.
+ * [Fix #51][i51] — Fix error handling documents with `null` identifiers.
  * Make document headers prettier for non-string and non-ObjectId identifiers.
  * Handle URI decoding and routing for non-string and non-ObjectId identifiers in some browsers.
- * Saner connection timeouts — See #44.
- * Fix "add server" regression in PHP — See #50.
- * Never daemonize `genghisapp` for Windows users — See #54.
+ * [Fix #44][i44] — Saner connection timeouts.
+ * [Fix #50][i50] — Fix "add server" regression in PHP.
+ * [Fix #54][i54] — Never daemonize `genghisapp` for Windows users.
+
+[i49]: https://github.com/bobthecow/genghis/issues/49
+[i51]: https://github.com/bobthecow/genghis/issues/51
+[i51]: https://github.com/bobthecow/genghis/issues/51
+[i44]: https://github.com/bobthecow/genghis/issues/44
+[i50]: https://github.com/bobthecow/genghis/issues/50
+[i54]: https://github.com/bobthecow/genghis/issues/54
 
 
 ## v2.1.3
 
  * Optical correction for masthead background image aspect.
  * Use Adobe's beautiful Source Code Pro rather than relying on the default system monospace.
- * Fix #48 — ActiveRecord messes up DateTime#to_time.
- * Fix #52 — MongoDate parsing regression in PHP.
+ * [Fix #48][i48] — ActiveRecord messes up DateTime#to_time.
+ * [Fix #52][i52] — MongoDate parsing regression in PHP.
+
+[i48]: https://github.com/bobthecow/genghis/issues/48
+[i52]: https://github.com/bobthecow/genghis/issues/52
 
 
 ## v2.1.2
@@ -50,16 +70,19 @@
 
 ## v2.1.1
 
- * Fix #38 — JSON rendering weirdness with empty array properties.
- * Fix #40 — Ruby 1.8.7 regression.
+ * [Fix #38][i38] — JSON rendering weirdness with empty array properties.
+ * [Fix #40][i40] — Ruby 1.8.7 regression.
+
+[i38]: https://github.com/bobthecow/genghis/issues/38
+[i40]: https://github.com/bobthecow/genghis/issues/40
 
 
 ## v2.1
 
- * Fix #28 — Handle BSON BinData properly in documents and ids.
- * Fix #33 — Remove unexpected collapsed document representation in edit mode.
- * Fix #32 — No more mixed-content warning when Genghis is running over SSL.
- * Fix #35 — No more "Add Server" fail in Ruby.
+ * [Fix #28][i28] — Handle BSON BinData properly in documents and ids.
+ * [Fix #33][i33] — Remove unexpected collapsed document representation in edit mode.
+ * [Fix #32][i32] — No more mixed-content warning when Genghis is running over SSL.
+ * [Fix #35][i35] — No more "Add Server" fail in Ruby.
  * Fix — Handle connection auth errors more gracefully.
  * Fix — Query bug when running under PHP 5.4 SAPI CLI server.
  * Add ObjectId timestamps to document headers.
@@ -70,17 +93,28 @@
  * Refactor PHP API. For the children.
  * Added `CONTRIBUTING.markdown`.
 
+[i28]: https://github.com/bobthecow/genghis/issues/28
+[i33]: https://github.com/bobthecow/genghis/issues/33
+[i32]: https://github.com/bobthecow/genghis/issues/32
+[i35]: https://github.com/bobthecow/genghis/issues/35
+
 
 ## v2.0.2
 
- * Fix #29 — Don't throw unexpected unary expression error when parsing negative numbers.
- * Fix #22 — Handle high badge counts on nav dropdown.
- * Fix #30 — Weird content clipping when editing really long documents.
+ * [Fix #29][i29] — Don't throw unexpected unary expression error when parsing negative numbers.
+ * [Fix #22][i22] — Handle high badge counts on nav dropdown.
+ * [Fix #30][i30] — Weird content clipping when editing really long documents.
+
+[i29]: https://github.com/bobthecow/genghis/issues/29
+[i22]: https://github.com/bobthecow/genghis/issues/22
+[i30]: https://github.com/bobthecow/genghis/issues/30
 
 
 ## v2.0.1
 
- * Fix #26 — Don't double-encode HTML entities in JSON output.
+ * [Fix #26][i26] — Don't double-encode HTML entities in JSON output.
+
+[i26]: https://github.com/bobthecow/genghis/issues/26
 
 
 ## v2.0.0
@@ -124,17 +158,20 @@ Tons of improvements:
 
 And a handful of bug fixes:
 
- * Fix #19 — Only implicitly wrap MongoIds if they're 24 character hex strings.
- * Fix #20 — Support creating and editing documents with an `attributes` property.
+ * [Fix #19][i19] — Only implicitly wrap MongoIds if they're 24 character hex strings.
+ * [Fix #20][i20] — Support creating and editing documents with an `attributes` property.
  * Fix output glitches when displaying a brand new document immediately after an existing document.
- * Fix – possible JavaScript error when adding a new collection.
- * Fix – handful of rare (and relatively benign) error messages.
+ * Fix — possible JavaScript error when adding a new collection.
+ * Fix — handful of rare (and relatively benign) error messages.
  * Fix — malformed server DSN could prevent servers list from rendering.
  * Fix — rare bug where properties with a specific structure might be mistaken for ObjectIds or Dates.
  * Fix — no longer recreates missing dbs and collections on GET requests.
  * Fix — all sorts of things now 404 if they're missing, rather than rendering an empty page.
- * Fix — assorted issues with running in subdirectories, and under nginx.
+ * Fix — assorted issues with running in subdirectories, and under nginx.
  * Improve error handling in a couple of places.
+
+[i19]: https://github.com/bobthecow/genghis/issues/19
+[i20]: https://github.com/bobthecow/genghis/issues/20
 
 
 ## v1.4.2
@@ -189,7 +226,7 @@ Update to Bootstrap v1.4.0.
 
 ## v1.0.1
 
-Fix an E_STRICT error in asset mime-type guessing.
+Fix an `E_STRICT` error in asset mime-type guessing.
 
 
 ## v1.0.0
