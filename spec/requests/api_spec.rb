@@ -525,6 +525,16 @@ genghis_backends.each do |backend|
           res.status.should eq 400
         end
 
+        it 'returns 400 if the document id is invalid' do
+          res = @api.post do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
+            req.headers['Content-Type'] = 'application/json'
+            req.body = {_id: [0, 1]}.to_json
+          end
+
+          res.status.should eq 400
+        end
+
         it 'returns 404 if the collection is not found' do
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/fake_docs/documents'

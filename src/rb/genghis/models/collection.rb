@@ -16,7 +16,13 @@ module Genghis
       end
 
       def insert(data)
-        id = @collection.insert data
+        begin
+          id = @collection.insert data
+        rescue Mongo::OperationFailure => e
+          # going out on a limb here and assuming all of these are malformed...
+          raise Genghis::MalformedDocument.new(e.result['errmsg'])
+        end
+
         @collection.find_one('_id' => id)
       end
 

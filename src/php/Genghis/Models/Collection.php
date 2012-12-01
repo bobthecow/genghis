@@ -99,7 +99,11 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
 
     public function insert($data)
     {
-        $result = $this->collection->insert($data, array('safe' => true));
+        try {
+            $result = $this->collection->insert($data, array('safe' => true));
+        } catch (MongoCursorException $e) {
+            throw new Genghis_HttpException(400, ucfirst($e->doc['err']));
+        }
 
         if (!(isset($result['ok']) && $result['ok'])) {
             throw new Genghis_HttpException;

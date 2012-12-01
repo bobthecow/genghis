@@ -120,7 +120,7 @@ module Genghis
       end
 
       def connection
-        @connection ||= Mongo::Connection.from_uri(@dsn, {:connect_timeout => 1}.merge(@opts))
+        @connection ||= Mongo::Connection.from_uri(@dsn, {:connect_timeout => 1, :safe => true}.merge(@opts))
       rescue OpenSSL::SSL::SSLError => e
         raise Mongo::ConnectionFailure.new('SSL connection error')
       rescue StandardError => e

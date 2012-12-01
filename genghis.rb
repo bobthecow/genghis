@@ -234,7 +234,13 @@ module Genghis
       end
 
       def insert(data)
-        id = @collection.insert data
+        begin
+          id = @collection.insert data
+        rescue Mongo::OperationFailure => e
+          # going out on a limb here and assuming all of these are malformed...
+          raise Genghis::MalformedDocument.new(e.result['errmsg'])
+        end
+
         @collection.find_one('_id' => id)
       end
 
@@ -517,7 +523,7 @@ module Genghis
       end
 
       def connection
-        @connection ||= Mongo::Connection.from_uri(@dsn, {:connect_timeout => 1}.merge(@opts))
+        @connection ||= Mongo::Connection.from_uri(@dsn, {:connect_timeout => 1, :safe => true}.merge(@opts))
       rescue OpenSSL::SSL::SSLError => e
         raise Mongo::ConnectionFailure.new('SSL connection error')
       rescue StandardError => e
