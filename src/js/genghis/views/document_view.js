@@ -17,7 +17,7 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
     initialize: function() {
         _.bindAll(
             this, 'render', 'updateDocument', 'navigate', 'openEditDialog', 'cancelEdit', 'saveDocument', 'destroy',
-            'remove', 'navigateColl', 'navigateDb', 'navigateId'
+            'remove', 'navigateColl', 'navigateDb', 'navigateId', 'showServerError'
         );
 
         this.model.bind('change',  this.updateDocument);
@@ -100,16 +100,29 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
 
         return errorBlock;
     },
+    showServerError: function(message) {
+        var alertView = new Genghis.Views.Alert({
+            model: new Genghis.Models.Alert({level: 'error', msg: message, block: true})
+        });
+
+        this.getErrorBlock().append(alertView.render().el);
+    },
     saveDocument: function() {
         var data = this.getEditorValue();
         if (data === false) {
             return;
         }
 
+        var showServerError = this.showServerError;
+
         this.model.clear({silent: true});
-        this.model.set(data);
-        this.model.save();
-        this.cancelEdit();
+        this.model.save(data, {
+            wait:    true,
+            success: this.cancelEdit,
+            error: function(model, xhr, options) {
+                showServerError((JSON.parse(xhr.responseText) || {}).error || 'Error processing request');
+            }
+        });
     },
     destroy: function() {
         var model = this.model;
