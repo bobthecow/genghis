@@ -83,7 +83,7 @@ Genghis.Views.NewDocument = Genghis.Views.BaseDocument.extend({
                 closeModal();
                 app.router.navigate(Genghis.Util.route(doc.url()), true);
             },
-            error: function(doc) {
+            error: function(doc, xhr) {
                 showServerError((JSON.parse(xhr.responseText) || {}).error || 'Error processing request');
             }
         });

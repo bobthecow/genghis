@@ -119,7 +119,7 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         this.model.save(data, {
             wait:    true,
             success: this.cancelEdit,
-            error: function(model, xhr, options) {
+            error: function(doc, xhr) {
                 showServerError((JSON.parse(xhr.responseText) || {}).error || 'Error processing request');
             }
         });

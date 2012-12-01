@@ -1,11 +1,6 @@
 Genghis.Models.Document = Backbone.Model.extend({
     initialize: function() {
         _.bindAll(this, 'prettyId', 'prettyTime', 'prettyPrint', 'JSONish');
-
-        var id = this.thunkId(this.get('_id'));
-        if (id) {
-            this.id = id;
-        }
     },
     thunkId: function(id) {
         if (_.isObject(id) && id.hasOwnProperty('$genghisType') && id['$genghisType'] == 'ObjectId') {
