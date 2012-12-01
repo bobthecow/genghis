@@ -27,10 +27,15 @@ module Genghis
       end
 
       def update(doc_id, data)
-        document = @collection.find_and_modify \
-          :query  => {'_id' => thunk_mongo_id(doc_id)},
-          :update => data,
-          :new    => true
+        begin
+          document = @collection.find_and_modify \
+            :query  => {'_id' => thunk_mongo_id(doc_id)},
+            :update => data,
+            :new    => true
+        rescue Mongo::OperationFailure => e
+          # going out on a limb here and assuming all of these are malformed...
+          raise Genghis::MalformedDocument.new(e.result['errmsg'])
+        end
 
         raise Genghis::DocumentNotFound.new(self, doc_id) unless document
         document

@@ -37,7 +37,12 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         $this->findDocument($id);
 
         $query = array('_id' => $this->thunkMongoId($id));
-        $result = $this->collection->update($query, $doc, array('safe' => true));
+
+        try {
+            $result = $this->collection->update($query, $doc, array('safe' => true));
+        } catch (MongoCursorException $e) {
+            throw new Genghis_HttpException(400, ucfirst($e->doc['err']));
+        }
 
         if (!(isset($result['ok']) && $result['ok'])) {
             throw new Genghis_HttpException;

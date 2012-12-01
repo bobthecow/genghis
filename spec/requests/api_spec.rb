@@ -588,6 +588,17 @@ genghis_backends.each do |backend|
             test: 2
         end
 
+        it 'returns 400 if a document id is updated' do
+          id  = @coll.insert({test: 1})
+          res = @api.put do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { _id: 1, test: 2 }.to_json
+          end
+
+          res.status.should eq 400
+        end
+
         it 'returns 400 if the document is invalid' do
           id  = @coll.insert({test: 1})
           res = @api.put do |req|
