@@ -5,6 +5,7 @@
  * Update to latest versions of jQuery and Underscore.js.
  * [Fix #64][i64] — Allow creating a document with an explicit `_id`.
  * [Fix #64][i64] — Show an error message when trying to update an `_id` property.
+ * Surface more error notifications when server goes away and other error cases.
 
 [i41]: https://github.com/bobthecow/genghis/issues/41
 [i64]: https://github.com/bobthecow/genghis/issues/64

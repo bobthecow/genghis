@@ -120,7 +120,14 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
             wait:    true,
             success: this.cancelEdit,
             error: function(doc, xhr) {
-                showServerError((JSON.parse(xhr.responseText) || {}).error || 'Error processing request');
+                var msg;
+                try {
+                    msg = JSON.parse(xhr.responseText).error;
+                } catch (e) {
+                    // do nothing
+                }
+
+                showServerError(msg || 'Error updating document.');
             }
         });
     },
@@ -137,14 +144,27 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
                 if (r) {
                     var selection = app.selection;
 
-                    model.destroy();
+                    model.destroy({
+                        wait: true,
+                        error: function(doc, xhr) {
+                            var msg;
+                            try {
+                                msg = JSON.parse(xhr.responseText).error;
+                            } catch (e) {
+                                // do nothing
+                            }
 
-                    selection.pagination.decrementTotal();
+                            apprise(msg || 'Error deleting document.');
+                        },
+                        success: function(doc, xhr) {
+                            selection.pagination.decrementTotal();
 
-                    // if we're currently in single-document view, bust outta this!
-                    if (selection.get('document')) {
-                        app.router.redirectTo(selection.get('server'), selection.get('database'), selection.get('collection'), null, selection.get('query'));
-                    }
+                            // if we're currently in single-document view, bust outta this!
+                            if (selection.get('document')) {
+                                app.router.redirectTo(selection.get('server'), selection.get('database'), selection.get('collection'), null, selection.get('query'));
+                            }
+                        }
+                    });
                 }
             }
         );

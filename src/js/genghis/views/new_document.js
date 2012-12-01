@@ -84,7 +84,14 @@ Genghis.Views.NewDocument = Genghis.Views.BaseDocument.extend({
                 app.router.navigate(Genghis.Util.route(doc.url()), true);
             },
             error: function(doc, xhr) {
-                showServerError((JSON.parse(xhr.responseText) || {}).error || 'Error processing request');
+                var msg;
+                try {
+                    msg = JSON.parse(xhr.responseText).error;
+                } catch (e) {
+                    // do nothing
+                }
+
+                showServerError(msg || 'Error creating document.');
             }
         });
     }
