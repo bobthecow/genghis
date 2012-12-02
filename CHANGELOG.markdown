@@ -1,4 +1,4 @@
-## v2.1.7
+## v2.2.0
 
  * [Fix #41][i41] — Add an "updated but not restarted" info message (Ruby backend).
  * Bump Bootstrap, CodeMirror, Esprima and Hogan.js vendor libraries — faster parsing, highlighting and rendering!
@@ -8,6 +8,7 @@
  * Surface more error notifications when server goes away and other error cases.
  * Handle Backbone weirdness in docs with both `_id` and `id` properties.
  * Handle parse errors in navbar search box.
+ * Add proper GridFS navigation and download support.
 
 [i41]: https://github.com/bobthecow/genghis/issues/41
 [i64]: https://github.com/bobthecow/genghis/issues/64

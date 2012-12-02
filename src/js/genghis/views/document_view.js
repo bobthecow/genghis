@@ -8,6 +8,8 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         'click button.save':        'saveDocument',
         'click button.cancel':      'cancelEdit',
         'click button.destroy':     'destroy',
+        'click a.download':         'download',
+        'click a.grid-file':        'navigate',
 
         // navigation!
         'click .ref .ref-ref .v .s':                    'navigateColl',
@@ -17,7 +19,7 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
     initialize: function() {
         _.bindAll(
             this, 'render', 'updateDocument', 'navigate', 'openEditDialog', 'cancelEdit', 'saveDocument', 'destroy',
-            'remove', 'navigateColl', 'navigateDb', 'navigateId', 'showServerError'
+            'remove', 'download', 'navigateColl', 'navigateDb', 'navigateId', 'showServerError'
         );
 
         this.model.bind('change',  this.updateDocument);
@@ -171,5 +173,9 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
     },
     remove: function() {
         $(this.el).remove();
+    },
+    download: function(e) {
+        Genghis.Util.download(this.model.downloadUrl());
+        e.preventDefault();
     }
 });

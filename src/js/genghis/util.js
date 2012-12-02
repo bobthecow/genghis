@@ -182,5 +182,16 @@ Genghis.Util = {
         }
 
         return hex.join('');
-    }
+    },
+
+    download: (function() {
+        var frame;
+        return function(url) {
+            if (!frame) {
+                frame = $('<iframe>', {id: 'genghis-util-download'}).hide().appendTo('body');
+            }
+
+            frame.attr('src', url);
+        }
+    })()
 };
