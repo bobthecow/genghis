@@ -7,6 +7,7 @@
  * [Fix #64][i64] — Show an error message when trying to update an `_id` property.
  * Surface more error notifications when server goes away and other error cases.
  * Handle Backbone weirdness in docs with both `_id` and `id` properties.
+ * Handle parse errors in navbar search box.
 
 [i41]: https://github.com/bobthecow/genghis/issues/41
 [i64]: https://github.com/bobthecow/genghis/issues/64
