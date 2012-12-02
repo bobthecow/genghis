@@ -1,4 +1,5 @@
 Genghis.Models.Document = Backbone.Model.extend({
+    idAttribute: null,
     initialize: function() {
         _.bindAll(this, 'prettyId', 'prettyTime', 'prettyPrint', 'JSONish');
     },
