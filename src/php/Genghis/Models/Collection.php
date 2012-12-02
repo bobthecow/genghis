@@ -61,6 +61,22 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         }
     }
 
+    public function file($id)
+    {
+        $mongoId = $this->thunkMongoId($id);
+        if (!$mongoId instanceof MongoId) {
+            // for some reason this only works with MongoIds?
+            throw new Genghis_HttpException(404, sprintf("GridFS file '%s' not found", $id));
+        }
+
+        $file = $this->getGrid()->get($mongoId);
+        if (!$file) {
+            throw new Genghis_HttpException(404, sprintf("GridFS file '%s' not found", $id));
+        }
+
+        return $file;
+    }
+
     public function findDocuments($query = null, $page = 1)
     {
         try {
@@ -154,4 +170,23 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         return $doc;
     }
 
+    private function isGridCollection()
+    {
+        return preg_match('/\.files$/', $this->collection->getName());
+    }
+
+    private function getGrid()
+    {
+        if (!($this->isGridCollection())) {
+            $msg = sprintf("GridFS collection '%s' not found in '%s'", $this->collection->getName(), $this->database->name);
+            throw new Genghis_HttpException(404, $msg);
+        }
+
+        if (!isset($this->grid)) {
+            $prefix = preg_replace('/\.files$/', '', $this->collection->getName());
+            $this->grid = $this->database->database->getGridFS($prefix);
+        }
+
+        return $this->grid;
+    }
 }
