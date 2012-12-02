@@ -2,6 +2,7 @@ require 'sinatra/base'
 require 'sinatra/mustache'
 require 'sinatra/json'
 require 'sinatra/reloader'
+require 'sinatra/streaming'
 require 'mongo'
 
 module Genghis
@@ -10,6 +11,8 @@ module Genghis
     set :environment, :production
 
     enable :inline_templates
+
+    helpers Sinatra::Streaming
 
     helpers Sinatra::JSON
     set :json_encoder,      :to_json
@@ -59,6 +62,27 @@ module Genghis
       content_type 'text/javascript'
       self.class.templates['script.js'.intern].first
     end
+
+
+    ### GridFS handling ###
+
+    get '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
+      file = servers[server][database][collection].file document
+
+      content_type file['contentType'] || 'application/octet-stream'
+      attachment   file['filename'] || document
+
+      stream do |out|
+        file.each do |chunk|
+          out << chunk
+        end
+      end
+    end
+
+    # delete '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
+    #   # ...
+    #   json :success => true
+    # end
 
 
     ### Default route ###

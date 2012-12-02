@@ -57,6 +57,19 @@ module Genghis
         doc
       end
 
+      def file(doc_id)
+        begin
+          doc = grid.get(thunk_mongo_id(doc_id))
+        rescue Mongo::GridFileNotFound
+          raise Genghis::GridFileNotFound.new(self, doc_id)
+        end
+
+        raise Genghis::DocumentNotFound.new(self, doc_id) unless doc
+        raise Genghis::GridFileNotFound.new(self, doc_id) unless is_grid_file?(doc)
+
+        doc
+      end
+
       def as_json(*)
         {
           :id      => @collection.name,
@@ -78,6 +91,19 @@ module Genghis
         else
           doc_id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(doc_id) : doc_id
         end
+      end
+
+      def is_grid_collection?
+        name.end_with? '.files'
+      end
+
+      def grid
+        Genghis::GridFSNotFound.new(@collection.db, name) unless is_grid_collection?
+        @grid ||= Mongo::Grid.new(@collection.db, name.sub(/\.files$/, ''))
+      end
+
+      def is_grid_file?(doc)
+        !! doc['chunkSize']
       end
     end
   end

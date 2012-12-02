@@ -194,6 +194,12 @@ module Genghis
     end
   end
 
+  class GridFSNotFound < CollectionNotFound
+    def message
+      "GridFS collection '#{@name}' not found in '#{@database.name}'"
+    end
+  end
+
   class CollectionAlreadyExists < AlreadyExists
     def initialize(database, name)
       @database = database
@@ -213,6 +219,12 @@ module Genghis
 
     def message
       "Document '#{@doc_id}' not found in '#{@collection.name}'"
+    end
+  end
+
+  class GridFileNotFound < DocumentNotFound
+    def message
+      "GridFS file '#{@doc_id}' not found"
     end
   end
 end
@@ -275,6 +287,19 @@ module Genghis
         doc
       end
 
+      def file(doc_id)
+        begin
+          doc = grid.get(thunk_mongo_id(doc_id))
+        rescue Mongo::GridFileNotFound
+          raise Genghis::GridFileNotFound.new(self, doc_id)
+        end
+
+        raise Genghis::DocumentNotFound.new(self, doc_id) unless doc
+        raise Genghis::GridFileNotFound.new(self, doc_id) unless is_grid_file?(doc)
+
+        doc
+      end
+
       def as_json(*)
         {
           :id      => @collection.name,
@@ -296,6 +321,19 @@ module Genghis
         else
           doc_id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(doc_id) : doc_id
         end
+      end
+
+      def is_grid_collection?
+        name.end_with? '.files'
+      end
+
+      def grid
+        Genghis::GridFSNotFound.new(@collection.db, name) unless is_grid_collection?
+        @grid ||= Mongo::Grid.new(@collection.db, name.sub(/\.files$/, ''))
+      end
+
+      def is_grid_file?(doc)
+        !! doc['chunkSize']
       end
     end
   end
@@ -694,6 +732,7 @@ require 'sinatra/base'
 require 'sinatra/mustache'
 require 'sinatra/json'
 require 'sinatra/reloader'
+require 'sinatra/streaming'
 require 'mongo'
 
 module Genghis
@@ -702,6 +741,8 @@ module Genghis
     set :environment, :production
 
     enable :inline_templates
+
+    helpers Sinatra::Streaming
 
     helpers Sinatra::JSON
     set :json_encoder,      :to_json
@@ -751,6 +792,27 @@ module Genghis
       content_type 'text/javascript'
       self.class.templates['script.js'.intern].first
     end
+
+
+    ### GridFS handling ###
+
+    get '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
+      file = servers[server][database][collection].file document
+
+      content_type file['contentType'] || 'application/octet-stream'
+      attachment   file['filename'] || document
+
+      stream do |out|
+        file.each do |chunk|
+          out << chunk
+        end
+      end
+    end
+
+    # delete '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
+    #   # ...
+    #   json :success => true
+    # end
 
 
     ### Default route ###

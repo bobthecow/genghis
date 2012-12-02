@@ -82,6 +82,12 @@ module Genghis
     end
   end
 
+  class GridFSNotFound < CollectionNotFound
+    def message
+      "GridFS collection '#{@name}' not found in '#{@database.name}'"
+    end
+  end
+
   class CollectionAlreadyExists < AlreadyExists
     def initialize(database, name)
       @database = database
@@ -101,6 +107,12 @@ module Genghis
 
     def message
       "Document '#{@doc_id}' not found in '#{@collection.name}'"
+    end
+  end
+
+  class GridFileNotFound < DocumentNotFound
+    def message
+      "GridFS file '#{@doc_id}' not found"
     end
   end
 end
