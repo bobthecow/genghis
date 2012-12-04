@@ -61,7 +61,7 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         }
     }
 
-    public function file($id)
+    public function getFile($id)
     {
         $mongoId = $this->thunkMongoId($id);
         if (!$mongoId instanceof MongoId) {
@@ -75,6 +75,29 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         }
 
         return $file;
+    }
+
+    public function putFile($doc)
+    {
+        $grid = $this->getGrid();
+
+        throw new Genghis_HttpException(500, 'Upload not yet implemented');
+    }
+
+    public function deleteFile($id)
+    {
+        $mongoId = $this->thunkMongoId($id);
+        if (!$mongoId instanceof MongoId) {
+            // for some reason this only works with MongoIds?
+            throw new Genghis_HttpException(404, sprintf("GridFS file '%s' not found", $id));
+        }
+
+        $file = $this->getGrid()->get($mongoId);
+        if (!$file) {
+            throw new Genghis_HttpException(404, sprintf("GridFS file '%s' not found", $id));
+        }
+
+        throw new Genghis_HttpException(500, 'Delete not yet implemented');
     }
 
     public function findDocuments($query = null, $page = 1)

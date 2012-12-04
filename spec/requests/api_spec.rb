@@ -687,6 +687,40 @@ genghis_backends.each do |backend|
           @grid = Mongo::Grid.new(@coll.db, 'test')
         end
 
+        describe 'POST /servers/:server/databases/:db/collections/:coll/files' do
+          it 'inserts a new file'
+          it 'returns 400 if the document is missing important bits'
+          it 'returns 400 if the document has unexpected properties'
+
+          it 'returns 404 if the collection is not found' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/fake.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {file: 'foo'}.to_json
+            end
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the collection is not a GridFS files collection' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.chunks/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {file: 'foo'}.to_json
+            end
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the database is not found' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_fake_db__/collections/test.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {file: 'foo'}.to_json
+            end
+            res.status.should eq 404
+          end
+        end
+
+
         describe 'GET /servers/:server/databases/:db/collections/:coll/files/:id' do
           it 'returns a document' do
             id  = @grid.put('foo')
