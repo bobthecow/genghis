@@ -57,7 +57,7 @@ module Genghis
         doc
       end
 
-      def file(doc_id)
+      def get_file(doc_id)
         begin
           doc = grid.get(thunk_mongo_id(doc_id))
         rescue Mongo::GridFileNotFound
@@ -68,6 +68,18 @@ module Genghis
         raise Genghis::GridFileNotFound.new(self, doc_id) unless is_grid_file?(doc)
 
         doc
+      end
+
+      def delete_file(doc_id)
+        begin
+          grid.get(thunk_mongo_id(doc_id))
+        rescue Mongo::GridFileNotFound
+          raise Genghis::GridFileNotFound.new(self, doc_id)
+        end
+
+        res = grid.delete(thunk_mongo_id(doc_id))
+
+        raise Genghis::Exception.new res['err'] unless res['ok']
       end
 
       def as_json(*)

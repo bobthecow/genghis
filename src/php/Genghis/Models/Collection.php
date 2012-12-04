@@ -92,12 +92,18 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
             throw new Genghis_HttpException(404, sprintf("GridFS file '%s' not found", $id));
         }
 
-        $file = $this->getGrid()->get($mongoId);
+        $grid = $this->getGrid();
+
+        // For some reason it'll happily delete something that doesn't exist :-/
+        $file = $grid->get($mongoId);
         if (!$file) {
             throw new Genghis_HttpException(404, sprintf("GridFS file '%s' not found", $id));
         }
 
-        throw new Genghis_HttpException(500, 'Delete not yet implemented');
+        $result = $grid->delete($mongoId);
+        if (!$result) {
+            throw new Genghis_HttpException;
+        }
     }
 
     public function findDocuments($query = null, $page = 1)

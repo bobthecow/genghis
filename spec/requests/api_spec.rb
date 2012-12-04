@@ -720,7 +720,6 @@ genghis_backends.each do |backend|
           end
         end
 
-
         describe 'GET /servers/:server/databases/:db/collections/:coll/files/:id' do
           it 'returns a document' do
             id  = @grid.put('foo')
@@ -750,6 +749,45 @@ genghis_backends.each do |backend|
           it 'returns 404 if the database is not found' do
             id  = @grid.put('qux')
             res = @api.get '/servers/localhost/databases/__genghis_spec_fake_db__/collections/test.files/files/' + id.to_s
+            res.status.should eq 404
+          end
+        end
+
+        describe 'DELETE /servers/:server/databases/:db/collections/:coll/files/:id' do
+          it 'deletes a file (and all chunks)' do
+            id = @grid.put('wheee')
+            res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files/' + id.to_s
+
+            res.status.should eq 200
+            res.body.should match_json_expression \
+              success: true
+
+            expect { @grid.get(id) }.to raise_error Mongo::GridFileNotFound
+
+            # and the chunks should be gone...
+            @db['test.chunks'].find(_id: id).count.should eq 0
+          end
+
+          it 'returns 404 if the document is not found' do
+            res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files/123'
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the collection is not found' do
+            id  = @grid.put('bar')
+            res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/fake.files/files/' + id.to_s
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the collection is not a GridFS files collection' do
+            id  = @grid.put('baz')
+            res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/test.chunks/files/' + id.to_s
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the database is not found' do
+            id  = @grid.put('qux')
+            res = @api.delete '/servers/localhost/databases/__genghis_spec_fake_db__/collections/test.files/files/' + id.to_s
             res.status.should eq 404
           end
         end

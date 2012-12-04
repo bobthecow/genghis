@@ -67,7 +67,7 @@ module Genghis
     ### GridFS handling ###
 
     get '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
-      file = servers[server][database][collection].file document
+      file = servers[server][database][collection].get_file document
 
       content_type file['contentType'] || 'application/octet-stream'
       attachment   file['filename'] || document
@@ -174,6 +174,11 @@ module Genghis
 
     delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
       collection = servers[server][database][collection].remove document
+      json :success => true
+    end
+
+    delete '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
+      servers[server][database][collection].delete_file document
       json :success => true
     end
   end

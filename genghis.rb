@@ -287,7 +287,7 @@ module Genghis
         doc
       end
 
-      def file(doc_id)
+      def get_file(doc_id)
         begin
           doc = grid.get(thunk_mongo_id(doc_id))
         rescue Mongo::GridFileNotFound
@@ -298,6 +298,18 @@ module Genghis
         raise Genghis::GridFileNotFound.new(self, doc_id) unless is_grid_file?(doc)
 
         doc
+      end
+
+      def delete_file(doc_id)
+        begin
+          grid.get(thunk_mongo_id(doc_id))
+        rescue Mongo::GridFileNotFound
+          raise Genghis::GridFileNotFound.new(self, doc_id)
+        end
+
+        res = grid.delete(thunk_mongo_id(doc_id))
+
+        raise Genghis::Exception.new res['err'] unless res['ok']
       end
 
       def as_json(*)
@@ -797,7 +809,7 @@ module Genghis
     ### GridFS handling ###
 
     get '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
-      file = servers[server][database][collection].file document
+      file = servers[server][database][collection].get_file document
 
       content_type file['contentType'] || 'application/octet-stream'
       attachment   file['filename'] || document
@@ -904,6 +916,11 @@ module Genghis
 
     delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
       collection = servers[server][database][collection].remove document
+      json :success => true
+    end
+
+    delete '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
+      servers[server][database][collection].delete_file document
       json :success => true
     end
   end
