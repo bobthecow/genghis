@@ -2,10 +2,15 @@ Genghis.Views.Documents = Backbone.View.extend({
     el: 'section#documents',
     template: Genghis.Templates.Documents,
     events: {
-        'click button.add-document': 'createDocument'
+        'click    button.add-document': 'createDocument',
+        'dragover button.file-upload':  'dragGridFile',
+        'drop     button.file-upload':  'dropGridFile'
     },
     initialize: function() {
-        _.bindAll(this, 'render', 'addAll', 'addDocument', 'createDocument', 'createDocumentIfVisible');
+        _.bindAll(
+            this, 'render', 'addAll', 'addDocument', 'createDocument', 'dragGridFile', 'dropGridFile',
+            'createDocumentIfVisible'
+        );
 
         this.pagination = this.options.pagination;
 
@@ -60,6 +65,29 @@ Genghis.Views.Documents = Backbone.View.extend({
         } else {
             this.getNewDocumentView().show();
         }
+    },
+    dragGridFile: function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.originalEvent.dataTransfer.dropEffect = 'copy';
+    },
+    dropGridFile: function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        // yeah, it's not worth our time
+        if (!Modernizr.filereader) {
+            app.alerts.create({
+                msg:   '<h2>Unable to upload file.</h2> Your browser does not support the File API. Please use a modern browser.',
+                level: 'error',
+                block: true
+            });
+
+            return;
+        }
+
+        this.getNewGridFileView()
+            .showMetadata(e.originalEvent.dataTransfer.files[0]);
     },
     getNewDocumentView: function() {
         if (!this.newDocumentView) {

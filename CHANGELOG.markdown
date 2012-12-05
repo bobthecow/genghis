@@ -1,8 +1,8 @@
 ## v2.2.0
 
-New!:
+New!
 
- * Add proper GridFS upload, navigation and download support.
+ * Add GridFS upload, drag and drop, navigation and download support.
 
 Bug fixes:
 

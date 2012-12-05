@@ -3,8 +3,8 @@ Genghis.Views.NewGridFile = Genghis.Views.BaseDocument.extend({
     template: Genghis.Templates.NewGridFile,
     initialize: function() {
         _.bindAll(
-            this, 'render', 'show', 'showMetadata', 'refreshEditor', 'closeModal', 'cancelEdit', 'saveDocument',
-            'showServerError'
+            this, 'render', 'show', 'handleFileInputChange', 'showMetadata', 'refreshEditor', 'closeModal',
+            'cancelEdit', 'saveDocument', 'showServerError'
         );
 
         this.render();
@@ -40,7 +40,7 @@ Genghis.Views.NewGridFile = Genghis.Views.BaseDocument.extend({
         this.modal.find('button.cancel').bind('click', this.closeModal);
         this.modal.find('button.save').bind('click', this.saveDocument);
 
-        this.fileInput.bind('change', this.showMetadata);
+        this.fileInput.bind('change', this.handleFileInputChange);
 
         return this;
     },
@@ -48,10 +48,16 @@ Genghis.Views.NewGridFile = Genghis.Views.BaseDocument.extend({
         // get the file
         this.fileInput.click();
     },
-    showMetadata: function(e) {
-        var file = this.currentFile = e.target.files[0];
+    handleFileInputChange: function(e) {
         if (file) {
-            $(e.target).val('');
+            this.showMetadata(e.target.files[0]);
+        }
+    },
+    showMetadata: function(file) {
+        this.currentFile = file;
+
+        if (file) {
+            this.fileInput.val('');
 
             // now let 'em edit metadata
             this.editor.setValue(Genghis.JSON.stringify({filename: file.name, contentType: file.type || 'binary/octet-stream', metadata: {}}));
