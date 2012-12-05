@@ -694,7 +694,7 @@ genghis_backends.each do |backend|
               req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
               req.headers['Content-Type'] = 'application/json'
               req.body = {
-                file:        'foo!',
+                file:        encode_upload('foo!'),
                 filename:    'foo.txt',
                 contentType: 'application/octet',
                 metadata:    {expected: 'you know it'}
@@ -713,6 +713,24 @@ genghis_backends.each do |backend|
               md5:         String
           end
 
+          it 'returns 400 if the file upload is not a base64 encoded data: URI' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {
+                file:        'foo!',
+                filename:    'foo.txt',
+                contentType: 'application/octet',
+                metadata:    {expected: 'you know it'}
+              }.to_json
+            end
+
+            res.status.should eq 400
+            res.body.should match_json_expression \
+              error:  'File must be a base64 encoded data: URI',
+              status: 400
+          end
+
           it 'returns 400 if the document is missing important bits' do
             res = @api.post do |req|
               req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
@@ -726,7 +744,7 @@ genghis_backends.each do |backend|
             res = @api.post do |req|
               req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
               req.headers['Content-Type'] = 'application/json'
-              req.body = {file: 'foo', unexpected: 'you know it.'}.to_json
+              req.body = {file: encode_upload('foo'), unexpected: 'you know it.'}.to_json
             end
             res.status.should eq 400
           end
@@ -735,7 +753,7 @@ genghis_backends.each do |backend|
             res = @api.post do |req|
               req.url '/servers/localhost/databases/__genghis_spec_test__/collections/fake.files/files'
               req.headers['Content-Type'] = 'application/json'
-              req.body = {file: 'foo'}.to_json
+              req.body = {file: encode_upload('foo')}.to_json
             end
             res.status.should eq 404
           end
@@ -744,7 +762,7 @@ genghis_backends.each do |backend|
             res = @api.post do |req|
               req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.chunks/files'
               req.headers['Content-Type'] = 'application/json'
-              req.body = {file: 'foo'}.to_json
+              req.body = {file: encode_upload('foo')}.to_json
             end
             res.status.should eq 404
           end

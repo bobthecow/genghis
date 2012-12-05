@@ -76,7 +76,7 @@ module Genghis
           end
         end
 
-        id = grid.put(file, opts)
+        id = grid.put(decode_file(file), opts)
         self[id]
       end
 
@@ -141,6 +141,16 @@ module Genghis
 
       def is_grid_file?(doc)
         !! doc['chunkSize']
+      end
+
+      def decode_file(data)
+        unless data =~ /^data:[^;]+;base64,/
+          raise Genghis::MalformedDocument.new 'File must be a base64 encoded data: URI'
+        end
+
+        Base64.strict_decode64(data.sub(/^data:[^;]+;base64,/, '').strip)
+      rescue ArgumentError
+        raise Genghis::MalformedDocument.new 'File must be a base64 encoded data: URI'
       end
     end
   end

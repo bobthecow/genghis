@@ -97,7 +97,7 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
             $extra[$key] = $val;
         }
 
-        $id = $grid->storeBytes($file, $extra);
+        $id = $grid->storeBytes($this->decodeFile($file), $extra);
 
         return $this->findDocument($id);
     }
@@ -239,5 +239,16 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         }
 
         return $this->grid;
+    }
+
+    private function decodeFile($data)
+    {
+        $count = 0;
+        $data  = preg_replace('/^data:[^;]+;base64,/', '', $data, 1, $count);
+        if ($count !== 1) {
+            throw new Genghis_HttpException(400, 'File must be a base64 encoded data: URI');
+        }
+
+        return base64_decode(str_replace(' ', '+', $data));
     }
 }
