@@ -287,6 +287,29 @@ module Genghis
         doc
       end
 
+      def put_file(data)
+        file = data.delete('file') or raise Genghis::MalformedDocument.new 'Missing file.'
+
+        opts = {}
+        data.each do |k, v|
+          case k
+          when 'filename'
+            opts[:filename] = v
+          when 'metadata'
+            opts[:metadata] = v
+          when '_id'
+            opts[:_id]      = v
+          when 'contentType'
+            opts[:content_type] = v
+          else
+            raise Genghis::MalformedDocument.new "Unexpected property: '#{k}'"
+          end
+        end
+
+        id = grid.put(file, opts)
+        self[id]
+      end
+
       def get_file(doc_id)
         begin
           doc = grid.get(thunk_mongo_id(doc_id))
@@ -328,7 +351,9 @@ module Genghis
       private
 
       def thunk_mongo_id(doc_id)
-        if (doc_id[0] == '~')
+        if doc_id.is_a? BSON::ObjectId
+          doc_id
+        elsif (doc_id[0] == '~')
           ::Genghis::JSON.decode(Base64.decode64(doc_id[1..-1]))
         else
           doc_id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(doc_id) : doc_id
@@ -917,6 +942,11 @@ module Genghis
     delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
       collection = servers[server][database][collection].remove document
       json :success => true
+    end
+
+    post '/servers/:server/databases/:database/collections/:collection/files' do |server, database, collection|
+      document = servers[server][database][collection].put_file request_genghis_json
+      genghis_json document
     end
 
     delete '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|

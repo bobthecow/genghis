@@ -685,12 +685,51 @@ genghis_backends.each do |backend|
       context 'GridFS' do
         before :all do
           @grid = Mongo::Grid.new(@coll.db, 'test')
+          @grid.put('tmp')
         end
 
         describe 'POST /servers/:server/databases/:db/collections/:coll/files' do
-          it 'inserts a new file'
-          it 'returns 400 if the document is missing important bits'
-          it 'returns 400 if the document has unexpected properties'
+          it 'inserts a new file' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {
+                file:        'foo!',
+                filename:    'foo.txt',
+                contentType: 'application/octet',
+                metadata:    {expected: 'you know it'}
+              }.to_json
+            end
+
+            res.status.should eq 200
+            res.body.should match_json_expression \
+              _id:         Hash,
+              filename:    'foo.txt',
+              contentType: 'application/octet',
+              metadata:    { expected: 'you know it' },
+              uploadDate:  Hash,
+              length:      Fixnum,
+              chunkSize:   Fixnum,
+              md5:         String
+          end
+
+          it 'returns 400 if the document is missing important bits' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {filename: 'foo.txt'}.to_json
+            end
+            res.status.should eq 400
+          end
+
+          it 'returns 400 if the document has unexpected properties' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {file: 'foo', unexpected: 'you know it.'}.to_json
+            end
+            res.status.should eq 400
+          end
 
           it 'returns 404 if the collection is not found' do
             res = @api.post do |req|

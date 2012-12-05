@@ -81,7 +81,25 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
     {
         $grid = $this->getGrid();
 
-        throw new Genghis_HttpException(500, 'Upload not yet implemented');
+        if (!property_exists($doc, 'file')) {
+            throw new Genghis_HttpException(400, 'Missing file');
+        }
+        $file = $doc->file;
+        unset($doc->file);
+
+        $extra = array();
+        foreach ($doc as $key => $val) {
+            if (!in_array($key, array('_id', 'filename', 'contentType', 'metadata'))) {
+                throw new Genghis_HttpException(400, sprintf("Unexpected property: '%s'", $key));
+            }
+
+            // why the eff doesn't this accept an object like everything else? ugh.
+            $extra[$key] = $val;
+        }
+
+        $id = $grid->storeBytes($file, $extra);
+
+        return $this->findDocument($id);
     }
 
     public function deleteFile($id)
@@ -182,6 +200,10 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
 
     private function thunkMongoId($id)
     {
+        if ($id instanceof MongoId) {
+            return $id;
+        }
+
         if ($id[0] == '~') {
             return Genghis_Json::decode(base64_decode(substr($id, 1)));
         }

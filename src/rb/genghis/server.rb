@@ -177,6 +177,11 @@ module Genghis
       json :success => true
     end
 
+    post '/servers/:server/databases/:database/collections/:collection/files' do |server, database, collection|
+      document = servers[server][database][collection].put_file request_genghis_json
+      genghis_json document
+    end
+
     delete '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
       servers[server][database][collection].delete_file document
       json :success => true
