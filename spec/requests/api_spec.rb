@@ -762,9 +762,14 @@ genghis_backends.each do |backend|
         describe 'GET /servers/:server/databases/:db/collections/:coll/files/:id' do
           it 'returns a document' do
             id  = @grid.put('foo')
-            res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files/' + id.to_s
+            res = @api.get do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files/' + id.to_s
+              req.headers.delete('X-Requested-With')
+              req.headers.delete('Accept')
+            end
 
             res.status.should eq 200
+            res.headers['Content-Disposition'].should start_with 'attachment'
             res.body.should eq 'foo'
           end
 

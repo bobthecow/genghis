@@ -30,7 +30,7 @@ class Genghis_App
 
     public function route($method, $path)
     {
-        if ($this->isJsonRequest()) {
+        if ($this->isJsonRequest() || $this->isGridFsRequest()) {
             try {
                 $api = new Genghis_Api;
 
@@ -66,6 +66,11 @@ class Genghis_App
         }
 
         return strpos($type, 'application/json') !== false || strpos($type, 'application/javascript') !== false;
+    }
+
+    protected function isGridFsRequest()
+    {
+        return $this->getRequestMethod() == 'GET' && preg_match(Genghis_Api::GRIDFS_ROUTE, $this->getRequestPath());
     }
 
     protected function getBaseUrl()
