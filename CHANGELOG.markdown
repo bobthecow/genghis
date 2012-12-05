@@ -9,6 +9,7 @@
  * Handle Backbone weirdness in docs with both `_id` and `id` properties.
  * Handle parse errors in navbar search box.
  * Add proper GridFS navigation and download support.
+ * Fix indent levels in documents with empty objects.
 
 [i41]: https://github.com/bobthecow/genghis/issues/41
 [i64]: https://github.com/bobthecow/genghis/issues/64

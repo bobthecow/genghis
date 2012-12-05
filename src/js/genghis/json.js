@@ -581,6 +581,8 @@ Genghis.JSON = {
                         spanClass = 'v o';
 
                         if (partial.length === 0) {
+                            gap = mind;
+
                             return span(spanClass, (t('{}')));
                         } else if (value['$ref'] && value['$id']) {
                             spanClass = spanClass + ' ref';
