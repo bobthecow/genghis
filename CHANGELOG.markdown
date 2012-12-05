@@ -1,18 +1,26 @@
 ## v2.2.0
 
+New!:
+
+ * Add proper GridFS upload, navigation and download support.
+
+Bug fixes:
+
+ * [Fix #64][i64] — Allow creating a document with an explicit `_id`.
+ * Handle Backbone weirdness in docs with both `_id` and `id` properties.
+ * Fix indent levels in documents with empty objects.
+
+Improvements:
+
  * [Fix #41][i41] — Add an "updated but not restarted" info message (Ruby backend).
  * Bump Bootstrap, CodeMirror, Esprima and Hogan.js vendor libraries — faster parsing, highlighting and rendering!
  * Update to latest versions of jQuery and Underscore.js.
- * [Fix #64][i64] — Allow creating a document with an explicit `_id`.
  * [Fix #64][i64] — Show an error message when trying to update an `_id` property.
  * Surface more error notifications when server goes away and other error cases.
- * Handle Backbone weirdness in docs with both `_id` and `id` properties.
  * Handle parse errors in navbar search box.
- * Add proper GridFS navigation and download support.
- * Fix indent levels in documents with empty objects.
 
-[i41]: https://github.com/bobthecow/genghis/issues/41
 [i64]: https://github.com/bobthecow/genghis/issues/64
+[i41]: https://github.com/bobthecow/genghis/issues/41
 
 
 ## v2.1.6

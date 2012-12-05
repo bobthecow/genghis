@@ -93,6 +93,13 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
                 throw new Genghis_HttpException(400, sprintf("Unexpected property: '%s'", $key));
             }
 
+            if ($key === 'metadata') {
+                $encoded = json_encode($val);
+                if ($encoded == '{}' || $encoded == '[]') {
+                    continue;
+                }
+            }
+
             // why the eff doesn't this accept an object like everything else? ugh.
             $extra[$key] = $val;
         }

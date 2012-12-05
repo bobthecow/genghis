@@ -99,7 +99,7 @@ module Genghis
     ### Genghis API ###
 
     get '/check-status' do
-      json({:alerts => server_status_alerts})
+      json :alerts => server_status_alerts
     end
 
     get '/servers' do

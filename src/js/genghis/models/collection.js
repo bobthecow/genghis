@@ -9,5 +9,8 @@ Genghis.Models.Collection = Genghis.Models.BaseModel.extend({
         return _.map(this.get('indexes'), function(index) {
             return Genghis.JSON.prettyPrint(index.key);
         });
+    },
+    isGridCollection: function() {
+        return /\.files$/.test(this.get('name'));
     }
 });

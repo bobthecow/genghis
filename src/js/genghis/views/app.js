@@ -25,7 +25,11 @@ Genghis.Views.App = Backbone.View.extend({
             model:      selection.currentDatabase,
             collection: selection.collections
         });
-        this.documentsView         = new Genghis.Views.Documents({collection: selection.documents, pagination: selection.pagination});
+        this.documentsView         = new Genghis.Views.Documents({
+            model:      selection.currentCollection,
+            collection: selection.documents,
+            pagination: selection.pagination
+        });
         this.documentView          = new Genghis.Views.Document({model: selection.currentDocument});
 
 

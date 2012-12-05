@@ -66,7 +66,7 @@ module Genghis
           when 'filename'
             opts[:filename] = v
           when 'metadata'
-            opts[:metadata] = v
+            opts[:metadata] = v unless v.empty?
           when '_id'
             opts[:_id]      = v
           when 'contentType'

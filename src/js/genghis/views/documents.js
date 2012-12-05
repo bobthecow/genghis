@@ -5,10 +5,7 @@ Genghis.Views.Documents = Backbone.View.extend({
         'click button.add-document': 'createDocument'
     },
     initialize: function() {
-        _.bindAll(
-            this, 'render', 'addAll', 'addDocument', 'createDocument',
-            'createDocumentIfVisible'
-        );
+        _.bindAll(this, 'render', 'addAll', 'addDocument', 'createDocument', 'createDocumentIfVisible');
 
         this.pagination = this.options.pagination;
 
@@ -23,7 +20,6 @@ Genghis.Views.Documents = Backbone.View.extend({
         $(this.el).html(this.template.render({}));
 
         this.headerView      = new Genghis.Views.DocumentsHeader({model: this.pagination});
-        this.newDocumentView = new Genghis.Views.NewDocument({collection: this.collection});
         this.paginationView  = new Genghis.Views.Pagination({
             el: this.$('.pagination-wrapper'),
             model: this.pagination,
@@ -31,10 +27,14 @@ Genghis.Views.Documents = Backbone.View.extend({
         });
 
         this.addAll();
+
         return this;
     },
     addAll: function() {
         this.$('.content').html('');
+        this.$('button.add-document')
+            .text(this.model.isGridCollection() ? 'Upload file' : 'Add document')
+            .toggleClass('file-upload', this.model.isGridCollection());
         this.collection.each(this.addDocument);
 
         $(this.el).removeClass('spinning');
@@ -44,7 +44,36 @@ Genghis.Views.Documents = Backbone.View.extend({
         this.$('.content').append(view.render().el);
     },
     createDocument: function() {
-        this.newDocumentView.show();
+        if (this.model.isGridCollection()) {
+            // yeah, it's not worth our time
+            if (!Modernizr.filereader) {
+                app.alerts.create({
+                    msg:   '<h2>Unable to upload file.</h2> Your browser does not support the File API. Please use a modern browser.',
+                    level: 'error',
+                    block: true
+                });
+
+                return;
+            }
+
+            this.getNewGridFileView().show();
+        } else {
+            this.getNewDocumentView().show();
+        }
+    },
+    getNewDocumentView: function() {
+        if (!this.newDocumentView) {
+            this.newDocumentView = new Genghis.Views.NewDocument({collection: this.collection});
+        }
+
+        return this.newDocumentView;
+    },
+    getNewGridFileView: function() {
+        if (!this.newGridFileView) {
+            this.newGridFileView = new Genghis.Views.NewGridFile({collection: this.collection});
+        }
+
+        return this.newGridFileView;
     },
     createDocumentIfVisible: function(e) {
         if ($(this.el).is(':visible')) {

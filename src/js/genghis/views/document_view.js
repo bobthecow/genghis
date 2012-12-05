@@ -8,7 +8,7 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         'click button.save':        'saveDocument',
         'click button.cancel':      'cancelEdit',
         'click button.destroy':     'destroy',
-        'click a.download':         'download',
+        'click a.grid-download':    'download',
         'click a.grid-file':        'navigate',
 
         // navigation!

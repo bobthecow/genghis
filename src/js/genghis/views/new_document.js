@@ -38,7 +38,7 @@ Genghis.Views.NewDocument = Genghis.Views.BaseDocument.extend({
     },
     show: function() {
         this.editor.setValue("{\n    \n}\n");
-        this.editor.setCursor({line:1, ch:4});
+        this.editor.setCursor({line: 1, ch: 4});
         this.modal
             .css({marginTop: (-10 - (this.el.height() / 2)) + 'px'})
             .modal('show');
