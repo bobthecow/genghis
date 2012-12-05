@@ -2,13 +2,14 @@ Genghis.Views.Documents = Backbone.View.extend({
     el: 'section#documents',
     template: Genghis.Templates.Documents,
     events: {
-        'click    button.add-document': 'createDocument',
-        'dragover button.file-upload':  'dragGridFile',
-        'drop     button.file-upload':  'dropGridFile'
+        'click     button.add-document': 'createDocument',
+        'dragover  button.file-upload':  'dragGridFile',
+        'dragleave button.file-upload':  'dragLeave',
+        'drop      button.file-upload':  'dropGridFile'
     },
     initialize: function() {
         _.bindAll(
-            this, 'render', 'addAll', 'addDocument', 'createDocument', 'dragGridFile', 'dropGridFile',
+            this, 'render', 'addAll', 'addDocument', 'createDocument', 'dragGridFile', 'dragLeave', 'dropGridFile',
             'createDocumentIfVisible'
         );
 
@@ -70,10 +71,16 @@ Genghis.Views.Documents = Backbone.View.extend({
         e.stopPropagation();
         e.preventDefault();
         e.originalEvent.dataTransfer.dropEffect = 'copy';
+        $(e.target).addClass('active');
+    },
+    dragLeave: function(e) {
+        $(e.target).removeClass('active');
     },
     dropGridFile: function(e) {
         e.stopPropagation();
         e.preventDefault();
+
+        $(e.target).removeClass('active');
 
         // yeah, it's not worth our time
         if (!Modernizr.filereader) {
