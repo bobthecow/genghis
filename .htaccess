@@ -1,7 +1,13 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    ## Uncomment and update the path if Genghis is not in your web root.
     # RewriteBase /genghis
 
+    ## Use pretty URLs
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule (.*) genghis.php/$1 [L,QSA]
 </IfModule>
+
+## Specify default MongoDB servers
+# SetEnv GENGHIS_SERVERS admin:hunter2@mongo.dev;localhost
