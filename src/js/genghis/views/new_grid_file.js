@@ -49,9 +49,7 @@ Genghis.Views.NewGridFile = Genghis.Views.BaseDocument.extend({
         this.fileInput.click();
     },
     handleFileInputChange: function(e) {
-        if (file) {
-            this.showMetadata(e.target.files[0]);
-        }
+        this.showMetadata(e.target.files[0]);
     },
     showMetadata: function(file) {
         this.currentFile = file;
