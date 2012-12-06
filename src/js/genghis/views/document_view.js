@@ -134,13 +134,20 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         });
     },
     destroy: function() {
-        var model = this.model;
+        var model      = this.model;
+        var isGridFile = this.model.isGridFile();
+        var docType    = isGridFile ? 'file' : 'document';
+
+        if (isGridFile) {
+            this.model.url = this.model.url().replace('.files/documents/', '.files/files/');
+        }
+
         apprise(
-            'Really? There is no undo.',
+            '<strong>Really?</strong> ' + (isGridFile ? 'This will delete all GridFS chunks as well. <br><br>' : '') + 'There is no undo.',
             {
                 confirm: true,
                 textCancel: 'Cancel',
-                textOk: '<strong>Yes</strong>, delete document forever'
+                textOk: '<strong>Yes</strong>, delete ' + docType + ' forever'
             },
             function(r) {
                 if (r) {
@@ -156,7 +163,7 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
                                 // do nothing
                             }
 
-                            apprise(msg || 'Error deleting document.');
+                            apprise(msg || 'Error deleting ' + docType + '.');
                         },
                         success: function(doc, xhr) {
                             selection.pagination.decrementTotal();
