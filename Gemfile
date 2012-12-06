@@ -5,6 +5,7 @@ gemspec
 gem 'bson_ext', :require => false
 
 group :development do
+  gem 'libv8'
   gem 'guard'
   gem 'guard-rake'
   gem 'guard-rspec'

@@ -20,7 +20,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'active_support'
   gem.add_development_dependency 'therubyracer'
-  gem.add_development_dependency 'libv8'
   gem.add_development_dependency 'less'
   gem.add_development_dependency 'rainpress'
   gem.add_development_dependency 'uglifier'
