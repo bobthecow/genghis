@@ -9,5 +9,7 @@
     RewriteRule (.*) genghis.php/$1 [L,QSA]
 </IfModule>
 
-## Specify default MongoDB servers
-# SetEnv GENGHIS_SERVERS admin:hunter2@mongo.dev;localhost
+<IfModule mod_env.c>
+	## Specify default MongoDB servers
+	# SetEnv GENGHIS_SERVERS admin:hunter2@mongo.dev;localhost
+</IfModule>
