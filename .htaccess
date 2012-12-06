@@ -10,6 +10,6 @@
 </IfModule>
 
 <IfModule mod_env.c>
-	## Specify default MongoDB servers
-	# SetEnv GENGHIS_SERVERS admin:hunter2@mongo.dev;localhost
+    ## Specify default MongoDB servers
+    # SetEnv GENGHIS_SERVERS admin:hunter2@mongo.dev;localhost
 </IfModule>
