@@ -38,7 +38,7 @@ $ php -S localhost:8000 genghis.php
 
 ### In your LAMP stack
 
-Simply drop `genghis.php` in a web-accessible directory on a LAMP server. Don't forget `.htaccess` for perty URLs!
+Simply drop `genghis.php` in a web-accessible directory on a LAMP server. Don't forget `.htaccess` for pretty URLs!
 
 
 ### With nginx and PHP-fpm (and friends)
@@ -70,7 +70,7 @@ run Rack::URLMap.new \
 ### With Rails 3
 
 You can even mount Genghis on a subpath in your existing Rails 3 app by adding `require 'genghis'` to the top of your
-routes file (or in an intializer) and then adding this to `routes.rb`:
+routes file (or in an initializer) and then adding this to `routes.rb`:
 
 ```rb
 mount Genghis::Server.new, :at => '/genghis'
