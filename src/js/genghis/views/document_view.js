@@ -142,41 +142,38 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
             this.model.url = this.model.url().replace('.files/documents/', '.files/files/');
         }
 
-        apprise(
-            '<strong>Really?</strong> ' + (isGridFile ? 'This will delete all GridFS chunks as well. <br><br>' : '') + 'There is no undo.',
-            {
-                confirm: true,
-                textCancel: 'Cancel',
-                textOk: '<strong>Yes</strong>, delete ' + docType + ' forever'
-            },
-            function(r) {
-                if (r) {
-                    var selection = app.selection;
+        new Genghis.Views.Confirm({
+            body: '<strong>Really?</strong> ' + (isGridFile ? 'This will delete all GridFS chunks as well. <br><br>' : '') + 'There is no undo.',
+            confirmText: '<strong>Yes</strong>, delete ' + docType + ' forever',
+            confirm: function() {
+                var selection = app.selection;
 
-                    model.destroy({
-                        wait: true,
-                        error: function(doc, xhr) {
-                            var msg;
-                            try {
-                                msg = JSON.parse(xhr.responseText).error;
-                            } catch (e) {
-                                // do nothing
-                            }
-
-                            apprise(msg || 'Error deleting ' + docType + '.');
-                        },
-                        success: function(doc, xhr) {
-                            selection.pagination.decrementTotal();
-
-                            // if we're currently in single-document view, bust outta this!
-                            if (selection.get('document')) {
-                                app.router.redirectTo(selection.get('server'), selection.get('database'), selection.get('collection'), null, selection.get('query'));
-                            }
+                model.destroy({
+                    wait: true,
+                    error: function(doc, xhr) {
+                        var msg;
+                        try {
+                            msg = JSON.parse(xhr.responseText).error;
+                        } catch (e) {
+                            // do nothing
                         }
-                    });
-                }
+
+                        app.alerts.create({
+                            level: 'error',
+                            msg: msg || 'Error deleting ' + docType + '.'
+                        });
+                    },
+                    success: function(doc, xhr) {
+                        selection.pagination.decrementTotal();
+
+                        // if we're currently in single-document view, bust outta this!
+                        if (selection.get('document')) {
+                            app.router.redirectTo(selection.get('server'), selection.get('database'), selection.get('collection'), null, selection.get('query'));
+                        }
+                    }
+                });
             }
-        );
+        });
     },
     remove: function() {
         $(this.el).remove();

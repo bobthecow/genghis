@@ -43,41 +43,22 @@ Genghis.Views.BaseRow = Backbone.View.extend({
                 throw 'Unable to confirm destruction without a confirmation string.';
             }
 
-            apprise(
-                '<strong>Deleting is forever.</strong><br><br>Type <strong>'+name+'</strong> to continue:',
-                {
-                    input: true,
-                    textOk: 'Delete '+name+' forever'
-                },
-                function(r) {
-                    if (r == name) {
-                        model.destroy();
-                    } else {
-                        apprise('<strong>Phew. That was close.</strong><br><br>'+name+' was not deleted.');
-                    }
+            new Genghis.Views.Confirm({
+                header: 'Deleting is forever.',
+                body:   'Type <strong>'+name+'</strong> to continue:',
+                confirmInput: name,
+                confirmText:  'Delete '+name+' forever',
+                confirm: function() {
+                    model.destroy();
                 }
-            );
-
-            _.defer(function() {
-                var btn = $('.appriseOuter button[value="ok"]').attr('disabled', true);
-                $('.appriseOuter .aTextbox').on('keyup', function() {
-                    if ($(this).val() == name) {
-                        btn.removeAttr('disabled');
-                    } else {
-                        btn.attr('disabled', true);
-                    }
-                });
             });
-
         } else {
-            apprise(
-                'Really? There is no undo.',
-                {
-                    confirm: true,
-                    textOk: this.destroyConfirmButton(name)
-                },
-                function(r) { if (r) model.destroy(); }
-            );
+            new Genghis.Views.Confirm({
+                confirmText: this.destroyConfirmButton(name),
+                confirm:     function() {
+                    model.destroy();
+                }
+            });
         }
     },
     destroyConfirmButton: function(name) {

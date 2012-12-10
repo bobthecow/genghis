@@ -79,7 +79,6 @@ file tmp_dir+'style.css' => FileList[
   tmp_dir,
   'src/css/*.less',
   'vendor/bootstrap/less/*.less',
-  'vendor/apprise-bootstrap/apprise-bootstrap.less',
   *css_files
 ] do
   File.open(tmp_dir+'style.css', 'w') do |file|
@@ -136,7 +135,6 @@ script_files = FileList[
   'vendor/backbone.js',
   'vendor/codemirror/lib/codemirror.js',
   'vendor/codemirror/mode/javascript/javascript.js',
-  'vendor/apprise-bootstrap/apprise.js',
   'vendor/bootstrap/js/bootstrap-tooltip.js',
   'vendor/bootstrap/js/bootstrap-popover.js',
   'vendor/bootstrap/js/bootstrap-modal.js',
