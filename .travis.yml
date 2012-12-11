@@ -6,12 +6,9 @@ php:
 
 services: mongodb
 
-before_install:
- - 'sudo apt-get install libv8-dev'
-
 before_script:
  - 'pecl -q install mongo'
- - 'bundle install'
+ - 'bundle install --without development'
 
 # wheee!
 script: rspec

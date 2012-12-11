@@ -8,8 +8,9 @@ group :development do
   gem 'guard'
   gem 'guard-rake'
   gem 'guard-rspec'
-  gem 'rb-fsevent', :require => false # OS X
-  gem 'rb-fsevent', :require => false # Linux
+  gem 'rb-inotify', :require => false
+  gem 'rb-fsevent', :require => false
+  gem 'rb-fchange', :require => false
 end
 
 group :test do
