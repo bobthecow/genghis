@@ -19,6 +19,7 @@ Improvements:
  * Surface more error notifications when server goes away and other error cases.
  * Handle parse errors in navbar search box.
  * Remove dependency on Apprise.
+ * Update Travis CI config so continuous integration builds are super-ultra-fast!
 
 [i64]: https://github.com/bobthecow/genghis/issues/64
 [i41]: https://github.com/bobthecow/genghis/issues/41
