@@ -6,11 +6,13 @@
         display: inline;
         padding: 0 10px;
         color: mix(#fff, darken(@linkColor, 10%), 40%);
-        a:link, a:visited {
+    }
+    a {
+        &:link, &:visited {
             color: mix(#fff, darken(@linkColor, 10%), 70%);
             .transition(color .2s ease-in-out);
         }
-        a:hover, a:active {
+        &:hover, &:active {
             color: #fff;
         }
     }

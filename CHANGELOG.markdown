@@ -20,6 +20,7 @@ Improvements:
  * Handle parse errors in navbar search box.
  * Remove dependency on Apprise.
  * Update Travis CI config so continuous integration builds are super-ultra-fast!
+ * Better optimized CSS selectors — shorter selectors, cleaner inheritance, smaller CSS files.
 
 [i64]: https://github.com/bobthecow/genghis/issues/64
 [i41]: https://github.com/bobthecow/genghis/issues/41
