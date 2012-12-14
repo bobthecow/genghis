@@ -21,6 +21,8 @@ Improvements:
  * Remove dependency on Apprise.
  * Update Travis CI config so continuous integration builds are super-ultra-fast!
  * Better optimized CSS selectors — shorter selectors, cleaner inheritance, smaller CSS files.
+ * Detect when `bson_ext` has been installed but `genghisapp` needs a restart (Ruby backend).
+ * Update `bson_ext` installation nag to include a version number (Ruby backend).
 
 [i64]: https://github.com/bobthecow/genghis/issues/64
 [i41]: https://github.com/bobthecow/genghis/issues/41
