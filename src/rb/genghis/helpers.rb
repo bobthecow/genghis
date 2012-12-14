@@ -45,7 +45,7 @@ module Genghis
 
         Gem.refresh
 
-        installed = Gem::Specification.find_all { |s| s.name == 'mongo'}.map { |s| s.version }.sort.last
+        installed = Gem::Specification.find_all { |s| s.name == 'mongo' }.map { |s| s.version }.sort.last
         msg = <<-MSG.strip.gsub(/\s+/, " ")
           <h4>MongoDB driver C extension not found.</h4>
           Install this extension for better performance: <code>gem install bson_ext -v #{installed}</code>
@@ -68,7 +68,7 @@ module Genghis
         Gem.refresh
 
         latest    = nil
-        installed = Gem::Specification.find_all { |s| s.name == 'genghisapp'}.map { |s| s.version }.sort.last
+        installed = Gem::Specification.find_all { |s| s.name == 'genghisapp' }.map { |s| s.version }.sort.last
         running   = Gem::Version.new(Genghis::VERSION.gsub(/[\+_-]/, '.'))
 
         begin
