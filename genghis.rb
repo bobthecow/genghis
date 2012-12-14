@@ -728,9 +728,9 @@ module Genghis
           alerts << {:level => 'warning', :msg => msg}
         elsif installed && running < installed
           msg = <<-MSG.strip.gsub(/\s+/, " ")
-            <h4>You are not running the latest version</h4>
+            <h4>Restart required</h4>
             You have installed Genghis version <tt>#{installed}</tt> but are still running <tt>#{Genghis::VERSION}</tt>.
-            Run <tt>genghisapp&nbsp;--kill</tt> then restart <tt>genghisapp</tt>.
+            Run <code>genghisapp&nbsp;--kill</code> then restart <code>genghisapp</code>.
           MSG
           alerts << {:level => 'info', :msg => msg}
         end
