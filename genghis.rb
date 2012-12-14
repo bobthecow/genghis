@@ -673,9 +673,14 @@ module Genghis
     def server_status_alerts
       alerts = []
       unless defined? ::BSON::BSON_C
+        require 'rubygems'
+
+        Gem.refresh
+
+        installed = Gem::Specification.find_all { |s| s.name == 'mongo'}.map { |s| s.version }.sort.last
         msg = <<-MSG.strip.gsub(/\s+/, " ")
           <h4>MongoDB driver C extension not found.</h4>
-          Install this extension for better performance: <code>gem install bson_ext</code>
+          Install this extension for better performance: <code>gem install bson_ext -v #{installed}</code>
         MSG
         alerts << {:level => 'warning', :msg => msg}
       end
