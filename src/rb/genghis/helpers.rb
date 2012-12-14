@@ -54,8 +54,8 @@ module Genghis
         else
           msg = <<-MSG.strip.gsub(/\s+/, " ")
             <h4>Restart required</h4>
-            You have installed the <tt>bson_ext</tt> extension.
-            Run <code>genghisapp&nbsp;--kill</code> then restart <code>genghisapp</code>.
+            You have recently installed the <tt>bson_ext</tt> extension.
+            Run <code>genghisapp&nbsp;--kill</code> then restart <code>genghisapp</code> to use it.
           MSG
         end
         alerts << {:level => 'warning', :msg => msg}
