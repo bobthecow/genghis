@@ -21,7 +21,7 @@ module Genghis
 
       def collections
         # TODO: should I be rejecting all of these `system*` collections?
-        @collections ||= @database.collections.map { |c| Collection.new(c) unless c.name.start_with? 'system' }.compact
+        @collections ||= @database.collections.map { |c| Collection.new(c) }.compact
       end
 
       def [](coll_name)
