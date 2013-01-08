@@ -20,8 +20,7 @@ module Genghis
       end
 
       def collections
-        # TODO: should I be rejecting all of these `system*` collections?
-        @collections ||= @database.collections.map { |c| Collection.new(c) }.compact
+        @collections ||= @database.collections.map { |c| Collection.new(c) }
       end
 
       def [](coll_name)

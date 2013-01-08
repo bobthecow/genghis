@@ -9,6 +9,7 @@ Bug fixes:
  * [Fix #64][i64] — Allow creating a document with an explicit `_id`.
  * Handle Backbone weirdness in docs with both `_id` and `id` properties.
  * Fix indent levels in documents with empty objects.
+ * Stop rejecting all `system*` collections (Ruby backend) — Thanks @ys.
 
 Improvements:
 
