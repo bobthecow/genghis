@@ -20,7 +20,7 @@ module Genghis
       end
 
       def collections
-        @collections ||= @database.collections.map { |c| Collection.new(c) }
+        @collections ||= @database.collections.map { |c| Collection.new(c) unless system_collection?(c) }.compact
       end
 
       def [](coll_name)
@@ -51,6 +51,16 @@ module Genghis
             db['name'] == name
           end
         end
+      end
+
+      def system_collection?(coll)
+        [
+          Mongo::DB::SYSTEM_NAMESPACE_COLLECTION,
+          Mongo::DB::SYSTEM_INDEX_COLLECTION,
+          Mongo::DB::SYSTEM_PROFILE_COLLECTION,
+          Mongo::DB::SYSTEM_USER_COLLECTION,
+          Mongo::DB::SYSTEM_JS_COLLECTION
+        ].include?(coll.name)
       end
     end
   end
