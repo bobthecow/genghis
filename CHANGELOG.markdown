@@ -11,6 +11,8 @@ Bug fixes:
  * Fix indent levels in documents with empty objects.
  * Stop rejecting all `system*` collections (Ruby backend) — Thanks @ys.
  * [Fix #71][i71] — Handle non-ObjectID DBRefs more gracefully.
+ * [Fix #72][i72] — Surface server error responses when searching.
+ * Surface even more server error messages.
 
 Improvements:
 
@@ -30,6 +32,7 @@ Improvements:
 
 [i64]: https://github.com/bobthecow/genghis/issues/64
 [i71]: https://github.com/bobthecow/genghis/issues/71
+[i72]: https://github.com/bobthecow/genghis/issues/72
 [i41]: https://github.com/bobthecow/genghis/issues/41
 [i73]: https://github.com/bobthecow/genghis/issues/73
 
