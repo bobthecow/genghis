@@ -56,9 +56,9 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         var $dbRef = $(e.target).parents('.ref');
         var db     = $dbRef.find('.ref-db  .v .s').text() || app.selection.currentDatabase.id;
         var coll   = $dbRef.find('.ref-ref .v .s').text() || app.selection.currentCollection.id;
-        var id     = $dbRef.find('.ref-id  .v .s, .ref-id .v.n').text();
+        var id     = $dbRef.find('.ref-id').attr('data-document-id');
 
-        app.router.redirectToDocument(app.selection.currentServer.id, db, coll, id);
+        app.router.redirectToDocument(app.selection.currentServer.id, db, coll, encodeURIComponent(id));
     },
     openEditDialog: function() {
         var $well = this.$('.well');

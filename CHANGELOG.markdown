@@ -10,6 +10,7 @@ Bug fixes:
  * Handle Backbone weirdness in docs with both `_id` and `id` properties.
  * Fix indent levels in documents with empty objects.
  * Stop rejecting all `system*` collections (Ruby backend) — Thanks @ys.
+ * [Fix #71][i71] — Handle non-ObjectID DBRefs more gracefully.
 
 Improvements:
 
@@ -27,8 +28,9 @@ Improvements:
  * [Fix #73][i73] — Authenticate against `admin` DB if none is specified (Ruby backend).
  * Improve authentication failure error messagine (Ruby backend).
 
-[i41]: https://github.com/bobthecow/genghis/issues/41
 [i64]: https://github.com/bobthecow/genghis/issues/64
+[i71]: https://github.com/bobthecow/genghis/issues/71
+[i41]: https://github.com/bobthecow/genghis/issues/41
 [i73]: https://github.com/bobthecow/genghis/issues/73
 
 

@@ -542,17 +542,24 @@ Genghis.JSON = {
                         // Iterate through all of the keys in the object.
                         partial = [];
 
-                        var cologn = t(gap ? ': ' : ':');
+                        var cologn  = t(gap ? ': ' : ':');
+                        var isDbRef = !!(value['$ref'] && value['$id']);
                         for (k in value) {
                             if (Object.hasOwnProperty.call(value, k)) {
                                 v = createView(k, value);
                                 if (v) {
                                     spanClass = 'p' + (v.collapsed ? ' collapsed' : '');
-                                    if (k == '$ref' || k == '$id' || k == '$db') {
-                                        spanClass = spanClass + ' ref-' + k.substr(1);
+                                    if (isDbRef) {
+                                        if (k == '$ref' || k == '$id' || k == '$db') {
+                                            spanClass = spanClass + ' ref-' + k.substr(1);
+                                        }
                                     }
 
                                     p = span(spanClass);
+
+                                    if (isDbRef && k == '$id') {
+                                        p.setAttribute('data-document-id', Genghis.Models.Document.prototype.thunkId(value[k]));
+                                    }
 
                                     if (v.collapsible) {
                                         p.appendChild(e('button'));
@@ -584,7 +591,7 @@ Genghis.JSON = {
                             gap = mind;
 
                             return span(spanClass, (t('{}')));
-                        } else if (value['$ref'] && value['$id']) {
+                        } else if (isDbRef) {
                             spanClass = spanClass + ' ref';
                         }
 
