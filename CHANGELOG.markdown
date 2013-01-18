@@ -24,9 +24,12 @@ Improvements:
  * Better optimized CSS selectors — shorter selectors, cleaner inheritance, smaller CSS files.
  * Detect when `bson_ext` has been installed but `genghisapp` needs a restart (Ruby backend).
  * Update `bson_ext` installation nag to include a version number (Ruby backend).
+ * [Fix #73][i73] — Authenticate against `admin` DB if none is specified (Ruby backend).
+ * Improve authentication failure error messagine (Ruby backend).
 
-[i64]: https://github.com/bobthecow/genghis/issues/64
 [i41]: https://github.com/bobthecow/genghis/issues/41
+[i64]: https://github.com/bobthecow/genghis/issues/64
+[i73]: https://github.com/bobthecow/genghis/issues/73
 
 
 ## v2.1.6
