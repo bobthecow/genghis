@@ -1,11 +1,7 @@
 Genghis.Models.Document = Backbone.Model.extend({
+    idAttribute: null,
     initialize: function() {
-        _.bindAll(this, 'prettyId', 'prettyTime', 'prettyPrint', 'JSONish');
-
-        var id = this.thunkId(this.get('_id'));
-        if (id) {
-            this.id = id;
-        }
+        _.bindAll(this, 'prettyId', 'prettyTime', 'prettyPrint', 'JSONish', 'isGridFile', 'isGridChunk', 'downloadUrl', 'fileUrl');
     },
     thunkId: function(id) {
         if (_.isObject(id) && id.hasOwnProperty('$genghisType') && id['$genghisType'] == 'ObjectId') {
@@ -83,5 +79,29 @@ Genghis.Models.Document = Backbone.Model.extend({
     },
     JSONish: function() {
         return Genghis.JSON.stringify(this.toJSON());
+    },
+    isGridFile: function() {
+        // define grid files as: in a grid collection and has a chunkSize
+        return this.get('chunkSize') && /\.files\/documents\//.test(this.url());
+    },
+    isGridChunk: function() {
+        // define grid files as: in a grid chunks collection and has a files_id
+        return this.get('files_id') && /\.chunks\/documents\//.test(this.url());
+    },
+    downloadUrl: function() {
+        if (!this.isGridFile()) {
+            throw 'Not a GridFS file.';
+        }
+
+        return this.url().replace(/\.files\/documents\//, '.files/files/');
+    },
+    fileUrl: function() {
+        if (!this.isGridChunk()) {
+            throw 'Not a GridFS chunk.';
+        }
+
+        return this.url()
+            .replace(/\.chunks\/documents\//, '.files/documents/')
+            .replace(this.id, this.thunkId(this.get('files_id')));
     }
 });

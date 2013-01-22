@@ -525,6 +525,16 @@ genghis_backends.each do |backend|
           res.status.should eq 400
         end
 
+        it 'returns 400 if the document id is invalid' do
+          res = @api.post do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
+            req.headers['Content-Type'] = 'application/json'
+            req.body = {_id: [0, 1]}.to_json
+          end
+
+          res.status.should eq 400
+        end
+
         it 'returns 404 if the collection is not found' do
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/fake_docs/documents'
@@ -586,6 +596,17 @@ genghis_backends.each do |backend|
           res.body.should match_json_expression \
             _id: @id_pattern,
             test: 2
+        end
+
+        it 'returns 400 if a document id is updated' do
+          id  = @coll.insert({test: 1})
+          res = @api.put do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { _id: 1, test: 2 }.to_json
+          end
+
+          res.status.should eq 400
         end
 
         it 'returns 400 if the document is invalid' do
@@ -658,6 +679,179 @@ genghis_backends.each do |backend|
           res = @api.delete '/servers/localhost/databases/__genghis_spec_fake_db__/collections/spec_docs/documents/' + id.to_s
           res.status.should eq 404
           @coll.find(_id: id).count.should eq 1
+        end
+      end
+
+      context 'GridFS' do
+        before :all do
+          @grid = Mongo::Grid.new(@coll.db, 'test')
+          @grid.put('tmp')
+        end
+
+        describe 'POST /servers/:server/databases/:db/collections/:coll/files' do
+          it 'inserts a new file' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {
+                file:        encode_upload('foo!'),
+                filename:    'foo.txt',
+                contentType: 'application/octet',
+                metadata:    {expected: 'you know it'}
+              }.to_json
+            end
+
+            res.status.should eq 200
+            res.body.should match_json_expression \
+              _id:         Hash,
+              filename:    'foo.txt',
+              contentType: 'application/octet',
+              metadata:    { expected: 'you know it' },
+              uploadDate:  Hash,
+              length:      Fixnum,
+              chunkSize:   Fixnum,
+              md5:         String
+          end
+
+          it 'returns 400 if the file upload is not a base64 encoded data: URI' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {
+                file:        'foo!',
+                filename:    'foo.txt',
+                contentType: 'application/octet',
+                metadata:    {expected: 'you know it'}
+              }.to_json
+            end
+
+            res.status.should eq 400
+            res.body.should match_json_expression \
+              error:  'File must be a base64 encoded data: URI',
+              status: 400
+          end
+
+          it 'returns 400 if the document is missing important bits' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {filename: 'foo.txt'}.to_json
+            end
+            res.status.should eq 400
+          end
+
+          it 'returns 400 if the document has unexpected properties' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {file: encode_upload('foo'), unexpected: 'you know it.'}.to_json
+            end
+            res.status.should eq 400
+          end
+
+          it 'returns 404 if the collection is not found' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/fake.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {file: encode_upload('foo')}.to_json
+            end
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the collection is not a GridFS files collection' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.chunks/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {file: encode_upload('foo')}.to_json
+            end
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the database is not found' do
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_fake_db__/collections/test.files/files'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {file: 'foo'}.to_json
+            end
+            res.status.should eq 404
+          end
+        end
+
+        describe 'GET /servers/:server/databases/:db/collections/:coll/files/:id' do
+          it 'returns a document' do
+            id  = @grid.put('foo')
+            res = @api.get do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files/' + id.to_s
+              req.headers.delete('X-Requested-With')
+              req.headers.delete('Accept')
+            end
+
+            res.status.should eq 200
+            res.headers['Content-Disposition'].should start_with 'attachment'
+            res.body.should eq 'foo'
+          end
+
+          it 'returns 404 if the document is not found' do
+            res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files/123'
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the collection is not found' do
+            id  = @grid.put('bar')
+            res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/fake.files/files/' + id.to_s
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the collection is not a GridFS files collection' do
+            id  = @grid.put('baz')
+            res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/test.chunks/files/' + id.to_s
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the database is not found' do
+            id  = @grid.put('qux')
+            res = @api.get '/servers/localhost/databases/__genghis_spec_fake_db__/collections/test.files/files/' + id.to_s
+            res.status.should eq 404
+          end
+        end
+
+        describe 'DELETE /servers/:server/databases/:db/collections/:coll/files/:id' do
+          it 'deletes a file (and all chunks)' do
+            id = @grid.put('wheee')
+            res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files/' + id.to_s
+
+            res.status.should eq 200
+            res.body.should match_json_expression \
+              success: true
+
+            expect { @grid.get(id) }.to raise_error Mongo::GridFileNotFound
+
+            # and the chunks should be gone...
+            @db['test.chunks'].find(_id: id).count.should eq 0
+          end
+
+          it 'returns 404 if the document is not found' do
+            res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/test.files/files/123'
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the collection is not found' do
+            id  = @grid.put('bar')
+            res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/fake.files/files/' + id.to_s
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the collection is not a GridFS files collection' do
+            id  = @grid.put('baz')
+            res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/test.chunks/files/' + id.to_s
+            res.status.should eq 404
+          end
+
+          it 'returns 404 if the database is not found' do
+            id  = @grid.put('qux')
+            res = @api.delete '/servers/localhost/databases/__genghis_spec_fake_db__/collections/test.files/files/' + id.to_s
+            res.status.should eq 404
+          end
         end
       end
     end

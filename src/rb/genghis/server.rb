@@ -2,6 +2,7 @@ require 'sinatra/base'
 require 'sinatra/mustache'
 require 'sinatra/json'
 require 'sinatra/reloader'
+require 'sinatra/streaming'
 require 'mongo'
 
 module Genghis
@@ -10,6 +11,8 @@ module Genghis
     set :environment, :production
 
     enable :inline_templates
+
+    helpers Sinatra::Streaming
 
     helpers Sinatra::JSON
     set :json_encoder,      :to_json
@@ -61,6 +64,27 @@ module Genghis
     end
 
 
+    ### GridFS handling ###
+
+    get '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
+      file = servers[server][database][collection].get_file document
+
+      content_type file['contentType'] || 'application/octet-stream'
+      attachment   file['filename'] || document
+
+      stream do |out|
+        file.each do |chunk|
+          out << chunk
+        end
+      end
+    end
+
+    # delete '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
+    #   # ...
+    #   json :success => true
+    # end
+
+
     ### Default route ###
 
     get '*' do
@@ -75,7 +99,7 @@ module Genghis
     ### Genghis API ###
 
     get '/check-status' do
-      json({:alerts => server_status_alerts})
+      json :alerts => server_status_alerts
     end
 
     get '/servers' do
@@ -150,6 +174,16 @@ module Genghis
 
     delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
       collection = servers[server][database][collection].remove document
+      json :success => true
+    end
+
+    post '/servers/:server/databases/:database/collections/:collection/files' do |server, database, collection|
+      document = servers[server][database][collection].put_file request_genghis_json
+      genghis_json document
+    end
+
+    delete '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
+      servers[server][database][collection].delete_file document
       json :success => true
     end
   end

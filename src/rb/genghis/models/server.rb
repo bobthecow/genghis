@@ -11,8 +11,7 @@ module Genghis
         dsn = 'mongodb://'+dsn unless dsn.include? '://'
 
         begin
-          dsn = extract_extra_options(dsn)
-          uri = ::Mongo::URIParser.new dsn
+          dsn, uri = get_dsn_and_uri(extract_extra_options(dsn))
 
           # name this server something useful
           name = uri.host
@@ -70,6 +69,8 @@ module Genghis
           begin
             connection
             info
+          rescue Mongo::AuthenticationError => e
+            json.merge!({:error => "Authentication error: #{e.message}"})
           rescue Mongo::ConnectionFailure => e
             json.merge!({:error => "Connection error: #{e.message}"})
           rescue Mongo::OperationFailure => e
@@ -91,6 +92,15 @@ module Genghis
       end
 
       private
+
+      def get_dsn_and_uri(dsn)
+        [dsn, ::Mongo::URIParser.new(dsn)]
+      rescue Mongo::MongoArgumentError => e
+        raise e unless e.message.include? "MongoDB URI must include username"
+        # We'll try one more time...
+        dsn = dsn.sub(%r{/?$}, '/admin')
+        [dsn, ::Mongo::URIParser.new(dsn)]
+      end
 
       def extract_extra_options(dsn)
         host, opts = dsn.split('?', 2)
@@ -120,7 +130,7 @@ module Genghis
       end
 
       def connection
-        @connection ||= Mongo::Connection.from_uri(@dsn, {:connect_timeout => 1}.merge(@opts))
+        @connection ||= Mongo::Connection.from_uri(@dsn, {:connect_timeout => 1, :safe => true}.merge(@opts))
       rescue OpenSSL::SSL::SSLError => e
         raise Mongo::ConnectionFailure.new('SSL connection error')
       rescue StandardError => e

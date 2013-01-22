@@ -43,7 +43,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
 
         url = url + 'servers';
         this.servers.url = url;
-        this.servers.fetch();
+        this.servers.fetch({error: showErrorMessage});
 
         if (server) {
             url = url + '/' + server;
@@ -54,7 +54,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
 
             url = url + '/databases';
             this.databases.url = url;
-            this.databases.fetch();
+            this.databases.fetch({error: showErrorMessage});
         } else {
             this.currentServer.clear();
             this.databases.reset();
@@ -69,7 +69,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
 
             url = url + '/collections';
             this.collections.url = url;
-            this.collections.fetch();
+            this.collections.fetch({error: showErrorMessage});
         } else {
             this.currentDatabase.clear();
             this.collections.reset();
@@ -92,7 +92,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
             }
 
             this.documents.url = url + url_query;
-            this.documents.fetch();
+            this.documents.fetch({error: showErrorMessage});
         } else {
             this.currentCollection.clear();
             this.documents.reset();
@@ -111,16 +111,27 @@ Genghis.Models.Selection = Backbone.Model.extend({
             });
         }
 
-        function fetchErrorHandler(section, notFoundTitle, notFoundSubtitle) {
-            notFoundSubtitle = notFoundSubtitle || 'Please try again.';
-
-            return function(model, response) {
+        function showErrorMessage(model, response) {
+            if (response.status !== 404) {
                 try {
                     data = JSON.parse(response.responseText);
                 } catch (e) {
                     data = {};
                 }
 
+                app.alerts.create({
+                    msg:   data.error || 'Unknown error',
+                    level: 'error',
+                    block: true
+                });
+            }
+        }
+
+        function fetchErrorHandler(section, notFoundTitle, notFoundSubtitle) {
+            notFoundTitle    = notFoundTitle    || 'Not Found';
+            notFoundSubtitle = notFoundSubtitle || 'Please try again.';
+
+            return function(model, response) {
                 switch (response.status) {
                     case 404:
                         // app.router.notFound(url + '/' + documentId);
@@ -133,15 +144,12 @@ Genghis.Models.Selection = Backbone.Model.extend({
                         break;
 
                     default:
-                        app.alerts.create({
-                            msg:   response.status + ': ' + (data.error || 'Unknown error'),
-                            level: 'error',
-                            block: true
-                        });
+                        showErrorMessage(model, response);
                         break;
                 }
             };
         }
+
     },
     nextPage: function() {
         return 1 + (this.get('page') || 1);

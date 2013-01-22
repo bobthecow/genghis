@@ -1,9 +1,9 @@
 
 .document-wrapper {
     article.edit {
-        div.document-actions {
+        .document-actions {
             margin-top: 20px;
-            button.edit, button.destroy {
+            button.edit, button.destroy, a.grid-download, a.grid-file {
                 display: none;
             }
             button.save, button.cancel {
@@ -28,10 +28,12 @@
     }
 }
 
-.modal.editor {
+.modal-editor {
     width:       820px;
     margin-left: -410px;
     max-height: 90%;
+}
+.modal-editor, .modal-file-upload {
     .wrapper {
         .border-radius(4px);
         border: 1px solid @inputBorder;

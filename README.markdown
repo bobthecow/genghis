@@ -38,7 +38,7 @@ $ php -S localhost:8000 genghis.php
 
 ### In your LAMP stack
 
-Simply drop `genghis.php` in a web-accessible directory on a LAMP server. Don't forget `.htaccess` for perty URLs!
+Simply drop `genghis.php` in a web-accessible directory on a LAMP server. Don't forget `.htaccess` for pretty URLs!
 
 
 ### With nginx and PHP-fpm (and friends)
@@ -70,7 +70,7 @@ run Rack::URLMap.new \
 ### With Rails 3
 
 You can even mount Genghis on a subpath in your existing Rails 3 app by adding `require 'genghis'` to the top of your
-routes file (or in an intializer) and then adding this to `routes.rb`:
+routes file (or in an initializer) and then adding this to `routes.rb`:
 
 ```rb
 mount Genghis::Server.new, :at => '/genghis'
@@ -120,23 +120,19 @@ License
 
 ### Genghis uses a number of amazing open source libraries, distributed under the following licenses
 
- * [Apprise][apprise]                     — MIT License
- * [Apprise Bootstrap][apprise-bootstrap] — Apache License v2.0
- * [Backbone.js][backbone]                — MIT License
- * [CodeMirror][codemirror]               — MIT-style License
- * [Esprima][esprima]                     — "Simplified" BSD License (2-clause)
- * [Hogan.js][hogan]                      — Apache License v2.0
- * [hoverIntent][hoverintent]             — MIT or GPLv2 License
- * [jQuery][jquery]                       — MIT License
- * [jQuery Hotkeys][hotkeys]              — MIT or GPLv2 License
- * [KEYS.css][keyscss]                    — MIT License
- * [Modernizr][modernizr]                 — MIT or BSD (3-clause) License
- * [TableSorter][tablesorter]             — MIT or GPLv2 License
- * [Twitter Bootstrap][bootstrap]         — Apache License v2.0
- * [Underscore.js][underscore]            — MIT License
+ * [Backbone.js][backbone]        — MIT License
+ * [CodeMirror][codemirror]       — MIT-style License
+ * [Esprima][esprima]             — "Simplified" BSD License (2-clause)
+ * [Hogan.js][hogan]              — Apache License v2.0
+ * [hoverIntent][hoverintent]     — MIT or GPLv2 License
+ * [jQuery][jquery]               — MIT License
+ * [jQuery Hotkeys][hotkeys]      — MIT or GPLv2 License
+ * [KEYS.css][keyscss]            — MIT License
+ * [Modernizr][modernizr]         — MIT or BSD (3-clause) License
+ * [TableSorter][tablesorter]     — MIT or GPLv2 License
+ * [Twitter Bootstrap][bootstrap] — Apache License v2.0
+ * [Underscore.js][underscore]    — MIT License
 
- [apprise]:           http://thrivingkings.com/apprise
- [apprise-bootstrap]: https://github.com/bobthecow/apprise-bootstrap
  [backbone]:          http://backbonejs.org
  [codemirror]:        http://codemirror.net
  [esprima]:           http://esprima.org

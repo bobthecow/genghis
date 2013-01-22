@@ -1,24 +1,24 @@
 
-section#documents {
+#documents {
     .controls {
         .clearfix;
         margin-bottom: 20px;
-        .add-document {
-            float: left;
+    }
+    .add-document {
+        float: left;
+    }
+    .pagination {
+        margin: 0;
+        li.prev a:after {
+            content: ' Previous';
         }
-        .pagination {
-            margin: 0;
-            li.prev a:after {
-                content: ' Previous';
-            }
-            li.next a:before {
-                content: 'Next ';
-            }
+        li.next a:before {
+            content: 'Next ';
         }
     }
 }
 
-section#document {
+#document {
     h2 {
         small {
             font-size:    12px;
@@ -26,7 +26,9 @@ section#document {
             padding-left: 10px;
         }
     }
-    article h3 { display: none; }
+    article {
+        h3 { display: none; }
+    }
 }
 
 .document {
@@ -56,20 +58,20 @@ section#document {
 
     article {
         position: relative;
-        div.document-actions {
+        .document-actions {
             position: absolute;
             right: 20px;
             z-index: 10;
             button.save, button.cancel {
                 display: none;
             }
-            button.edit, button.destroy {
+            button.edit, button.destroy, a.grid-download, a.grid-file {
                 visibility: hidden;
             }
         }
         &:hover {
-            div.document-actions {
-                button.edit, button.destroy {
+            .document-actions {
+                button.edit, button.destroy, a.grid-download, a.grid-file {
                     visibility: inherit;
                 }
             }
