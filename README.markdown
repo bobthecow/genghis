@@ -3,7 +3,7 @@
 
 The single-file MongoDB admin app, by [Justin Hileman](http://justinhileman.info).
 
-[![Build Status](https://secure.travis-ci.org/bobthecow/genghis.png)](http://travis-ci.org/bobthecow/genghis)
+[![Build Status](https://secure.travis-ci.org/bobthecow/genghis.png)](http://travis-ci.org/bobthecow/genghis) [![Dependency Status](https://gemnasium.com/bobthecow/genghis.png)](https://gemnasium.com/bobthecow/genghis)
 
 [![Genghis](http://genghisapp.com/genghis.png)](http://genghisapp.com)
 
