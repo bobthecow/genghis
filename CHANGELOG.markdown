@@ -17,7 +17,8 @@ Bug fixes:
 Improvements:
 
  * [Fix #41][i41] — Add an "updated but not restarted" info message (Ruby backend).
- * Bump Bootstrap, CodeMirror, Esprima and Hogan.js vendor libraries — faster parsing, highlighting and rendering!
+ * Bump Bootstrap, CodeMirror, Esprima, Hogan.js and Hotkeys vendor libraries —
+   faster parsing, highlighting and rendering!
  * Update to latest versions of jQuery and Underscore.js.
  * [Fix #64][i64] — Show an error message when trying to update an `_id` property.
  * Surface more error notifications when server goes away and other error cases.
