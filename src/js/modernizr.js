@@ -1,4 +1,4 @@
-/* Modernizr 2.6.1 (Custom Build) | MIT & BSD
+/* Modernizr 2.6.2 (Custom Build) | MIT & BSD
  * Build: http://modernizr.com/download/#-cssclasses-addtest-testprop-testallprops-domprefixes
  */
 ;
@@ -7,7 +7,7 @@
 
 window.Modernizr = (function( window, document, undefined ) {
 
-    var version = '2.6.1',
+    var version = '2.6.2',
 
     Modernizr = {},
 
@@ -180,7 +180,7 @@ window.Modernizr = (function( window, document, undefined ) {
 
          test = typeof test == 'function' ? test() : test;
 
-         if (enableClasses) {
+         if (typeof enableClasses !== "undefined" && enableClasses) {
            docElement.className += ' ' + (test ? '' : 'no-') + feature;
          }
          Modernizr[feature] = test;
