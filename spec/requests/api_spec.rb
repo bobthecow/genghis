@@ -685,6 +685,7 @@ genghis_backends.each do |backend|
       context 'GridFS' do
         before :all do
           @grid = Mongo::Grid.new(@coll.db, 'test')
+          @coll.db['test.chunks'].ensure_index({:files_id => Mongo::ASCENDING, :n => Mongo::ASCENDING}, :unique => true)
           @grid.put('tmp')
         end
 

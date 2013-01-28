@@ -3,6 +3,7 @@
 New!
 
  * Add GridFS upload, drag and drop, navigation and download support.
+ * Update to v1.8.x MongoDB driver (Ruby backend).
 
 Bug fixes:
 
