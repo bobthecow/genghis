@@ -192,6 +192,6 @@ Genghis.Util = {
             }
 
             frame.attr('src', url);
-        }
+        };
     })()
 };

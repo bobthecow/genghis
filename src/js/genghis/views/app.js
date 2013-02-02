@@ -7,15 +7,15 @@ Genghis.Views.App = Backbone.View.extend({
         var baseUrl   = this.baseUrl   = this.options.baseUrl;
 
         // for current selection
-        var selection = this.selection = new Genghis.Models.Selection;
+        var selection = this.selection = new Genghis.Models.Selection();
 
         // for messaging
-        var alerts    = this.alerts    = new Genghis.Collections.Alerts;
+        var alerts    = this.alerts    = new Genghis.Collections.Alerts();
 
         // initialize all our app views
         this.navView               = new Genghis.Views.Nav({model: selection, baseUrl: baseUrl});
         this.alertsView            = new Genghis.Views.Alerts({collection: alerts});
-        this.keyboardShortcutsView = new Genghis.Views.KeyboardShortcuts;
+        this.keyboardShortcutsView = new Genghis.Views.KeyboardShortcuts();
         this.serversView           = new Genghis.Views.Servers({collection: selection.servers});
         this.databasesView         = new Genghis.Views.Databases({
             model:      selection.currentServer,
@@ -34,7 +34,7 @@ Genghis.Views.App = Backbone.View.extend({
 
 
         // initialize the router
-        var router = this.router = new Genghis.Router;
+        var router = this.router = new Genghis.Router();
 
         // route to home when the logo is clicked
         $('.navbar a.brand').click(function(e) {

@@ -105,7 +105,7 @@ Genghis.Views.NewGridFile = Genghis.Views.BaseDocument.extend({
         var showServerError = this.showServerError;
         var docs            = this.collection;
         var uploadUrl       = this.collection.url.replace('.files/documents', '.files/files');
-        var reader          = new FileReader;
+        var reader          = new FileReader();
 
         reader.onload = function(e) {
             data.file = e.target.result;

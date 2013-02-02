@@ -11,6 +11,6 @@ Genghis.Models.Collection = Genghis.Models.BaseModel.extend({
         });
     },
     isGridCollection: function() {
-        return /\.files$/.test(this.get('name'));
+        return (/\.files$/).test(this.get('name'));
     }
 });

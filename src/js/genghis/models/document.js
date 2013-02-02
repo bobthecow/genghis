@@ -4,15 +4,15 @@ Genghis.Models.Document = Backbone.Model.extend({
         _.bindAll(this, 'prettyId', 'prettyTime', 'prettyPrint', 'JSONish', 'isGridFile', 'isGridChunk', 'downloadUrl', 'fileUrl');
     },
     thunkId: function(id) {
-        if (_.isObject(id) && id.hasOwnProperty('$genghisType') && id['$genghisType'] == 'ObjectId') {
-            return id['$value'];
+        if (_.isObject(id) && id.hasOwnProperty('$genghisType') && id.$genghisType == 'ObjectId') {
+            return id.$value;
         } else if (typeof id !== 'undefined') {
             return '~' + Genghis.Util.base64Encode(JSON.stringify(id));
         }
     },
     parse: function(resp) {
         // a little bitta id thunk.
-        var id = this.thunkId(resp['_id']);
+        var id = this.thunkId(resp._id);
         if (id) {
             this.id = id;
         }
@@ -36,21 +36,21 @@ Genghis.Models.Document = Backbone.Model.extend({
     prettyId: function() {
         var id = this.get('_id');
         if (_.isObject(id) && id.hasOwnProperty('$genghisType')) {
-            switch (id['$genghisType']) {
+            switch (id.$genghisType) {
                 case 'ObjectId':
-                    return id['$value'];
+                    return id.$value;
 
                 case 'BinData':
                     // Special case: UUID
-                    if (id['$value']['$subtype'] == 3) {
+                    if (id.$value.$subtype == 3) {
                         var uuid = /^([0-9a-f]{8})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{12})$/i;
-                        var hex  = Genghis.Util.base64ToHex(id['$value']['$binary']);
+                        var hex  = Genghis.Util.base64ToHex(id.$value.$binary);
                         if (uuid.test(hex)) {
                             return hex.replace(uuid, '$1-$2-$3-$4-$5');
                         }
                     }
 
-                    return id['$value']['$binary'].replace(/\=+$/, '');
+                    return id.$value.$binary.replace(/\=+$/, '');
             }
         }
 
@@ -62,9 +62,9 @@ Genghis.Models.Document = Backbone.Model.extend({
             if (typeof this._prettyTime == 'undefined') {
                 var id = this.get('_id');
                 if (_.isObject(id) && id.hasOwnProperty('$genghisType')) {
-                    if (id['$genghisType'] === 'ObjectId' && id['$value'].length == 24) {
+                    if (id.$genghisType === 'ObjectId' && id.$value.length == 24) {
                         var time = new Date();
-                        time.setTime(parseInt(id['$value'].substring(0,8), 16) * 1000);
+                        time.setTime(parseInt(id.$value.substring(0,8), 16) * 1000);
 
                         this._prettyTime = time.toUTCString();
                     }

@@ -472,23 +472,23 @@ Genghis.JSON = {
 
                         // This is a serialized Genghis type, print it as something awesomer.
                         if (Object.hasOwnProperty.call(value, '$genghisType')) {
-                            switch(value['$genghisType']) {
+                            switch(value.$genghisType) {
                                 case 'ObjectId':
-                                    return c('ObjectId', [quote(value['$value'])], 'oid');
+                                    return c('ObjectId', [quote(value.$value)], 'oid');
 
                                 case 'ISODate':
-                                    return c('ISODate', [quote(value['$value'])], 'date');
+                                    return c('ISODate', [quote(value.$value)], 'date');
 
                                 case 'RegExp':
                                     // we'll render regexp as a literal
                                     // TODO: something might need escaped here?
-                                    var pattern = value['$value']['$pattern'];
-                                    var flags   = value['$value']['$flags'] || '';
+                                    var pattern = value.$value.$pattern;
+                                    var flags   = value.$value.$flags || '';
 
                                     return span('v re', '/' + pattern + '/' + flags);
 
                                 case 'BinData':
-                                    return c('BinData', [span('n', String(value['$value']['$subtype'])), quote(value['$value']['$binary'])], 'bindata');
+                                    return c('BinData', [span('n', String(value.$value.$subtype)), quote(value.$value.$binary)], 'bindata');
                             }
                         }
 
@@ -543,7 +543,7 @@ Genghis.JSON = {
                         partial = [];
 
                         var cologn  = t(gap ? ': ' : ':');
-                        var isDbRef = !!(value['$ref'] && value['$id']);
+                        var isDbRef = !!(value.$ref && value.$id);
                         for (k in value) {
                             if (Object.hasOwnProperty.call(value, k)) {
                                 v = createView(k, value);

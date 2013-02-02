@@ -10,16 +10,16 @@ Genghis.Models.Selection = Backbone.Model.extend({
         _.bindAll(this, 'select', 'update', 'nextPage', 'previousPage');
         this.bind('change', this.update);
 
-        this.pagination        = new Genghis.Models.Pagination;
+        this.pagination        = new Genghis.Models.Pagination();
 
-        this.servers           = new Genghis.Collections.Servers;
-        this.currentServer     = new Genghis.Models.Server;
-        this.databases         = new Genghis.Collections.Databases;
-        this.currentDatabase   = new Genghis.Models.Database;
-        this.collections       = new Genghis.Collections.Collections;
-        this.currentCollection = new Genghis.Models.Collection;
-        this.documents         = new Genghis.Collections.Documents;
-        this.currentDocument   = new Genghis.Models.Document;
+        this.servers           = new Genghis.Collections.Servers();
+        this.currentServer     = new Genghis.Models.Server();
+        this.databases         = new Genghis.Collections.Databases();
+        this.currentDatabase   = new Genghis.Models.Database();
+        this.collections       = new Genghis.Collections.Collections();
+        this.currentCollection = new Genghis.Models.Collection();
+        this.documents         = new Genghis.Collections.Documents();
+        this.currentDocument   = new Genghis.Models.Document();
     },
     select: function(server, database, collection, documentId, query, page) {
         this.set({
