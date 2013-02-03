@@ -178,7 +178,7 @@ file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files d
 end
 
 file tmp_dir+'index.html.mustache' => FileList[
-  tmp_dir, tmp_dir+'templates.js', 'src/templates/index.html.mustache.erb', 'src/img/favicon.png', 'src/img/keyboard.png'
+  tmp_dir, 'src/templates/index.html.mustache.erb', 'src/img/favicon.png', 'src/img/keyboard.png'
 ] do
   File.open(tmp_dir+'index.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
@@ -187,11 +187,8 @@ file tmp_dir+'index.html.mustache' => FileList[
     keyboard_uri = data_uri('src/img/keyboard.png')
 
     index = ERB.new(File.read('src/templates/index.html.mustache.erb')).result(binding)
-    if ENV['NOCOMPRESS']
-      file << index
-    else
-      file << packer.compress(index)
-    end
+
+    file << (ENV['NOCOMPRESS'] ? index : packer.compress(index))
   end
 end
 
@@ -199,14 +196,11 @@ file tmp_dir+'error.html.mustache' => FileList[tmp_dir, 'src/templates/index.htm
   File.open(tmp_dir+'error.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
 
-    favicon_uri  = "data:image/png;base64,#{Base64.encode64(File.read('src/img/favicon.png'))}"
+    favicon_uri = data_uri('src/img/favicon.png')
 
     tpl = ERB.new(File.read('src/templates/error.html.mustache.erb')).result(binding)
-    if ENV['NOCOMPRESS']
-      file << tpl
-    else
-      file << packer.compress(tpl)
-    end
+
+    file << (ENV['NOCOMPRESS'] ? tpl : packer.compress(tpl))
   end
 end
 
