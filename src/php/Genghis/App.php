@@ -2,9 +2,13 @@
 
 class Genghis_App
 {
-    protected $assets     = array();
-    protected $assetEtags = array();
+    protected $loader;
     protected $baseUrl;
+
+    public function __construct(Genghis_AssetLoader $loader)
+    {
+        $this->loader = $loader;
+    }
 
     public function run()
     {
@@ -176,13 +180,13 @@ class Genghis_App
 
     protected function renderTemplate($name, $status = 200, array $vars = array())
     {
-        $this->initAssets();
+        $tpl = $this->loader->loadRaw($name);
         $defaults = array(
             'base_url'        => $this->getBaseUrl(),
             'genghis_version' => GENGHIS_VERSION,
         );
 
-        return new Genghis_Response(strtr($this->assets[$name], $this->prepareVars(array_merge($defaults, $vars))), $status);
+        return new Genghis_Response(strtr($tpl, $this->prepareVars(array_merge($defaults, $vars))), $status);
     }
 
     protected function prepareVars($vars)
@@ -197,28 +201,10 @@ class Genghis_App
 
     protected function getAsset($name)
     {
-        $this->initAssets();
-        if (isset($this->assets[$name])) {
-            return new Genghis_AssetResponse($name, $this->assets[$name], array(
-                'Last-Modified' => gmdate('D, d M Y H:i:s', filemtime(__FILE__)) . ' GMT',
-                'Etag'          => sprintf('"%s"', $this->assetEtags[$name]),
-            ));
-        }
-        throw new Genghis_HttpException(404);
-    }
-
-    protected function initAssets()
-    {
-        if (empty($this->assets)) {
-            $data = file_get_contents(__FILE__, false, null, __COMPILER_HALT_OFFSET__);
-            foreach (preg_split("/^@@(?=[\w\d\.]+( [\w\d\.]+)?$)/m", $data, -1) as $asset) {
-                if (trim($asset)) {
-                    list($line, $content)    = explode("\n", $asset, 2);
-                    list($name, $etag)       = explode(' ',  $line,  2);
-                    $this->assets[$name]     = trim($content);
-                    $this->assetEtags[$name] = $etag;
-                }
-            }
+        try {
+            return $this->loader->load($name);
+        } catch (InvalidArgumentException $e) {
+            throw new Genghis_HttpException(404);
         }
     }
 }
