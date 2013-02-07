@@ -31,6 +31,7 @@ Improvements:
  * Update `bson_ext` installation nag to include a version number (Ruby backend).
  * [Fix #73][i73] — Authenticate against `admin` DB if none is specified (Ruby backend).
  * Improve authentication failure error messagine (Ruby backend).
+ * Improve encoding handling for non-ascii characters in JavaScript assets.
 
 [i64]: https://github.com/bobthecow/genghis/issues/64
 [i71]: https://github.com/bobthecow/genghis/issues/71

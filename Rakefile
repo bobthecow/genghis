@@ -158,7 +158,7 @@ script_files = FileList[
   'src/js/genghis/router.js'
 ]
 file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files do
-  ugly = Uglifier.new(:copyright => false)
+  ugly = Uglifier.new(:copyright => false, :ascii_only => true)
   File.open(tmp_dir+'script.js', 'w') do |file|
     file << <<-doc.unindent
       /**
