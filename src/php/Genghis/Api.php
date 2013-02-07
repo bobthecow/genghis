@@ -119,7 +119,7 @@ class Genghis_Api extends Genghis_App
 
             $alerts[] = array(
                 'level' => 'warning',
-                'msg'   => preg_replace('/^(?:DateTime::__construct\(\): )?([^\.]+\.)/', '<h4>\1</h4> ', $msg),
+                'msg'   => preg_replace('/^(?:(?:DateTime::__construct\(\))?: )?([^\.]+\.)/', '<h4>\1</h4> ', $msg),
             );
         }
 
