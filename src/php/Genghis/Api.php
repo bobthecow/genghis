@@ -21,6 +21,19 @@ class Genghis_Api extends Genghis_App
 
     public function route($method, $path)
     {
+        try {
+            try {
+                return $this->doRoute($method, $path);
+            } catch (Genghis_HttpException $e) {
+                return $this->errorResponse($e->getMessage(), $e->getStatus());
+            }
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    public function doRoute($method, $path)
+    {
         if (preg_match(self::CHECK_STATUS_ROUTE, $path)) {
             return new Genghis_JsonResponse($this->checkStatusAction());
         }
@@ -348,5 +361,14 @@ class Genghis_Api extends Genghis_App
         }
 
         return $data[$name];
+    }
+
+    protected function errorResponse($msg, $status = 500)
+    {
+        if (empty($msg)) {
+            $msg = Genghis_Response::getStatusText($status);
+        }
+
+        return new Genghis_JsonResponse(array('error' => $msg, 'status' => $status), $status);
     }
 }

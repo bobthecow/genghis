@@ -32,6 +32,7 @@ Improvements:
  * [Fix #73][i73] — Authenticate against `admin` DB if none is specified (Ruby backend).
  * Improve authentication failure error messagine (Ruby backend).
  * Improve encoding handling for non-ascii characters in JavaScript assets.
+ * Ensure that all PHP warnings and notices are propagated to the frontend (PHP backend).
 
 [i64]: https://github.com/bobthecow/genghis/issues/64
 [i71]: https://github.com/bobthecow/genghis/issues/71

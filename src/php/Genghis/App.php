@@ -12,6 +12,8 @@ class Genghis_App
 
     public function run()
     {
+        set_error_handler(array('Genghis_ErrorException', 'throwException'));
+
         try {
             $response = $this->route($this->getRequestMethod(), $this->getRequestPath());
             if ($response instanceof Genghis_Response) {
@@ -20,38 +22,21 @@ class Genghis_App
                 throw new Genghis_HttpException(500);
             }
         } catch (Genghis_HttpException $e) {
-            $errorResponse = $this->renderTemplate(
-                'error.html.mustache',
-                $e->getStatus(),
-                array(
-                    'message' => $e->getMessage(),
-                    'status'  => $e->getStatus(),
-                )
-            );
-            $errorResponse->render();
+            $this->errorResponse($e->getMessage(), $e->getStatus())->render();
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage())->render();
         }
     }
 
     public function route($method, $path)
     {
         if ($this->isJsonRequest() || $this->isGridFsRequest()) {
-            try {
-                $api = new Genghis_Api;
-
-                return $api->route($method, $path);
-            } catch (Genghis_HttpException $e) {
-                $msg = $e->getMessage() ? $e->getMessage() : Genghis_Response::getStatusText($e->getStatus());
-
-                return new Genghis_JsonResponse(array('error' => $msg, 'status' => $e->getStatus()), $e->getStatus());
-            }
+            return $this->getApi()->route($method, $path);
+        } elseif ($this->isAssetRequest($path)) {
+            return $this->getAsset(substr($path, 8));
         } else {
-            if (strpos($path, '/assets/') === 0) {
-                return $this->getAsset(substr($path, 8));
-            } else {
-                // not an api request, we'll return index.html and render the page in javascript.
-                return $this->renderTemplate('index.html.mustache');
-            }
-            break;
+            // not an api request, we'll return index.html and render the page in javascript.
+            return $this->renderTemplate('index.html.mustache');
         }
     }
 
@@ -75,6 +60,11 @@ class Genghis_App
     protected function isGridFsRequest()
     {
         return $this->getRequestMethod() == 'GET' && preg_match(Genghis_Api::GRIDFS_ROUTE, $this->getRequestPath());
+    }
+
+    protected function isAssetRequest($path)
+    {
+        return (strpos($path, '/assets/') === 0);
     }
 
     protected function getBaseUrl()
@@ -206,5 +196,15 @@ class Genghis_App
         } catch (InvalidArgumentException $e) {
             throw new Genghis_HttpException(404);
         }
+    }
+
+    protected function getApi()
+    {
+        return new Genghis_Api;
+    }
+
+    protected function errorResponse($message, $status = 500)
+    {
+        return $this->renderTemplate('error.html.mustache', $status, compact('message', 'status'));
     }
 }
