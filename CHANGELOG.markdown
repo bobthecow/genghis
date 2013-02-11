@@ -1,5 +1,6 @@
 ## v2.2.1
 
+ * Visual refinements.
  * The "Restart required" message after installing `bson_ext` should be "info" not "warning"
    level (Ruby backend).
 
