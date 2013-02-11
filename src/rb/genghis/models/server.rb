@@ -11,8 +11,7 @@ module Genghis
         dsn = 'mongodb://'+dsn unless dsn.include? '://'
 
         begin
-          dsn = extract_extra_options(dsn)
-          uri = ::Mongo::URIParser.new dsn
+          dsn, uri = get_dsn_and_uri(extract_extra_options(dsn))
 
           # name this server something useful
           name = uri.host
@@ -39,22 +38,22 @@ module Genghis
       end
 
       def create_database(db_name)
-        raise Genghis::DatabaseAlreadyExists.new(self, db_name) if connection.database_names.include? db_name
+        raise Genghis::DatabaseAlreadyExists.new(self, db_name) if client.database_names.include? db_name
         begin
-          connection[db_name]['__genghis_tmp_collection__'].drop
+          client[db_name]['__genghis_tmp_collection__'].drop
         rescue Mongo::InvalidNSName
           raise Genghis::MalformedDocument.new('Invalid database name')
         end
-        Database.new(connection[db_name])
+        Database.new(client[db_name])
       end
 
       def databases
-        info['databases'].map { |db| Database.new(connection[db['name']]) }
+        info['databases'].map { |db| Database.new(client[db['name']]) }
       end
 
       def [](db_name)
-        raise Genghis::DatabaseNotFound.new(self, db_name) unless connection.database_names.include? db_name
-        Database.new(connection[db_name])
+        raise Genghis::DatabaseNotFound.new(self, db_name) unless client.database_names.include? db_name
+        Database.new(client[db_name])
       end
 
       def as_json(*)
@@ -68,8 +67,10 @@ module Genghis
           json.merge!({:error => @error})
         else
           begin
-            connection
+            client
             info
+          rescue Mongo::AuthenticationError => e
+            json.merge!({:error => "Authentication error: #{e.message}"})
           rescue Mongo::ConnectionFailure => e
             json.merge!({:error => "Connection error: #{e.message}"})
           rescue Mongo::OperationFailure => e
@@ -91,6 +92,15 @@ module Genghis
       end
 
       private
+
+      def get_dsn_and_uri(dsn)
+        [dsn, ::Mongo::URIParser.new(dsn)]
+      rescue Mongo::MongoArgumentError => e
+        raise e unless e.message.include? "MongoDB URI must include username"
+        # We'll try one more time...
+        dsn = dsn.sub(%r{/?$}, '/admin')
+        [dsn, ::Mongo::URIParser.new(dsn)]
+      end
 
       def extract_extra_options(dsn)
         host, opts = dsn.split('?', 2)
@@ -119,8 +129,8 @@ module Genghis
         opts.empty? ? host : [host, opts].join('?')
       end
 
-      def connection
-        @connection ||= Mongo::Connection.from_uri(@dsn, {:connect_timeout => 1}.merge(@opts))
+      def client
+        @client ||= Mongo::MongoClient.from_uri(@dsn, {:connect_timeout => 1, :w => 1}.merge(@opts))
       rescue OpenSSL::SSL::SSLError => e
         raise Mongo::ConnectionFailure.new('SSL connection error')
       rescue StandardError => e
@@ -130,11 +140,11 @@ module Genghis
       def info
         @info ||= begin
           if @db.nil?
-            connection['admin'].command({:listDatabases => true})
+            client['admin'].command({:listDatabases => true})
           else
             {
               'databases' => [{'name' => @db}],
-              'totalSize' => connection[@db].stats['fileSize']
+              'totalSize' => [@db].stats['fileSize']
             }
           end
         end

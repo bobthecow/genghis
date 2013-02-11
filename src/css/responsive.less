@@ -1,8 +1,8 @@
 
 // Look! responsiveish!
 @media screen and (max-width: 1200px) {
-    section#documents {
-        .controls .pagination {
+    #documents {
+        .pagination {
             li.next a:before {
                 content: 'Next ';
             }
@@ -35,7 +35,7 @@
         }
     }
 
-    .modal.editor {
+    .modal-editor {
         left:  20px;
         right: 20px;
         width: auto;
@@ -47,8 +47,8 @@
             padding-top: 2px;
         }
     }
-    section#documents {
-        .controls .pagination {
+    #documents {
+        .pagination {
             li.prev a:after, li.next a:before {
                 content: '';
             }
@@ -183,7 +183,7 @@
         }
     }
 
-    body > section section {
+    .app-section {
         border: none;
         .border-radius(0);
     }
@@ -247,7 +247,7 @@
 
 
     /* Label the data */
-    section#servers {
+    #servers {
         table {
             td:nth-of-type(1):before { content: "name"; }
             td:nth-of-type(2):before { content: "databases"; }
@@ -256,7 +256,7 @@
         }
     }
 
-    section#databases {
+    #databases {
         table {
             td:nth-of-type(1):before { content: "name"; }
             td:nth-of-type(2):before { content: "collections"; }
@@ -265,7 +265,7 @@
         }
     }
 
-    section#collections {
+    #collections {
         table {
             td:nth-of-type(1):before { content: "name"; }
             td:nth-of-type(2):before { content: "documents"; }

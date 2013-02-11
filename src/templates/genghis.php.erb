@@ -14,7 +14,7 @@ define('GENGHIS_VERSION', <%= GENGHIS_VERSION.inspect %>);
 <% includes.each do |inc| %><%= inc.sub(/(^<\?php\n|\?>\n?$)/, '').strip %>
 <% end %>
 
-$app = new Genghis_App;
+$app = new Genghis_App(new Genghis_AssetLoader_Inline(__FILE__, __COMPILER_HALT_OFFSET__));
 $app->run();
 
 __halt_compiler();

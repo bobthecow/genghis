@@ -1,6 +1,6 @@
 Genghis.Views.Search = Backbone.View.extend({
     tagName: 'form',
-    className: 'navbar-search form-search',
+    className: 'navbar-search form-search control-group',
     template: Genghis.Templates.Search,
     events: {
         'keyup input#navbar-query': 'handleSearchKeyup',
@@ -81,6 +81,8 @@ Genghis.Views.Search = Backbone.View.extend({
         return q;
     },
     handleSearchKeyup: function(e) {
+        $(this.el).removeClass('error');
+
         if (e.keyCode == 13) {
             e.preventDefault();
             this.findDocuments($(e.target).val());
@@ -95,7 +97,14 @@ Genghis.Views.Search = Backbone.View.extend({
         if (q.match(/^([a-z\d]+)$/i)) {
             url = url + '/' + q;
         } else {
-            url = url + '?' + Genghis.Util.buildQuery({q: encodeURIComponent(Genghis.JSON.normalize(q, false))});
+            try {
+                q = Genghis.JSON.normalize(q, false);
+            } catch (e) {
+                $(this.el).addClass('error');
+                return;
+            }
+
+            url = url + '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q)});
         }
 
         app.router.navigate(url, true);

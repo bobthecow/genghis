@@ -2,12 +2,18 @@
 
 class Genghis_App
 {
-    protected $assets     = array();
-    protected $assetEtags = array();
+    protected $loader;
     protected $baseUrl;
+
+    public function __construct(Genghis_AssetLoader $loader)
+    {
+        $this->loader = $loader;
+    }
 
     public function run()
     {
+        set_error_handler(array('Genghis_ErrorException', 'throwException'));
+
         try {
             $response = $this->route($this->getRequestMethod(), $this->getRequestPath());
             if ($response instanceof Genghis_Response) {
@@ -16,38 +22,21 @@ class Genghis_App
                 throw new Genghis_HttpException(500);
             }
         } catch (Genghis_HttpException $e) {
-            $errorResponse = $this->renderTemplate(
-                'error.html.mustache',
-                $e->getStatus(),
-                array(
-                    'message' => $e->getMessage(),
-                    'status'  => $e->getStatus(),
-                )
-            );
-            $errorResponse->render();
+            $this->errorResponse($e->getMessage(), $e->getStatus())->render();
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage())->render();
         }
     }
 
     public function route($method, $path)
     {
-        if ($this->isJsonRequest()) {
-            try {
-                $api = new Genghis_Api;
-
-                return $api->route($method, $path);
-            } catch (Genghis_HttpException $e) {
-                $msg = $e->getMessage() ? $e->getMessage() : Genghis_Response::getStatusText($e->getStatus());
-
-                return new Genghis_JsonResponse(array('error' => $msg, 'status' => $e->getStatus()), $e->getStatus());
-            }
+        if ($this->isJsonRequest() || $this->isGridFsRequest()) {
+            return $this->getApi()->route($method, $path);
+        } elseif ($this->isAssetRequest($path)) {
+            return $this->getAsset(substr($path, 8));
         } else {
-            if (strpos($path, '/assets/') === 0) {
-                return $this->getAsset(substr($path, 8));
-            } else {
-                // not an api request, we'll return index.html and render the page in javascript.
-                return $this->renderTemplate('index.html.mustache');
-            }
-            break;
+            // not an api request, we'll return index.html and render the page in javascript.
+            return $this->renderTemplate('index.html.mustache');
         }
     }
 
@@ -66,6 +55,16 @@ class Genghis_App
         }
 
         return strpos($type, 'application/json') !== false || strpos($type, 'application/javascript') !== false;
+    }
+
+    protected function isGridFsRequest()
+    {
+        return $this->getRequestMethod() == 'GET' && preg_match(Genghis_Api::GRIDFS_ROUTE, $this->getRequestPath());
+    }
+
+    protected function isAssetRequest($path)
+    {
+        return (strpos($path, '/assets/') === 0);
     }
 
     protected function getBaseUrl()
@@ -171,13 +170,13 @@ class Genghis_App
 
     protected function renderTemplate($name, $status = 200, array $vars = array())
     {
-        $this->initAssets();
+        $tpl = $this->loader->loadRaw($name);
         $defaults = array(
             'base_url'        => $this->getBaseUrl(),
             'genghis_version' => GENGHIS_VERSION,
         );
 
-        return new Genghis_Response(strtr($this->assets[$name], $this->prepareVars(array_merge($defaults, $vars))), $status);
+        return new Genghis_Response(strtr($tpl, $this->prepareVars(array_merge($defaults, $vars))), $status);
     }
 
     protected function prepareVars($vars)
@@ -192,28 +191,20 @@ class Genghis_App
 
     protected function getAsset($name)
     {
-        $this->initAssets();
-        if (isset($this->assets[$name])) {
-            return new Genghis_AssetResponse($name, $this->assets[$name], array(
-                'Last-Modified' => gmdate('D, d M Y H:i:s', filemtime(__FILE__)) . ' GMT',
-                'Etag'          => sprintf('"%s"', $this->assetEtags[$name]),
-            ));
+        try {
+            return $this->loader->load($name);
+        } catch (InvalidArgumentException $e) {
+            throw new Genghis_HttpException(404);
         }
-        throw new Genghis_HttpException(404);
     }
 
-    protected function initAssets()
+    protected function getApi()
     {
-        if (empty($this->assets)) {
-            $data = file_get_contents(__FILE__, false, null, __COMPILER_HALT_OFFSET__);
-            foreach (preg_split("/^@@(?=[\w\d\.]+( [\w\d\.]+)?$)/m", $data, -1) as $asset) {
-                if (trim($asset)) {
-                    list($line, $content)    = explode("\n", $asset, 2);
-                    list($name, $etag)       = explode(' ',  $line,  2);
-                    $this->assets[$name]     = trim($content);
-                    $this->assetEtags[$name] = $etag;
-                }
-            }
-        }
+        return new Genghis_Api;
+    }
+
+    protected function errorResponse($message, $status = 500)
+    {
+        return $this->renderTemplate('error.html.mustache', $status, compact('message', 'status'));
     }
 }

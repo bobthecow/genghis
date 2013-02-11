@@ -41,10 +41,23 @@ module Genghis
     def server_status_alerts
       alerts = []
       unless defined? ::BSON::BSON_C
-        msg = <<-MSG.strip.gsub(/\s+/, " ")
-          <h4>MongoDB driver C extension not found.</h4>
-          Install this extension for better performance: <code>gem install bson_ext</code>
-        MSG
+        require 'rubygems'
+
+        Gem.refresh
+
+        installed = Gem::Specification.find_all { |s| s.name == 'mongo' }.map { |s| s.version }.sort.last
+        if Gem::Specification.find_all { |s| s.name == 'bson_ext' && s.version == installed }.empty?
+          msg = <<-MSG.strip.gsub(/\s+/, " ")
+            <h4>MongoDB driver C extension not found.</h4>
+            Install this extension for better performance: <code>gem install bson_ext -v #{installed}</code>
+          MSG
+        else
+          msg = <<-MSG.strip.gsub(/\s+/, " ")
+            <h4>Restart required</h4>
+            You have recently installed the <tt>bson_ext</tt> extension.
+            Run <code>genghisapp&nbsp;--kill</code> then restart <code>genghisapp</code> to use it.
+          MSG
+        end
         alerts << {:level => 'warning', :msg => msg}
       end
 
@@ -57,22 +70,37 @@ module Genghis
       end
 
       unless ENV['GENGHIS_NO_UPDATE_CHECK']
+        require 'open-uri'
+        require 'rubygems'
+
+        Gem.refresh
+
+        latest    = nil
+        installed = Gem::Specification.find_all { |s| s.name == 'genghisapp' }.map { |s| s.version }.sort.last
+        running   = Gem::Version.new(Genghis::VERSION.gsub(/[\+_-]/, '.'))
+
         begin
-          require 'open-uri'
           open('https://raw.github.com/bobthecow/genghis/master/VERSION') do |f|
-            latest   = f.read
-            outdated = Gem::Version.new(Genghis::VERSION.gsub(/[\+_-]/, '.')) < Gem::Version.new(latest.gsub(/[\+_-]/, '.'))
-            if latest && outdated
-              msg = <<-MSG.strip.gsub(/\s+/, " ")
-                <h4>A Genghis update is available</h4>
-                You are running Genghis version <tt>#{Genghis::VERSION}</tt>. The current version is <tt>#{latest}</tt>.
-                Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.
-              MSG
-              alerts << {:level => 'warning', :msg => msg}
-            end
+            latest = Gem::Version.new(f.read.gsub(/[\+_-]/, '.'))
           end
         rescue
-          # do nothing
+          # do nothing...
+        end
+
+        if latest && (installed || running) < latest
+          msg = <<-MSG.strip.gsub(/\s+/, " ")
+            <h4>A Genghis update is available</h4>
+            You are running Genghis version <tt>#{Genghis::VERSION}</tt>. The current version is <tt>#{latest}</tt>.
+            Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.
+          MSG
+          alerts << {:level => 'warning', :msg => msg}
+        elsif installed && running < installed
+          msg = <<-MSG.strip.gsub(/\s+/, " ")
+            <h4>Restart required</h4>
+            You have installed Genghis version <tt>#{installed}</tt> but are still running <tt>#{Genghis::VERSION}</tt>.
+            Run <code>genghisapp&nbsp;--kill</code> then restart <code>genghisapp</code>.
+          MSG
+          alerts << {:level => 'info', :msg => msg}
         end
       end
 

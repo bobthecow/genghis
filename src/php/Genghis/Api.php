@@ -5,6 +5,9 @@ class Genghis_Api extends Genghis_App
     // api/servers/:server/databases/:db/collections/:coll/documents/:id
     const ROUTE_PATTERN = '~^/?servers(?:/(?P<server>[^/]+)(?P<databases>/databases(?:/(?P<db>[^/]+)(?P<collections>/collections(?:/(?P<coll>[^/]+)(?P<documents>/documents(?:/(?P<id>[^/]+))?)?)?)?)?)?)?/?$~';
 
+    // api/servers/:server/databases/:db/collections/:coll/files/:id
+    const GRIDFS_ROUTE = '~^/?servers/(?P<server>[^/]+)/databases/(?P<db>[^/]+)/collections/(?P<coll>[^/]+)/files(?:/(?P<id>[^/]+))?/?$~';
+
     const CHECK_STATUS_ROUTE = '~/?check-status/?$~';
 
     const PAGE_LIMIT = 50;
@@ -17,6 +20,19 @@ class Genghis_Api extends Genghis_App
     }
 
     public function route($method, $path)
+    {
+        try {
+            try {
+                return $this->doRoute($method, $path);
+            } catch (Genghis_HttpException $e) {
+                return $this->errorResponse($e->getMessage(), $e->getStatus());
+            }
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    public function doRoute($method, $path)
     {
         if (preg_match(self::CHECK_STATUS_ROUTE, $path)) {
             return new Genghis_JsonResponse($this->checkStatusAction());
@@ -55,6 +71,19 @@ class Genghis_Api extends Genghis_App
             }
 
             return new Genghis_JsonResponse($this->serversAction($method));
+        }
+
+        $p = array();
+        if (preg_match(self::GRIDFS_ROUTE, $path, $p)) {
+            $p = array_map('urldecode', array_filter($p));
+
+            if (isset($p['id'])) {
+                $file = $this->fileAction($method, $p['server'], $p['db'], $p['coll'], $p['id']);
+
+                return ($method === 'GET') ? new Genghis_GridFsResponse($file) : new Genghis_JsonResponse($file);
+            } else {
+                return new Genghis_JsonResponse($this->filesAction($method, $p['server'], $p['db'], $p['coll']));
+            }
         }
 
         throw new Genghis_HttpException(404);
@@ -103,7 +132,7 @@ class Genghis_Api extends Genghis_App
 
             $alerts[] = array(
                 'level' => 'warning',
-                'msg'   => preg_replace('/^(?:DateTime::__construct\(\): )?([^\.]+\.)/', '<h4>\1</h4> ', $msg),
+                'msg'   => preg_replace('/^(?:(?:DateTime::__construct\(\))?: )?([^\.]+\.)/', '<h4>\1</h4> ', $msg),
             );
         }
 
@@ -228,7 +257,7 @@ class Genghis_Api extends Genghis_App
                 return $this->servers[$server]->listDatabases();
 
             case 'POST':
-                        return $this->servers[$server]->createDatabase($this->getRequestParam('name'));
+                return $this->servers[$server]->createDatabase($this->getRequestParam('name'));
 
             default:
                 throw new Genghis_HttpException(405);
@@ -263,6 +292,33 @@ class Genghis_Api extends Genghis_App
                 $this->servers[] = $server;
 
                 return $server;
+
+            default:
+                throw new Genghis_HttpException(405);
+        }
+    }
+
+    public function fileAction($method, $server, $db, $coll, $id)
+    {
+        switch ($method) {
+            case 'GET':
+                return $this->servers[$server][$db][$coll]->getFile($id);
+
+            case 'DELETE':
+                $this->servers[$server][$db][$coll]->deleteFile($id);
+
+                return array('success' => true);
+
+            default:
+                throw new Genghis_HttpException(405);
+        }
+    }
+
+    public function filesAction($method, $server, $db, $coll)
+    {
+        switch ($method) {
+            case 'POST':
+                return $this->servers[$server][$db][$coll]->putFile($this->getRequestData());
 
             default:
                 throw new Genghis_HttpException(405);
@@ -305,5 +361,14 @@ class Genghis_Api extends Genghis_App
         }
 
         return $data[$name];
+    }
+
+    protected function errorResponse($msg, $status = 500)
+    {
+        if (empty($msg)) {
+            $msg = Genghis_Response::getStatusText($status);
+        }
+
+        return new Genghis_JsonResponse(array('error' => $msg, 'status' => $status), $status);
     }
 }

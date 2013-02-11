@@ -79,7 +79,6 @@ file tmp_dir+'style.css' => FileList[
   tmp_dir,
   'src/css/*.less',
   'vendor/bootstrap/less/*.less',
-  'vendor/apprise-bootstrap/apprise-bootstrap.less',
   *css_files
 ] do
   File.open(tmp_dir+'style.css', 'w') do |file|
@@ -136,7 +135,6 @@ script_files = FileList[
   'vendor/backbone.js',
   'vendor/codemirror/lib/codemirror.js',
   'vendor/codemirror/mode/javascript/javascript.js',
-  'vendor/apprise-bootstrap/apprise.js',
   'vendor/bootstrap/js/bootstrap-tooltip.js',
   'vendor/bootstrap/js/bootstrap-popover.js',
   'vendor/bootstrap/js/bootstrap-modal.js',
@@ -160,7 +158,7 @@ script_files = FileList[
   'src/js/genghis/router.js'
 ]
 file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files do
-  ugly = Uglifier.new(:copyright => false)
+  ugly = Uglifier.new(:copyright => false, :ascii_only => true)
   File.open(tmp_dir+'script.js', 'w') do |file|
     file << <<-doc.unindent
       /**
@@ -180,7 +178,7 @@ file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files d
 end
 
 file tmp_dir+'index.html.mustache' => FileList[
-  tmp_dir, tmp_dir+'templates.js', 'src/templates/index.html.mustache.erb', 'src/img/favicon.png', 'src/img/keyboard.png'
+  tmp_dir, 'src/templates/index.html.mustache.erb', 'src/img/favicon.png', 'src/img/keyboard.png'
 ] do
   File.open(tmp_dir+'index.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
@@ -189,11 +187,8 @@ file tmp_dir+'index.html.mustache' => FileList[
     keyboard_uri = data_uri('src/img/keyboard.png')
 
     index = ERB.new(File.read('src/templates/index.html.mustache.erb')).result(binding)
-    if ENV['NOCOMPRESS']
-      file << index
-    else
-      file << packer.compress(index)
-    end
+
+    file << (ENV['NOCOMPRESS'] ? index : packer.compress(index))
   end
 end
 
@@ -201,20 +196,17 @@ file tmp_dir+'error.html.mustache' => FileList[tmp_dir, 'src/templates/index.htm
   File.open(tmp_dir+'error.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
 
-    favicon_uri  = "data:image/png;base64,#{Base64.encode64(File.read('src/img/favicon.png'))}"
+    favicon_uri = data_uri('src/img/favicon.png')
 
     tpl = ERB.new(File.read('src/templates/error.html.mustache.erb')).result(binding)
-    if ENV['NOCOMPRESS']
-      file << tpl
-    else
-      file << packer.compress(tpl)
-    end
+
+    file << (ENV['NOCOMPRESS'] ? tpl : packer.compress(tpl))
   end
 end
 
 asset_files = [tmp_dir+'index.html.mustache', tmp_dir+'error.html.mustache', tmp_dir+'style.css', tmp_dir+'script.js']
 
-php_include_files = FileList['src/php/**/*.php'].sort
+php_include_files = FileList['src/php/**/*.php'].sort.reject {|f| f == 'src/php/Genghis/AssetLoader/Dev.php' }
 file 'genghis.php' => php_include_files + asset_files do
   File.open('genghis.php', 'w') do |file|
     template = ERB.new(File.read('src/templates/genghis.php.erb'))

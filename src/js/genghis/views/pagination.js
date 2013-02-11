@@ -62,7 +62,7 @@ Genghis.Views.Pagination = Backbone.View.extend({
         // TODO: this is ugly. fix it.
         if (params.q) {
             // swap out the query for a pretty one
-            extra['q'] = encodeURIComponent(app.selection.get('query'));
+            extra.q = encodeURIComponent(app.selection.get('query'));
         }
 
         return base + '?' + Genghis.Util.buildQuery(_.extend(params, extra));

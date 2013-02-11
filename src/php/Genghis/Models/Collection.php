@@ -37,7 +37,12 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         $this->findDocument($id);
 
         $query = array('_id' => $this->thunkMongoId($id));
-        $result = $this->collection->update($query, $doc, array('safe' => true));
+
+        try {
+            $result = $this->collection->update($query, $doc, array('safe' => true));
+        } catch (MongoCursorException $e) {
+            throw new Genghis_HttpException(400, ucfirst($e->doc['err']));
+        }
 
         if (!(isset($result['ok']) && $result['ok'])) {
             throw new Genghis_HttpException;
@@ -52,6 +57,76 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         $result = $this->collection->remove($query, array('safe' => true));
 
         if (!(isset($result['ok']) && $result['ok'])) {
+            throw new Genghis_HttpException;
+        }
+    }
+
+    public function getFile($id)
+    {
+        $mongoId = $this->thunkMongoId($id);
+        if (!$mongoId instanceof MongoId) {
+            // for some reason this only works with MongoIds?
+            throw new Genghis_HttpException(404, sprintf("GridFS file '%s' not found", $id));
+        }
+
+        $file = $this->getGrid()->get($mongoId);
+        if (!$file) {
+            throw new Genghis_HttpException(404, sprintf("GridFS file '%s' not found", $id));
+        }
+
+        return $file;
+    }
+
+    public function putFile($doc)
+    {
+        $grid = $this->getGrid();
+
+        if (!property_exists($doc, 'file')) {
+            throw new Genghis_HttpException(400, 'Missing file');
+        }
+        $file = $doc->file;
+        unset($doc->file);
+
+        $extra = array();
+        foreach ($doc as $key => $val) {
+            if (!in_array($key, array('_id', 'filename', 'contentType', 'metadata'))) {
+                throw new Genghis_HttpException(400, sprintf("Unexpected property: '%s'", $key));
+            }
+
+            if ($key === 'metadata') {
+                $encoded = json_encode($val);
+                if ($encoded == '{}' || $encoded == '[]') {
+                    continue;
+                }
+            }
+
+            // why the eff doesn't this accept an object like everything else? ugh.
+            $extra[$key] = $val;
+        }
+
+        $id = $grid->storeBytes($this->decodeFile($file), $extra);
+
+        return $this->findDocument($id);
+    }
+
+    public function deleteFile($id)
+    {
+        $mongoId = $this->thunkMongoId($id);
+        if (!$mongoId instanceof MongoId) {
+            // for some reason this only works with MongoIds?
+            throw new Genghis_HttpException(404, sprintf("GridFS file '%s' not found", $id));
+        }
+
+        $grid = $this->getGrid();
+
+        // For some reason it'll happily delete something that doesn't exist :-/
+        $file = $grid->get($mongoId);
+        if (!$file) {
+            throw new Genghis_HttpException(404, sprintf("GridFS file '%s' not found", $id));
+        }
+
+        $result = $grid->delete($mongoId);
+        if (!$result) {
             throw new Genghis_HttpException;
         }
     }
@@ -94,7 +169,11 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
 
     public function insert($data)
     {
-        $result = $this->collection->insert($data, array('safe' => true));
+        try {
+            $result = $this->collection->insert($data, array('safe' => true));
+        } catch (MongoCursorException $e) {
+            throw new Genghis_HttpException(400, ucfirst($e->doc['err']));
+        }
 
         if (!(isset($result['ok']) && $result['ok'])) {
             throw new Genghis_HttpException;
@@ -128,6 +207,10 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
 
     private function thunkMongoId($id)
     {
+        if ($id instanceof MongoId) {
+            return $id;
+        }
+
         if ($id[0] == '~') {
             return Genghis_Json::decode(base64_decode(substr($id, 1)));
         }
@@ -145,4 +228,34 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         return $doc;
     }
 
+    private function isGridCollection()
+    {
+        return preg_match('/\.files$/', $this->collection->getName());
+    }
+
+    private function getGrid()
+    {
+        if (!($this->isGridCollection())) {
+            $msg = sprintf("GridFS collection '%s' not found in '%s'", $this->collection->getName(), $this->database->name);
+            throw new Genghis_HttpException(404, $msg);
+        }
+
+        if (!isset($this->grid)) {
+            $prefix = preg_replace('/\.files$/', '', $this->collection->getName());
+            $this->grid = $this->database->database->getGridFS($prefix);
+        }
+
+        return $this->grid;
+    }
+
+    private function decodeFile($data)
+    {
+        $count = 0;
+        $data  = preg_replace('/^data:[^;]+;base64,/', '', $data, 1, $count);
+        if ($count !== 1) {
+            throw new Genghis_HttpException(400, 'File must be a base64 encoded data: URI');
+        }
+
+        return base64_decode(str_replace(' ', '+', $data));
+    }
 }

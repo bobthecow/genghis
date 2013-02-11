@@ -28,8 +28,8 @@ Genghis.Collections.Documents = Backbone.Collection.extend({
             // If it's too far in the past or future, don't guess creation time.
             return (timestamp > this.start && timestamp < this.end);
         }, {
-            start: 1251388342000,                                   // MongoDB v1.0 release date
-            end:   (new Date).getTime() + (2 * 24 * 60 * 60 * 1000) // within the next 48 hours
+            start: 1251388342000,                                     // MongoDB v1.0 release date
+            end:   (new Date()).getTime() + (2 * 24 * 60 * 60 * 1000) // within the next 48 hours
         });
 
         return resp.documents;

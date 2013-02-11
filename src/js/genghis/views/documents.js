@@ -2,11 +2,14 @@ Genghis.Views.Documents = Backbone.View.extend({
     el: 'section#documents',
     template: Genghis.Templates.Documents,
     events: {
-        'click button.add-document': 'createDocument'
+        'click     button.add-document': 'createDocument',
+        'dragover  button.file-upload':  'dragGridFile',
+        'dragleave button.file-upload':  'dragLeave',
+        'drop      button.file-upload':  'dropGridFile'
     },
     initialize: function() {
         _.bindAll(
-            this, 'render', 'addAll', 'addDocument', 'createDocument',
+            this, 'render', 'addAll', 'addDocument', 'createDocument', 'dragGridFile', 'dragLeave', 'dropGridFile',
             'createDocumentIfVisible'
         );
 
@@ -23,7 +26,6 @@ Genghis.Views.Documents = Backbone.View.extend({
         $(this.el).html(this.template.render({}));
 
         this.headerView      = new Genghis.Views.DocumentsHeader({model: this.pagination});
-        this.newDocumentView = new Genghis.Views.NewDocument({collection: this.collection});
         this.paginationView  = new Genghis.Views.Pagination({
             el: this.$('.pagination-wrapper'),
             model: this.pagination,
@@ -31,10 +33,14 @@ Genghis.Views.Documents = Backbone.View.extend({
         });
 
         this.addAll();
+
         return this;
     },
     addAll: function() {
         this.$('.content').html('');
+        this.$('button.add-document')
+            .text(this.model.isGridCollection() ? 'Upload file' : 'Add document')
+            .toggleClass('file-upload', this.model.isGridCollection());
         this.collection.each(this.addDocument);
 
         $(this.el).removeClass('spinning');
@@ -44,7 +50,65 @@ Genghis.Views.Documents = Backbone.View.extend({
         this.$('.content').append(view.render().el);
     },
     createDocument: function() {
-        this.newDocumentView.show();
+        if (this.model.isGridCollection()) {
+            // yeah, it's not worth our time
+            if (!Modernizr.filereader) {
+                app.alerts.create({
+                    msg:   '<h2>Unable to upload file.</h2> Your browser does not support the File API. Please use a modern browser.',
+                    level: 'error',
+                    block: true
+                });
+
+                return;
+            }
+
+            this.getNewGridFileView().show();
+        } else {
+            this.getNewDocumentView().show();
+        }
+    },
+    dragGridFile: function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.originalEvent.dataTransfer.dropEffect = 'copy';
+        $(e.target).addClass('active');
+    },
+    dragLeave: function(e) {
+        $(e.target).removeClass('active');
+    },
+    dropGridFile: function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        $(e.target).removeClass('active');
+
+        // yeah, it's not worth our time
+        if (!Modernizr.filereader) {
+            app.alerts.create({
+                msg:   '<h2>Unable to upload file.</h2> Your browser does not support the File API. Please use a modern browser.',
+                level: 'error',
+                block: true
+            });
+
+            return;
+        }
+
+        this.getNewGridFileView()
+            .showMetadata(e.originalEvent.dataTransfer.files[0]);
+    },
+    getNewDocumentView: function() {
+        if (!this.newDocumentView) {
+            this.newDocumentView = new Genghis.Views.NewDocument({collection: this.collection});
+        }
+
+        return this.newDocumentView;
+    },
+    getNewGridFileView: function() {
+        if (!this.newGridFileView) {
+            this.newGridFileView = new Genghis.Views.NewGridFile({collection: this.collection});
+        }
+
+        return this.newGridFileView;
     },
     createDocumentIfVisible: function(e) {
         if ($(this.el).is(':visible')) {
