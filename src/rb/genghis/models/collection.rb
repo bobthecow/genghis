@@ -124,7 +124,8 @@ module Genghis
         if doc_id.is_a? BSON::ObjectId
           doc_id
         elsif (doc_id[0] == '~')
-          ::Genghis::JSON.decode(Base64.decode64(doc_id[1..-1]))
+          doc_id = Base64.decode64(doc_id[1..-1])
+          ::Genghis::JSON.decode("{\"_id\":#{doc_id}}")['_id']
         else
           doc_id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(doc_id) : doc_id
         end

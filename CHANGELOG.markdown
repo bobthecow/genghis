@@ -3,6 +3,9 @@
  * Visual refinements.
  * The "Restart required" message after installing `bson_ext` should be "info" not "warning"
    level (Ruby backend).
+ * [Fix #78][i78] — error editing and deleting non-ObjectId `_id` values (Ruby backend).
+
+[i78]: https://github.com/bobthecow/genghis/issues/78
 
 
 ## v2.2.0
