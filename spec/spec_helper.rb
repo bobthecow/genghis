@@ -21,7 +21,7 @@ RSpec.configure do |config|
     case backend
     when :php
       @genghis_pid = spawn 'php', '-S', "localhost:#{@genghis_port}", 'genghis.php', :out => '/dev/null'
-      sleep 0.1
+      sleep 0.2
       Faraday.new url: "http://localhost:#{@genghis_port}"
     when :ruby
       Faraday.new do |conn|
