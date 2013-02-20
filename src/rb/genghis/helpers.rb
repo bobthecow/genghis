@@ -51,14 +51,15 @@ module Genghis
             <h4>MongoDB driver C extension not found.</h4>
             Install this extension for better performance: <code>gem install bson_ext -v #{installed}</code>
           MSG
+          alerts << {:level => 'warning', :msg => msg}
         else
           msg = <<-MSG.strip.gsub(/\s+/, " ")
             <h4>Restart required</h4>
             You have recently installed the <tt>bson_ext</tt> extension.
             Run <code>genghisapp&nbsp;--kill</code> then restart <code>genghisapp</code> to use it.
           MSG
+          alerts << {:level => 'info', :msg => msg}
         end
-        alerts << {:level => 'warning', :msg => msg}
       end
 
       unless defined? ::JSON::Ext

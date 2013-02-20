@@ -565,6 +565,17 @@ genghis_backends.each do |backend|
             test: 1
         end
 
+        it 'can deal with non-objectid _id properties' do
+          id = "test"
+          @coll.insert({_id: id})
+          id_str = "~#{Base64.encode64('"test"')}"
+          res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id_str
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id:  "test"
+        end
+
         it 'returns 404 if the document is not found' do
           res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/123'
           res.status.should eq 404

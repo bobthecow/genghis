@@ -135,6 +135,7 @@ script_files = FileList[
   'vendor/backbone.js',
   'vendor/codemirror/lib/codemirror.js',
   'vendor/codemirror/mode/javascript/javascript.js',
+  'vendor/bootstrap/js/bootstrap-dropdown.js',
   'vendor/bootstrap/js/bootstrap-tooltip.js',
   'vendor/bootstrap/js/bootstrap-popover.js',
   'vendor/bootstrap/js/bootstrap-modal.js',
