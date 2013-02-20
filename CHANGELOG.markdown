@@ -1,3 +1,8 @@
+## v2.2.2
+
+ * Pre-fill default `fs` GridFS collection name.
+
+
 ## v2.2.1
 
  * Visual refinements.

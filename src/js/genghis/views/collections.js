@@ -39,7 +39,11 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
             .text('Add GridFS collection');
 
         this.addForm.removeClass('inactive');
-        this.addInput.focus();
+
+        this.addInput
+            .val('fs')
+            .select()
+            .focus();
     },
     closeAddForm: function() {
         var wrap = this.$('.input-wrapper');
