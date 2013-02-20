@@ -35,6 +35,9 @@ Genghis.Views.BaseSection = Backbone.View.extend({
 
         this.addAll();
 
+        // Yay dropdowns!
+        this.$('.dropdown-toggle').dropdown();
+
         // add placeholder help
         this.$('.help', this.addForm).tooltip();
 
