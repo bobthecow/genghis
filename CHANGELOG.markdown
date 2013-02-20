@@ -1,6 +1,7 @@
 ## v2.2.2
 
  * Pre-fill default `fs` GridFS collection name.
+ * Fix vertical position of GridFS file creation dialog.
 
 
 ## v2.2.1

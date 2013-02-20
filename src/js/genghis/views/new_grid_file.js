@@ -60,9 +60,7 @@ Genghis.Views.NewGridFile = Genghis.Views.BaseDocument.extend({
             // now let 'em edit metadata
             this.editor.setValue(Genghis.JSON.stringify({filename: file.name, contentType: file.type || 'binary/octet-stream', metadata: {}}));
             this.editor.setCursor({line: 3, ch: 15});
-            this.modal
-                .css({marginTop: (-10 - (this.el.height() / 2)) + 'px'})
-                .modal('show');
+            this.modal.modal('show');
         }
     },
     refreshEditor: function() {
