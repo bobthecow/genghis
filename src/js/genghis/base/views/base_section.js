@@ -33,12 +33,6 @@ Genghis.Views.BaseSection = Backbone.View.extend({
 
         this.addAll();
 
-        // Yay dropdowns!
-        this.$('.dropdown-toggle').dropdown();
-
-        // add placeholder help
-        this.$('.help', this.addForm).tooltip();
-
         // don't sort the actions column
         var headerConfig = {};
         headerConfig[this.$('table thead th').length - 1] = {sorter: false};

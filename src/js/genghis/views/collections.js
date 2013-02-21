@@ -14,6 +14,14 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
         _.bindAll(this, 'showGridFSAddForm');
         Genghis.Views.BaseSection.prototype.initialize.apply(this, arguments);
     },
+    render: function() {
+        Genghis.Views.BaseSection.prototype.render.apply(this, arguments);
+
+        // Yay dropdowns!
+        this.$('.dropdown-toggle').dropdown();
+
+        return this;
+    },
     formatTitle: function(model) {
         return model.id ? (model.id + ' Collections') : 'Collections';
     },
