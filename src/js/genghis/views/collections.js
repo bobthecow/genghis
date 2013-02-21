@@ -17,6 +17,7 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
         var name = this.addInput.val().replace(/^\s+/, '').replace(/\s+$/, '');
         if (name === '') {
             window.app.alerts.add({msg: 'Please enter a valid collection name.'});
+            return;
         }
 
         if (this.addButton.hasClass('add-gridfs')) {
@@ -30,22 +31,7 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
 
         this.closeAddForm();
     },
-    showGridFSAddForm: function() {
-        this.addInput.wrap('<div class="input-wrapper input-append">');
-        $('<span class="add-on">.files</span>').insertAfter(this.addInput);
-
-        this.addButton
-            .addClass('add-gridfs')
-            .text('Add GridFS collection');
-
-        this.addForm.removeClass('inactive');
-
-        this.addInput
-            .val('fs')
-            .select()
-            .focus();
-    },
-    closeAddForm: function() {
+    showAddForm: function() {
         var wrap = this.$('.input-wrapper');
         if (wrap.length) {
             wrap.replaceWith(wrap.find('input'));
@@ -55,7 +41,28 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
             .removeClass('add-gridfs')
             .text('Add collection');
 
-        this.addForm.addClass('inactive');
-        this.addInput.val('');
+        Genghis.Views.BaseSection.prototype.showAddForm.apply(this, arguments);
+    },
+    showGridFSAddForm: function(e) {
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+
+        if (this.$('.input-wrapper').length == 0) {
+            this.addInput.wrap('<div class="input-wrapper input-append">');
+            $('<span class="add-on">.files</span>').insertAfter(this.addInput);
+        }
+
+        this.addButton
+            .addClass('add-gridfs')
+            .text('Add GridFS collection');
+
+        this.addForm.removeClass('inactive');
+
+        if (this.addInput.val() == '') {
+            this.addInput.val('fs');
+        }
+
+        this.addInput.select().focus();
     }
 });
