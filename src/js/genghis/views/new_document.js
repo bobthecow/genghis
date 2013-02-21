@@ -17,7 +17,7 @@ Genghis.Views.NewDocument = Genghis.Views.BaseDocument.extend({
         });
 
         wrapper = this.$('.wrapper');
-        this.editor = CodeMirror.fromTextArea(this.$('#editor-new')[0], _.extend(Genghis.defaults.codeMirror, {
+        this.editor = CodeMirror.fromTextArea(this.$('#editor-new')[0], _.extend({}, Genghis.defaults.codeMirror, {
             onFocus: function() { wrapper.addClass('focused');    },
             onBlur:  function() { wrapper.removeClass('focused'); },
             extraKeys: {

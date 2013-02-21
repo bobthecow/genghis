@@ -72,7 +72,7 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         this.$('.document').hide();
 
         var el = this.$el.addClass('edit');
-        this.editor = CodeMirror.fromTextArea(textarea[0], _.extend(Genghis.defaults.codeMirror, {
+        this.editor = CodeMirror.fromTextArea(textarea[0], _.extend({}, Genghis.defaults.codeMirror, {
             onFocus: function() { el.addClass('focused');    },
             onBlur:  function() { el.removeClass('focused'); },
             extraKeys: {

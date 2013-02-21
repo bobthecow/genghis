@@ -165,7 +165,7 @@ Genghis.Views.Search = Backbone.View.extend({
     expandSearch: function(expand) {
         if (!this.editor) {
             var wrapper = this.$('.search-advanced');
-            this.editor = CodeMirror(this.$('.well')[0], _.extend(Genghis.defaults.codeMirror, {
+            this.editor = CodeMirror(this.$('.well')[0], _.extend({}, Genghis.defaults.codeMirror, {
                 lineNumbers: false,
                 onFocus: function() { wrapper.addClass('focused');    },
                 onBlur:  function() { wrapper.removeClass('focused'); },

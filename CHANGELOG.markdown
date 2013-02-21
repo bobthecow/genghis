@@ -5,6 +5,7 @@
  * Add a hotkey for creating a new GridFS collection.
  * Improve "create" user experience in tabular views.
  * [Fix #79][i79] — Improve hotkey handling.
+ * Fix disappearing line numbers in editors after using big search box (let defaults stay default).
  * Housekeeping.
 
 [i79]: https://github.com/bobthecow/genghis/issues/79
