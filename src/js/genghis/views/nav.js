@@ -16,8 +16,8 @@ Genghis.Views.Nav = Backbone.View.extend({
             $('.dropdown-toggle, .menu').parent('li').removeClass('open');
         });
 
-        $(document).bind('keyup', 's', this.navigateToServers);
-        $(document).bind('keyup', 'u', this.navigateUp);
+        Mousetrap.bind('s', this.navigateToServers);
+        Mousetrap.bind('u', this.navigateUp);
 
         this.render();
     },

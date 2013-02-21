@@ -126,9 +126,9 @@ License
  * [Hogan.js][hogan]              — Apache License v2.0
  * [hoverIntent][hoverintent]     — MIT or GPLv2 License
  * [jQuery][jquery]               — MIT License
- * [jQuery Hotkeys][hotkeys]      — MIT or GPLv2 License
  * [KEYS.css][keyscss]            — MIT License
  * [Modernizr][modernizr]         — MIT or BSD (3-clause) License
+ * [Mousetrap][mousetrap]         — Apache License v2.0
  * [TableSorter][tablesorter]     — MIT or GPLv2 License
  * [Twitter Bootstrap][bootstrap] — Apache License v2.0
  * [Underscore.js][underscore]    — MIT License
@@ -139,9 +139,9 @@ License
  [hogan]:             http://twitter.github.com/hogan.js/
  [hoverintent]:       http://cherne.net/brian/resources/jquery.hoverIntent.html
  [jquery]:            http://jquery.com
- [hotkeys]:           https://github.com/jeresig/jquery.hotkeys
  [keyscss]:           http://michaelhue.com/keyscss
  [modernizr]:         http://modernizr.com
+ [mousetrap]:         http://craig.is/killing/mice
  [tablesorter]:       http://tablesorter.com
  [bootstrap]:         http://twitter.github.com/bootstrap/
  [underscore]:        http://underscorejs.org

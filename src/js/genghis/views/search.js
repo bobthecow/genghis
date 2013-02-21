@@ -23,7 +23,7 @@ Genghis.Views.Search = Backbone.View.extend({
         $(this.el).html(this.template.render({query: this.model.get('query')}));
         $(this.el).submit(function(e) { e.preventDefault(); });
 
-        $(document).bind('keydown', '/', this.focusSearch);
+        Mousetrap.bind('/', this.focusSearch);
 
         var wrapper   = $(this.el);
         var resizable = wrapper.find('.well');
@@ -114,6 +114,7 @@ Genghis.Views.Search = Backbone.View.extend({
         this.collapseSearch();
     },
     focusSearch: function(e) {
+        // TODO: make the view stateful rather than querying the DOM
         if (this.$('input#navbar-query').is(':visible')) {
             if (e) e.preventDefault();
             this.$('input#navbar-query').focus();

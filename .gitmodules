@@ -1,9 +1,6 @@
 [submodule "vendor/bootstrap"]
 	path = vendor/bootstrap
 	url = https://github.com/twitter/bootstrap.git
-[submodule "vendor/hotkeys"]
-	path = vendor/hotkeys
-	url = https://github.com/jeresig/jquery.hotkeys.git
 [submodule "vendor/keyscss"]
 	path = vendor/keyscss
 	url = https://github.com/michaelhue/keyscss.git
@@ -16,3 +13,6 @@
 [submodule "vendor/esprima"]
 	path = vendor/esprima
 	url = https://github.com/ariya/esprima.git
+[submodule "vendor/mousetrap"]
+	path = vendor/mousetrap
+	url = https://github.com/ccampbell/mousetrap.git

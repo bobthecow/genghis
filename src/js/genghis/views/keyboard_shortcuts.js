@@ -6,7 +6,7 @@ Genghis.Views.KeyboardShortcuts = Backbone.View.extend({
     },
     initialize: function() {
         _.bindAll(this, 'render', 'show', 'hide', 'toggle');
-        $(document).bind('keyup', 'shift+/', this.toggle);
+        Mousetrap.bind('?', this.toggle);
         $('footer a.keyboard-shortcuts').click(this.show);
         this.render();
     },

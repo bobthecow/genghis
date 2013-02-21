@@ -18,7 +18,7 @@ Genghis.Views.Documents = Backbone.View.extend({
         this.collection.bind('reset', this.addAll,      this);
         this.collection.bind('add',   this.addDocument, this);
 
-        $(document).bind('keyup', 'c', this.createDocumentIfVisible);
+        Mousetrap.bind('c', this.createDocumentIfVisible);
 
         this.render();
     },

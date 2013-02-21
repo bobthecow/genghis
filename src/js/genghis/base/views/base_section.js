@@ -21,7 +21,7 @@ Genghis.Views.BaseSection = Backbone.View.extend({
             this.collection.bind('add',   this.addModelAndUpdate);
         }
 
-        $(document).bind('keyup', 'c', this.showAddFormIfVisible);
+        Mousetrap.bind('c', this.showAddFormIfVisible);
 
         this.render();
     },

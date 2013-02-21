@@ -140,7 +140,7 @@ script_files = FileList[
   'vendor/bootstrap/js/bootstrap-popover.js',
   'vendor/bootstrap/js/bootstrap-modal.js',
   'vendor/esprima/esprima.js',
-  'vendor/hotkeys/jquery.hotkeys.js',
+  'vendor/mousetrap/mousetrap.js',
   'vendor/hogan/lib/template.js',
 
   # extensions
