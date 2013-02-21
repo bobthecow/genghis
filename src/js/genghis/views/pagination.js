@@ -6,12 +6,13 @@ Genghis.Views.Pagination = Backbone.View.extend({
     initialize: function() {
         _.bindAll(this, 'render', 'urlTemplate', 'navigate', 'nextPage', 'prevPage');
         this.model.bind('change', this.render);
-        $(document).bind('keyup', 'n', this.nextPage);
-        $(document).bind('keyup', 'p', this.prevPage);
+
+        Mousetrap.bind('n', this.nextPage);
+        Mousetrap.bind('p', this.prevPage);
     },
     render: function() {
         if (this.model.get('pages') == 1) {
-            $(this.el).hide();
+            this.$el.hide();
         } else {
             var count = 9;
             var half  = Math.ceil(count / 2);
@@ -30,7 +31,7 @@ Genghis.Views.Pagination = Backbone.View.extend({
             }
 
             var url = this.urlTemplate;
-            $(this.el).html(this.template.render({
+            this.$el.html(this.template.render({
                 page:     page,
                 last:     pages,
                 firstUrl: url(1),
@@ -75,13 +76,14 @@ Genghis.Views.Pagination = Backbone.View.extend({
         }
     },
     nextPage: function(e) {
-        if ($(this.el).is(':visible')) {
+        // TODO: bind/unbind mousetrap so we don't have to check visibilty?
+        if (this.$el.is(':visible')) {
             e.preventDefault();
             this.$('li.next a[href]').click();
         }
     },
     prevPage: function(e) {
-        if ($(this.el).is(':visible')) {
+        if (this.$el.is(':visible')) {
             e.preventDefault();
             this.$('li.prev a[href]').click();
         }

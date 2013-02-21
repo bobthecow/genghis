@@ -124,7 +124,22 @@ file tmp_dir+'version.js' => FileList['VERSION'] do
   end
 end
 
-script_files = FileList[
+app_script_files = FileList[
+  'src/js/genghis/bootstrap.js',
+  tmp_dir+'version.js',
+  tmp_dir+'templates.js',
+  'src/js/genghis/util.js',
+  'src/js/genghis/json.js',
+] +
+FileList['src/js/genghis/base/**/*.js'].sort        +
+FileList['src/js/genghis/models/**/*.js'].sort      +
+FileList['src/js/genghis/collections/**/*.js'].sort +
+FileList['src/js/genghis/views/**/*.js'].sort       +
+FileList[
+  'src/js/genghis/router.js'
+]
+
+script_files     = FileList[
   # vendor libraries
   'src/js/modernizr.js',
   'src/js/modernizr-detects.js',
@@ -140,24 +155,12 @@ script_files = FileList[
   'vendor/bootstrap/js/bootstrap-popover.js',
   'vendor/bootstrap/js/bootstrap-modal.js',
   'vendor/esprima/esprima.js',
-  'vendor/hotkeys/jquery.hotkeys.js',
+  'vendor/mousetrap/mousetrap.js',
   'vendor/hogan/lib/template.js',
 
   # extensions
   'src/js/extensions.js',
-
-  # genghis app
-  'src/js/genghis/bootstrap.js',
-  tmp_dir+'version.js',
-  tmp_dir+'templates.js',
-  'src/js/genghis/util.js',
-  'src/js/genghis/json.js',
-  'src/js/genghis/base/**/*.js',
-  'src/js/genghis/models/**/*.js',
-  'src/js/genghis/collections/**/*.js',
-  'src/js/genghis/views/**/*.js',
-  'src/js/genghis/router.js'
-]
+] + app_script_files
 file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files do
   ugly = Uglifier.new(:copyright => false, :ascii_only => true)
   File.open(tmp_dir+'script.js', 'w') do |file|

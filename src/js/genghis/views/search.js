@@ -20,16 +20,16 @@ Genghis.Views.Search = Backbone.View.extend({
         this.model.bind('change:collection', this.collapseNoFocus);
     },
     render: function() {
-        $(this.el).html(this.template.render({query: this.model.get('query')}));
-        $(this.el).submit(function(e) { e.preventDefault(); });
+        this.$el.html(this.template.render({query: this.model.get('query')}));
+        this.$el.submit(function(e) { e.preventDefault(); });
 
-        $(document).bind('keydown', '/', this.focusSearch);
+        Mousetrap.bind('/', this.focusSearch);
 
-        var wrapper   = $(this.el);
+        var wrapper   = this.$el;
         var resizable = wrapper.find('.well');
         var expand    = this.expandSearch;
         var collapse  = this.collapseSearch;
-        $('.grippie', this.el).bind('mousedown', function(e) {
+        this.$('.grippie').bind('mousedown', function(e) {
             e.preventDefault();
 
             var minHeight = 30;
@@ -81,7 +81,7 @@ Genghis.Views.Search = Backbone.View.extend({
         return q;
     },
     handleSearchKeyup: function(e) {
-        $(this.el).removeClass('error');
+        this.$el.removeClass('error');
 
         if (e.keyCode == 13) {
             e.preventDefault();
@@ -100,7 +100,7 @@ Genghis.Views.Search = Backbone.View.extend({
             try {
                 q = Genghis.JSON.normalize(q, false);
             } catch (e) {
-                $(this.el).addClass('error');
+                this.$el.addClass('error');
                 return;
             }
 
@@ -114,6 +114,7 @@ Genghis.Views.Search = Backbone.View.extend({
         this.collapseSearch();
     },
     focusSearch: function(e) {
+        // TODO: make the view stateful rather than querying the DOM
         if (this.$('input#navbar-query').is(':visible')) {
             if (e) e.preventDefault();
             this.$('input#navbar-query').focus();
@@ -163,8 +164,8 @@ Genghis.Views.Search = Backbone.View.extend({
     },
     expandSearch: function(expand) {
         if (!this.editor) {
-            var wrapper = $('.search-advanced', this.el);
-            this.editor = CodeMirror($('.well', this.el)[0], _.extend(Genghis.defaults.codeMirror, {
+            var wrapper = this.$('.search-advanced');
+            this.editor = CodeMirror(this.$('.well')[0], _.extend({}, Genghis.defaults.codeMirror, {
                 lineNumbers: false,
                 onFocus: function() { wrapper.addClass('focused');    },
                 onBlur:  function() { wrapper.removeClass('focused'); },
@@ -172,14 +173,14 @@ Genghis.Views.Search = Backbone.View.extend({
                     'Ctrl-Enter': this.findDocumentsAdvanced,
                     'Cmd-Enter':  this.findDocumentsAdvanced,
                     'Esc':        this.findDocumentsAdvanced
-                 },
-                 onChange:        this.advancedSearchToQuery
+                },
+                onChange:         this.advancedSearchToQuery
             }));
         }
 
         this.queryToAdvancedSearch();
 
-        $(this.el).addClass('expanded');
+        this.$el.addClass('expanded');
 
         var editor      = this.editor;
         var focusSearch = this.focusSearch;
@@ -193,14 +194,14 @@ Genghis.Views.Search = Backbone.View.extend({
         this.focusSearch();
     },
     collapseNoFocus: function() {
-        $(this.el).removeClass('expanded').css('height', 'auto');
+        this.$el.removeClass('expanded').css('height', 'auto');
     },
     toggleExpanded: function() {
-        if ($(this.el).hasClass('expanded')) {
+        if (this.$el.hasClass('expanded')) {
             this.collapseSearch();
         } else {
             this.expandSearch();
-            $(this.el).height(Math.floor($(window).height() / 4) + 'px');
+            this.$el.height(Math.floor($(window).height() / 4) + 'px');
         }
     },
     handleGrippieDrag: function(e) {

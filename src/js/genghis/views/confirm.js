@@ -29,7 +29,7 @@ Genghis.Views.Confirm = Backbone.View.extend({
         }
     },
     render: function() {
-        var el = $(this.el).html(this.template.render(this.renderContext));
+        var el = this.$el.html(this.template.render(this.renderContext));
 
         if (this.confirmInput) {
             el.on('shown', function() {
@@ -46,7 +46,7 @@ Genghis.Views.Confirm = Backbone.View.extend({
         this.dismiss();
     },
     validateInput: function(e) {
-        var btn = $('button.confirm', this.el);
+        var btn = this.$('button.confirm');
 
         if ($(e.target).val() == this.confirmInput) {
             btn.removeAttr('disabled');
@@ -61,9 +61,9 @@ Genghis.Views.Confirm = Backbone.View.extend({
         }
     },
     dismiss: function() {
-        $(this.el).on('hidden', this.remove).modal('hide');
+        this.$el.on('hidden', this.remove).modal('hide');
     },
     remove: function() {
-        $(this.el).remove();
+        this.$el.remove();
     }
 });

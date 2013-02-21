@@ -7,9 +7,9 @@ Genghis.Views.BaseSection = Backbone.View.extend({
     },
     initialize: function() {
         _.bindAll(
-            this, 'render', 'updateTitle', 'showAddForm', 'showAddFormIfVisible',
-            'submitAddForm', 'closeAddForm', 'updateOnKeyup', 'addModel',
-            'addModelAndUpdate', 'addAll'
+            this, 'render', 'updateTitle', 'showAddForm', 'submitAddForm',
+            'closeAddForm', 'updateOnKeyup', 'addModel', 'addModelAndUpdate',
+            'addAll'
         );
 
         if (this.model) {
@@ -21,12 +21,10 @@ Genghis.Views.BaseSection = Backbone.View.extend({
             this.collection.bind('add',   this.addModelAndUpdate);
         }
 
-        $(document).bind('keyup', 'c', this.showAddFormIfVisible);
-
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render({title: this.formatTitle(this.model)}));
+        this.$el.html(this.template.render({title: this.formatTitle(this.model)}));
 
         this.addForm      = this.$('.add-form');
         this.addButton    = this.$('.add-form button.add');
@@ -34,12 +32,6 @@ Genghis.Views.BaseSection = Backbone.View.extend({
         this.cancelButton = this.$('.add-form button.cancel');
 
         this.addAll();
-
-        // Yay dropdowns!
-        this.$('.dropdown-toggle').dropdown();
-
-        // add placeholder help
-        this.$('.help', this.addForm).tooltip();
 
         // don't sort the actions column
         var headerConfig = {};
@@ -56,15 +48,13 @@ Genghis.Views.BaseSection = Backbone.View.extend({
     updateTitle: function() {
         this.$('> header h2').text(this.formatTitle(this.model));
     },
-    showAddForm: function() {
-        this.addForm.removeClass('inactive');
-        this.addInput.focus();
-    },
-    showAddFormIfVisible: function(e) {
-        if ($(this.el).is(':visible')) {
+    showAddForm: function(e) {
+        if (e && e.preventDefault()) {
             e.preventDefault();
-            this.showAddForm();
         }
+
+        this.addForm.removeClass('inactive');
+        this.addInput.select().focus();
     },
     submitAddForm: function() {
         this.collection.create({name: this.addInput.val()});
@@ -90,6 +80,17 @@ Genghis.Views.BaseSection = Backbone.View.extend({
         this.$('table tbody').html('');
         this.collection.each(this.addModel);
 
-        $(this.el).removeClass('spinning');
+        this.$el.removeClass('spinning');
+    },
+    show: function() {
+        Mousetrap.bind('c', this.showAddForm);
+        $('body').addClass('section-' + this.$el.attr('id'));
+        this.$el.addClass('spinning').show();
+        $(document).scrollTop(0);
+    },
+    hide: function() {
+        Mousetrap.unbind('c');
+        $('body').removeClass('section-' + this.$el.attr('id'));
+        this.$el.hide();
     }
 });

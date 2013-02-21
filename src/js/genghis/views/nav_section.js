@@ -10,7 +10,7 @@ Genghis.Views.NavSection = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render(this.model));
+        this.$el.html(this.template.render(this.model));
 
         this.$('.dropdown-toggle').hoverIntent(function(e) {
             $(e.target)

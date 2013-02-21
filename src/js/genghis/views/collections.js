@@ -10,6 +10,18 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
         'click .add-form button.cancel': 'closeAddForm',
         'keyup .add-form input.name':    'updateOnKeyup'
     },
+    initialize: function() {
+        _.bindAll(this, 'showGridFSAddForm');
+        Genghis.Views.BaseSection.prototype.initialize.apply(this, arguments);
+    },
+    render: function() {
+        Genghis.Views.BaseSection.prototype.render.apply(this, arguments);
+
+        // Yay dropdowns!
+        this.$('.dropdown-toggle').dropdown();
+
+        return this;
+    },
     formatTitle: function(model) {
         return model.id ? (model.id + ' Collections') : 'Collections';
     },
@@ -17,6 +29,7 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
         var name = this.addInput.val().replace(/^\s+/, '').replace(/\s+$/, '');
         if (name === '') {
             window.app.alerts.add({msg: 'Please enter a valid collection name.'});
+            return;
         }
 
         if (this.addButton.hasClass('add-gridfs')) {
@@ -30,18 +43,7 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
 
         this.closeAddForm();
     },
-    showGridFSAddForm: function() {
-        this.addInput.wrap('<div class="input-wrapper input-append">');
-        $('<span class="add-on">.files</span>').insertAfter(this.addInput);
-
-        this.addButton
-            .addClass('add-gridfs')
-            .text('Add GridFS collection');
-
-        this.addForm.removeClass('inactive');
-        this.addInput.focus();
-    },
-    closeAddForm: function() {
+    showAddForm: function() {
         var wrap = this.$('.input-wrapper');
         if (wrap.length) {
             wrap.replaceWith(wrap.find('input'));
@@ -51,7 +53,36 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
             .removeClass('add-gridfs')
             .text('Add collection');
 
-        this.addForm.addClass('inactive');
-        this.addInput.val('');
+        Genghis.Views.BaseSection.prototype.showAddForm.apply(this, arguments);
+    },
+    showGridFSAddForm: function(e) {
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+
+        if (this.$('.input-wrapper').length === 0) {
+            this.addInput.wrap('<div class="input-wrapper input-append">');
+            $('<span class="add-on">.files</span>').insertAfter(this.addInput);
+        }
+
+        this.addButton
+            .addClass('add-gridfs')
+            .text('Add GridFS collection');
+
+        this.addForm.removeClass('inactive');
+
+        if (this.addInput.val() === '') {
+            this.addInput.val('fs');
+        }
+
+        this.addInput.select().focus();
+    },
+    show: function() {
+        Mousetrap.bind('shift+c', this.showGridFSAddForm);
+        Genghis.Views.BaseSection.prototype.show.apply(this, arguments);
+    },
+    hide: function() {
+        Mousetrap.unbind('shift+c');
+        Genghis.Views.BaseSection.prototype.hide.apply(this, arguments);
     }
 });

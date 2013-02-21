@@ -11,13 +11,13 @@ Genghis.Views.Alert = Backbone.View.extend({
         this.model.bind('destroy', this.remove);
     },
     render: function() {
-        $(this.el).html(this.template.render(this.model));
+        this.$el.html(this.template.render(this.model));
         return this;
     },
     destroy: function() {
         this.model.destroy();
     },
     remove: function() {
-        $(this.el).remove();
+        this.$el.remove();
     }
 });

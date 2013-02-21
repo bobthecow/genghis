@@ -20,7 +20,7 @@ Genghis.Views.DocumentsHeader = Backbone.View.extend({
             title = '' + from + ' - ' + to + ' of ' + title;
         }
 
-        $(this.el).html(title);
+        this.$el.html(title);
         return this;
     }
 });

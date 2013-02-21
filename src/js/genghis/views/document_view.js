@@ -26,7 +26,7 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         this.model.bind('destroy', this.remove);
     },
     render: function() {
-        $(this.el).html(this.template.render(this.model));
+        this.$el.html(this.template.render(this.model));
         Genghis.Util.attachCollapsers(this.el);
         setTimeout(this.updateDocument, 1);
 
@@ -71,8 +71,8 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
 
         this.$('.document').hide();
 
-        var el = $(this.el).addClass('edit');
-        this.editor = CodeMirror.fromTextArea(textarea[0], _.extend(Genghis.defaults.codeMirror, {
+        var el = this.$el.addClass('edit');
+        this.editor = CodeMirror.fromTextArea(textarea[0], _.extend({}, Genghis.defaults.codeMirror, {
             onFocus: function() { el.addClass('focused');    },
             onBlur:  function() { el.removeClass('focused'); },
             extraKeys: {
@@ -88,9 +88,9 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         textarea.resize(_.throttle(this.editor.refresh, 100));
     },
     cancelEdit: function() {
-        $(this.el).removeClass('edit focused');
+        this.$el.removeClass('edit focused');
         this.editor.toTextArea();
-        $('textarea', this.el).remove();
+        this.$('textarea').remove();
         this.updateDocument();
         this.$('.well').height('auto');
     },
@@ -176,7 +176,7 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         });
     },
     remove: function() {
-        $(this.el).remove();
+        this.$el.remove();
     },
     download: function(e) {
         Genghis.Util.download(this.model.downloadUrl());

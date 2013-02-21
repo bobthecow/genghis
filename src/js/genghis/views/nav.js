@@ -16,28 +16,28 @@ Genghis.Views.Nav = Backbone.View.extend({
             $('.dropdown-toggle, .menu').parent('li').removeClass('open');
         });
 
-        $(document).bind('keyup', 's', this.navigateToServers);
-        $(document).bind('keyup', 'u', this.navigateUp);
+        Mousetrap.bind('s', this.navigateToServers);
+        Mousetrap.bind('u', this.navigateUp);
 
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render({baseUrl: this.baseUrl}));
+        this.$el.html(this.template.render({baseUrl: this.baseUrl}));
 
         this.serverNavView = new Genghis.Views.NavSection({
-            el: $('li.server', this.el),
+            el: this.$('li.server'),
             model: this.model.currentServer,
             collection: this.model.servers
         });
 
         this.databaseNavView = new Genghis.Views.NavSection({
-            el: $('li.database', this.el),
+            el: this.$('li.database'),
             model: this.model.currentDatabase,
             collection: this.model.databases
         });
 
         this.collectionNavView = new Genghis.Views.NavSection({
-            el: $('li.collection', this.el),
+            el: this.$('li.collection'),
             model: this.model.currentCollection,
             collection: this.model.collections
         });
@@ -46,7 +46,7 @@ Genghis.Views.Nav = Backbone.View.extend({
             model: this.model
         });
 
-        $(this.el).append(this.searchView.render().el);
+        this.$el.append(this.searchView.render().el);
 
         return this;
     },

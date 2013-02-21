@@ -1,10 +1,23 @@
+## v2.2.2
+
+ * Fix vertical position of GridFS file creation dialog.
+ * Pre-fill default `fs` GridFS collection name.
+ * Add a hotkey for creating a new GridFS collection.
+ * Improve "create" user experience in tabular views.
+ * [Fix #79][i79] — Improve hotkey handling.
+ * Fix disappearing line numbers in editors after using big search box (let defaults stay default).
+ * Housekeeping.
+
+[i79]: https://github.com/bobthecow/genghis/issues/79
+
+
 ## v2.2.1
 
  * Visual refinements.
  * The "Restart required" message after installing `bson_ext` should be "info" not "warning"
    level (Ruby backend).
  * [Fix #78][i78] — error editing and deleting non-ObjectId `_id` values (Ruby backend).
- * Add "Create GridFS collection" button to Collections view.
+ * Add "Add GridFS collection" button to Collections view.
 
 [i78]: https://github.com/bobthecow/genghis/issues/78
 

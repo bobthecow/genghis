@@ -9,8 +9,7 @@ Genghis.Views.Documents = Backbone.View.extend({
     },
     initialize: function() {
         _.bindAll(
-            this, 'render', 'addAll', 'addDocument', 'createDocument', 'dragGridFile', 'dragLeave', 'dropGridFile',
-            'createDocumentIfVisible'
+            this, 'render', 'addAll', 'addDocument', 'createDocument', 'dragGridFile', 'dragLeave', 'dropGridFile'
         );
 
         this.pagination = this.options.pagination;
@@ -18,12 +17,10 @@ Genghis.Views.Documents = Backbone.View.extend({
         this.collection.bind('reset', this.addAll,      this);
         this.collection.bind('add',   this.addDocument, this);
 
-        $(document).bind('keyup', 'c', this.createDocumentIfVisible);
-
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render({}));
+        this.$el.html(this.template.render({}));
 
         this.headerView      = new Genghis.Views.DocumentsHeader({model: this.pagination});
         this.paginationView  = new Genghis.Views.Pagination({
@@ -43,13 +40,17 @@ Genghis.Views.Documents = Backbone.View.extend({
             .toggleClass('file-upload', this.model.isGridCollection());
         this.collection.each(this.addDocument);
 
-        $(this.el).removeClass('spinning');
+        this.$el.removeClass('spinning');
     },
     addDocument: function(document) {
         var view = new Genghis.Views.DocumentView({model: document});
         this.$('.content').append(view.render().el);
     },
-    createDocument: function() {
+    createDocument: function(e) {
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+
         if (this.model.isGridCollection()) {
             // yeah, it's not worth our time
             if (!Modernizr.filereader) {
@@ -110,10 +111,15 @@ Genghis.Views.Documents = Backbone.View.extend({
 
         return this.newGridFileView;
     },
-    createDocumentIfVisible: function(e) {
-        if ($(this.el).is(':visible')) {
-            e.preventDefault();
-            this.createDocument();
-        }
+    show: function() {
+        Mousetrap.bind('c', this.createDocument);
+        $('body').addClass('section-' + this.$el.attr('id'));
+        this.$el.addClass('spinning').show();
+        $(document).scrollTop(0);
+    },
+    hide: function() {
+        Mousetrap.unbind('c');
+        $('body').removeClass('section-' + this.$el.attr('id'));
+        this.$el.hide();
     }
 });
