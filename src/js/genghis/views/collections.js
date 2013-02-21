@@ -60,7 +60,7 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
             e.preventDefault();
         }
 
-        if (this.$('.input-wrapper').length == 0) {
+        if (this.$('.input-wrapper').length === 0) {
             this.addInput.wrap('<div class="input-wrapper input-append">');
             $('<span class="add-on">.files</span>').insertAfter(this.addInput);
         }
@@ -71,7 +71,7 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
 
         this.addForm.removeClass('inactive');
 
-        if (this.addInput.val() == '') {
+        if (this.addInput.val() === '') {
             this.addInput.val('fs');
         }
 

@@ -38,7 +38,7 @@ Genghis.Views.App = Backbone.View.extend({
             'databases':   this.databasesView,
             'collections': this.collectionsView,
             'documents':   this.documentsView,
-            'document':    this.documentView,
+            'document':    this.documentView
         };
 
 
