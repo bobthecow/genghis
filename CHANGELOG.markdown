@@ -2,6 +2,7 @@
 
  * Fix vertical position of GridFS file creation dialog.
  * Pre-fill default `fs` GridFS collection name.
+ * Add a hotkey for creating a new GridFS collection.
  * Improve "create" user experience in tabular views.
  * [Fix #79][i79] — Improve hotkey handling.
  * Housekeeping.

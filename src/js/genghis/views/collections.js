@@ -10,6 +10,10 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
         'click .add-form button.cancel': 'closeAddForm',
         'keyup .add-form input.name':    'updateOnKeyup'
     },
+    initialize: function() {
+        _.bindAll(this, 'showGridFSAddForm');
+        Genghis.Views.BaseSection.prototype.initialize.apply(this, arguments);
+    },
     formatTitle: function(model) {
         return model.id ? (model.id + ' Collections') : 'Collections';
     },
@@ -64,5 +68,13 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
         }
 
         this.addInput.select().focus();
+    },
+    show: function() {
+        Mousetrap.bind('shift+c', this.showGridFSAddForm);
+        Genghis.Views.BaseSection.prototype.show.apply(this, arguments);
+    },
+    hide: function() {
+        Mousetrap.unbind('shift+c');
+        Genghis.Views.BaseSection.prototype.hide.apply(this, arguments);
     }
 });
