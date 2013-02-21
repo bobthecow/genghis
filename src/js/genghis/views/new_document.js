@@ -8,16 +8,16 @@ Genghis.Views.NewDocument = Genghis.Views.BaseDocument.extend({
     render: function() {
         var wrapper;
 
-        this.el = $(this.template.render()).hide().appendTo('body');
-
-        this.modal = this.el.modal({
+        this.$el   = $(this.template.render()).hide().appendTo('body');
+        this.el    = this.$el[0];
+        this.modal = this.$el.modal({
             backdrop: 'static',
             show: false,
             keyboard: false
         });
 
-        wrapper = $('.wrapper', this.el);
-        this.editor = CodeMirror.fromTextArea($('#editor-new', this.el)[0], _.extend(Genghis.defaults.codeMirror, {
+        wrapper = this.$('.wrapper');
+        this.editor = CodeMirror.fromTextArea(this.$('#editor-new')[0], _.extend(Genghis.defaults.codeMirror, {
             onFocus: function() { wrapper.addClass('focused');    },
             onBlur:  function() { wrapper.removeClass('focused'); },
             extraKeys: {
@@ -52,9 +52,9 @@ Genghis.Views.NewDocument = Genghis.Views.BaseDocument.extend({
         this.editor.setValue('');
     },
     getErrorBlock: function() {
-        var errorBlock = $('div.errors', this.el);
+        var errorBlock = this.$('div.errors');
         if (errorBlock.length === 0) {
-            errorBlock = $('<div class="errors"></div>').prependTo($('.modal-body', this.el));
+            errorBlock = $('<div class="errors"></div>').prependTo(this.$('.modal-body'));
         }
 
         return errorBlock;

@@ -12,7 +12,7 @@ Genghis.Views.Pagination = Backbone.View.extend({
     },
     render: function() {
         if (this.model.get('pages') == 1) {
-            $(this.el).hide();
+            this.$el.hide();
         } else {
             var count = 9;
             var half  = Math.ceil(count / 2);
@@ -31,7 +31,7 @@ Genghis.Views.Pagination = Backbone.View.extend({
             }
 
             var url = this.urlTemplate;
-            $(this.el).html(this.template.render({
+            this.$el.html(this.template.render({
                 page:     page,
                 last:     pages,
                 firstUrl: url(1),
@@ -77,13 +77,13 @@ Genghis.Views.Pagination = Backbone.View.extend({
     },
     nextPage: function(e) {
         // TODO: bind/unbind mousetrap so we don't have to check visibilty?
-        if ($(this.el).is(':visible')) {
+        if (this.$el.is(':visible')) {
             e.preventDefault();
             this.$('li.next a[href]').click();
         }
     },
     prevPage: function(e) {
-        if ($(this.el).is(':visible')) {
+        if (this.$el.is(':visible')) {
             e.preventDefault();
             this.$('li.prev a[href]').click();
         }

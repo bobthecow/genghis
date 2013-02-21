@@ -20,7 +20,7 @@ Genghis.Views.Documents = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render({}));
+        this.$el.html(this.template.render({}));
 
         this.headerView      = new Genghis.Views.DocumentsHeader({model: this.pagination});
         this.paginationView  = new Genghis.Views.Pagination({
@@ -40,7 +40,7 @@ Genghis.Views.Documents = Backbone.View.extend({
             .toggleClass('file-upload', this.model.isGridCollection());
         this.collection.each(this.addDocument);
 
-        $(this.el).removeClass('spinning');
+        this.$el.removeClass('spinning');
     },
     addDocument: function(document) {
         var view = new Genghis.Views.DocumentView({model: document});

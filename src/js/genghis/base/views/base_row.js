@@ -11,7 +11,7 @@ Genghis.Views.BaseRow = Backbone.View.extend({
         this.model.bind('destroy', this.remove);
     },
     render: function() {
-        $(this.el)
+        this.$el
             .html(this.template.render(this.model))
             .toggleClass('error', !!this.model.get('error'))
             .find('.label[title]').tooltip({placement: 'bottom'});
@@ -31,7 +31,7 @@ Genghis.Views.BaseRow = Backbone.View.extend({
         app.router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
     },
     remove: function() {
-        $(this.el).remove();
+        this.$el.remove();
     },
     isParanoid: false,
     destroy: function() {

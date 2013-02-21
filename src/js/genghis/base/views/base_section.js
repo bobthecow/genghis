@@ -24,7 +24,7 @@ Genghis.Views.BaseSection = Backbone.View.extend({
         this.render();
     },
     render: function() {
-        $(this.el).html(this.template.render({title: this.formatTitle(this.model)}));
+        this.$el.html(this.template.render({title: this.formatTitle(this.model)}));
 
         this.addForm      = this.$('.add-form');
         this.addButton    = this.$('.add-form button.add');
@@ -86,7 +86,7 @@ Genghis.Views.BaseSection = Backbone.View.extend({
         this.$('table tbody').html('');
         this.collection.each(this.addModel);
 
-        $(this.el).removeClass('spinning');
+        this.$el.removeClass('spinning');
     },
     show: function() {
         Mousetrap.bind('c', this.showAddForm);
