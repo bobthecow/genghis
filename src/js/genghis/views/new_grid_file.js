@@ -1,50 +1,22 @@
-Genghis.Views.NewGridFile = Genghis.Views.BaseDocument.extend({
+Genghis.Views.NewGridFile = Genghis.Views.BaseNewDocument.extend({
     el: '#new-grid-file',
     template: Genghis.Templates.NewGridFile,
     initialize: function() {
-        _.bindAll(
-            this, 'render', 'show', 'handleFileInputChange', 'showMetadata', 'refreshEditor', 'closeModal',
-            'cancelEdit', 'saveDocument', 'showServerError'
-        );
-
-        this.render();
+        _.bindAll(this, 'handleFileInputChange', 'showMetadata');
+        Genghis.Views.BaseNewDocument.prototype.initialize.apply(this, arguments);
     },
     render: function() {
-        var wrapper;
-
-        this.$el = $(this.template.render()).hide().appendTo('body');
-        this.el  = this.$el[0];
+        Genghis.Views.BaseNewDocument.prototype.render.apply(this, arguments);
 
         this.fileInput = $('<input id="new-grid-file-input" type="file">').hide().appendTo('body');
         this.currentFile = null;
 
-        this.modal = this.$el.modal({
-            backdrop: 'static',
-            show: false,
-            keyboard: false
-        });
-
-        wrapper = this.$('.wrapper');
-        this.editor = CodeMirror.fromTextArea(this.$('#editor-upload')[0], _.extend({}, Genghis.defaults.codeMirror, {
-            onFocus: function() { wrapper.addClass('focused');    },
-            onBlur:  function() { wrapper.removeClass('focused'); },
-            extraKeys: {
-                 'Ctrl-Enter': this.saveDocument,
-                 'Cmd-Enter':  this.saveDocument
-             }
-        }));
-
-        $(window).resize(_.throttle(this.refreshEditor, 100));
-
-        this.modal.bind('hide', this.cancelEdit);
-        this.modal.bind('shown', this.refreshEditor);
-
-        this.modal.find('button.cancel').bind('click', this.closeModal);
-        this.modal.find('button.save').bind('click', this.saveDocument);
-
         this.fileInput.bind('change', this.handleFileInputChange);
 
         return this;
+    },
+    getTextArea: function() {
+        return this.$('#editor-upload')[0];
     },
     show: function() {
         // get the file
@@ -64,31 +36,6 @@ Genghis.Views.NewGridFile = Genghis.Views.BaseDocument.extend({
             this.editor.setCursor({line: 3, ch: 15});
             this.modal.modal('show');
         }
-    },
-    refreshEditor: function() {
-        this.editor.refresh();
-        this.editor.focus();
-    },
-    closeModal: function(e) {
-        this.modal.modal('hide');
-    },
-    cancelEdit: function(e) {
-        this.editor.setValue('');
-    },
-    getErrorBlock: function() {
-        var errorBlock = this.$('div.errors');
-        if (errorBlock.length === 0) {
-            errorBlock = $('<div class="errors"></div>').prependTo(this.$('.modal-body'));
-        }
-
-        return errorBlock;
-    },
-    showServerError: function(message) {
-        var alertView = new Genghis.Views.Alert({
-            model: new Genghis.Models.Alert({level: 'error', msg: message, block: true})
-        });
-
-        this.getErrorBlock().append(alertView.render().el);
     },
     saveDocument: function() {
         var data = this.getEditorValue();
