@@ -135,7 +135,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
                 switch (response.status) {
                     case 404:
                         // app.router.notFound(url + '/' + documentId);
-                        $('section#' + section).hide();
+                        app.showSection();
                         app.showMasthead(
                             '404: ' + notFoundTitle,
                             '<p>' + notFoundSubtitle + '</p>',

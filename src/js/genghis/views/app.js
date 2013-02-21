@@ -46,6 +46,7 @@ Genghis.Views.App = Backbone.View.extend({
         var router = this.router = new Genghis.Router();
 
         // route to home when the logo is clicked
+        // TODO: move this somewhere better :)
         $('.navbar a.brand').click(function(e) {
             e.preventDefault();
             router.navigate('', true);

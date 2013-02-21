@@ -3,6 +3,7 @@
  * Pre-fill default `fs` GridFS collection name.
  * Fix vertical position of GridFS file creation dialog.
  * [Fix #79][i79] — Improve hotkey handling.
+ * Housekeeping.
 
 [i79]: https://github.com/bobthecow/genghis/issues/79
 
