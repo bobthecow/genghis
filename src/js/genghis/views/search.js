@@ -173,8 +173,8 @@ Genghis.Views.Search = Backbone.View.extend({
                     'Ctrl-Enter': this.findDocumentsAdvanced,
                     'Cmd-Enter':  this.findDocumentsAdvanced,
                     'Esc':        this.findDocumentsAdvanced
-                 },
-                 onChange:        this.advancedSearchToQuery
+                },
+                onChange:         this.advancedSearchToQuery
             }));
         }
 
