@@ -32,6 +32,15 @@ Genghis.Views.App = Backbone.View.extend({
         });
         this.documentView          = new Genghis.Views.Document({model: selection.currentDocument});
 
+        // Let's just keep these for later...
+        this.sections = {
+            'servers':     this.serversView,
+            'databases':   this.databasesView,
+            'collections': this.collectionsView,
+            'documents':   this.documentsView,
+            'document':    this.documentView,
+        };
+
 
         // initialize the router
         var router = this.router = new Genghis.Router();
@@ -70,6 +79,8 @@ Genghis.Views.App = Backbone.View.extend({
         masthead.remove();
     },
     showSection: function(section) {
+        var hasSection = section && _.has(this.sections, section);
+
         // remove mastheads when navigating
         this.removeMasthead();
 
@@ -78,19 +89,18 @@ Genghis.Views.App = Backbone.View.extend({
             this.showWelcome();
         }
 
-        var sectionClass = !!section ? ('section-' + (_.isArray(section) ? section.join(' section-') : section)) : '';
+        // TODO: move this somewhere else?
+        $('body').toggleClass('has-section', hasSection);
 
-        $('body')
-            .removeClass('section-servers section-databases section-collections section-documents section-document')
-            .addClass(sectionClass)
-            .toggleClass('has-section', !!section);
+        _.each(this.sections, function(view, name) {
+            if (name != section) {
+                view.hide();
+            }
+        });
 
-        this.$('section').hide()
-            .filter('#'+(_.isArray(section) ? section.join(',#') : section))
-                .addClass('spinning')
-                .show();
-
-        $(document).scrollTop(0);
+        if (hasSection) {
+            this.sections[section].show();
+        }
     },
     showWelcome: _.once(function() {
         this.showMasthead('', Genghis.Templates.Welcome.render({version: Genghis.version}), {epic: true, className: 'masthead welcome'});
