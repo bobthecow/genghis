@@ -24,11 +24,11 @@ Genghis.Models.Collection = Genghis.Models.BaseModel.extend({
         var stats = this.get('stats');
         if (stats) {
             return [
-                {name: 'Avg. object size', value: _h(stats.avgObjSize || 0) },
-                {name: 'Padding factor',   value: stats.paddingFactor       },
-                {name: 'Data size',        value: _h(stats.size || 0)       },
-                {name: 'Index size',       value: _h(stats.totalIndexSize)  },
-                {name: 'Storage size',     value: _h(stats.storageSize)     }
+                {name: 'Avg. object size', value: _h(stats.avgObjSize || 0)     },
+                {name: 'Padding factor',   value: stats.paddingFactor || 'n/a'  },
+                {name: 'Data size',        value: _h(stats.size || 0)           },
+                {name: 'Index size',       value: _h(stats.totalIndexSize || 0) },
+                {name: 'Storage size',     value: _h(stats.storageSize || 0)    }
             ];
         }
     }
