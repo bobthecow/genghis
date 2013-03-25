@@ -57,8 +57,13 @@ Genghis.Views.BaseSection = Backbone.View.extend({
         this.addInput.select().focus();
     },
     submitAddForm: function() {
-        this.collection.create({name: this.addInput.val()});
-        this.closeAddForm();
+        this.collection.create({name: this.addInput.val()}, {
+            wait:    true,
+            success: this.closeAddForm,
+            error:   function(model, response) {
+                window.app.alerts.handleError(response);
+            }
+        });
     },
     closeAddForm: function() {
         this.addForm.addClass('inactive');
