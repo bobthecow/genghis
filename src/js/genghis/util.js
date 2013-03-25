@@ -27,7 +27,10 @@ Genghis.Util = {
         var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
 
-        return ((i === 0)? (bytes / Math.pow(1024, i)) : (bytes / Math.pow(1024, i)).toFixed(1)) + ' ' + sizes[i];
+        var size = (i === 0) ? (bytes / Math.pow(1024, i)) : (bytes / Math.pow(1024, i)).toFixed(1);
+        size = Genghis.Util.round(size, 2).toString().replace(/\.0+/, '');
+
+        return size + ' ' + sizes[i];
     },
 
     humanizeCount: function(count) {
@@ -50,6 +53,25 @@ Genghis.Util = {
 
         return count + suffix;
     },
+
+    round: function(value, precision) {
+        // If the precision is undefined or zero...
+        if (typeof precision === 'undefined' || +precision === 0) {
+            return Math.round(value);
+        }
+        value = +value;
+        var exp = -1 * (+precision);
+        // If the value is not a number or the exp is not an integer...
+        if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+            return NaN;
+        }
+        // Shift
+        value = value.toString().split('e');
+        value = Math.round(+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+        // Shift back
+        value = value.toString().split('e');
+        return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+    },
 
     escape: function(str) {
         if (str) {
