@@ -5,20 +5,20 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
     public $name;
     public $server;
     public $database;
+    public $error;
 
     private $collections = array();
     private $mongoCollections;
 
-    public function __construct(Genghis_Models_Server $server, MongoDB $database)
+    public function __construct(Genghis_Models_Server $server, $name)
     {
-        $this->server   = $server;
-        $this->database = $database;
-        $this->name     = (string) $database;
+        $this->server = $server;
+        $this->name   = $name;
     }
 
     public function drop()
     {
-        $this->database->drop();
+        $this->getDatabase()->drop();
     }
 
     public function offsetExists($name)
@@ -73,7 +73,7 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
         }
 
         try {
-            $this->database->createCollection($name);
+            $this->getDatabase()->createCollection($name);
         } catch (Exception $e) {
             if (strpos($e->getMessage(), 'invalid name') !== false) {
                 throw new Genghis_HttpException(400, 'Invalid collection name');
@@ -88,6 +88,17 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
 
     public function asJson()
     {
+        try {
+            // Since we're lazily loading our DB, check for connection errors.
+            $db = $this->getDatabase();
+        } catch (Exception $e) {
+            return array(
+                'id'          => $this->name,
+                'name'        => $this->name,
+                'error'       => $this->cleanError($e->getMessage()),
+            );
+        }
+
         $colls = $this->getCollectionNames();
 
         return array(
@@ -97,6 +108,15 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
             'collections' => $colls,
             'stats'       => $this->stats(),
         );
+    }
+
+    private function getDatabase()
+    {
+        if (!isset($this->database)) {
+            $this->database = $this->server->getConnection()->selectDB($this->name);
+        }
+
+        return $this->database;
     }
 
     private function getMongoCollection($name)
@@ -111,7 +131,7 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
     private function getMongoCollections()
     {
         if (!isset($this->mongoCollections)) {
-            $this->mongoCollections = $this->database->listCollections();
+            $this->mongoCollections = $this->getDatabase()->listCollections();
         }
 
         return $this->mongoCollections;
@@ -119,6 +139,11 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
 
     private function stats()
     {
-        return $this->database->command(array('dbStats' => 1));
+        return $this->getDatabase()->command(array('dbStats' => 1));
+    }
+
+    private function cleanError($msg)
+    {
+        return ucfirst(preg_replace('/^MongoDB::__construct\(\): /', '', $msg));
     }
 }

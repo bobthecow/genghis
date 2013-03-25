@@ -19,5 +19,8 @@ Genghis.Models.Database = Genghis.Models.BaseModel.extend({
                 {name: 'Storage size',     value: _h(stats.fileSize || 0)   }
             ];
         }
+    },
+    error: function() {
+        return this.get('error');
     }
 });

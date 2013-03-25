@@ -50,7 +50,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
         }
 
         if (!isset($this->databases[$name])) {
-            $this->databases[$name] = new Genghis_Models_Database($this, $this->getConnection()->selectDB($name));
+            $this->databases[$name] = new Genghis_Models_Database($this, $name);
         }
 
         return $this->databases[$name];

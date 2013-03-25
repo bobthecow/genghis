@@ -44,16 +44,16 @@ module Genghis
         rescue Mongo::InvalidNSName
           raise Genghis::MalformedDocument.new('Invalid database name')
         end
-        Database.new(client[db_name])
+        Database.new(client, db_name)
       end
 
       def databases
-        info['databases'].map { |db| Database.new(client[db['name']]) }
+        info['databases'].map { |db| Database.new(client, db['name']) }
       end
 
       def [](db_name)
         raise Genghis::DatabaseNotFound.new(self, db_name) unless db_exists? db_name
-        Database.new(client[db_name])
+        Database.new(client, db_name)
       end
 
       def as_json(*)

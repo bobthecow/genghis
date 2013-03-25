@@ -3,6 +3,7 @@
  * [Fix #69][i69], [#74][i74] , [#84][i84] and [#91][i91] — Fix errors authenticating against a single database.
  * Add collection size stats and detailed database size stats.
  * Friendlier "human size" rounding.
+ * [Fix #89][i89] — Improve handling of invalid database names.
  * [Fix #90][i90] — Fix error loading server list after adding a malformed server DSN (PHP backend).
  * [Fix #81][i81] — Suppress dependency version warnings if for (really) old versions of rubygems.
  * Fix various compile errors and edge cases.
@@ -12,6 +13,7 @@
 [i74]: https://github.com/bobthecow/genghis/issues/74
 [i81]: https://github.com/bobthecow/genghis/issues/81
 [i84]: https://github.com/bobthecow/genghis/issues/84
+[i89]: https://github.com/bobthecow/genghis/issues/89
 [i90]: https://github.com/bobthecow/genghis/issues/90
 [i91]: https://github.com/bobthecow/genghis/issues/91
 
