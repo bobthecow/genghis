@@ -157,7 +157,7 @@ genghis_backends.each do |backend|
                 name:        '__genghis_spec_test__',
                 count:       0,
                 collections: [],
-                size:        Fixnum
+                stats:       Hash
               }
             ].ignore_extra_values!
         end
@@ -182,7 +182,7 @@ genghis_backends.each do |backend|
             name:        '__genghis_spec_create_db_test__',
             count:       0,
             collections: [],
-            size:        Fixnum
+            stats:       Hash
         end
 
         it 'returns 400 unless given a valid database name' do
@@ -223,7 +223,7 @@ genghis_backends.each do |backend|
             name:        '__genghis_spec_test__',
             count:       0,
             collections: [],
-            size:        Fixnum
+            stats:       Hash
         end
 
         it 'returns 404 when the database is not found' do

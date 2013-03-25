@@ -88,22 +88,15 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
 
     public function asJson()
     {
-        $dbs = $this->server->getConnection()->listDBs();
-        foreach ($dbs['databases'] as $db) {
-            if ($db['name'] == $this->name) {
-                $colls = $this->getCollectionNames();
+        $colls = $this->getCollectionNames();
 
-                return array(
-                    'id'          => $db['name'],
-                    'name'        => $db['name'],
-                    'count'       => count($colls),
-                    'collections' => $colls,
-                    'size'        => $db['sizeOnDisk'],
-                );
-            }
-        }
-
-        throw new Genghis_HttpException(404, sprintf("Database '%s' not found on '%s'", $database, $server));
+        return array(
+            'id'          => $this->name,
+            'name'        => $this->name,
+            'count'       => count($colls),
+            'collections' => $colls,
+            'stats'       => $this->stats(),
+        );
     }
 
     private function getMongoCollection($name)
@@ -122,5 +115,10 @@ class Genghis_Models_Database implements ArrayAccess, Genghis_JsonEncodable
         }
 
         return $this->mongoCollections;
+    }
+
+    private function stats()
+    {
+        return $this->database->command(array('dbStats' => 1));
     }
 }
