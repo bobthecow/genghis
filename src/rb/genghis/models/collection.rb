@@ -111,6 +111,7 @@ module Genghis
           :name    => @collection.name,
           :count   => @collection.count,
           :indexes => @collection.index_information.values,
+          :stats   => @collection.stats,
         }
       end
 

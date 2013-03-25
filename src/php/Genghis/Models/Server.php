@@ -50,7 +50,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
         }
 
         if (!isset($this->databases[$name])) {
-            $this->databases[$name] = new Genghis_Models_Database($this, $this->getConnection()->selectDB($name));
+            $this->databases[$name] = new Genghis_Models_Database($this, $name);
         }
 
         return $this->databases[$name];
@@ -219,7 +219,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
         return $ret;
     }
 
-    private function listDbs()
+    private function listDBs()
     {
         // Fake it if we've got a single-db connection.
         if (isset($this->db)) {

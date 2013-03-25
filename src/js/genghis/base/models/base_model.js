@@ -12,7 +12,10 @@ Genghis.Models.BaseModel = Backbone.Model.extend({
         return this.get('count') !== 1;
     },
     humanSize: function() {
-        return Genghis.Util.humanizeSize(this.get('size'));
+        var size = this.get('size');
+        if (size) {
+            return Genghis.Util.humanizeSize(size);
+        }
     },
     hasMoreChildren: function() {
         return this.get('count') > 15;

@@ -38,22 +38,22 @@ module Genghis
       end
 
       def create_database(db_name)
-        raise Genghis::DatabaseAlreadyExists.new(self, db_name) if client.database_names.include? db_name
+        raise Genghis::DatabaseAlreadyExists.new(self, db_name) if db_exists? db_name
         begin
           client[db_name]['__genghis_tmp_collection__'].drop
         rescue Mongo::InvalidNSName
           raise Genghis::MalformedDocument.new('Invalid database name')
         end
-        Database.new(client[db_name])
+        Database.new(client, db_name)
       end
 
       def databases
-        info['databases'].map { |db| Database.new(client[db['name']]) }
+        info['databases'].map { |db| Database.new(client, db['name']) }
       end
 
       def [](db_name)
-        raise Genghis::DatabaseNotFound.new(self, db_name) unless client.database_names.include? db_name
-        Database.new(client[db_name])
+        raise Genghis::DatabaseNotFound.new(self, db_name) unless db_exists? db_name
+        Database.new(client, db_name)
       end
 
       def as_json(*)
@@ -142,11 +142,20 @@ module Genghis
           if @db.nil?
             client['admin'].command({:listDatabases => true})
           else
+            stats = client[@db].command(:dbStats => true)
             {
               'databases' => [{'name' => @db}],
-              'totalSize' => [@db].stats['fileSize']
+              'totalSize' => stats['fileSize']
             }
           end
+        end
+      end
+
+      def db_exists?(db_name)
+        if @db.nil?
+          client.database_names.include? db_name
+        else
+          @db == db_name
         end
       end
     end

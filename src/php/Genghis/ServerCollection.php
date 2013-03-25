@@ -81,8 +81,13 @@ class Genghis_ServerCollection implements ArrayAccess, Genghis_JsonEncodable
             $this->serverDsns = array();
 
             if (isset($_COOKIE['genghis_servers']) && $localDsns = $this->decodeJson($_COOKIE['genghis_servers'])) {
-                foreach (array_map(array('Genghis_Models_Server', 'parseDsn'), $localDsns) as $info) {
-                    $this->serverDsns[$info['name']] = $info['dsn'];
+                foreach ($localDsns as $dsn) {
+                    try {
+                        $info = Genghis_Models_Server::parseDsn($dsn);
+                        $this->serverDsns[$info['name']] = $info['dsn'];
+                    } catch (Genghis_HttpException $e) {
+                        $this->serverDsns[$dsn] = $dsn;
+                    }
                 }
             }
         }
@@ -95,8 +100,13 @@ class Genghis_ServerCollection implements ArrayAccess, Genghis_JsonEncodable
                 isset($_SERVER['GENGHIS_SERVERS']) ? explode(';', $_SERVER['GENGHIS_SERVERS']) : array()
             );
 
-            foreach (array_map(array('Genghis_Models_Server', 'parseDsn'), $defaultDsns) as $info) {
-                $this->defaultServerDsns[$info['name']] = $info['dsn'];
+            foreach ($defaultDsns as $dsn) {
+                try {
+                    $info = Genghis_Models_Server::parseDsn($dsn);
+                    $this->defaultServerDsns[$info['name']] = $info['dsn'];
+                } catch (Genghis_HttpException $e) {
+                    $this->defaultServerDsns[$dsn] = $dsn;
+                }
             }
         }
 

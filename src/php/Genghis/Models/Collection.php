@@ -198,6 +198,7 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
                     'name'    => $coll->getName(),
                     'count'   => $coll->count(),
                     'indexes' => $coll->getIndexInfo(),
+                    'stats'   => $this->stats(),
                 );
             }
         }
@@ -257,5 +258,10 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         }
 
         return base64_decode(str_replace(' ', '+', $data));
+    }
+
+    private function stats()
+    {
+        return $this->database->database->command(array('collStats' => $this->collection->getName()));
     }
 }

@@ -19,6 +19,17 @@
         {{/ indexCount }}
     </div>
 </td>
+<td>
+    <span class="size has-details value">{{ humanSize }}</span>
+    <div class="details" title="Collection Stats">
+        <dl class="stats-details">
+            {{# stats }}
+                <dt>{{ name  }}</dt>
+                <dd>{{ value }}</dd>
+            {{/ stats }}
+        </dl>
+    </div>
+</td>
 <td class="action-column">
     <button class="btn btn-mini btn-danger destroy">Remove</button>
 </td>
