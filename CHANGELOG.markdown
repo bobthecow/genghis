@@ -1,6 +1,8 @@
 ## v2.2.3
 
  * [Fix #90][i90] — Fix error loading server list after adding a malformed server DSN (PHP backend).
+ * Fix various compile errors and edge cases.
+ * Bump Bootstrap and Mousetrap library versions.
 
 [i90]: https://github.com/bobthecow/genghis/issues/90
 
