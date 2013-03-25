@@ -7,12 +7,12 @@
 
 ## v2.3.0
 
- * [Fix #69][i69], [#74][i74] , [#84][i84] and [#91][i91] — Fix errors authenticating against a single database.
+ * [Fix #69][i69], [#74][i74] , [#84][i84] and [#91][i91] — Fix errors authenticating against a single database.
  * Add detailed database and collection size stats.
  * Friendlier "human" size rounding.
  * [Fix #89][i89] — Improve handling of databases with invalid names.
  * [Fix #90][i90] — Fix error loading server list after adding a malformed server DSN (PHP backend).
- * [Fix #81][i81] — Suppress dependency version warnings for (really) old versions of rubygems.
+ * [Fix #81][i81] — Suppress dependency version warnings for (really) old versions of rubygems.
  * Fix various and sundry compile errors and edge cases.
  * Bump Bootstrap and Mousetrap library versions.
 
@@ -31,7 +31,7 @@
  * Pre-fill default `fs` GridFS collection name.
  * Add a hotkey for creating a new GridFS collection.
  * Improve "create" user experience in tabular views.
- * [Fix #79][i79] — Improve hotkey handling.
+ * [Fix #79][i79] — Improve hotkey handling.
  * Fix disappearing line numbers in editors after using big search box (let defaults stay default).
  * Housekeeping.
 
@@ -58,12 +58,12 @@ New!
 
 Bug fixes:
 
- * [Fix #64][i64] — Allow creating a document with an explicit `_id`.
+ * [Fix #64][i64] — Allow creating a document with an explicit `_id`.
  * Handle Backbone weirdness in docs with both `_id` and `id` properties.
  * Fix indent levels in documents with empty objects.
  * Stop rejecting all `system*` collections (Ruby backend) — Thanks @ys.
- * [Fix #71][i71] — Handle non-ObjectID DBRefs more gracefully.
- * [Fix #72][i72] — Surface server error responses when searching.
+ * [Fix #71][i71] — Handle non-ObjectID DBRefs more gracefully.
+ * [Fix #72][i72] — Surface server error responses when searching.
  * Surface even more server error messages.
 
 Improvements:
@@ -170,7 +170,7 @@ Improvements:
  * [Fix #33][i33] — Remove unexpected collapsed document representation in edit mode.
  * [Fix #32][i32] — No more mixed-content warning when Genghis is running over SSL.
  * [Fix #35][i35] — No more "Add Server" fail in Ruby.
- * Fix — Handle connection auth errors more gracefully.
+ * Fix — Handle connection auth errors more gracefully.
  * Fix — Query bug when running under PHP 5.4 SAPI CLI server.
  * Add ObjectId timestamps to document headers.
  * Add a sanity check for PHP `date.timezone` settings.
@@ -218,7 +218,7 @@ Brand new features:
 Tons of improvements:
 
  * Add this CHANGELOG. Meta.
- * Genghis now has a more refined visual style — greeeeen!
+ * Genghis now has a more refined visual style — greeeeen!
  * More responsive design (check it in a really small window!)
  * Epic document parsing and rendering overhaul:
     * Huge speed improvements. Rendering, collapsing and scrolling like wow.
