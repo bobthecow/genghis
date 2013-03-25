@@ -1,10 +1,12 @@
 ## v2.2.3
 
  * [Fix #90][i90] — Fix error loading server list after adding a malformed server DSN (PHP backend).
+ * [Fix #81][i81] — Suppress dependency version warnings if for (really) old versions of rubygems.
  * Fix various compile errors and edge cases.
  * Bump Bootstrap and Mousetrap library versions.
 
 [i90]: https://github.com/bobthecow/genghis/issues/90
+[i81]: https://github.com/bobthecow/genghis/issues/81
 
 
 ## v2.2.2
