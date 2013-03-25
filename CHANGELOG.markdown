@@ -1,12 +1,12 @@
 ## v2.3.0
 
  * [Fix #69][i69], [#74][i74] , [#84][i84] and [#91][i91] — Fix errors authenticating against a single database.
- * Add collection size stats and detailed database size stats.
- * Friendlier "human size" rounding.
- * [Fix #89][i89] — Improve handling of invalid database names.
+ * Add detailed database and collection size stats.
+ * Friendlier "human" size rounding.
+ * [Fix #89][i89] — Improve handling of databases with invalid names.
  * [Fix #90][i90] — Fix error loading server list after adding a malformed server DSN (PHP backend).
- * [Fix #81][i81] — Suppress dependency version warnings if for (really) old versions of rubygems.
- * Fix various compile errors and edge cases.
+ * [Fix #81][i81] — Suppress dependency version warnings for (really) old versions of rubygems.
+ * Fix various and sundry compile errors and edge cases.
  * Bump Bootstrap and Mousetrap library versions.
 
 [i69]: https://github.com/bobthecow/genghis/issues/69
