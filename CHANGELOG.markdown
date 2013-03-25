@@ -1,3 +1,10 @@
+## v2.2.3
+
+ * [Fix #90][i90] — Fix error loading server list after adding a malformed server DSN (PHP backend).
+
+[i90]: https://github.com/bobthecow/genghis/issues/90
+
+
 ## v2.2.2
 
  * Fix vertical position of GridFS file creation dialog.
