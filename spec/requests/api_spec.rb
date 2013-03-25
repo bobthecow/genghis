@@ -269,7 +269,8 @@ genghis_backends.each do |backend|
                 id:      'spec_collection',
                 name:    'spec_collection',
                 count:   0,
-                indexes: Array
+                indexes: Array,
+                stats:   Hash,
               }
             ]
         end
@@ -294,7 +295,8 @@ genghis_backends.each do |backend|
             id:      'spec_create_collection',
             name:    'spec_create_collection',
             count:   0,
-            indexes: Array
+            indexes: Array,
+            stats:   Hash
         end
 
         it 'returns 400 unless given a valid collection name' do
@@ -334,7 +336,8 @@ genghis_backends.each do |backend|
             id:      'spec_collection',
             name:    'spec_collection',
             count:   0,
-            indexes: Array
+            indexes: Array,
+            stats:   Hash
         end
 
         it 'returns 404 when the database is not found' do
@@ -392,31 +395,36 @@ genghis_backends.each do |backend|
                   id:      'one with a few spaces',
                   name:    'one with a few spaces',
                   count:   0,
-                  indexes: Array
+                  indexes: Array,
+                  stats:   Hash
                 },
                 {
                   id:      'another.with.dots',
                   name:    'another.with.dots',
                   count:   0,
-                  indexes: Array
+                  indexes: Array,
+                  stats:   Hash
                 },
                 {
                   id:      'forward/slashes',
                   name:    'forward/slashes',
                   count:   0,
-                  indexes: Array
+                  indexes: Array,
+                  stats:   Hash
                 },
                 {
                   id:      'back\\slashes',
                   name:    'back\\slashes',
                   count:   0,
-                  indexes: Array
+                  indexes: Array,
+                  stats:   Hash
                 },
                 {
                   id:      'and unicode…',
                   name:    'and unicode…',
                   count:   0,
-                  indexes: Array
+                  indexes: Array,
+                  stats:   Hash
                 },
               ]
           end
@@ -436,7 +444,8 @@ genghis_backends.each do |backend|
               id:      'a b.c/d\\e…',
               name:    'a b.c/d\\e…',
               count:   0,
-              indexes: Array
+              indexes: Array,
+              stats:   Hash
           end
         end
 
@@ -453,7 +462,8 @@ genghis_backends.each do |backend|
               id:      'foo bar.baz/qux\\quux…',
               name:    'foo bar.baz/qux\\quux…',
               count:   0,
-              indexes: Array
+              indexes: Array,
+              stats:   Hash
           end
         end
       end
