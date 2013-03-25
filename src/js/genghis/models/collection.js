@@ -12,5 +12,11 @@ Genghis.Models.Collection = Genghis.Models.BaseModel.extend({
     },
     isGridCollection: function() {
         return (/\.files$/).test(this.get('name'));
+    },
+    humanSize: function() {
+        var stats = this.get('stats');
+        if (stats) {
+            return Genghis.Util.humanizeSize((stats.storageSize || 0) + (stats.totalIndexSize || 0));
+        }
     }
 });
