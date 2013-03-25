@@ -1,3 +1,10 @@
+## v2.3.1
+
+ * [Fix #93] — Skip `bson_ext` and `json` checks for JRuby, et. al.
+
+[i93]: https://github.com/bobthecow/genghis/issues/93
+
+
 ## v2.3.0
 
  * [Fix #69][i69], [#74][i74] , [#84][i84] and [#91][i91] — Fix errors authenticating against a single database.
