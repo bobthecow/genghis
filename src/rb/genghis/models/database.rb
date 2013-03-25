@@ -34,7 +34,7 @@ module Genghis
           :name        => @database.name,
           :count       => collections.count,
           :collections => collections.map { |c| c.name },
-          :stats       => @database.stats,
+          :stats       => stats,
         }
       end
 
@@ -51,6 +51,10 @@ module Genghis
             db['name'] == name
           end
         end
+      end
+
+      def stats
+        @stats ||= @database.command({:dbStats => true})
       end
 
       def system_collection?(coll)
