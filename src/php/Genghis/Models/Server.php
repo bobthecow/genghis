@@ -170,7 +170,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
         $dsnOpts = array();
         $options = array();
         if (isset($chunks['options'])) {
-            parse_str($chunks['options'], str_replace(';', '&', $dsnOpts));
+            parse_str(str_replace(';', '&', $chunks['options']), $dsnOpts);
             foreach ($dsnOpts as $name => $value) {
                 switch ($name) {
                     case 'replicaSet':
