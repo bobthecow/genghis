@@ -59,7 +59,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     public function getConnection()
     {
         if (!isset($this->connection)) {
-            $this->connection = new Mongo($this->dsn, array_merge(array('timeout' => 1000), $this->options));
+            $this->connection = new Mongo($this->dsn, array_merge(array('connectTimeoutMS' => 1000), $this->options));
         }
 
         return $this->connection;
@@ -167,17 +167,19 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
             $dsn = 'mongodb://'.$dsn;
         }
 
+        $dsnOpts = array();
         $options = array();
         if (isset($chunks['options'])) {
-            parse_str($chunks['options'], str_replace(';', '&', $options));
-            foreach ($options as $name => $value) {
+            parse_str($chunks['options'], str_replace(';', '&', $dsnOpts));
+            foreach ($dsnOpts as $name => $value) {
                 switch ($name) {
                     case 'replicaSet':
-                        $options['replicaSet'] = (string) $value;
+                        $options[$name] = (string) $value;
                         break;
 
                     case 'connectTimeoutMS':
-                        $options['timeout'] = intval($value);
+                    case 'socketTimeoutMS':
+                        $options[$name] = intval($value);
                         break;
 
                     case 'slaveOk':
@@ -186,7 +188,6 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
                     case 'wtimeoutMS':
                     case 'fsync':
                     case 'journal':
-                    case 'socketTimeoutMS':
                         throw new Genghis_HttpException(400, 'Unsupported connection option - ' . $name);
 
                     default:
