@@ -525,6 +525,19 @@ genghis_backends.each do |backend|
             }
         end
 
+        it 'creates a document with a specified id' do
+          res = @api.post do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { _id: 1, foo: 'bar' }.to_json
+          end
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id: 1,
+            foo: 'bar'
+        end
+
         it 'returns 400 if the document is invalid' do
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
