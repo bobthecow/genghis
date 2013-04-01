@@ -62,7 +62,9 @@ Genghis.Views.App = Backbone.View.extend({
             });
 
         // trigger the first selection change. go go gadget app!
-        selection.change();
+        _.defer(function() {
+            selection.trigger('change');
+        });
     },
     showMasthead: function(heading, content, opt) {
         // remove any old mastheads

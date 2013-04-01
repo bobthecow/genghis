@@ -2,6 +2,7 @@
 
  * [Fix #93] — Skip `bson_ext` and `json` checks for JRuby, et. al.
  * Use an explicit ISO date string when saving ISODate values.
+ * Update to the latest Backbone and Underscore library versions.
 
 [i93]: https://github.com/bobthecow/genghis/issues/93
 
