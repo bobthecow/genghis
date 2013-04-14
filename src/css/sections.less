@@ -92,7 +92,11 @@ table {
     .table-bordered;
     .table-hover;
 
-    .header {
+    .tablesorter-header-inner {
+        float:left ;
+    }
+
+    .tablesorter-header {
         cursor: pointer;
         &:after {
             content: "";
@@ -105,8 +109,8 @@ table {
         }
 
         // Style the sorted column headers (THs)
-        &.headerSortUp,
-        &.headerSortDown {
+        &.tablesorter-headerAsc,
+        &.tablesorter-headerDesc {
             background-color: fadeout(@linkColor, 95%);
             text-shadow: 0 1px 1px rgba(255,255,255,.75);
         }
@@ -117,15 +121,15 @@ table {
             }
         }
         // Style the descending (alphabetical) column header
-        &.headerSortDown,
-        &.headerSortDown:hover {
+        &.tablesorter-headerDesc,
+        &.tablesorter-headerDesc:hover {
             &:after {
                 visibility:visible;
                 .opacity(60);
             }
         }
         // Style the ascending (reverse alphabetical) column header
-        &.headerSortUp {
+        &.tablesorter-headerAsc {
             &:after {
                 border-bottom: none;
                 border-left: 4px solid transparent;

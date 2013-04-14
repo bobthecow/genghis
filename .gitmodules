@@ -25,3 +25,6 @@
 [submodule "vendor/jquery-hoverIntent"]
 	path = vendor/jquery-hoverIntent
 	url = https://github.com/briancherne/jquery-hoverIntent.git
+[submodule "vendor/tablesorter"]
+	path = vendor/tablesorter
+	url = https://github.com/Mottie/tablesorter.git

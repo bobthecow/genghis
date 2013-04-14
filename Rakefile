@@ -145,7 +145,7 @@ script_files     = FileList[
   'src/js/modernizr-detects.js',
   'vendor/jquery.js',
   'vendor/jquery-hoverIntent/jquery.hoverIntent.js',
-  'vendor/jquery.tablesorter.js',
+  'vendor/tablesorter/js/jquery.tablesorter.js',
   'vendor/underscore/underscore.js',
   'vendor/backbone/backbone.js',
   'vendor/codemirror/lib/codemirror.js',

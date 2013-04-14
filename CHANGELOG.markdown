@@ -3,6 +3,7 @@
  * [Fix #93] — Skip `bson_ext` and `json` checks for JRuby, et. al.
  * Use an explicit ISO date string when saving ISODate values.
  * Update to the latest Backbone, Underscore, jQuery hoverIntent and Mousetrap library versions.
+ * Switch to Rob Garrison's fork of tablesorter.
 
 [i93]: https://github.com/bobthecow/genghis/issues/93
 
