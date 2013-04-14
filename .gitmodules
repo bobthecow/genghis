@@ -16,3 +16,9 @@
 [submodule "vendor/mousetrap"]
 	path = vendor/mousetrap
 	url = https://github.com/ccampbell/mousetrap.git
+[submodule "vendor/backbone"]
+	path = vendor/backbone
+	url = https://github.com/documentcloud/backbone.git
+[submodule "vendor/underscore"]
+	path = vendor/underscore
+	url = https://github.com/documentcloud/underscore
