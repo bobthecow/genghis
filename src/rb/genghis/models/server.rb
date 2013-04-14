@@ -16,13 +16,13 @@ module Genghis
           # name this server something useful
           name = uri.host
 
-          if user = uri.auths.map{|a| a['username']}.first
+          if user = uri.auths.map { |a| a['username'] }.first
             name = "#{user}@#{name}"
           end
 
           name = "#{name}:#{uri.port}" unless uri.port == 27017
 
-          if db = uri.auths.map{|a| a['db_name']}.first
+          if db = uri.auths.map { |a| a['db_name'] }.first
             unless db == 'admin'
               name = "#{name}/#{db}"
               @db = db
