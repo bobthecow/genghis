@@ -108,6 +108,13 @@ table {
             visibility: hidden;
         }
 
+        &.sorter-false {
+            cursor: default;
+            &:after {
+                display: none;
+            }
+        }
+
         // Style the sorted column headers (THs)
         &.tablesorter-headerAsc,
         &.tablesorter-headerDesc {

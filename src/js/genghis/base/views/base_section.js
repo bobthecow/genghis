@@ -33,12 +33,8 @@ Genghis.Views.BaseSection = Backbone.View.extend({
 
         this.addAll();
 
-        // don't sort the actions column
-        var headerConfig = {};
-        headerConfig[this.$('table thead th').length - 1] = {sorter: false};
-
-        // do sort everything else
-        this.$('table').tablesorter({headers: headerConfig, textExtraction: function(el) {
+        // Sort this bad boy.
+        this.$('table').tablesorter({textExtraction: function(el) {
             return $('.value', el).text() || $(el).text();
         }});
         if (this.collection.size()) this.$('table').trigger('sorton', [[[0,0]]]);
