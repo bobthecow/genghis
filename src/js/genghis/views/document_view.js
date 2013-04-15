@@ -73,17 +73,17 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
 
         var el = this.$el.addClass('edit');
         this.editor = CodeMirror.fromTextArea(textarea[0], _.extend({}, Genghis.defaults.codeMirror, {
-            onFocus: function() { el.addClass('focused');    },
-            onBlur:  function() { el.removeClass('focused'); },
+            autofocus: true,
             extraKeys: {
                  'Ctrl-Enter': this.saveDocument,
                  'Cmd-Enter':  this.saveDocument
              }
         }));
 
-        this.editor.setSize(null, height);
+        this.editor.on('focus', function() { el.addClass('focused');    });
+        this.editor.on('blur',  function() { el.removeClass('focused'); });
 
-        setTimeout(this.editor.focus, 50);
+        this.editor.setSize(null, height);
 
         textarea.resize(_.throttle(this.editor.refresh, 100));
     },

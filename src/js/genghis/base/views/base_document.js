@@ -1,19 +1,19 @@
 Genghis.Views.BaseDocument = Backbone.View.extend({
-    errorMarkers: [],
+    errorLines: [],
     clearErrors: function() {
         var editor = this.editor;
         this.getErrorBlock().html('');
-        _.each(this.errorMarkers, function(marker) {
-            editor.clearMarker(marker);
+        _.each(this.errorLines, function(marker) {
+            editor.removeLineClass(marker, 'background', 'error-line');
         });
-        this.errorMarkers = [];
+        this.errorLines = [];
     },
     getEditorValue: function() {
         this.clearErrors();
 
         var errorBlock = this.getErrorBlock();
         var editor     = this.editor;
-        var markers    = this.errorMarkers;
+        var errorLines = this.errorLines;
 
         try {
             return Genghis.JSON.parse(editor.getValue());
@@ -32,7 +32,7 @@ Genghis.Views.BaseDocument = Backbone.View.extend({
                 errorBlock.append(alertView.render().el);
 
                 if (error.lineNumber) {
-                    markers.push(editor.setMarker(error.lineNumber - 1, null, 'line-error'));
+                    errorLines.push(editor.addLineClass(error.lineNumber - 1, 'background', 'error-line'));
                 }
             });
         }

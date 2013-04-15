@@ -149,6 +149,7 @@ script_files     = FileList[
   'vendor/underscore/underscore.js',
   'vendor/backbone/backbone.js',
   'vendor/codemirror/lib/codemirror.js',
+  'vendor/codemirror/addon/edit/matchbrackets.js',
   'vendor/codemirror/mode/javascript/javascript.js',
   'vendor/bootstrap/js/bootstrap-dropdown.js',
   'vendor/bootstrap/js/bootstrap-tooltip.js',

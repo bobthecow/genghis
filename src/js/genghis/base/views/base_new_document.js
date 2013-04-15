@@ -17,13 +17,14 @@ Genghis.Views.BaseNewDocument = Genghis.Views.BaseDocument.extend({
 
         var wrapper = this.$('.wrapper');
         this.editor = CodeMirror.fromTextArea(this.getTextArea(), _.extend({}, Genghis.defaults.codeMirror, {
-            onFocus: function() { wrapper.addClass('focused');    },
-            onBlur:  function() { wrapper.removeClass('focused'); },
             extraKeys: {
                  'Ctrl-Enter': this.saveDocument,
                  'Cmd-Enter':  this.saveDocument
              }
         }));
+
+        this.editor.on('focus', function() { wrapper.addClass('focused');    });
+        this.editor.on('blur',  function() { wrapper.removeClass('focused'); });
 
         $(window).resize(_.throttle(this.refreshEditor, 100));
 
