@@ -12,8 +12,10 @@
  * Use an explicit ISO date string when saving ISODate values.
  * Update to the latest Backbone, Underscore, CodeMirror, jQuery, jQuery hoverIntent and Mousetrap library versions.
  * Switch to Rob Garrison's fork of tablesorter.
+ * [Fix #96][i96] — Ensure document shows up in the editor in Opera.
 
 [i93]: https://github.com/bobthecow/genghis/issues/93
+[i96]: https://github.com/bobthecow/genghis/issues/96
 
 
 ## v2.3.0
