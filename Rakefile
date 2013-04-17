@@ -144,11 +144,12 @@ script_files     = FileList[
   'src/js/modernizr.js',
   'src/js/modernizr-detects.js',
   'vendor/jquery.js',
-  'vendor/jquery.hoverIntent.js',
-  'vendor/jquery.tablesorter.js',
-  'vendor/underscore.js',
-  'vendor/backbone.js',
+  'vendor/jquery-hoverIntent/jquery.hoverIntent.js',
+  'vendor/tablesorter/js/jquery.tablesorter.js',
+  'vendor/underscore/underscore.js',
+  'vendor/backbone/backbone.js',
   'vendor/codemirror/lib/codemirror.js',
+  'vendor/codemirror/addon/edit/matchbrackets.js',
   'vendor/codemirror/mode/javascript/javascript.js',
   'vendor/bootstrap/js/bootstrap-dropdown.js',
   'vendor/bootstrap/js/bootstrap-tooltip.js',
@@ -162,7 +163,7 @@ script_files     = FileList[
   'src/js/extensions.js',
 ] + app_script_files
 file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files do
-  ugly = Uglifier.new(:copyright => false, :ascii_only => true)
+  ugly = Uglifier.new(:output => {:comments => :none, :ascii_only => true})
   File.open(tmp_dir+'script.js', 'w') do |file|
     file << <<-doc.unindent
       /**

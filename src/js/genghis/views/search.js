@@ -167,15 +167,17 @@ Genghis.Views.Search = Backbone.View.extend({
             var wrapper = this.$('.search-advanced');
             this.editor = CodeMirror(this.$('.well')[0], _.extend({}, Genghis.defaults.codeMirror, {
                 lineNumbers: false,
-                onFocus: function() { wrapper.addClass('focused');    },
-                onBlur:  function() { wrapper.removeClass('focused'); },
                 extraKeys: {
                     'Ctrl-Enter': this.findDocumentsAdvanced,
                     'Cmd-Enter':  this.findDocumentsAdvanced,
                     'Esc':        this.findDocumentsAdvanced
-                },
-                onChange:         this.advancedSearchToQuery
+                }
             }));
+
+            this.editor.on('focus', function() { wrapper.addClass('focused');    });
+            this.editor.on('blur',  function() { wrapper.removeClass('focused'); });
+
+            this.editor.on('change', this.advancedSearchToQuery);
         }
 
         this.queryToAdvancedSearch();

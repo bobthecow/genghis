@@ -39,9 +39,11 @@ module Genghis
     ### Seemed like a good place to put this ###
 
     def server_status_alerts
+      require 'rubygems'
+
       alerts = []
 
-      unless defined? ::JSON::Ext
+      if check_json_ext?
         msg = <<-MSG.strip.gsub(/\s+/, " ")
           <h4>JSON C extension not found.</h4>
           Falling back to the pure Ruby variant. <code>gem install json</code> for better performance.
@@ -52,9 +54,7 @@ module Genghis
       # It would be awesome if we didn't have to resort to this :)
       if Gem::Specification.respond_to? :find_all
 
-        unless defined? ::BSON::BSON_C
-          require 'rubygems'
-
+        if check_bson_ext?
           Gem.refresh
 
           installed = Gem::Specification.find_all { |s| s.name == 'mongo' }.map { |s| s.version }.sort.last
@@ -76,7 +76,6 @@ module Genghis
 
         unless ENV['GENGHIS_NO_UPDATE_CHECK']
           require 'open-uri'
-          require 'rubygems'
 
           Gem.refresh
 
@@ -159,6 +158,18 @@ module Genghis
         :value   => dsn_list.to_json,
         :expires => Time.now + 60*60*24*365
       )
+    end
+
+    def is_ruby?
+      (defined?(RUBY_ENGINE) && RUBY_ENGINE == 'ruby') || !(RUBY_PLATFORM =~ /java/)
+    end
+
+    def check_json_ext?
+      !ENV['GENGHIS_NO_JSON_CHECK'] && is_ruby? && !defined?(::JSON::Ext)
+    end
+
+    def check_bson_ext?
+      !ENV['GENGHIS_NO_BSON_CHECK'] && is_ruby? && !defined?(::BSON::BSON_C)
     end
 
   end

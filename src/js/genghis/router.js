@@ -6,10 +6,9 @@ Genghis.Router = Backbone.Router.extend({
         'servers/:server/databases':                                                         'redirectToServer',
         'servers/:server/databases/:database':                                               'database',
         'servers/:server/databases/:database/collections':                                   'redirectToDatabase',
-        'servers/:server/databases/:database/collections/:collection?*query':                'redirectToCollectionQuery',
         'servers/:server/databases/:database/collections/:collection':                       'collection',
-        'servers/:server/databases/:database/collections/:collection/documents':             'redirectToCollection',
-        'servers/:server/databases/:database/collections/:collection/documents?*query':      'collectionQuery',
+        'servers/:server/databases/:database/collections/:collection/documents':             'collectionQueryOrRedirect',
+        'servers/:server/databases/:database/collections/:collection/documents?*query':      'collectionQueryOrRedirect',
         'servers/:server/databases/:database/collections/:collection/documents/:documentId': 'document',
         '*path':                                                                             'notFound'
     },
@@ -38,6 +37,10 @@ Genghis.Router = Backbone.Router.extend({
         this.navigate('servers/'+server+'/databases/'+database, true);
     },
     collection: function(server, database, collection) {
+        if (!!window.location.search) {
+            return this.collectionQueryOrRedirect(server, database, collection);
+        }
+
         document.title = this.buildTitle(server, database, collection);
         app.selection.select(server, database, collection);
         app.showSection('documents');
@@ -45,8 +48,12 @@ Genghis.Router = Backbone.Router.extend({
     redirectToCollection: function(server, database, collection) {
         this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection, true);
     },
-    redirectToCollectionQuery: function(server, database, collection, query) {
-        this.navigate('servers/'+server+'/databases/'+database+'/collections/'+collection+'/documents?'+query, true);
+    collectionQueryOrRedirect: function(server, database, collection) {
+        if (!!window.location.search) {
+            return this.collectionQuery(server, database, collection, window.location.search.substr(1));
+        } else {
+            this.redirectToCollection(server, database, collection);
+        }
     },
     collectionQuery: function(server, database, collection, query) {
         document.title = this.buildTitle(server, database, collection, 'Query results');

@@ -43,18 +43,19 @@ Genghis.Models.Selection = Backbone.Model.extend({
 
         url = url + 'servers';
         this.servers.url = url;
-        this.servers.fetch({error: showErrorMessage});
+        this.servers.fetch({reset: true, error: showErrorMessage});
 
         if (server) {
             url = url + '/' + server;
             this.currentServer.url = url;
             this.currentServer.fetch({
+                reset: true,
                 error: fetchErrorHandler('databases', 'Server Not Found')
             });
 
             url = url + '/databases';
             this.databases.url = url;
-            this.databases.fetch({error: showErrorMessage});
+            this.databases.fetch({reset: true, error: showErrorMessage});
         } else {
             this.currentServer.clear();
             this.databases.reset();
@@ -64,12 +65,13 @@ Genghis.Models.Selection = Backbone.Model.extend({
             url = url + '/' + database;
             this.currentDatabase.url = url;
             this.currentDatabase.fetch({
+                reset: true,
                 error: fetchErrorHandler('collections', 'Database Not Found')
             });
 
             url = url + '/collections';
             this.collections.url = url;
-            this.collections.fetch({error: showErrorMessage});
+            this.collections.fetch({reset: true, error: showErrorMessage});
         } else {
             this.currentDatabase.clear();
             this.collections.reset();
@@ -79,6 +81,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
             url = url + '/' + collection;
             this.currentCollection.url = url;
             this.currentCollection.fetch({
+                reset: true,
                 error: fetchErrorHandler('documents', 'Collection Not Found')
             });
 
@@ -92,7 +95,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
             }
 
             this.documents.url = url + url_query;
-            this.documents.fetch({error: showErrorMessage});
+            this.documents.fetch({reset: true, error: showErrorMessage});
         } else {
             this.currentCollection.clear();
             this.documents.reset();
@@ -103,6 +106,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
             this.currentDocument.id = documentId;
             this.currentDocument.urlRoot = url;
             this.currentDocument.fetch({
+                reset: true,
                 error: fetchErrorHandler(
                     'document',
                     'Document Not Found',

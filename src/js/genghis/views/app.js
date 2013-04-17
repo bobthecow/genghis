@@ -12,8 +12,11 @@ Genghis.Views.App = Backbone.View.extend({
         // for messaging
         var alerts    = this.alerts    = new Genghis.Collections.Alerts();
 
+        // initialize the router
+        var router = this.router = new Genghis.Router();
+
         // initialize all our app views
-        this.navView               = new Genghis.Views.Nav({model: selection, baseUrl: baseUrl});
+        this.navbarView            = new Genghis.Views.Navbar({model: selection, baseUrl: baseUrl, router: router});
         this.alertsView            = new Genghis.Views.Alerts({collection: alerts});
         this.keyboardShortcutsView = new Genghis.Views.KeyboardShortcuts();
         this.serversView           = new Genghis.Views.Servers({collection: selection.servers});
@@ -41,17 +44,6 @@ Genghis.Views.App = Backbone.View.extend({
             'document':    this.documentView
         };
 
-
-        // initialize the router
-        var router = this.router = new Genghis.Router();
-
-        // route to home when the logo is clicked
-        // TODO: move this somewhere better :)
-        $('.navbar a.brand').click(function(e) {
-            e.preventDefault();
-            router.navigate('', true);
-        });
-
         // check the server status...
         $.getJSON(this.baseUrl + 'check-status')
             .error(alerts.handleError)
@@ -62,7 +54,9 @@ Genghis.Views.App = Backbone.View.extend({
             });
 
         // trigger the first selection change. go go gadget app!
-        selection.change();
+        _.defer(function() {
+            selection.trigger('change');
+        });
     },
     showMasthead: function(heading, content, opt) {
         // remove any old mastheads

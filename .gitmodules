@@ -16,3 +16,15 @@
 [submodule "vendor/mousetrap"]
 	path = vendor/mousetrap
 	url = https://github.com/ccampbell/mousetrap.git
+[submodule "vendor/backbone"]
+	path = vendor/backbone
+	url = https://github.com/documentcloud/backbone.git
+[submodule "vendor/underscore"]
+	path = vendor/underscore
+	url = https://github.com/documentcloud/underscore
+[submodule "vendor/jquery-hoverIntent"]
+	path = vendor/jquery-hoverIntent
+	url = https://github.com/briancherne/jquery-hoverIntent.git
+[submodule "vendor/tablesorter"]
+	path = vendor/tablesorter
+	url = https://github.com/Mottie/tablesorter.git
