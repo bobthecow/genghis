@@ -1,11 +1,21 @@
+## v2.3.2
+
+ * [Fix #103][i103] — Properly encode and decode API URI components in Backbone v1.0.
+ * Clean up page title for non-ObjectId documents.
+
+[i103]: https://github.com/bobthecow/genghis/issues/103
+
+
 ## v2.3.1
 
  * [Fix #93][i93] — Skip `bson_ext` and `json` checks for JRuby, et. al.
  * Use an explicit ISO date string when saving ISODate values.
  * Update to the latest Backbone, Underscore, CodeMirror, jQuery, jQuery hoverIntent and Mousetrap library versions.
  * Switch to Rob Garrison's fork of tablesorter.
+ * [Fix #96][i96] — Ensure document shows up in the editor in Opera.
 
 [i93]: https://github.com/bobthecow/genghis/issues/93
+[i96]: https://github.com/bobthecow/genghis/issues/96
 
 
 ## v2.3.0

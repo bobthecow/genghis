@@ -46,7 +46,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
         this.servers.fetch({reset: true, error: showErrorMessage});
 
         if (server) {
-            url = url + '/' + server;
+            url = url + '/' + encodeURIComponent(server);
             this.currentServer.url = url;
             this.currentServer.fetch({
                 reset: true,
@@ -62,7 +62,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
         }
 
         if (database) {
-            url = url + '/' + database;
+            url = url + '/' + encodeURIComponent(database);
             this.currentDatabase.url = url;
             this.currentDatabase.fetch({
                 reset: true,
@@ -78,7 +78,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
         }
 
         if (collection) {
-            url = url + '/' + collection;
+            url = url + '/' + encodeURIComponent(collection);
             this.currentCollection.url = url;
             this.currentCollection.fetch({
                 reset: true,

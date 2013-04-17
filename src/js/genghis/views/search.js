@@ -74,8 +74,8 @@ Genghis.Views.Search = Backbone.View.extend({
     },
     getDocumentQuery: function() {
         var q = this.model.get('document');
-        if (typeof q === 'string' && q[0] === '~') {
-            q = Genghis.JSON.normalize('{"_id":' + Genghis.Util.base64Decode(q.substr(1)) + '}');
+        if (_.isString(q) && q[0] === '~') {
+            q = Genghis.JSON.normalize('{"_id":' + Genghis.Util.decodeDocumentId(q) + '}');
         }
 
         return q;
