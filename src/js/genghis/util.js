@@ -206,6 +206,22 @@ Genghis.Util = {
         return hex.join('');
     },
 
+    encodeDocumentId: function(id) {
+        if (_.isObject(id) && id.hasOwnProperty('$genghisType') && id.$genghisType == 'ObjectId') {
+            return id.$value;
+        } else if (!_.isUndefined(id)) {
+            return '~' + this.base64Encode(JSON.stringify(id));
+        }
+    },
+
+    decodeDocumentId: function(id) {
+        if (_.isString(id) && id[0] === '~') {
+            return this.base64Decode(id.substr(1));
+        } else {
+            return id;
+        }
+    },
+
     download: (function() {
         var frame;
         return function(url) {

@@ -3,16 +3,9 @@ Genghis.Models.Document = Backbone.Model.extend({
     initialize: function() {
         _.bindAll(this, 'prettyId', 'prettyTime', 'prettyPrint', 'JSONish', 'isGridFile', 'isGridChunk', 'downloadUrl', 'fileUrl');
     },
-    thunkId: function(id) {
-        if (_.isObject(id) && id.hasOwnProperty('$genghisType') && id.$genghisType == 'ObjectId') {
-            return id.$value;
-        } else if (typeof id !== 'undefined') {
-            return '~' + Genghis.Util.base64Encode(JSON.stringify(id));
-        }
-    },
     parse: function(resp) {
         // a little bitta id thunk.
-        var id = this.thunkId(resp._id);
+        var id = Genghis.Util.encodeDocumentId(resp._id);
         if (id) {
             this.id = id;
         }
@@ -102,6 +95,6 @@ Genghis.Models.Document = Backbone.Model.extend({
 
         return this.url()
             .replace(/\.chunks\/documents\//, '.files/documents/')
-            .replace(this.id, this.thunkId(this.get('files_id')));
+            .replace(this.id, Genghis.Util.encodeDocumentId(this.get('files_id')));
     }
 });
