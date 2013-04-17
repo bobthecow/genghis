@@ -1,3 +1,10 @@
+## v2.3.2
+
+ * [Fix #103][i103] — Properly encode and decode API URI components in Backbone v1.0.
+
+[i103]: https://github.com/bobthecow/genghis/issues/103
+
+
 ## v2.3.1
 
  * [Fix #93][i93] — Skip `bson_ext` and `json` checks for JRuby, et. al.
