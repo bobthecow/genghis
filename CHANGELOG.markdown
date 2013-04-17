@@ -1,6 +1,7 @@
 ## v2.3.2
 
  * [Fix #103][i103] — Properly encode and decode API URI components in Backbone v1.0.
+ * Clean up page title for non-ObjectId documents.
 
 [i103]: https://github.com/bobthecow/genghis/issues/103
 

@@ -85,7 +85,7 @@ Genghis.Router = (function() {
         },
 
         document: function(server, database, collection, documentId) {
-            setTitle(server, database, collection, documentId);
+            setTitle(server, database, collection, Genghis.Util.decodeDocumentId(documentId));
             app.selection.select(server, database, collection, documentId);
             app.showSection('document');
         },
