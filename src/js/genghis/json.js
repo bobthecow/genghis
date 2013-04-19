@@ -569,7 +569,7 @@ Genghis.JSON = {
                                     p = span(spanClass);
 
                                     if (isDbRef && k == '$id') {
-                                        p.setAttribute('data-document-id', Genghis.Models.Document.prototype.thunkId(value[k]));
+                                        p.setAttribute('data-document-id', Genghis.Util.encodeDocumentId(value[k]));
                                     }
 
                                     if (v.collapsible) {
