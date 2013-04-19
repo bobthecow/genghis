@@ -1,3 +1,10 @@
+## v2.3.3
+
+ * [Fix #105][i105] — Fix bug introduced when rendering DB references.
+
+[i105]: https://github.com/bobthecow/genghis/issues/105
+
+
 ## v2.3.2
 
  * [Fix #103][i103] — Properly encode and decode API URI components in Backbone v1.0.
