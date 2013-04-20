@@ -1,3 +1,10 @@
+## v2.3.4
+
+ * [Fix #100][i100] — Work around backwards compatibility break in `mongo` gem 1.8.4 (Ruby backend).
+
+[i100]: https://github.com/bobthecow/genghis/issues/100
+
+
 ## v2.3.3
 
  * [Fix #105][i105] — Fix bug introduced when rendering DB references.
