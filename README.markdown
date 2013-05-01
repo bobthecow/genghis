@@ -84,10 +84,12 @@ Genghis Dependencies
 
 ### PHP
 
-You will need [the PECL MongoDB driver](http://www.mongodb.org/display/DOCS/PHP+Language+Center).
+You will need at least PHP 5.2 and [the PECL MongoDB driver](http://www.mongodb.org/display/DOCS/PHP+Language+Center).
 
 
 ### Ruby
+
+Genghis requires Ruby 1.8 or awesomer.
 
 The easiest way to install Genghis and all dependencies is via RubyGems:
 
