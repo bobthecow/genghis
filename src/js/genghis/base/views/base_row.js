@@ -53,12 +53,16 @@ Genghis.Views.BaseRow = Backbone.View.extend({
                 }
             });
         } else {
-            new Genghis.Views.Confirm({
+            var options = {
                 confirmText: this.destroyConfirmButton(name),
-                confirm:     function() {
-                    model.destroy();
-                }
-            });
+                confirm:     function() { model.destroy(); }
+            };
+
+            if (this.destroyConfirmText) {
+                options.body = this.destroyConfirmText(name);
+            }
+
+            new Genghis.Views.Confirm(options);
         }
     },
     destroyConfirmButton: function(name) {

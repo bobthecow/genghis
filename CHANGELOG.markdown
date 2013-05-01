@@ -1,3 +1,8 @@
+## v2.3.5
+
+ * Improve "remove server" button and confirmation dialog to clarify that this removes settings but not data.
+
+
 ## v2.3.4
 
  * [Fix #100][i100] — Work around backwards compatibility break in `mongo` gem 1.8.4 (Ruby backend).
