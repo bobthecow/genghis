@@ -1,6 +1,7 @@
 ## v2.3.5
 
  * Improve "remove server" button and confirmation dialog to clarify that this removes settings but not data.
+ * Expose server error when adding duplicate collection (or GridFS collection) names.
 
 
 ## v2.3.4
