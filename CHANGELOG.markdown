@@ -2,6 +2,9 @@
 
  * Improve "remove server" button and confirmation dialog to clarify that this removes settings but not data.
  * Expose server error when adding duplicate collection (or GridFS collection) names.
+ * [Fix #108][i108] — Don't add servers with malformed (or empty) DSNs.
+
+[i108]: https://github.com/bobthecow/genghis/issues/108
 
 
 ## v2.3.4
