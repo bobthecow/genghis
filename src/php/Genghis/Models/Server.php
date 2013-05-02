@@ -7,6 +7,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     public $options;
     public $default;
     public $db;
+    public $error;
 
     private $connection;
     private $databases = array();

@@ -138,6 +138,7 @@ module Genghis
 
     def add_server(dsn)
       server = Genghis::Models::Server.new(dsn)
+      raise Genghis::MalformedDocument.new(server.error) if server.error
       raise Genghis::ServerAlreadyExists.new(server.name) unless servers[server.name].nil?
       servers[server.name] = server
       save_servers

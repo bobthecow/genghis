@@ -3,6 +3,7 @@ module Genghis
     class Server
       attr_reader   :name
       attr_reader   :dsn
+      attr_reader   :error
       attr_accessor :default
 
       @default = false
@@ -30,8 +31,8 @@ module Genghis
           end
 
           @name = name
-        rescue Mongo::MongoArgumentError => e
-          @error = "Malformed server DSN: #{e.message}"
+        rescue Mongo::MongoArgumentError
+          @error = 'Malformed server DSN'
           @name  = dsn
         end
         @dsn = dsn

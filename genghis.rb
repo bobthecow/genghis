@@ -517,6 +517,7 @@ module Genghis
     class Server
       attr_reader   :name
       attr_reader   :dsn
+      attr_reader   :error
       attr_accessor :default
 
       @default = false
@@ -544,8 +545,8 @@ module Genghis
           end
 
           @name = name
-        rescue Mongo::MongoArgumentError => e
-          @error = "Malformed server DSN: #{e.message}"
+        rescue Mongo::MongoArgumentError
+          @error = 'Malformed server DSN'
           @name  = dsn
         end
         @dsn = dsn
@@ -815,6 +816,7 @@ module Genghis
 
     def add_server(dsn)
       server = Genghis::Models::Server.new(dsn)
+      raise Genghis::MalformedDocument.new(server.error) if server.error
       raise Genghis::ServerAlreadyExists.new(server.name) unless servers[server.name].nil?
       servers[server.name] = server
       save_servers
