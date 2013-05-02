@@ -82,19 +82,30 @@ genghis_backends.each do |backend|
         end
 
 
-        it 'adds the server but returns an error if the DSN is not valid' do
+        it 'returns 400 if the DSN is empty' do
+          res = @api.post do |req|
+            req.url '/servers'
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { name: '' }.to_json
+          end
+
+          res.status.should eq 400
+          res.body.should match_json_expression \
+            error:  'Malformed server DSN',
+            status: 400
+        end
+
+        it 'returns 400 if the DSN is not valid' do
           res = @api.post do |req|
             req.url '/servers'
             req.headers['Content-Type'] = 'application/json'
             req.body = { name: 'http://foo/bar' }.to_json
           end
 
-          res.status.should eq 200
+          res.status.should eq 400
           res.body.should match_json_expression \
-            id:       'http://foo/bar',
-            name:     'http://foo/bar',
-            editable: true,
-            error:    /^Malformed server DSN/
+            error:  'Malformed server DSN',
+            status: 400
         end
       end
 

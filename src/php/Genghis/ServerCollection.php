@@ -143,7 +143,7 @@ class Genghis_ServerCollection implements ArrayAccess, Genghis_JsonEncodable
     {
         $servers = array();
         foreach ($this->servers as $server) {
-            if (!$server->default) {
+            if (!$server->default && $server->name) {
                 $servers[] = $server->dsn;
             }
         }

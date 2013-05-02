@@ -1,5 +1,4 @@
 require 'rake/clean'
-require 'rake/packagetask'
 require 'yaml'
 require 'erb'
 require 'less'
@@ -253,11 +252,6 @@ Bundler::GemHelper.install_tasks
 
 RSpec::Core::RakeTask.new(:spec)
 task :test => :spec
-
-Rake::PackageTask.new('genghis', GENGHIS_VERSION) do |p|
-  p.need_tar = true
-  p.package_files.include('genghis.php', 'genghis.rb', '.htaccess', 'README.markdown', 'LICENSE', 'CHANGELOG.markdown')
-end
 
 CLEAN.include('tmp/*')
 CLOBBER.include('tmp/*', 'genghis.php', 'genghis.rb')

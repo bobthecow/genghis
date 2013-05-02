@@ -289,6 +289,10 @@ class Genghis_Api extends Genghis_App
 
             case 'POST':
                 $server = new Genghis_Models_Server($this->getRequestParam('name'));
+                if ($server->error) {
+                    throw new Genghis_HttpException(400, $server->error);
+                }
+
                 $this->servers[] = $server;
 
                 return $server;

@@ -35,13 +35,32 @@ Genghis.Views.Collections = Genghis.Views.BaseSection.extend({
         if (this.addButton.hasClass('add-gridfs')) {
             name = name.replace(/\.(files|chunks)$/, '');
 
-            this.collection.create({name: name + '.files'});
-            this.collection.create({name: name + '.chunks'});
-        } else {
-            this.collection.create({name: name});
-        }
+            var closeAfterTwo = _.after(2, this.closeAddForm);
 
-        this.closeAddForm();
+            this.collection.create({name: name + '.files'}, {
+                wait:    true,
+                success: closeAfterTwo,
+                error:   function(model, response) {
+                    window.app.alerts.handleError(response);
+                }
+            });
+
+            this.collection.create({name: name + '.chunks'}, {
+                wait:    true,
+                success: closeAfterTwo,
+                error:   function(model, response) {
+                    window.app.alerts.handleError(response);
+                }
+            });
+        } else {
+            this.collection.create({name: name}, {
+                wait:    true,
+                success: this.closeAddForm,
+                error:   function(model, response) {
+                    window.app.alerts.handleError(response);
+                }
+            });
+        }
     },
     showAddForm: function() {
         var wrap = this.$('.input-wrapper');
