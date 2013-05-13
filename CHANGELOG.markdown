@@ -1,3 +1,8 @@
+## v2.3.6
+
+ * Change grippie cursor to `row-resize` — Thanks @Zatsugami.
+
+
 ## v2.3.5
 
  * Improve "remove server" button and confirmation dialog to clarify that this removes settings but not data.
