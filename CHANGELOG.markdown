@@ -1,6 +1,7 @@
 ## v2.3.6
 
  * Change grippie cursor to `row-resize` — Thanks @Zatsugami.
+ * Fix "unable to connect" errors for some driver versions (PHP backend) — Thanks @redexp.
 
 
 ## v2.3.5
