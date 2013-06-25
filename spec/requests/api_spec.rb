@@ -549,6 +549,21 @@ genghis_backends.each do |backend|
             foo: 'bar'
         end
 
+        it 'handles NaN values' do
+          res = @api.post do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { foo: { '$genghisType' => 'NaN' } }.to_json
+          end
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id: @id_pattern,
+            foo: {
+              '$genghisType' => 'NaN'
+            }
+        end
+
         it 'returns 400 if the document is invalid' do
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
@@ -610,6 +625,18 @@ genghis_backends.each do |backend|
             _id:  "test"
         end
 
+        it 'handles NaN values' do
+          id  = @coll.insert({foo: Float::NAN})
+          res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id: @id_pattern,
+            foo: {
+              '$genghisType' => 'NaN'
+            }
+        end
+
         it 'returns 404 if the document is not found' do
           res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/123'
           res.status.should eq 404
@@ -641,6 +668,22 @@ genghis_backends.each do |backend|
           res.body.should match_json_expression \
             _id: @id_pattern,
             test: 2
+        end
+
+        it 'handles NaN values' do
+          id  = @coll.insert({test: 1})
+          res = @api.put do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { test: { '$genghisType' => 'NaN' } }.to_json
+          end
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id: @id_pattern,
+            test: {
+              '$genghisType' => 'NaN'
+            }
         end
 
         it 'returns 400 if a document id is updated' do

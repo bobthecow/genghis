@@ -74,6 +74,8 @@ class Genghis_Json
             foreach ($object as $key => $value) {
                 $object[$key] = self::doEncode($value);
             }
+        } elseif (is_float($object) && is_nan($object)) {
+            return array('$genghisType' => 'NaN');
         }
 
         return $object;
@@ -115,6 +117,9 @@ class Genghis_Json
                         $type = self::getProp($value, 'subtype');
 
                         return new MongoBinData($data, $type);
+
+                    case 'NaN':
+                        return NAN;
                 }
             } else {
                 foreach ($object as $prop => $value) {

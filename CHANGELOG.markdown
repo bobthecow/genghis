@@ -1,3 +1,10 @@
+## v2.4.0
+
+ * [Fix #115][i115] — Add support for viewing and updating NaN values.
+
+[i115]: https://github.com/bobthecow/genghis/issues/115
+
+
 ## v2.3.6
 
  * Change grippie cursor to `row-resize` — Thanks @Zatsugami.
