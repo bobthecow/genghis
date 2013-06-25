@@ -2,7 +2,9 @@
 
  * Change grippie cursor to `row-resize` — Thanks @Zatsugami.
  * Fix "unable to connect" errors for some driver versions (PHP backend) — Thanks @redexp.
- * Update JSON gem dependency (Ruby backend).
+ * [Fix #117][i117] — Update JSON gem dependency (Ruby backend).
+
+[i117]: https://github.com/bobthecow/genghis/issues/117
 
 
 ## v2.3.5
