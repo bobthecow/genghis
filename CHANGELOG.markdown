@@ -2,6 +2,7 @@
 
  * Change grippie cursor to `row-resize` — Thanks @Zatsugami.
  * Fix "unable to connect" errors for some driver versions (PHP backend) — Thanks @redexp.
+ * Update JSON gem dependency (Ruby backend).
 
 
 ## v2.3.5
