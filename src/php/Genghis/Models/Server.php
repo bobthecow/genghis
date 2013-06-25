@@ -8,6 +8,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     public $default;
     public $db;
     public $error;
+    public $defaultOptions = array();
 
     private $connection;
     private $databases = array();
@@ -15,6 +16,12 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     public function __construct($dsn, $default = false)
     {
         $this->default = $default;
+
+        if (version_compare(phpversion("mongo"), '1.3.4', '>=')) {
+            $this->defaultOptions['connectTimeoutMS'] = 1000;
+        } else {
+            $this->defaultOptions['timeout'] = 1000;
+        }
 
         try {
             $config = self::parseDsn($dsn);
@@ -60,7 +67,8 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     public function getConnection()
     {
         if (!isset($this->connection)) {
-            $this->connection = new Mongo($this->dsn, array_merge(array('connectTimeoutMS' => 1000), $this->options));
+            $class = class_exists('MongoClient') ? 'MongoClient' : 'Mongo';
+            $this->connection = new $class($this->dsn, array_merge($this->defaultOptions, $this->options));
         }
 
         return $this->connection;
@@ -149,7 +157,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
                 'databases' => $dbs,
             ));
         } catch (Exception $e) {
-            $server['error'] = sprintf("Unable to connect to Mongo server at '%s'", $this->name);
+            $server['error'] = $e->getMessage();
 
             return $server;
         }

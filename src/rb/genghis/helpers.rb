@@ -24,11 +24,15 @@ module Genghis
     end
 
     def request_json
-      ::JSON.parse request.body.read rescue raise Genghis::MalformedDocument.new
+      @request_json ||= ::JSON.parse request.body.read
+    rescue
+      raise Genghis::MalformedDocument.new
     end
 
     def request_genghis_json
-      ::Genghis::JSON.decode request.body.read rescue raise Genghis::MalformedDocument.new
+      @request_genghis_json ||= ::Genghis::JSON.decode request.body.read
+    rescue
+      raise Genghis::MalformedDocument.new
     end
 
     def thunk_mongo_id(id)

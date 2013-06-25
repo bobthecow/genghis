@@ -41,13 +41,13 @@ module Genghis
       end
     end
 
-    not_found do
-      error_response(404, env['sinatra.error'].message.sub(/^Sinatra::NotFound$/, 'Not Found'))
-    end
-
-    error do
+    error 400..599 do
       err = env['sinatra.error']
       error_response(err.respond_to?(:http_status) ? err.http_status : 500, err.message)
+    end
+
+    not_found do
+      error_response(404, env['sinatra.error'].message.sub(/^Sinatra::NotFound$/, 'Not Found'))
     end
 
 
