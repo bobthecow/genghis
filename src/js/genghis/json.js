@@ -253,8 +253,12 @@ Genghis.JSON = {
 
                 // Property value has to be an array, object, literal, or a whitelisted call
                 case 'Property':
-                    if (node.value && !allowedPropertyValues[node.value.type]) {
-                        addError('Unexpected value: ' + node.value.source(), node.value);
+                    if (node.value) {
+                        if (node.value.type === 'Identifier' && node.value.name === 'NaN') {
+                            node.update('"'+node.key.name+'": {"$genghisType": "NaN"}');
+                        } else if (!allowedPropertyValues[node.value.type]) {
+                            addError('Unexpected value: ' + node.value.source(), node.value);
+                        }
                     }
                     break;
 
@@ -483,6 +487,9 @@ Genghis.JSON = {
 
                                 case 'BinData':
                                     return c('BinData', [span('n', String(value.$value.$subtype)), quote(value.$value.$binary)], 'bindata');
+
+                                case 'NaN':
+                                    return span('v a', 'NaN');
                             }
                         }
 

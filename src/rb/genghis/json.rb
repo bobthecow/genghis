@@ -30,6 +30,7 @@ module Genghis
         when BSON::ObjectId then thunk('ObjectId', o.to_s)
         when BSON::DBRef then db_ref(o)
         when BSON::Binary then thunk('BinData', {'$subtype' => o.subtype, '$binary' => enc_bin_data(o)})
+        when Float then o.nan? ? {'$genghisType' => 'NaN'} : o
         else o
         end
       end
@@ -70,6 +71,7 @@ module Genghis
           when 'ISODate'  then mongo_iso_date  o['$value']
           when 'RegExp'   then mongo_reg_exp   o['$value']
           when 'BinData'  then mongo_bin_data  o['$value']
+          when 'NaN'      then Float::NAN
           else o.merge(o) { |k, v| dec(v) }
           end
         else o
