@@ -3,8 +3,10 @@
  * Change grippie cursor to `row-resize` — Thanks @Zatsugami.
  * Fix "unable to connect" errors for some driver versions (PHP backend) — Thanks @redexp.
  * [Fix #117][i117] — Update JSON gem dependency (Ruby backend).
+ * [Fix #112][i112] — Add support for Sinatra v1.4.0 (Ruby backend).
 
 [i117]: https://github.com/bobthecow/genghis/issues/117
+[i112]: https://github.com/bobthecow/genghis/issues/112
 
 
 ## v2.3.5

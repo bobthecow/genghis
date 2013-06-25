@@ -702,11 +702,15 @@ module Genghis
     end
 
     def request_json
-      ::JSON.parse request.body.read rescue raise Genghis::MalformedDocument.new
+      @request_json ||= ::JSON.parse request.body.read
+    rescue
+      raise Genghis::MalformedDocument.new
     end
 
     def request_genghis_json
-      ::Genghis::JSON.decode request.body.read rescue raise Genghis::MalformedDocument.new
+      @request_genghis_json ||= ::Genghis::JSON.decode request.body.read
+    rescue
+      raise Genghis::MalformedDocument.new
     end
 
     def thunk_mongo_id(id)
@@ -896,13 +900,13 @@ module Genghis
       end
     end
 
-    not_found do
-      error_response(404, env['sinatra.error'].message.sub(/^Sinatra::NotFound$/, 'Not Found'))
-    end
-
-    error do
+    error 400..599 do
       err = env['sinatra.error']
       error_response(err.respond_to?(:http_status) ? err.http_status : 500, err.message)
+    end
+
+    not_found do
+      error_response(404, env['sinatra.error'].message.sub(/^Sinatra::NotFound$/, 'Not Found'))
     end
 
 
