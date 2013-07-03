@@ -247,6 +247,14 @@ module Genghis
         @collection.drop
       end
 
+      def truncate!
+        indexes = @collection.index_information
+        @collection.drop
+        indexes.each do |name, index|
+          @collection.ensure_index index['key'], index
+        end
+      end
+
       def insert(data)
         begin
           id = @collection.insert data
@@ -1022,6 +1030,11 @@ module Genghis
     post '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
       document = servers[server][database][collection].insert request_genghis_json
       genghis_json document
+    end
+
+    delete '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
+      servers[server][database][collection].truncate!
+      json :success => true
     end
 
     get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|

@@ -163,6 +163,11 @@ module Genghis
       genghis_json document
     end
 
+    delete '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
+      servers[server][database][collection].truncate!
+      json :success => true
+    end
+
     get '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
       genghis_json servers[server][database][collection][document]
     end
