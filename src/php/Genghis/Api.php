@@ -200,6 +200,11 @@ class Genghis_Api extends Genghis_App
             case 'POST':
                 return $this->servers[$server][$db][$coll]->insert($this->getRequestData());
 
+            case 'DELETE':
+                $this->servers[$server][$db][$coll]->truncate();
+
+                return array('success' => true);
+
             default:
                 throw new Genghis_HttpException(405);
         }

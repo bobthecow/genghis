@@ -15,6 +15,14 @@ module Genghis
         @collection.drop
       end
 
+      def truncate!
+        indexes = @collection.index_information
+        @collection.drop
+        indexes.each do |name, index|
+          @collection.ensure_index index['key'], index
+        end
+      end
+
       def insert(data)
         begin
           id = @collection.insert data

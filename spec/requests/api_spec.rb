@@ -661,6 +661,46 @@ genghis_backends.each do |backend|
         end
       end
 
+      describe 'DELETE /servers/:server/databases/:db/collections/:coll/documents' do
+        before do
+          @coll.insert({foo: 1, bar: 'a'})
+          @coll.insert({foo: 2, bar: 'b'})
+          @coll.drop_indexes
+        end
+
+        after do
+          @coll.drop_indexes
+          @coll.remove
+        end
+
+        it 'empties a collection' do
+          res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
+          res.status.should eq 200
+          @conn['__genghis_spec_test__'].collection_names.include?('spec_docs').should eq true
+          @coll.size.should eq 0
+        end
+
+        it 'maintains indices' do
+          @coll.ensure_index({foo: -1})
+          @coll.ensure_index({bar: 1}, {unique: true})
+          @coll.ensure_index({baz: 1}, {name: 'baz_rocks', sparse: true, expireAfterSeconds: 6000})
+
+          res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
+          res.status.should eq 200
+          @conn['__genghis_spec_test__'].collection_names.include?('spec_docs').should eq true
+          @coll.index_information.should match_json_expression \
+            '_id_'      => Hash,
+            'foo_-1'    => Hash,
+            'bar_1'     => {unique: true}.ignore_extra_keys!,
+            'baz_rocks' => {name: 'baz_rocks', sparse: true, expireAfterSeconds: 6000}.ignore_extra_keys!
+        end
+
+        it 'returns 404 if the collection is not found' do
+          res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/spec_fake_docs/documents'
+          res.status.should eq 404
+        end
+      end
+
       describe 'GET /servers/:server/databases/:db/collections/:coll/documents/:id' do
         it 'returns a document' do
           id  = @coll.insert({test: 1})

@@ -189,6 +189,15 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         $this->collection->drop();
     }
 
+    public function truncate()
+    {
+        $indexes = $this->collection->getIndexInfo();
+        $this->collection->drop();
+        foreach ($indexes as $index) {
+            $this->collection->ensureIndex($index['key'], $index);
+        }
+    }
+
     public function asJson()
     {
         $name  = $this->collection->getName();
