@@ -104,7 +104,8 @@ Genghis.Views.Search = Backbone.View.extend({
                 return;
             }
 
-            url = url + '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q)});
+            var explain = this.$el.find('input[name="explain"]').prop('checked');
+            url = url + '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q), explain: explain});
         }
 
         app.router.navigate(url, true);
@@ -161,6 +162,8 @@ Genghis.Views.Search = Backbone.View.extend({
         }
 
         this.editor.setValue(q);
+        var explain = this.model.get('explain');
+        this.$('input[name=explain]').prop('checked', explain);
     },
     expandSearch: function(expand) {
         if (!this.editor) {

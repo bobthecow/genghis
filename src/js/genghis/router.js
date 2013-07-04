@@ -76,7 +76,8 @@ Genghis.Router = (function() {
         collectionQuery: function(server, database, collection, query) {
             setTitle(server, database, collection, 'Query results');
             var params = Genghis.Util.parseQuery(query);
-            app.selection.select(server, database, collection, null, params.q, params.page);
+            var explain = params.explain == 'true';
+            app.selection.select(server, database, collection, null, params.q, params.page, explain);
             app.showSection('documents');
         },
 

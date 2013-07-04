@@ -4,7 +4,8 @@ Genghis.Models.Selection = Backbone.Model.extend({
         database:   null,
         collection: null,
         query:      null,
-        page:       null
+        page:       null,
+        explain:    null
     },
     initialize: function() {
         _.bindAll(this, 'select', 'update', 'nextPage', 'previousPage');
@@ -21,14 +22,15 @@ Genghis.Models.Selection = Backbone.Model.extend({
         this.documents         = new Genghis.Collections.Documents();
         this.currentDocument   = new Genghis.Models.Document();
     },
-    select: function(server, database, collection, documentId, query, page) {
+    select: function(server, database, collection, documentId, query, page, explain) {
         this.set({
             server:     server     || null,
             database:   database   || null,
             collection: collection || null,
             document:   documentId || null,
             query:      query      || null,
-            page:       page       || null
+            page:       page       || null,
+            explain:    explain    || null
         });
     },
     update: function() {
@@ -38,6 +40,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
         var documentId = this.get('document');
         var query      = this.get('query');
         var page       = this.get('page');
+        var explain    = this.get('explain');
         var url        = app.baseUrl;
         var params     = {};
 
@@ -91,6 +94,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
             if (query || page) {
                 if (query) params.q = encodeURIComponent(JSON.stringify(Genghis.JSON.parse(query)));
                 if (page)  params.page = encodeURIComponent(page);
+                if (explain) params.explain = true;
                 url_query = '?' + Genghis.Util.buildQuery(params);
             }
 
