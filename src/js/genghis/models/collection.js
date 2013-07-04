@@ -31,5 +31,37 @@ Genghis.Models.Collection = Genghis.Models.BaseModel.extend({
                 {name: 'Storage size',     value: _h(stats.storageSize || 0)    }
             ];
         }
+    },
+    truncate: function(options) {
+        options = options ? _.clone(options) : {};
+        var model = this;
+        var success = options.success;
+
+        var truncate = function() {
+            model.trigger('truncate', model, model.collection, options);
+        };
+
+        options.success = function(resp) {
+            if (options.wait || model.isNew()) truncate();
+            if (success) success(model, resp, options);
+            if (!model.isNew()) model.trigger('sync', model, resp, options);
+        };
+
+        options.url = this.url() + '/documents';
+
+        if (this.isNew()) {
+            options.success();
+            return false;
+        }
+
+        var error = options.error;
+        options.error = function(resp) {
+            if (error) error(model, resp, options);
+            model.trigger('error', model, resp, options);
+        };
+
+        var xhr = this.sync('delete', this, options);
+        if (!options.wait) truncate();
+        return xhr;
     }
 });
