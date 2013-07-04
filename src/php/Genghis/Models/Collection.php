@@ -131,7 +131,7 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         }
     }
 
-    public function findDocuments($query = null, $page = 1)
+    public function findDocuments($query = null, $page = 1, $explain = false)
     {
         try {
             $query = Genghis_Json::decode($query);
@@ -144,6 +144,14 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
             ->find($query ? $query : array())
             ->limit(Genghis_Api::PAGE_LIMIT)
             ->skip($offset);
+
+        if ($explain == true) {
+          # Treat explain result as an iterator with a fake ID on the first
+          # item.
+          $cursor = $cursor->explain();
+          $cursor['_id'] = 'explain';
+          $cursor = new ArrayObject(array($cursor));
+        }
 
         $count = $cursor->count();
 
