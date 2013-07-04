@@ -47,8 +47,8 @@ module Genghis
         document
       end
 
-      def documents(query={}, page=1)
-        Query.new(@collection, query, page)
+      def documents(query={}, page=1, explain=false)
+        Query.new(@collection, query, page, explain)
       end
 
       def [](doc_id)
