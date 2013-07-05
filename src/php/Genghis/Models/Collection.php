@@ -146,8 +146,8 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
             ->skip($offset);
 
         if ($explain == true) {
-          # Treat explain result as an iterator with a fake ID on the first
-          # item.
+          // Treat explain result as an iterator with a fake ID on the first
+          // item.
           $cursor = $cursor->explain();
           $cursor['_id'] = 'explain';
           $cursor = new ArrayObject(array($cursor));
