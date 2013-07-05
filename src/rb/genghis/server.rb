@@ -155,7 +155,7 @@ module Genghis
     end
 
     get '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
-      genghis_json servers[server][database][collection].documents(query_param, page_param)
+      genghis_json servers[server][database][collection].documents(query_param, page_param, explain_param)
     end
 
     post '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|

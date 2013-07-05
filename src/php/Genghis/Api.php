@@ -193,8 +193,9 @@ class Genghis_Api extends Genghis_App
             case 'GET':
                 $query = (string) $this->getQueryParam('q', '');
                 $page  = (int) $this->getQueryParam('page', 1);
+                $explain = (bool) $this->getQueryParam('explain', false);
 
-                return $this->servers[$server][$db][$coll]->findDocuments($query, $page);
+                return $this->servers[$server][$db][$coll]->findDocuments($query, $page, $explain);
 
             case 'POST':
                 return $this->servers[$server][$db][$coll]->insert($this->getRequestData());

@@ -3,10 +3,11 @@ module Genghis
     class Query
       PAGE_LIMIT = 50
 
-      def initialize(collection, query={}, page=1)
+      def initialize(collection, query={}, page=1, explain=false)
         @collection = collection
         @page       = page
         @query      = query
+        @explain    = explain
       end
 
       def as_json(*)
@@ -35,7 +36,17 @@ module Genghis
       end
 
       def documents
-        @documents ||= @collection.find(@query, :limit => PAGE_LIMIT, :skip  => offset)
+        return @documents if @documents
+        @documents ||= @collection.find(@query, :limit => PAGE_LIMIT, :skip => offset)
+
+        # Explain returns 1 doc but we expose it as a collection with 1 record
+        # and a fake ID
+        if @explain
+          @documents = [@documents.explain()]
+          @documents[0]['_id'] = 'explain'
+        end
+
+        @documents
       end
 
     end
