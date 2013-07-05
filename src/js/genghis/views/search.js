@@ -7,7 +7,8 @@ Genghis.Views.Search = Backbone.View.extend({
         'click span.grippie':       'toggleExpanded',
         'dragmove span.grippie':    'handleGrippieDrag',
         'click button.cancel':      'collapseSearch',
-        'click button.search':      'findDocumentsAdvanced'
+        'click button.search':      'findDocumentsAdvanced',
+        'click button.explain':     'explainQuery'
     },
     initialize: function() {
         _.bindAll(
@@ -90,7 +91,7 @@ Genghis.Views.Search = Backbone.View.extend({
             this.blurSearch();
         }
     },
-    findDocuments: function(q) {
+    findDocuments: function(q, explain) {
         var url = Genghis.Util.route(this.model.currentCollection.url + '/documents');
 
         q = q.trim();
@@ -104,7 +105,7 @@ Genghis.Views.Search = Backbone.View.extend({
                 return;
             }
 
-            var explain = this.$el.find('input[name="explain"]').prop('checked');
+            explain = explain || false;
             url = url + '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q), explain: explain});
         }
 
@@ -112,6 +113,10 @@ Genghis.Views.Search = Backbone.View.extend({
     },
     findDocumentsAdvanced: function(e) {
         this.findDocuments(this.editor.getValue());
+        this.collapseSearch();
+    },
+    explainQuery: function(e) {
+        this.findDocuments(this.editor.getValue(), true);
         this.collapseSearch();
     },
     focusSearch: function(e) {
@@ -162,8 +167,6 @@ Genghis.Views.Search = Backbone.View.extend({
         }
 
         this.editor.setValue(q);
-        var explain = this.model.get('explain');
-        this.$('input[name=explain]').prop('checked', explain);
     },
     expandSearch: function(expand) {
         if (!this.editor) {
