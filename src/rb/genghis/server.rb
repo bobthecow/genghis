@@ -154,8 +154,12 @@ module Genghis
       json :success => true
     end
 
+    get '/servers/:server/databases/:database/collections/:collection/explain' do |server, database, collection|
+      genghis_json servers[server][database][collection].explain(query_param)
+    end
+
     get '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|
-      genghis_json servers[server][database][collection].documents(query_param, page_param, explain_param)
+      genghis_json servers[server][database][collection].documents(query_param, page_param)
     end
 
     post '/servers/:server/databases/:database/collections/:collection/documents' do |server, database, collection|

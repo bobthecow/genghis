@@ -19,10 +19,6 @@ module Genghis
       ::Genghis::JSON.decode(params.fetch('q', '{}'))
     end
 
-    def explain_param
-      params.fetch('explain', false) == 'true'
-    end
-
     def page_param
       params.fetch('page', 1).to_i
     end

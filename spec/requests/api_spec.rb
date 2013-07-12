@@ -517,30 +517,22 @@ genghis_backends.each do |backend|
         end
       end
 
-      describe 'GET /servers/:server/databases/:db/collections/:coll/documents?q=&explain=true' do
+      describe 'GET /servers/:server/databases/:db/collections/:coll/explain?q=' do
 
-        let(:res) {
-          url = '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents?'
-          url += 'q=' + URI::encode('{}') + '&explain=true'
-          @api.get url
-        }
-
-        let(:parsed) { JSON(res.body) }
+        let(:res)  { @api.get "/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/explain?q=#{URI::encode('{}')}" }
+        let(:body) { res.body }
 
         it 'returns 200 status' do
           res.status.should eq 200
         end
 
-        it 'returns exactly 1 document' do
-          parsed['documents'].length.should eq 1
-        end
-
         it 'has some basic index info' do
-          parsed['documents'].first['cursor'].should eq 'BasicCursor'
-        end
-
-        it 'has id of explain on document' do
-          parsed['documents'].first['_id'].should eq 'explain'
+          body.should match_json_expression({
+            cursor:      'BasicCursor',
+            indexOnly:   false,
+            allPlans:    Array,
+            server:      String
+          }.ignore_extra_keys)
         end
       end
 

@@ -91,11 +91,12 @@ Genghis.Views.Search = Backbone.View.extend({
             this.blurSearch();
         }
     },
-    findDocuments: function(q, explain) {
-        var url = Genghis.Util.route(this.model.currentCollection.url + '/documents');
+    findDocuments: function(q, section) {
+        section = section || 'documents';
+        var url = Genghis.Util.route(this.model.currentCollection.url + '/' + section);
 
         q = q.trim();
-        if (q.match(/^([a-z\d]+)$/i)) {
+        if (section === 'documents' && q.match(/^([a-z\d]+)$/i)) {
             url = url + '/' + q;
         } else {
             try {
@@ -105,8 +106,7 @@ Genghis.Views.Search = Backbone.View.extend({
                 return;
             }
 
-            explain = explain || false;
-            url = url + '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q), explain: explain});
+            url = url + '?' + Genghis.Util.buildQuery({q: encodeURIComponent(q)});
         }
 
         app.router.navigate(url, true);
@@ -116,7 +116,7 @@ Genghis.Views.Search = Backbone.View.extend({
         this.collapseSearch();
     },
     explainQuery: function(e) {
-        this.findDocuments(this.editor.getValue(), true);
+        this.findDocuments(this.editor.getValue(), 'explain');
         this.collapseSearch();
     },
     focusSearch: function(e) {
