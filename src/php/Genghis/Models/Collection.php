@@ -133,12 +133,7 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
 
     public function explainQuery($query = null)
     {
-        try {
-            $query = Genghis_Json::decode($query);
-        } catch (Genghis_JsonException $e) {
-            throw new Genghis_HttpException(400, 'Malformed document');
-        }
-
+        $query  = $this->decodeQuery($query);
         $result = $this->collection
             ->find($query ? $query : array())
             ->explain();
@@ -148,12 +143,7 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
 
     public function findDocuments($query = null, $page = 1)
     {
-        try {
-            $query = Genghis_Json::decode($query);
-        } catch (Genghis_JsonException $e) {
-            throw new Genghis_HttpException(400, 'Malformed document');
-        }
-
+        $query  = $this->decodeQuery($query);
         $offset = Genghis_Api::PAGE_LIMIT * ($page - 1);
         $cursor = $this->collection
             ->find($query ? $query : array())
@@ -276,6 +266,15 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         }
 
         return base64_decode(str_replace(' ', '+', $data));
+    }
+
+    private function decodeQuery($query)
+    {
+        try {
+            return Genghis_Json::decode($query);
+        } catch (Genghis_JsonException $e) {
+            throw new Genghis_HttpException(400, 'Malformed document');
+        }
     }
 
     private function stats()
