@@ -7,11 +7,12 @@ Genghis.Views.CollectionRow = Genghis.Views.BaseRow.extend({
     truncate: function() {
         var model = this.model;
         var name  = model.get('name');
+        var count = model.get('count') || 'all';
 
         new Genghis.Views.Confirm({
             header: 'Remove all documents?',
-            body:   'Emptying this collection will remove all documents, but will leave indexes intact.' +
-                    '<br><br>Type <strong>'+name+'</strong> to continue:',
+            body:   'Emptying this collection will remove <strong>' + count + ' documents</strong>, but will leave indexes intact.' +
+                    '<br><br>Type <strong>' + name + '</strong> to continue:',
             confirmInput: name,
             confirmText:  'Empty '+name,
             confirm: function() {
