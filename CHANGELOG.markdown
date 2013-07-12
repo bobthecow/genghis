@@ -3,6 +3,7 @@
  * Add "Explain query" feature — Thanks @craigerm for doing all the hard work!
  * Add support for emptying collections.
  * [Fix #115][i115] — Add support for viewing and updating NaN values.
+ * Minor style tweaks.
 
 [i115]: https://github.com/bobthecow/genghis/issues/115
 

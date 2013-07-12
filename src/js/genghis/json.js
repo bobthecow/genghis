@@ -501,10 +501,10 @@ Genghis.JSON = {
                             if (value.length === 0) {
                                 gap = mind;
 
-                                return span('v a', '[]');
+                                return span('v ar', '[]');
                             }
 
-                            el = span('v a');
+                            el = span('v ar');
 
                             if (autoCollapse && gap) {
                                 el.collapsible = true;
