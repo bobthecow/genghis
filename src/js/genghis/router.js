@@ -17,6 +17,8 @@ Genghis.Router = (function() {
             'servers/:server/databases/:database/collections/:collection':                       'collection',
             'servers/:server/databases/:database/collections/:collection/documents':             'collectionQueryOrRedirect',
             'servers/:server/databases/:database/collections/:collection/documents?*query':      'collectionQueryOrRedirect',
+            'servers/:server/databases/:database/collections/:collection/explain':               'explainQuery',
+            'servers/:server/databases/:database/collections/:collection/explain?*query':        'explainQuery',
             'servers/:server/databases/:database/collections/:collection/documents/:documentId': 'document',
             '*path':                                                                             'notFound'
         },
@@ -76,13 +78,20 @@ Genghis.Router = (function() {
         collectionQuery: function(server, database, collection, query) {
             setTitle(server, database, collection, 'Query results');
             var params = Genghis.Util.parseQuery(query);
-            var explain = params.explain == 'true';
-            app.selection.select(server, database, collection, null, params.q, params.page, explain);
+            app.selection.select(server, database, collection, null, params.q, params.page);
             app.showSection('documents');
         },
 
         redirectToQuery: function(server, database, collection, query) {
             this.navigate('servers/' + e(server) + '/databases/' + e(database) + '/collections/' + e(collection) + '/documents?' + Genghis.Util.buildQuery({q: e(query)}), true);
+        },
+
+        explainQuery: function(server, database, collection) {
+            var query = window.location.search.substr(1);
+            setTitle(server, database, collection, 'Query explanation');
+            var params = Genghis.Util.parseQuery(query);
+            app.selection.select(server, database, collection, null, params.q, null, true);
+            app.showSection('explain');
         },
 
         document: function(server, database, collection, documentId) {

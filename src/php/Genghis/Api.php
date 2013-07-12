@@ -3,7 +3,7 @@
 class Genghis_Api extends Genghis_App
 {
     // api/servers/:server/databases/:db/collections/:coll/documents/:id
-    const ROUTE_PATTERN = '~^/?servers(?:/(?P<server>[^/]+)(?P<databases>/databases(?:/(?P<db>[^/]+)(?P<collections>/collections(?:/(?P<coll>[^/]+)(?P<documents>/documents(?:/(?P<id>[^/]+))?)?)?)?)?)?)?/?$~';
+    const ROUTE_PATTERN = '~^/?servers(?:/(?P<server>[^/]+)(?P<databases>/databases(?:/(?P<db>[^/]+)(?P<collections>/collections(?:/(?P<coll>[^/]+)((?P<documents>/documents(?:/(?P<id>[^/]+))?)?|(?P<explain>/explain)?)?)?)?)?)?)?/?$~';
 
     // api/servers/:server/databases/:db/collections/:coll/files/:id
     const GRIDFS_ROUTE = '~^/?servers/(?P<server>[^/]+)/databases/(?P<db>[^/]+)/collections/(?P<coll>[^/]+)/files(?:/(?P<id>[^/]+))?/?$~';
@@ -44,6 +44,10 @@ class Genghis_Api extends Genghis_App
 
             if (isset($p['id'])) {
                 return new Genghis_JsonResponse($this->documentAction($method, $p['server'], $p['db'], $p['coll'], $p['id']));
+            }
+
+            if (isset($p['explain'])) {
+                return new Genghis_JsonResponse($this->explainAction($method, $p['server'], $p['db'], $p['coll']));
             }
 
             if (isset($p['documents'])) {
@@ -187,15 +191,27 @@ class Genghis_Api extends Genghis_App
         }
     }
 
+    public function explainAction($method, $server, $db, $coll)
+    {
+        switch ($method) {
+            case 'GET':
+                $query = (string) $this->getQueryParam('q', '');
+
+                return $this->servers[$server][$db][$coll]->explainQuery($query);
+
+            default:
+                throw new Genghis_HttpException(405);
+        }
+    }
+
     public function documentsAction($method, $server, $db, $coll)
     {
         switch ($method) {
             case 'GET':
                 $query = (string) $this->getQueryParam('q', '');
                 $page  = (int) $this->getQueryParam('page', 1);
-                $explain = (bool) $this->getQueryParam('explain', false);
 
-                return $this->servers[$server][$db][$coll]->findDocuments($query, $page, $explain);
+                return $this->servers[$server][$db][$coll]->findDocuments($query, $page);
 
             case 'POST':
                 return $this->servers[$server][$db][$coll]->insert($this->getRequestData());

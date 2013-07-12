@@ -14,6 +14,9 @@
         body.section-documents   &.server,
         body.section-documents   &.database,
         body.section-documents   &.collection,
+        body.section-explain     &.server,
+        body.section-explain     &.database,
+        body.section-explain     &.collection,
         body.section-document    &.server,
         body.section-document    &.database,
         body.section-document    &.collection { display: block; }
@@ -23,6 +26,7 @@
     form {
         display: none;
         body.section-documents &,
+        body.section-explain &,
         body.section-document & { display: block; }
     }
 
@@ -94,7 +98,7 @@
                 margin-left: 5px;
             }
             .explain {
-              .pull-left;
+                .pull-left;
             }
         }
     }
