@@ -4,7 +4,8 @@ Genghis.Models.Selection = Backbone.Model.extend({
         database:   null,
         collection: null,
         query:      null,
-        page:       null
+        page:       null,
+        explain:    false
     },
     initialize: function() {
         _.bindAll(this, 'select', 'update', 'nextPage', 'previousPage');
@@ -20,15 +21,17 @@ Genghis.Models.Selection = Backbone.Model.extend({
         this.currentCollection = new Genghis.Models.Collection();
         this.documents         = new Genghis.Collections.Documents();
         this.currentDocument   = new Genghis.Models.Document();
+        this.explain           = new Genghis.Models.Document();
     },
-    select: function(server, database, collection, documentId, query, page) {
+    select: function(server, database, collection, documentId, query, page, explain) {
         this.set({
             server:     server     || null,
             database:   database   || null,
             collection: collection || null,
             document:   documentId || null,
             query:      query      || null,
-            page:       page       || null
+            page:       page       || null,
+            explain:    explain    || false
         });
     },
     update: function() {
@@ -38,6 +41,7 @@ Genghis.Models.Selection = Backbone.Model.extend({
         var documentId = this.get('document');
         var query      = this.get('query');
         var page       = this.get('page');
+        var explain    = this.get('explain');
         var url        = app.baseUrl;
         var params     = {};
 
@@ -85,17 +89,23 @@ Genghis.Models.Selection = Backbone.Model.extend({
                 error: fetchErrorHandler('documents', 'Collection Not Found')
             });
 
+            var explainUrl = url + '/explain';
             url = url + '/documents';
 
-            var url_query = '';
+            var urlQuery = '';
             if (query || page) {
                 if (query) params.q = encodeURIComponent(JSON.stringify(Genghis.JSON.parse(query)));
                 if (page)  params.page = encodeURIComponent(page);
-                url_query = '?' + Genghis.Util.buildQuery(params);
+                urlQuery = '?' + Genghis.Util.buildQuery(params);
             }
 
-            this.documents.url = url + url_query;
-            this.documents.fetch({reset: true, error: showErrorMessage});
+            if (explain) {
+                this.explain.url = explainUrl + urlQuery;
+                this.explain.fetch({error: showErrorMessage});
+            } else {
+                this.documents.url = url + urlQuery;
+                this.documents.fetch({reset: true, error: showErrorMessage});
+            }
         } else {
             this.currentCollection.clear();
             this.documents.reset();

@@ -131,6 +131,21 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         }
     }
 
+    public function explainQuery($query = null)
+    {
+        try {
+            $query = Genghis_Json::decode($query);
+        } catch (Genghis_JsonException $e) {
+            throw new Genghis_HttpException(400, 'Malformed document');
+        }
+
+        $result = $this->collection
+            ->find($query ? $query : array())
+            ->explain();
+
+        return $result;
+    }
+
     public function findDocuments($query = null, $page = 1)
     {
         try {

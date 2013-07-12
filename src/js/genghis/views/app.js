@@ -33,6 +33,7 @@ Genghis.Views.App = Backbone.View.extend({
             collection: selection.documents,
             pagination: selection.pagination
         });
+        this.explainView           = new Genghis.Views.Explain({model: selection.explain});
         this.documentView          = new Genghis.Views.Document({model: selection.currentDocument});
 
         // Let's just keep these for later...
@@ -41,6 +42,7 @@ Genghis.Views.App = Backbone.View.extend({
             'databases':   this.databasesView,
             'collections': this.collectionsView,
             'documents':   this.documentsView,
+            'explain':     this.explainView,
             'document':    this.documentView
         };
 

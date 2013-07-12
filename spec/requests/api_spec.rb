@@ -517,6 +517,25 @@ genghis_backends.each do |backend|
         end
       end
 
+      describe 'GET /servers/:server/databases/:db/collections/:coll/explain?q=' do
+
+        let(:res)  { @api.get "/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/explain?q=#{URI::encode('{}')}" }
+        let(:body) { res.body }
+
+        it 'returns 200 status' do
+          res.status.should eq 200
+        end
+
+        it 'has some basic index info' do
+          body.should match_json_expression({
+            cursor:      'BasicCursor',
+            indexOnly:   false,
+            allPlans:    Array,
+            server:      String
+          }.ignore_extra_keys)
+        end
+      end
+
       describe 'POST /servers/:server/databases/:db/collections/:coll/documents' do
         it 'creates a document' do
           res = @api.post do |req|
