@@ -10,6 +10,7 @@
 .rspec export-ignore
 .travis.yml export-ignore
 bower.json export-ignore
+build.js export-ignore
 Gemfile export-ignore
 Guardfile export-ignore
 Rakefile export-ignore

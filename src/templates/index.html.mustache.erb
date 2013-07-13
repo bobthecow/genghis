@@ -8,7 +8,7 @@
         <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Rokkitt:400,700|Source+Code+Pro">
         <link type="text/css" rel="stylesheet" href="{{ base_url }}/assets/style.css?v={{ genghis_version }}">
         <script type="text/javascript" src="{{ base_url }}/assets/script.js?v={{ genghis_version }}"></script>
-        <script type="text/javascript">jQuery(function() { Genghis.boot('{{ base_url }}'); });</script>
+        <script type="text/javascript">require('genghis/boot')('{{ base_url }}');</script>
     </head>
     <body>
         <header class="navbar navbar-fixed-top">

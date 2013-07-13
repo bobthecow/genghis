@@ -59,13 +59,8 @@
                 }
             });
 
-            require(['jquery', 'genghis/views/app', 'less!styles', 'css!backgrounds-dev'], function($, AppView) {
-                $(function() {
-                    baseUrl = '{{ base_url }}';
-                    baseUrl = baseUrl + (baseUrl.charAt(baseUrl.length - 1) == '/' ? '' : '/');
-                    window.app = new AppView({baseUrl: baseUrl});
-                    Backbone.history.start({pushState: true, root: baseUrl});
-                });
+            require(['genghis/boot', 'less!style', 'css!backgrounds-dev'], function(boot) {
+                boot('{{ base_url }}');
             });
         </script>
     </head>
