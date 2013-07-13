@@ -34,6 +34,8 @@ class Genghis_App
             return $this->getApi()->route($method, $path);
         } elseif ($this->isAssetRequest($path)) {
             return $this->getAsset(substr($path, 8));
+        } elseif (substr($path, -11) === 'VERSION.txt') {
+            return new Genghis_AssetResponse('VERSION.txt', GENGHIS_VERSION);
         } else {
             // not an api request, we'll return index.html and render the page in javascript.
             return $this->renderTemplate('index.html.mustache');
