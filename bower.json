@@ -9,6 +9,7 @@
 		"jquery-hoverIntent":     "*",
 		"jquery.tablesorter":     "*",
 		"mousetrap":              "*",
+		"r.js":                   "*",
 		"requirejs":              "*",
 		"requirejs-hogan-plugin": "*",
 		"require-css":            "*",

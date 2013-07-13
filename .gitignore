@@ -3,6 +3,7 @@ pkg/*
 Gemfile.lock
 
 # Ignore some giant vendor directories
+assets/vendor/*/build/
 assets/vendor/*/docs/
 assets/vendor/*/test/
 assets/vendor/*/tests/
