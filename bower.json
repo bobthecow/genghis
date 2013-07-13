@@ -1,0 +1,19 @@
+{
+	"dependencies": {
+		"almond":                 "*",
+		"backbone":               "*",
+		"bootstrap":              "*",
+		"codemirror":             "*",
+		"esprima":                "*",
+		"jquery":                 "*",
+		"jquery-hoverIntent":     "*",
+		"jquery.tablesorter":     "*",
+		"mousetrap":              "*",
+		"requirejs":              "*",
+		"requirejs-hogan-plugin": "*",
+		"require-css":            "*",
+		"require-less":           "*",
+		"respond":                "*",
+		"underscore":             "*"
+	}
+}

@@ -1,0 +1,28 @@
+{
+  "name": "codemirror",
+  "version": "3.14.0",
+  "main": [
+    "lib/codemirror.js",
+    "lib/codemirror.css"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components",
+    "bin",
+    "demo",
+    "doc",
+    "test",
+    "index.html",
+    "package.json"
+  ],
+  "gitHead": "7e4a1382542273717942961b862dd13da966123b",
+  "readme": "# CodeMirror\n[![Build Status](https://secure.travis-ci.org/marijnh/CodeMirror.png?branch=master)](http://travis-ci.org/marijnh/CodeMirror)\n[![NPM version](https://badge.fury.io/js/codemirror.png)](http://badge.fury.io/js/codemirror)\n\nCodeMirror is a JavaScript component that provides a code editor in\nthe browser. When a mode is available for the language you are coding\nin, it will color your code, and optionally help with indentation.\n\nThe project page is http://codemirror.net  \nThe manual is at http://codemirror.net/doc/manual.html  \nThe contributing guidelines are in [CONTRIBUTING.md](https://github.com/marijnh/CodeMirror/blob/master/CONTRIBUTING.md)\n",
+  "readmeFilename": "README.md",
+  "_id": "CodeMirror@3.13.0",
+  "description": "[![Build Status](https://secure.travis-ci.org/marijnh/CodeMirror.png?branch=master)](http://travis-ci.org/marijnh/CodeMirror) [![NPM version](https://badge.fury.io/js/codemirror.png)](http://badge.fury.io/js/codemirror)",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/marijnh/CodeMirror.git"
+  }
+}

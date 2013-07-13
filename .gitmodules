@@ -1,30 +1,3 @@
-[submodule "vendor/bootstrap"]
-	path = vendor/bootstrap
-	url = https://github.com/twbs/bootstrap.git
-[submodule "vendor/keyscss"]
-	path = vendor/keyscss
+[submodule "assets/vendor/keyscss"]
+	path = assets/vendor/keyscss
 	url = https://github.com/michaelhue/keyscss.git
-[submodule "vendor/hogan"]
-	path = vendor/hogan
-	url = https://github.com/twitter/hogan.js.git
-[submodule "vendor/codemirror"]
-	path = vendor/codemirror
-	url = https://github.com/marijnh/CodeMirror.git
-[submodule "vendor/esprima"]
-	path = vendor/esprima
-	url = https://github.com/ariya/esprima.git
-[submodule "vendor/mousetrap"]
-	path = vendor/mousetrap
-	url = https://github.com/ccampbell/mousetrap.git
-[submodule "vendor/backbone"]
-	path = vendor/backbone
-	url = https://github.com/documentcloud/backbone.git
-[submodule "vendor/underscore"]
-	path = vendor/underscore
-	url = https://github.com/documentcloud/underscore
-[submodule "vendor/jquery-hoverIntent"]
-	path = vendor/jquery-hoverIntent
-	url = https://github.com/briancherne/jquery-hoverIntent.git
-[submodule "vendor/tablesorter"]
-	path = vendor/tablesorter
-	url = https://github.com/Mottie/tablesorter.git

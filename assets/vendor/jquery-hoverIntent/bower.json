@@ -1,0 +1,9 @@
+{
+  "name": "jquery-hoverIntent",
+  "version": "0.0.0",
+  "commit": "50f11356f87c96097b48879c1aa1cd994d9599b2",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/briancherne/jquery-hoverIntent.git"
+  }
+}

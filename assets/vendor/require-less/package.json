@@ -1,0 +1,18 @@
+{
+  "volo": {
+    "type": "directory",
+    "dependencies": {
+      "require-css": "guybedford/require-css/0.0.6"
+    }
+  },
+  "jspm": {
+    "dependencies": {
+      "css": "0.0.6"
+    }
+  },
+  "jam": {
+    "dependencies": {
+      "require-css": "0.1.x"
+    }
+  }
+}
