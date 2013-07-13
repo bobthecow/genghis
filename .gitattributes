@@ -15,4 +15,5 @@ Gemfile export-ignore
 Guardfile export-ignore
 Rakefile export-ignore
 VERSION.txt export-ignore
+genghis-dev.php
 genghisapp.gemspec export-ignore
