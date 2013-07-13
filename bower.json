@@ -2,7 +2,7 @@
 	"dependencies": {
 		"almond":                 "*",
 		"backbone":               "*",
-		"bootstrap":              "*",
+		"bootstrap":              "2.3.2",
 		"codemirror":             "*",
 		"esprima":                "*",
 		"jquery":                 "*",
