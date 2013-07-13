@@ -1,4 +1,4 @@
-define(['underscore', 'genghis'], function(_, Genghis) {
+define(['underscore', 'genghis', 'esprima'], function(_, Genghis, esprima) {
     return Genghis.JSON = {
         parse: function(src) {
             if (typeof src !== 'string') {

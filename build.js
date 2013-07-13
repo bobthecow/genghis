@@ -29,6 +29,7 @@
     'bootstrap.popover':  '../vendor/bootstrap/docs/assets/js/bootstrap-popover',
     'bootstrap.tooltip':  '../vendor/bootstrap/docs/assets/js/bootstrap-tooltip',
     'codemirror':         '../vendor/codemirror/lib/codemirror',
+    'esprima':            '../vendor/esprima/esprima',
     'hgn':                '../vendor/requirejs-hogan-plugin/hgn',
     'hogan':              '../vendor/requirejs-hogan-plugin/hogan',
     'jquery':             '../vendor/jquery/jquery',
