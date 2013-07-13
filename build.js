@@ -16,6 +16,10 @@
     excludeAfterBuild: true
   },
 
+  uglify2: {
+    output: {ascii_only: true}
+  },
+
   paths: {
     'almond':             '../vendor/almond/almond',
     'backbone':           '../vendor/backbone/backbone',

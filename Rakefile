@@ -11,9 +11,9 @@ require 'json'
 require 'bundler'
 require 'rspec/core/rake_task'
 
-GENGHIS_VERSION = File.read('VERSION').strip
+GENGHIS_VERSION = File.read('VERSION.txt').strip
 
-tmp_dir = ENV['NOCOMPRESS'] ? 'tmp/uncompressed/' : 'tmp/compressed/'
+tmp_dir = 'tmp/'
 
 def data_uri(filename)
   "data:image/#{File.extname(filename)[1..-1]};base64,#{Base64.strict_encode64(File.read(filename))}"
@@ -54,30 +54,30 @@ directory tmp_dir
 
 file tmp_dir+'backgrounds.css' => FileList[
   tmp_dir,
-  'src/img/backgrounds/*.png',
+  'assets/img/backgrounds/*.png',
   'src/templates/backgrounds.css.erb'
 ] do
   File.open(tmp_dir+'backgrounds.css', 'w') do |file|
-    body         = data_uri('src/img/backgrounds/body.png')
-    grippie      = data_uri('src/img/backgrounds/grippie.png')
-    nav          = data_uri('src/img/backgrounds/nav.png')
-    servers_spin = data_uri('src/img/backgrounds/servers_spin.gif')
-    section_spin = data_uri('src/img/backgrounds/section_spin.gif')
+    body         = data_uri('assets/img/backgrounds/body.png')
+    grippie      = data_uri('assets/img/backgrounds/grippie.png')
+    nav          = data_uri('assets/img/backgrounds/nav.png')
+    servers_spin = data_uri('assets/img/backgrounds/servers_spin.gif')
+    section_spin = data_uri('assets/img/backgrounds/section_spin.gif')
 
     file << ERB.new(File.read('src/templates/backgrounds.css.erb')).result(binding)
   end
 end
 
 css_files = [
-  'vendor/codemirror/lib/codemirror.css',
-  'vendor/keyscss/keys.css',
+  'assets/vendor/codemirror/lib/codemirror.css',
+  'assets/vendor/keyscss/keys.css',
   tmp_dir+'backgrounds.css',
 ]
 
 file tmp_dir+'style.css' => FileList[
   tmp_dir,
-  'src/css/*.less',
-  'vendor/bootstrap/less/*.less',
+  'assets/css/*.less',
+  'assets/vendor/bootstrap/less/*.less',
   *css_files
 ] do
   File.open(tmp_dir+'style.css', 'w') do |file|
@@ -99,70 +99,22 @@ file tmp_dir+'style.css' => FileList[
       css << File.read(f)
     end
 
-    parser = Less::Parser.new(:paths => ['./src/css'], :filename => 'src/css/style.less')
-    css << parser.parse(File.read('src/css/style.less')).to_css
+    parser = Less::Parser.new(:paths => ['./assets/css'], :filename => 'assets/css/style.less')
+    css << parser.parse(File.read('assets/css/style.less')).to_css
 
-    file << (ENV['NOCOMPRESS'] ? css : Rainpress.compress(css))
+    file << Rainpress.compress(css)
   end
 end
 
-file tmp_dir+'templates.js' => FileList[tmp_dir, 'vendor/hogan/lib/*.js', 'src/templates/partials/*.mustache'] do
-  File.open(tmp_dir+'templates.js', 'w') do |file|
-    context = ExecJS.compile(File.read('vendor/hogan/web/builds/2.0.0/hogan-2.0.0.js'))
-    FileList['src/templates/partials/*.mustache'].each do |name|
-      key     = name.sub(/^src\/templates\/partials\/(.*)\.mustache$/, '\1').camelize
-      content = context.eval("Hogan.compile(#{File.read(name).inspect}, {asString: true})")
-      file << "Genghis.Templates.#{key} = new Hogan.Template({code: #{content}});\n"
-    end
-  end
-end
-
-file tmp_dir+'version.js' => FileList['VERSION'] do
-  File.open(tmp_dir+'version.js', 'w') do |file|
-    file << "Genghis.version = #{GENGHIS_VERSION.inspect};\n"
-  end
-end
-
-app_script_files = FileList[
-  'src/js/genghis/bootstrap.js',
-  tmp_dir+'version.js',
-  tmp_dir+'templates.js',
-  'src/js/genghis/util.js',
-  'src/js/genghis/json.js',
-] +
-FileList['src/js/genghis/base/**/*.js'].sort        +
-FileList['src/js/genghis/models/**/*.js'].sort      +
-FileList['src/js/genghis/collections/**/*.js'].sort +
-FileList['src/js/genghis/views/**/*.js'].sort       +
-FileList[
-  'src/js/genghis/router.js'
+script_dependency_files = FileList[
+  'assets/js/**/*.js',
+  'assets/vendor/**/*.js',
 ]
+file tmp_dir+'genghis.js' => [ tmp_dir ] + script_dependency_files do
+  `r.js -o build.js`
+end
 
-script_files     = FileList[
-  # vendor libraries
-  'src/js/modernizr.js',
-  'src/js/modernizr-detects.js',
-  'vendor/jquery.js',
-  'vendor/jquery-hoverIntent/jquery.hoverIntent.js',
-  'vendor/tablesorter/js/jquery.tablesorter.js',
-  'vendor/underscore/underscore.js',
-  'vendor/backbone/backbone.js',
-  'vendor/codemirror/lib/codemirror.js',
-  'vendor/codemirror/addon/edit/matchbrackets.js',
-  'vendor/codemirror/mode/javascript/javascript.js',
-  'vendor/bootstrap/js/bootstrap-dropdown.js',
-  'vendor/bootstrap/js/bootstrap-tooltip.js',
-  'vendor/bootstrap/js/bootstrap-popover.js',
-  'vendor/bootstrap/js/bootstrap-modal.js',
-  'vendor/esprima/esprima.js',
-  'vendor/mousetrap/mousetrap.js',
-  'vendor/hogan/lib/template.js',
-
-  # extensions
-  'src/js/extensions.js',
-] + app_script_files
-file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files do
-  ugly = Uglifier.new(:output => {:comments => :none, :ascii_only => true})
+file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'genghis.js' ] do
   File.open(tmp_dir+'script.js', 'w') do |file|
     file << <<-doc.unindent
       /**
@@ -176,35 +128,34 @@ file tmp_dir+'script.js' => [ tmp_dir, tmp_dir+'templates.js' ] + script_files d
        */
     doc
 
-    js_src = script_files.map{ |s| File.read(s) }.join(";\n")
-    file << (ENV['NOCOMPRESS'] ? js_src : ugly.compile(js_src))
+    file << File.read(tmp_dir+'genghis.js')
   end
 end
 
 file tmp_dir+'index.html.mustache' => FileList[
-  tmp_dir, 'src/templates/index.html.mustache.erb', 'src/img/favicon.png', 'src/img/keyboard.png'
+  tmp_dir, 'src/templates/index.html.mustache.erb', 'assets/img/favicon.png', 'assets/img/keyboard.png'
 ] do
   File.open(tmp_dir+'index.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
 
-    favicon_uri  = data_uri('src/img/favicon.png')
-    keyboard_uri = data_uri('src/img/keyboard.png')
+    favicon_uri  = data_uri('assets/img/favicon.png')
+    keyboard_uri = data_uri('assets/img/keyboard.png')
 
     index = ERB.new(File.read('src/templates/index.html.mustache.erb')).result(binding)
 
-    file << (ENV['NOCOMPRESS'] ? index : packer.compress(index))
+    file << packer.compress(index)
   end
 end
 
-file tmp_dir+'error.html.mustache' => FileList[tmp_dir, 'src/templates/index.html.mustache.erb', 'src/img/favicon.png'] do
+file tmp_dir+'error.html.mustache' => FileList[tmp_dir, 'src/templates/index.html.mustache.erb', 'assets/img/favicon.png'] do
   File.open(tmp_dir+'error.html.mustache', 'w') do |file|
     packer = HtmlCompressor::HtmlCompressor.new
 
-    favicon_uri = data_uri('src/img/favicon.png')
+    favicon_uri = data_uri('assets/img/favicon.png')
 
     tpl = ERB.new(File.read('src/templates/error.html.mustache.erb')).result(binding)
 
-    file << (ENV['NOCOMPRESS'] ? tpl : packer.compress(tpl))
+    file << packer.compress(tpl)
   end
 end
 
@@ -215,10 +166,10 @@ file 'genghis.php' => php_include_files + asset_files do
   File.open('genghis.php', 'w') do |file|
     template = ERB.new(File.read('src/templates/genghis.php.erb'))
 
-    includes = php_include_files.map { |inc| ENV['NOCOMPRESS'] ? File.read(inc) : `php -w #{inc}` }
+    includes = php_include_files.map { |inc| `php -w #{inc}` }
     assets = asset_files.map do |asset|
       content = File.read(asset)
-      { :name => asset.sub(/^tmp\/(un)?compressed\//, ''), :content => content, :etag => Digest::MD5.hexdigest(content) }
+      { :name => asset.sub(/^tmp\//, ''), :content => content, :etag => Digest::MD5.hexdigest(content) }
     end
 
     file << template.result(binding)
@@ -240,7 +191,7 @@ file 'genghis.rb' => rb_include_files + asset_files do
     includes = rb_include_files.map { |inc| File.read(inc) }
     assets = asset_files.map do |asset|
       content = File.read(asset)
-      { :name => asset.sub(/^tmp\/(un)?compressed\//, ''), :content => content, :etag => Digest::MD5.hexdigest(content) }
+      { :name => asset.sub(/^tmp\//, ''), :content => content, :etag => Digest::MD5.hexdigest(content) }
     end
 
     file << template.result(binding)
