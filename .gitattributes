@@ -13,5 +13,5 @@ bower.json export-ignore
 Gemfile export-ignore
 Guardfile export-ignore
 Rakefile export-ignore
-VERSION export-ignore
+VERSION.txt export-ignore
 genghisapp.gemspec export-ignore

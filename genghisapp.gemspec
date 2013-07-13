@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name        = 'genghisapp'
-  gem.version     = File.read('VERSION').strip.gsub('-', '.')
+  gem.version     = File.read('VERSION.txt').strip.gsub('-', '.')
   gem.author      = 'Justin Hileman'
   gem.email       = 'justin@justinhileman.info'
   gem.homepage    = 'http://genghisapp.com'
@@ -25,7 +25,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'uglifier'
   gem.add_development_dependency 'html_compressor'
 
-  gem.files        = %w(LICENSE README.markdown CHANGELOG.markdown genghis.rb)
+  gem.files        = %w(LICENSE.txt README.md CHANGELOG.md genghis.rb)
   gem.files       += Dir.glob('bin/**/*')
   gem.files       += Dir.glob('spec/**/*')
   gem.test_files   = Dir.glob('spec/**/*')
