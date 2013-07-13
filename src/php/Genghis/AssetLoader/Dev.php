@@ -1,42 +1,44 @@
 <?php
 
-class Genghis_AssetLoader_Inline implements Genghis_AssetLoader
+class Genghis_AssetLoader_Dev implements Genghis_AssetLoader
 {
-    private $file;
-    private $offset;
-    private $assets     = array();
-    private $assetEtags = array();
+    private $baseDir;
+    private $templateDir;
 
-    public function __construct($file, $offset)
+    public function __construct($baseDir, $templateDir)
     {
-        $this->file   = $file;
-        $this->offset = $offset;
+        $this->baseDir     = $baseDir;
+        $this->templateDir = $templateDir;
     }
 
     public function load($name)
     {
-        $data = $this->loadRaw($name);
+        $fileName = $this->fileName($name);
+        $data     = file_get_contents($fileName);
 
         return new Genghis_AssetResponse($name, $data, array(
-            'Last-Modified' => gmdate('D, d M Y H:i:s', filemtime($this->file)) . ' GMT',
-            'Etag'          => sprintf('"%s"', $this->assetEtags[$name]),
+            'Last-Modified' => gmdate('D, d M Y H:i:s', filemtime($fileName)) . ' GMT',
         ));
     }
 
     public function loadTemplate($name)
     {
-        return $this->loadRaw($name);
+        $fileName = sprintf('%s/%s', $this->templateDir, $name);
+        if (!file_exists($fileName)) {
+            throw new InvalidArgumentException(sprintf("Unknown template: '%s'", $name));
+        }
+
+        return file_get_contents($fileName);
     }
 
-    private function loadRaw($name)
+    private function fileName($name)
     {
-        $this->initAssets();
-
-        if (!isset($this->assets[$name])) {
+        $fileName = sprintf('%s/%s', $this->baseDir, $name);
+        if (!file_exists($fileName)) {
             throw new InvalidArgumentException(sprintf("Unknown asset: '%s'", $name));
         }
 
-        return $this->assets[$name];
+        return $fileName;
     }
 
     private function initAssets()

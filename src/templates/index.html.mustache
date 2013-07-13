@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Genghis</title>
+        <link rel="shortcut icon" type="image/png" href="{{ base_url }}/assets/img/favicon.png">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Rokkitt:400,700|Source+Code+Pro">
+        <script src="{{ base_url }}/assets/vendor/requirejs/require.js"></script>
+        <script>
+            require.config({
+                baseUrl: '{{ base_url }}/assets/js',
+                paths: {
+                    'backbone':           '../vendor/backbone/backbone',
+                    'backgrounds-dev':    '../css/backgrounds-dev',
+                    'bootstrap.dropdown': '../vendor/bootstrap/docs/assets/js/bootstrap-dropdown',
+                    'bootstrap.modal':    '../vendor/bootstrap/docs/assets/js/bootstrap-modal',
+                    'bootstrap.popover':  '../vendor/bootstrap/docs/assets/js/bootstrap-popover',
+                    'bootstrap.tooltip':  '../vendor/bootstrap/docs/assets/js/bootstrap-tooltip',
+                    'codemirror':         '../vendor/codemirror/lib/codemirror',
+                    'hgn':                '../vendor/requirejs-hogan-plugin/hgn',
+                    'hogan':              '../vendor/requirejs-hogan-plugin/hogan',
+                    'jquery':             '../vendor/jquery/jquery',
+                    'jquery.hoverintent': '../vendor/jquery-hoverIntent/jquery.hoverIntent',
+                    'jquery.tablesorter': '../vendor/jquery.tablesorter/js/jquery.tablesorter',
+                    'mousetrap':          '../vendor/mousetrap/mousetrap',
+                    'styles':             '../css/styles',
+                    'text':               '../vendor/requirejs-hogan-plugin/text',
+                    'underscore':         '../vendor/underscore/underscore'
+                },
+                packages: [
+                    {
+                        name:     'css',
+                        location: '../vendor/require-css',
+                        main:     'css'
+                    },
+                    {
+                        name:     'less',
+                        location: '../vendor/require-less',
+                        main:     'less'
+                    }
+                ],
+                shim: {
+                    'backbone': {
+                        deps:    ['underscore', 'jquery'],
+                        exports: 'Backbone'
+                    },
+
+                    'bootstrap.dropdown': ['jquery'],
+                    'bootstrap.tooltip':  ['jquery'],
+                    'bootstrap.popover':  ['jquery', 'bootstrap.tooltip'],
+                    'bootstrap.modal':    ['jquery'],
+
+                    'codemirror': {exports: 'CodeMirror'},
+                    'underscore': {exports: '_'},
+
+                    'jquery.hoverintent': ['jquery'],
+                    'jquery.tablesorter': ['jquery']
+                }
+            });
+
+            require(['jquery', 'genghis/views/app', 'less!styles', 'css!backgrounds-dev'], function($, AppView) {
+                $(function() {
+                    baseUrl = '{{ base_url }}';
+                    baseUrl = baseUrl + (baseUrl.charAt(baseUrl.length - 1) == '/' ? '' : '/');
+                    window.app = new AppView({baseUrl: baseUrl});
+                    Backbone.history.start({pushState: true, root: baseUrl});
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <header class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container fixed">
+                    <a class="magic brand" href="{{ base_url }}/">Genghis</a>
+                    <nav></nav>
+                </div>
+            </div>
+        </header>
+
+        <noscript><h1>You won&#146;t get far in life without JavaScript&hellip;</h1></noscript>
+
+        <section id="genghis" class="container fluid">
+            <aside id="alerts"></aside>
+            <section id="servers"     class="app-section"></section>
+            <section id="databases"   class="app-section"></section>
+            <section id="collections" class="app-section"></section>
+            <section id="documents"   class="app-section"></section>
+            <section id="explain"     class="app-section"></section>
+            <section id="document"    class="app-section"><header></header></section>
+            <section id="error"       class="app-section"></section>
+        </section>
+
+        <footer id="footer" class="container">
+            <p><a href="http://genghisapp.com">Genghis</a>, by <a href="http://justinhileman.info">Justin Hileman</a>.</p>
+            <p><a class="keyboard-shortcuts" href="#">Keyboard shortcuts available <img src="{{ base_url }}/assets/img/keyboard.png"></a></p>
+        </footer>
+    </body>
+</html>

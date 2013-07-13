@@ -5,12 +5,14 @@ class Genghis_AssetResponse extends Genghis_Response
     protected $headers;
 
     private static $extMap = array(
+        'css'  => 'text/css',
+        'gif'  => 'image/gif',
+        'htm'  => 'text/html',
+        'html' => 'text/html',
         'js'   => 'application/x-javascript',
         'json' => 'application/json',
-        'css'  => 'text/css',
-        'html' => 'text/html',
-        'htm'  => 'text/html',
         'php'  => 'text/html',
+        'png'  => 'image/png',
         'txt'  => 'text/plain',
     );
 

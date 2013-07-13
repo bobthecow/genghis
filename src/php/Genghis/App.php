@@ -170,7 +170,7 @@ class Genghis_App
 
     protected function renderTemplate($name, $status = 200, array $vars = array())
     {
-        $tpl = $this->loader->loadRaw($name);
+        $tpl = $this->loader->loadTemplate($name);
         $defaults = array(
             'base_url'        => $this->getBaseUrl(),
             'genghis_version' => GENGHIS_VERSION,
