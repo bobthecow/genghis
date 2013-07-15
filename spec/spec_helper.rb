@@ -1,14 +1,17 @@
+lib = File.expand_path('../../src/rb', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
 require 'rspec/autorun'
 require 'json_expressions/rspec'
 require 'net/http'
-require_relative '../genghis.rb'
+require 'genghis/dev_server'
 
 RSpec.configure do |config|
   def genghis_backends
     if ENV['GENGHIS_BACKEND']
       ENV['GENGHIS_BACKEND'].split(',').map(&:to_sym)
     else
-      [:php, :php_dev, :ruby]
+      [:php, :php_dev, :ruby, :ruby_dev]
     end
   end
 
@@ -31,9 +34,9 @@ RSpec.configure do |config|
         sleep 0.1
       end
       api
-    when :ruby
+    when :ruby, :ruby_dev
       Faraday.new do |conn|
-        conn.adapter :rack, Genghis::Server.new
+        conn.adapter :rack, ruby_backend_class(backend).new
       end
     end
   end
@@ -42,6 +45,13 @@ RSpec.configure do |config|
     case backend
     when :php     then 'genghis.php'
     when :php_dev then 'genghis-dev.php'
+    end
+  end
+
+  def ruby_backend_class(backend)
+    case backend
+    when :ruby     then Genghis::Server
+    when :ruby_dev then Genghis::DevServer
     end
   end
 

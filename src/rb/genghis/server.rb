@@ -39,7 +39,7 @@ module Genghis
           content_type :json
           error(status, {:error => message, :status => status}.to_json)
         else
-          error(status, mustache('error.html.mustache'.intern))
+          error(status, mustache('error.html'.intern))
         end
       end
     end
@@ -95,7 +95,7 @@ module Genghis
       pass if request.xhr?
       @genghis_version = Genghis::VERSION
       @base_url = request.env['SCRIPT_NAME']
-      mustache 'index.html.mustache'.intern
+      mustache 'index.html'.intern
     end
 
 

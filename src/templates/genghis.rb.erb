@@ -20,6 +20,6 @@ Genghis::Server.run! if __FILE__ == $0
 __END__
 
 <% assets.each do |asset| %>
-@@ <%= asset[:name] %>
+@@ <%= asset[:name].sub(/\.mustache$/, '') %>
 <%= asset[:content] %>
 <% end %>
