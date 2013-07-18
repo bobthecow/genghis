@@ -1,14 +1,14 @@
 define([
-    'genghis/views', 'genghis/views/base_row', 'genghis/views/confirm', 'hgn!genghis/templates/collection_row'
-], function(Views, BaseRow, Confirm, template) {
+    'genghis/views', 'genghis/views/row', 'genghis/views/confirm', 'hgn!genghis/templates/collection_row'
+], function(Views, Row, Confirm, template) {
 
-    return Views.CollectionRow = BaseRow.extend({
+    return Views.CollectionRow = Row.extend({
         template:   template,
         isParanoid: true,
 
         events: _.extend({
             'click button.truncate': 'truncate'
-        }, BaseRow.prototype.events),
+        }, Row.prototype.events),
 
         truncate: function() {
             var model = this.model;

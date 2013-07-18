@@ -1,6 +1,6 @@
-define(['genghis/views', 'genghis/views/base_row', 'hgn!genghis/templates/database_row'], function(Views, BaseRow, template) {
+define(['genghis/views', 'genghis/views/row', 'hgn!genghis/templates/database_row'], function(Views, Row, template) {
 
-  return Views.DatabaseRow = BaseRow.extend({
+  return Views.DatabaseRow = Row.extend({
       template:   template,
       isParanoid: true
   });

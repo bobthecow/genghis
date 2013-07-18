@@ -1,6 +1,6 @@
-define(['genghis/views', 'genghis/views/base_row', 'hgn!genghis/templates/server_row'], function(Views, BaseRow, template) {
+define(['genghis/views', 'genghis/views/row', 'hgn!genghis/templates/server_row'], function(Views, Row, template) {
 
-  return Views.ServerRow = BaseRow.extend({
+  return Views.ServerRow = Row.extend({
       template: template,
 
       destroyConfirmText:   function(name) {

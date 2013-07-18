@@ -3,7 +3,7 @@ define([
     'jquery.hoverintent', 'bootstrap.tooltip', 'bootstrap.popover'
 ], function($, _, Backbone, Views, Util, Confirm, _1, _2) {
 
-    return Views.BaseRow = Backbone.View.extend({
+    return Views.Row = Backbone.View.extend({
         tagName: 'tr',
 
         events: {
