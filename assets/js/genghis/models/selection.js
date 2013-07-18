@@ -5,6 +5,12 @@ define([
     'genghis/models/document', 'genghis/util', 'genghis/json'
 ], function(_, Backbone, Models, Pagination, Servers, Server, Databases, Database, Collections, Collection, Documents, Document, Util, GenghisJSON) {
 
+    var SERVER_PARAMS     = ['server'];
+    var DATABASE_PARAMS   = ['server', 'database'];
+    var COLLECTION_PARAMS = ['server', 'database', 'collection'];
+    var DOCUMENTS_PARAMS  = ['server', 'database', 'collection', 'query', 'page'];
+    var DOCUMENT_PARAMS   = ['server', 'database', 'collection', 'document'];
+
     return Models.Selection = Backbone.Model.extend({
 
         defaults: {
@@ -13,11 +19,13 @@ define([
             collection: null,
             query:      null,
             page:       null,
+            document:   null,
             explain:    false
         },
 
         initialize: function() {
-            _.bindAll(this, 'select', 'update', 'nextPage', 'previousPage');
+            _.bindAll(this, 'select', 'buildUrl', 'update', 'nextPage', 'previousPage');
+
             this.bind('change', this.update);
 
             this.pagination        = new Pagination();
@@ -45,87 +53,95 @@ define([
             });
         },
 
-        update: function() {
-            var server     = this.get('server');
-            var database   = this.get('database');
-            var collection = this.get('collection');
-            var documentId = this.get('document');
-            var query      = this.get('query');
-            var page       = this.get('page');
-            var explain    = this.get('explain');
-            var url        = app.baseUrl;
-            var params     = {};
+        buildUrl: function(type) {
+            var url  = [];
+            var that = this;
+            var e    = function(prop) {
+                return encodeURIComponent(that.get(prop));
+            };
+            var urlQuery = '';
 
-            url = url + 'servers';
-            this.servers.url = url;
+            switch(type) {
+                // yes, the breaks are intentionally left out:
+                case 'documents':
+                    url.unshift('documents');
+                    var params = {};
+                    if (this.has('query')) {
+                        params.q = encodeURIComponent(JSON.stringify(GenghisJSON.parse(this.get('query'))));
+                    }
+                    if (this.has('page')) {
+                        params.page = encodeURIComponent(this.get('page'));
+                    }
+                    if (!_.isEmpty(params)) {
+                        urlQuery = '?' + Util.buildQuery(params);
+                    }
+                case 'collection':
+                    url.unshift(e('collection'));
+                case 'collections':
+                    url.unshift('collections');
+                case 'database':
+                    url.unshift(e('database'));
+                case 'databases':
+                    url.unshift('databases');
+                case 'server':
+                    url.unshift(e('server'));
+                case 'servers':
+                    url.unshift('servers');
+                    break;
+
+                default:
+                    throw 'Unknown URL type: ' + type;
+            }
+
+            return app.baseUrl + url.join('/') + urlQuery;
+        },
+
+        update: function() {
+            var changed = this.changedAttributes();
+
+            // TODO: fetch servers less often.
+            this.servers.url = this.buildUrl('servers');
             this.servers.fetch({reset: true, error: showErrorMessage});
 
-            if (server) {
-                url = url + '/' + encodeURIComponent(server);
-                this.currentServer.url = url;
+            if (this.has('server') && !_.isEmpty(_.pick(changed, SERVER_PARAMS))) {
+                this.currentServer.url = this.buildUrl('server');
                 this.currentServer.fetch({
                     reset: true,
                     error: fetchErrorHandler('databases', 'Server Not Found')
                 });
 
-                url = url + '/databases';
-                this.databases.url = url;
+                this.databases.url = this.buildUrl('databases');
                 this.databases.fetch({reset: true, error: showErrorMessage});
-            } else {
-                this.currentServer.clear();
-                this.databases.reset();
             }
 
-            if (database) {
-                url = url + '/' + encodeURIComponent(database);
-                this.currentDatabase.url = url;
+            if (this.has('database') && !_.isEmpty(_.pick(changed, DATABASE_PARAMS))) {
+                this.currentDatabase.url = this.buildUrl('database');
                 this.currentDatabase.fetch({
                     reset: true,
                     error: fetchErrorHandler('collections', 'Database Not Found')
                 });
 
-                url = url + '/collections';
-                this.collections.url = url;
+                this.collections.url = this.buildUrl('collections');
                 this.collections.fetch({reset: true, error: showErrorMessage});
-            } else {
-                this.currentDatabase.clear();
-                this.collections.reset();
             }
 
-            if (collection) {
-                url = url + '/' + encodeURIComponent(collection);
-                this.currentCollection.url = url;
+            if (this.has('collection') && !_.isEmpty(_.pick(changed, COLLECTION_PARAMS))) {
+                this.currentCollection.url = this.buildUrl('collection');
                 this.currentCollection.fetch({
                     reset: true,
                     error: fetchErrorHandler('documents', 'Collection Not Found')
                 });
-
-                var explainUrl = url + '/explain';
-                url = url + '/documents';
-
-                var urlQuery = '';
-                if (query || page) {
-                    if (query) params.q = encodeURIComponent(JSON.stringify(GenghisJSON.parse(query)));
-                    if (page)  params.page = encodeURIComponent(page);
-                    urlQuery = '?' + Util.buildQuery(params);
-                }
-
-                if (explain) {
-                    this.explain.url = explainUrl + urlQuery;
-                    this.explain.fetch({error: showErrorMessage});
-                } else {
-                    this.documents.url = url + urlQuery;
-                    this.documents.fetch({reset: true, error: showErrorMessage});
-                }
-            } else {
-                this.currentCollection.clear();
-                this.documents.reset();
             }
 
-            if (documentId) {
+            if (this.has('collection') && !_.isEmpty(_.pick(changed, DOCUMENTS_PARAMS))) {
+                this.documents.url = this.buildUrl('documents');
+                this.documents.fetch({reset: true, error: showErrorMessage});
+            }
+
+            if (this.has('document') && !_.isEmpty(_.pick(changed, DOCUMENT_PARAMS))) {
                 this.currentDocument.clear({silent: true});
-                this.currentDocument.id = documentId;
-                this.currentDocument.urlRoot = url;
+                this.currentDocument.id = this.get('document');
+                this.currentDocument.urlRoot = this.documents.url;
                 this.currentDocument.fetch({
                     reset: true,
                     error: fetchErrorHandler(
@@ -136,6 +152,11 @@ define([
                 });
             }
 
+            if (this.get('explain')) {
+                this.explain.url = this.buildUrl('documents').replace('/documents/', '/explain/');
+                this.explain.fetch({error: showErrorMessage});
+            }
+
             function showErrorMessage(model, response) {
                 if (response.status !== 404) {
                     try {
@@ -144,13 +165,14 @@ define([
                         data = {};
                     }
 
-                    app.alerts.create({
+                    app.alerts.add({
                         msg:   data.error || 'Unknown error',
                         level: 'error',
                         block: true
                     });
                 }
             }
+
 
             function fetchErrorHandler(section, notFoundTitle, notFoundSubtitle) {
                 notFoundTitle    = notFoundTitle    || 'Not Found';
@@ -174,7 +196,6 @@ define([
                     }
                 };
             }
-
         },
 
         nextPage: function() {

@@ -70,9 +70,7 @@ define([
                 });
 
             // trigger the first selection change. go go gadget app!
-            _.defer(function() {
-                selection.trigger('change');
-            });
+            _.defer(this.selection.update);
         },
 
         showMasthead: function(heading, content, opt) {
