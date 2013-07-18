@@ -1,9 +1,9 @@
 define([
-    'underscore', 'mousetrap', 'genghis/views', 'genghis/views/base_section', 'genghis/views/collection_row',
+    'underscore', 'mousetrap', 'genghis/views', 'genghis/views/section', 'genghis/views/collection_row',
     'hgn!genghis/templates/collections', 'bootstrap.dropdown'
-], function(_, Mousetrap, Views, BaseSection, CollectionRow, template, _1) {
+], function(_, Mousetrap, Views, Section, CollectionRow, template, _1) {
 
-    return Views.Collections = BaseSection.extend({
+    return Views.Collections = Section.extend({
         el:       'section#collections',
         template: template,
         rowView:  CollectionRow,
@@ -19,11 +19,11 @@ define([
 
         initialize: function() {
             _.bindAll(this, 'showGridFSAddForm');
-            BaseSection.prototype.initialize.apply(this, arguments);
+            Section.prototype.initialize.apply(this, arguments);
         },
 
         render: function() {
-            BaseSection.prototype.render.apply(this, arguments);
+            Section.prototype.render.apply(this, arguments);
 
             // Yay dropdowns!
             this.$('.dropdown-toggle').dropdown();
@@ -83,7 +83,7 @@ define([
                 .removeClass('add-gridfs')
                 .text('Add collection');
 
-            BaseSection.prototype.showAddForm.apply(this, arguments);
+            Section.prototype.showAddForm.apply(this, arguments);
         },
 
         showGridFSAddForm: function(e) {
@@ -111,12 +111,12 @@ define([
 
         show: function() {
             Mousetrap.bind('shift+c', this.showGridFSAddForm);
-            BaseSection.prototype.show.apply(this, arguments);
+            Section.prototype.show.apply(this, arguments);
         },
 
         hide: function() {
             Mousetrap.unbind('shift+c');
-            BaseSection.prototype.hide.apply(this, arguments);
+            Section.prototype.hide.apply(this, arguments);
         }
     });
 });

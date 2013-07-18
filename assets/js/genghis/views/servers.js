@@ -1,14 +1,14 @@
 define([
-    'jquery', 'genghis/views', 'genghis/views/base_section', 'genghis/views/server_row', 'hgn!genghis/templates/servers', 'bootstrap.tooltip'
-], function($, Views, BaseSection, ServerRow, template, _1) {
+    'jquery', 'genghis/views', 'genghis/views/section', 'genghis/views/server_row', 'hgn!genghis/templates/servers', 'bootstrap.tooltip'
+], function($, Views, Section, ServerRow, template, _1) {
 
-    return Views.Servers = BaseSection.extend({
+    return Views.Servers = Section.extend({
         el:       'section#servers',
         template: template,
         rowView:  ServerRow,
 
         render: function() {
-            BaseSection.prototype.render.apply(this, arguments);
+            Section.prototype.render.apply(this, arguments);
 
             // add placeholder help
             $('.help', this.addForm).tooltip();

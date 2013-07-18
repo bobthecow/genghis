@@ -2,7 +2,7 @@ define([
     'jquery', 'underscore', 'backbone', 'genghis/views', 'mousetrap', 'jquery.tablesorter', 'tablesorter-size-parser'
 ], function($, _, Backbone, Views, Mousetrap, _1, _2) {
 
-    return Views.BaseSection = Backbone.View.extend({
+    return Views.Section = Backbone.View.extend({
 
         events: {
             'click .add-form button.show':   'showAddForm',

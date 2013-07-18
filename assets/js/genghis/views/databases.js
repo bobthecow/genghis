@@ -1,8 +1,8 @@
 define([
-  'genghis/views', 'genghis/views/base_section', 'genghis/views/database_row', 'hgn!genghis/templates/databases'
-], function(Views, BaseSection, DatabaseRow, template) {
+  'genghis/views', 'genghis/views/section', 'genghis/views/database_row', 'hgn!genghis/templates/databases'
+], function(Views, Section, DatabaseRow, template) {
 
-  return Views.Databases = BaseSection.extend({
+  return Views.Databases = Section.extend({
       el:       'section#databases',
       template: template,
       rowView:  DatabaseRow,
