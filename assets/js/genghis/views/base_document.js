@@ -1,6 +1,9 @@
 define([
     'underscore', 'backbone', 'genghis/views', 'genghis/json', 'genghis/views/alert', 'genghis/models/alert'
 ], function(_, Backbone, Views, GenghisJSON, AlertView, Alert) {
+
+    // TODO: this shouldn't be BaseDocument, it should be a DocumentEditor view
+    // that's used by both Document and NewDocument views to edit document JSON.
     return Views.BaseDocument = Backbone.View.extend({
         errorLines: [],
 

@@ -1,19 +1,19 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views', 'genghis/views/base_new_document', 'genghis/models/document',
+    'jquery', 'underscore', 'backbone', 'genghis/views', 'genghis/views/new_document', 'genghis/models/document',
     'genghis/util', 'genghis/json', 'hgn!genghis/templates/new_grid_file', 'bootstrap.modal'
-], function($, _, Backbone, Views, BaseNewDocument, Document, Util, GenghisJSON, template, _1) {
+], function($, _, Backbone, Views, NewDocument, Document, Util, GenghisJSON, template, _1) {
 
-    return Views.NewGridFile = BaseNewDocument.extend({
+    return Views.NewGridFile = NewDocument.extend({
         el:       '#new-grid-file',
         template: template,
 
         initialize: function() {
             _.bindAll(this, 'handleFileInputChange', 'showMetadata');
-            BaseNewDocument.prototype.initialize.apply(this, arguments);
+            NewDocument.prototype.initialize.apply(this, arguments);
         },
 
         render: function() {
-            BaseNewDocument.prototype.render.apply(this, arguments);
+            NewDocument.prototype.render.apply(this, arguments);
 
             this.fileInput = $('<input id="new-grid-file-input" type="file">').hide().appendTo('body');
             this.currentFile = null;
