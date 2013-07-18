@@ -69,7 +69,9 @@
     'underscore': {exports: '_'},
 
     'jquery.hoverintent': ['jquery'],
-    'jquery.tablesorter': ['jquery']
+    'jquery.tablesorter': ['jquery'],
+
+    'modernizr': {exports: 'Modernizr'}
   },
 
 })
