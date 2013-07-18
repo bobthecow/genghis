@@ -2,7 +2,7 @@
 
   baseUrl: 'assets/js',
   name:    'almond',
-  include: 'genghis/boot',
+  include: ['genghis/boot', 'modernizr-detects'],
   out:     'tmp/genghis.js',
 
   optimize:                'uglify2',
