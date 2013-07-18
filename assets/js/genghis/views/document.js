@@ -1,9 +1,9 @@
 define([
     'jquery', 'underscore', 'genghis/views', 'genghis/views/base_document', 'genghis/util',
-    'genghis/views/alert', 'genghis/models/alert', 'genghis/views/confirm', 'hgn!genghis/templates/document_view'
+    'genghis/views/alert', 'genghis/models/alert', 'genghis/views/confirm', 'hgn!genghis/templates/document'
 ], function($, _, Views, BaseDocument, Util, AlertView, Alert, Confirm, template) {
 
-    return Views.DocumentView = BaseDocument.extend({
+    return Views.Document = BaseDocument.extend({
         tagName:  'article',
         template: template,
 

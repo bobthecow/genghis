@@ -1,6 +1,6 @@
 define([
     'jquery', 'underscore', 'backbone', 'mousetrap', 'genghis/views', 'genghis/views/documents_header',
-    'genghis/views/pagination', 'genghis/views/document_view', 'genghis/views/new_document',
+    'genghis/views/pagination', 'genghis/views/document', 'genghis/views/new_document',
     'genghis/views/new_grid_file', 'hgn!genghis/templates/documents'
 ], function($, _, Backbone, Mousetrap, Views, DocumentsHeader, Pagination, DocumentView, NewDocument, NewGridFile, template) {
 
