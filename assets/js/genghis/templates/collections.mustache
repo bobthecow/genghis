@@ -14,19 +14,31 @@
         </tbody>
     </table>
 </div>
-<div class="add-form inactive form-horizontal">
-    <input class="name span4" type="text" size="30">
+
+
+<div class="add-form-toggle form-horizontal">
     <div class="btn-group">
-        <button class="show btn">Add collection</button>
+        <button class="btn">Add collection</button>
         <button class="btn dropdown-toggle" data-toggle="dropdown">
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
             <li><a class="show" href="#">Add collection</a></li>
-            <li><a class="show show-gridfs" href="#">Add GridFS collection</a></li>
+            <li><a class="show-gridfs" href="#">Add GridFS collection</a></li>
         </ul>
     </div>
+</div>
 
+<div class="add-form form-horizontal">
+    <input class="name span4" type="text" size="30">
     <button class="add btn btn-primary">Add collection</button>
+    <button class="cancel btn">Cancel</button>
+</div>
+
+<div class="add-form-gridfs form-horizontal">
+    <span class="input-wrapper input-append">
+        <input class="name span4" type="text" size="30"><span class="add-on">.files</span>
+    </span>
+    <button class="add btn btn-primary">Add GridFS collection</button>
     <button class="cancel btn">Cancel</button>
 </div>

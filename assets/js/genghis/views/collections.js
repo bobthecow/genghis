@@ -8,22 +8,24 @@ define([
         template: template,
         rowView:  CollectionRow,
 
-        events: {
-            'click .add-form button.show':   'showAddForm',
-            'click .add-form a.show':        'showAddForm',
-            'click .add-form a.show-gridfs': 'showGridFSAddForm',
-            'click .add-form button.add':    'submitAddForm',
-            'click .add-form button.cancel': 'closeAddForm',
-            'keyup .add-form input.name':    'updateOnKeyup'
-        },
+        events: _.extend({
+            'click .add-form-toggle a.show':        'showAddForm',
+            'click .add-form-toggle a.show-gridfs': 'showAddFormGridFs',
+            'click .add-form-gridfs button.add':    'submitAddFormGridFs',
+            'click .add-form-gridfs button.cancel': 'closeAddFormGridFs',
+            'keyup .add-form-gridfs input.name':    'updateOnKeyupGridFs'
+        }, Section.prototype.events),
 
         initialize: function() {
-            _.bindAll(this, 'showGridFSAddForm');
+            _.bindAll(this, 'showAddFormGridFs', 'submitAddFormGridFs', 'closeAddFormGridFs', 'updateOnKeyupGridFs');
             Section.prototype.initialize.apply(this, arguments);
         },
 
         render: function() {
             Section.prototype.render.apply(this, arguments);
+
+            this.addFormGridFs  = this.$('.add-form-gridfs');
+            this.addInputGridFs = this.$('.add-form-gridfs input');
 
             // Yay dropdowns!
             this.$('.dropdown-toggle').dropdown();
@@ -35,82 +37,57 @@ define([
             return model.id ? (model.id + ' Collections') : 'Collections';
         },
 
-        submitAddForm: function() {
-            var name = this.addInput.val().replace(/^\s+/, '').replace(/\s+$/, '');
+        showAddFormGridFs: function(e) {
+            if (e && e.preventDefault()) {
+                e.preventDefault();
+            }
+
+            this.$('.add-form-toggle').hide();
+            this.addFormGridFs.show();
+            this.addInputGridFs.select().focus();
+        },
+
+        submitAddFormGridFs: function() {
+            var name = this.addInputGridFs.val().replace(/^\s+/, '').replace(/\s+$/, '');
             if (name === '') {
                 window.app.alerts.add({msg: 'Please enter a valid collection name.'});
                 return;
             }
 
-            if (this.addButton.hasClass('add-gridfs')) {
-                name = name.replace(/\.(files|chunks)$/, '');
+            name = name.replace(/\.(files|chunks)$/, '');
 
-                var closeAfterTwo = _.after(2, this.closeAddForm);
+            var closeAfterTwo = _.after(2, this.closeAddFormGridFs);
 
-                this.collection.create({name: name + '.files'}, {
-                    wait:    true,
-                    success: closeAfterTwo,
-                    error:   function(model, response) {
-                        window.app.alerts.handleError(response);
-                    }
-                });
+            this.collection.create({name: name + '.files'}, {
+                wait:    true,
+                success: closeAfterTwo,
+                error:   function(model, response) {
+                    window.app.alerts.handleError(response);
+                }
+            });
 
-                this.collection.create({name: name + '.chunks'}, {
-                    wait:    true,
-                    success: closeAfterTwo,
-                    error:   function(model, response) {
-                        window.app.alerts.handleError(response);
-                    }
-                });
-            } else {
-                this.collection.create({name: name}, {
-                    wait:    true,
-                    success: this.closeAddForm,
-                    error:   function(model, response) {
-                        window.app.alerts.handleError(response);
-                    }
-                });
-            }
+            this.collection.create({name: name + '.chunks'}, {
+                wait:    true,
+                success: closeAfterTwo,
+                error:   function(model, response) {
+                    window.app.alerts.handleError(response);
+                }
+            });
         },
 
-        showAddForm: function() {
-            var wrap = this.$('.input-wrapper');
-            if (wrap.length) {
-                wrap.replaceWith(wrap.find('input'));
-            }
-
-            this.addButton
-                .removeClass('add-gridfs')
-                .text('Add collection');
-
-            Section.prototype.showAddForm.apply(this, arguments);
+        closeAddFormGridFs: function() {
+            this.$('.add-form-toggle').show();
+            this.addFormGridFs.hide();
+            this.addInputGridFs.val('');
         },
 
-        showGridFSAddForm: function(e) {
-            if (e && e.preventDefault) {
-                e.preventDefault();
-            }
-
-            if (this.$('.input-wrapper').length === 0) {
-                this.addInput.wrap('<div class="input-wrapper input-append">');
-                $('<span class="add-on">.files</span>').insertAfter(this.addInput);
-            }
-
-            this.addButton
-                .addClass('add-gridfs')
-                .text('Add GridFS collection');
-
-            this.addForm.removeClass('inactive');
-
-            if (this.addInput.val() === '') {
-                this.addInput.val('fs');
-            }
-
-            this.addInput.select().focus();
+        updateOnKeyupGridFs: function(e) {
+            if (e.keyCode == 13) this.submitAddFormGridFs();  // enter
+            if (e.keyCode == 27) this.closeAddFormGridFs();   // escape
         },
 
         show: function() {
-            Mousetrap.bind('shift+c', this.showGridFSAddForm);
+            Mousetrap.bind('shift+c', this.showAddFormGridFs);
             Section.prototype.show.apply(this, arguments);
         },
 

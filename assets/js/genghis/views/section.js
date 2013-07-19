@@ -5,7 +5,7 @@ define([
     return Views.Section = Backbone.View.extend({
 
         events: {
-            'click .add-form button.show':   'showAddForm',
+            'click .add-form-toggle button': 'showAddForm',
             'click .add-form button.add':    'submitAddForm',
             'click .add-form button.cancel': 'closeAddForm',
             'keyup .add-form input.name':    'updateOnKeyup'
@@ -58,7 +58,8 @@ define([
                 e.preventDefault();
             }
 
-            this.addForm.removeClass('inactive');
+            this.$('.add-form-toggle').hide();
+            this.addForm.show();
             this.addInput.select().focus();
         },
 
@@ -73,7 +74,8 @@ define([
         },
 
         closeAddForm: function() {
-            this.addForm.addClass('inactive');
+            this.$('.add-form-toggle').show();
+            this.addForm.hide();
             this.addInput.val('');
         },
 

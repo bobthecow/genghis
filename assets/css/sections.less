@@ -47,7 +47,7 @@
             background-repeat:   no-repeat;
             text-indent: -10000em;
         }
-        .controls, .add-form, .content {
+        .controls, .add-form, .add-form-toggle, .content {
             display: none;
         }
     }
@@ -61,21 +61,8 @@
     }
 }
 
-.add-form {
-    button.show, button.dropdown-toggle {
-        display: none;
-    }
-    &.inactive {
-        button, input, .input-append {
-            display: none;
-        }
-        button.show, button.dropdown-toggle {
-            display: inherit;
-        }
-        .help {
-            display: none;
-        }
-    }
+.add-form, .add-form-gridfs {
+    display: none;
     span.input-append {
         .add-on {
             margin-right: 4px;
