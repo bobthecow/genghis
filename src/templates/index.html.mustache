@@ -11,23 +11,26 @@
             require.config({
                 baseUrl: '{{ base_url }}/assets/js',
                 paths: {
-                    'backbone':           '../vendor/backbone/backbone',
-                    'backgrounds-dev':    '../css/backgrounds-dev',
-                    'bootstrap.dropdown': '../vendor/bootstrap/js/bootstrap-dropdown',
-                    'bootstrap.modal':    '../vendor/bootstrap/js/bootstrap-modal',
-                    'bootstrap.popover':  '../vendor/bootstrap/js/bootstrap-popover',
-                    'bootstrap.tooltip':  '../vendor/bootstrap/js/bootstrap-tooltip',
-                    'codemirror':         '../vendor/codemirror/lib/codemirror',
-                    'esprima':            '../vendor/esprima/esprima',
-                    'hgn':                '../vendor/requirejs-hogan-plugin/hgn',
-                    'hogan':              '../vendor/requirejs-hogan-plugin/hogan',
-                    'jquery':             '../vendor/jquery/jquery',
-                    'jquery.hoverintent': '../vendor/jquery-hoverIntent/jquery.hoverIntent',
-                    'jquery.tablesorter': '../vendor/jquery.tablesorter/js/jquery.tablesorter',
-                    'mousetrap':          '../vendor/mousetrap/mousetrap',
-                    'style':              '../css/style',
-                    'text':               '../vendor/requirejs-hogan-plugin/text',
-                    'underscore':         '../vendor/underscore/underscore'
+                    'backbone':                 '../vendor/backbone/backbone',
+                    'backgrounds-dev':          '../css/backgrounds-dev',
+                    'bootstrap.dropdown':       '../vendor/bootstrap/js/bootstrap-dropdown',
+                    'bootstrap.modal':          '../vendor/bootstrap/js/bootstrap-modal',
+                    'bootstrap.popover':        '../vendor/bootstrap/js/bootstrap-popover',
+                    'bootstrap.tooltip':        '../vendor/bootstrap/js/bootstrap-tooltip',
+                    'codemirror':               '../vendor/codemirror/lib/codemirror',
+                    'codemirror.matchbrackets': '../vendor/codemirror/addon/edit/matchbrackets',
+                    'codemirror.javascript':    '../vendor/codemirror/mode/javascript/javascript',
+                    'esprima':                  '../vendor/esprima/esprima',
+                    'hgn':                      '../vendor/requirejs-hogan-plugin/hgn',
+                    'hogan':                    '../vendor/requirejs-hogan-plugin/hogan',
+                    'jquery':                   '../vendor/jquery/jquery',
+                    'jquery.hoverintent':       '../vendor/jquery-hoverIntent/jquery.hoverIntent',
+                    'jquery.tablesorter':       '../vendor/jquery.tablesorter/js/jquery.tablesorter',
+                    'keyscss':                  '../vendor/keyscss/keys',
+                    'mousetrap':                '../vendor/mousetrap/mousetrap',
+                    'style':                    '../css/style',
+                    'text':                     '../vendor/requirejs-hogan-plugin/text',
+                    'underscore':               '../vendor/underscore/underscore'
                 },
                 packages: [
                     {
@@ -52,7 +55,10 @@
                     'bootstrap.popover':  ['jquery', 'bootstrap.tooltip'],
                     'bootstrap.modal':    ['jquery'],
 
-                    'codemirror': {exports: 'CodeMirror'},
+                    'codemirror':               {exports: 'CodeMirror'},
+                    'codemirror.matchbrackets': ['codemirror'],
+                    'codemirror.javascript':    ['codemirror'],
+
                     'underscore': {exports: '_'},
 
                     'jquery.hoverintent': ['jquery'],
@@ -62,7 +68,7 @@
                 }
             });
 
-            require(['genghis/boot', 'modernizr-detects', 'less!style', 'css!backgrounds-dev'], function(boot) {
+            require(['genghis/boot', 'modernizr-detects', 'css!backgrounds-dev', 'css!codemirror', 'css!keyscss', 'less!style'], function(boot) {
                 boot('{{ base_url }}');
             });
         </script>

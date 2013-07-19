@@ -1,8 +1,9 @@
 define([
     'jquery', 'underscore', 'genghis/views', 'genghis/views/base_document', 'codemirror',
     'genghis/util', 'genghis/views/alert', 'genghis/models/alert', 'genghis/defaults',
-    'hgn!genghis/templates/new_document', 'bootstrap.modal'
-], function($, _, Views, BaseDocument, CodeMirror, Util, AlertView, Alert, defaults, template, _1) {
+    'hgn!genghis/templates/new_document', 'bootstrap.modal', 'codemirror.matchbrackets',
+    'codemirror.javascript'
+], function($, _, Views, BaseDocument, CodeMirror, Util, AlertView, Alert, defaults, template, _1, _2, _3, _4) {
 
     return Views.NewDocument = BaseDocument.extend({
         el:       '#new-document',

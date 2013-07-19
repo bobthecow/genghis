@@ -5,7 +5,7 @@
   include: ['genghis/boot', 'modernizr-detects'],
   out:     'tmp/genghis.js',
 
-  optimize:                'uglify2',
+  optimize:                'none',
   inlineText:              true,
   preserveLicenseComments: false,
 
@@ -21,24 +21,27 @@
   },
 
   paths: {
-    'almond':             '../vendor/almond/almond',
-    'backbone':           '../vendor/backbone/backbone',
-    'backgrounds-dev':    '../css/backgrounds-dev',
-    'bootstrap.dropdown': '../vendor/bootstrap/js/bootstrap-dropdown',
-    'bootstrap.modal':    '../vendor/bootstrap/js/bootstrap-modal',
-    'bootstrap.popover':  '../vendor/bootstrap/js/bootstrap-popover',
-    'bootstrap.tooltip':  '../vendor/bootstrap/js/bootstrap-tooltip',
-    'codemirror':         '../vendor/codemirror/lib/codemirror',
-    'esprima':            '../vendor/esprima/esprima',
-    'hgn':                '../vendor/requirejs-hogan-plugin/hgn',
-    'hogan':              '../vendor/requirejs-hogan-plugin/hogan',
-    'jquery':             '../vendor/jquery/jquery',
-    'jquery.hoverintent': '../vendor/jquery-hoverIntent/jquery.hoverIntent',
-    'jquery.tablesorter': '../vendor/jquery.tablesorter/js/jquery.tablesorter',
-    'mousetrap':          '../vendor/mousetrap/mousetrap',
-    'style':              '../css/style',
-    'text':               '../vendor/requirejs-hogan-plugin/text',
-    'underscore':         '../vendor/underscore/underscore'
+    'almond':                   '../vendor/almond/almond',
+    'backbone':                 '../vendor/backbone/backbone',
+    'backgrounds-dev':          '../css/backgrounds-dev',
+    'bootstrap.dropdown':       '../vendor/bootstrap/js/bootstrap-dropdown',
+    'bootstrap.modal':          '../vendor/bootstrap/js/bootstrap-modal',
+    'bootstrap.popover':        '../vendor/bootstrap/js/bootstrap-popover',
+    'bootstrap.tooltip':        '../vendor/bootstrap/js/bootstrap-tooltip',
+    'codemirror':               '../vendor/codemirror/lib/codemirror',
+    'codemirror.matchbrackets': '../vendor/codemirror/addon/edit/matchbrackets',
+    'codemirror.javascript':    '../vendor/codemirror/mode/javascript/javascript',
+    'esprima':                  '../vendor/esprima/esprima',
+    'hgn':                      '../vendor/requirejs-hogan-plugin/hgn',
+    'hogan':                    '../vendor/requirejs-hogan-plugin/hogan',
+    'jquery':                   '../vendor/jquery/jquery',
+    'jquery.hoverintent':       '../vendor/jquery-hoverIntent/jquery.hoverIntent',
+    'jquery.tablesorter':       '../vendor/jquery.tablesorter/js/jquery.tablesorter',
+    'keyscss':                  '../vendor/keyscss/keys',
+    'mousetrap':                '../vendor/mousetrap/mousetrap',
+    'style':                    '../css/style',
+    'text':                     '../vendor/requirejs-hogan-plugin/text',
+    'underscore':               '../vendor/underscore/underscore'
   },
 
   packages: [
@@ -65,7 +68,10 @@
     'bootstrap.popover':  ['jquery', 'bootstrap.tooltip'],
     'bootstrap.modal':    ['jquery'],
 
-    'codemirror': {exports: 'CodeMirror'},
+    'codemirror':               {exports: 'CodeMirror'},
+    'codemirror.matchbrackets': ['codemirror'],
+    'codemirror.javascript':    ['codemirror'],
+
     'underscore': {exports: '_'},
 
     'jquery.hoverintent': ['jquery'],
