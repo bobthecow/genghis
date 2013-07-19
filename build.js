@@ -5,7 +5,7 @@
   include: ['genghis/boot', 'modernizr-detects'],
   out:     'tmp/genghis.js',
 
-  optimize:                'none',
+  optimize:                'uglify2',
   inlineText:              true,
   preserveLicenseComments: false,
 
