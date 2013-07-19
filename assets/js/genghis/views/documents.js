@@ -17,13 +17,16 @@ define([
 
         initialize: function() {
             _.bindAll(
-                this, 'render', 'addAll', 'addDocument', 'createDocument', 'dragGridFile', 'dragLeave', 'dropGridFile'
+                this, 'render', 'addAll', 'addDocument', 'createDocument', 'dragGridFile', 'dragLeave', 'dropGridFile',
+                'onRequest', 'onSync'
             );
 
             this.pagination = this.options.pagination;
 
-            this.collection.bind('reset', this.addAll,      this);
-            this.collection.bind('add',   this.addDocument, this);
+            this.collection.bind('reset',   this.addAll);
+            this.collection.bind('add',     this.addDocument);
+            this.collection.bind('request', this.onRequest);
+            this.collection.bind('sync',    this.onSync);
 
             this.render();
         },
@@ -49,8 +52,6 @@ define([
                 .text(this.model.isGridCollection() ? 'Upload file' : 'Add document')
                 .toggleClass('file-upload', this.model.isGridCollection());
             this.collection.each(this.addDocument);
-
-            this.$el.removeClass('spinning');
         },
 
         addDocument: function(document) {
@@ -132,7 +133,7 @@ define([
         show: function() {
             Mousetrap.bind('c', this.createDocument);
             $('body').addClass('section-' + this.$el.attr('id'));
-            this.$el.addClass('spinning').show();
+            this.$el.show();
             $(document).scrollTop(0);
         },
 
@@ -140,6 +141,14 @@ define([
             Mousetrap.unbind('c');
             $('body').removeClass('section-' + this.$el.attr('id'));
             this.$el.hide();
+        },
+
+        onRequest: function() {
+            this.$el.addClass('spinning');
+        },
+
+        onSync: function() {
+            this.$el.removeClass('spinning');
         }
     });
 });
