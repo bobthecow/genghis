@@ -8,7 +8,7 @@ define([
     var SERVER_PARAMS     = ['server'];
     var DATABASE_PARAMS   = ['server', 'database'];
     var COLLECTION_PARAMS = ['server', 'database', 'collection'];
-    var DOCUMENTS_PARAMS  = ['server', 'database', 'collection', 'query', 'page'];
+    var DOCUMENTS_PARAMS  = ['server', 'database', 'collection', 'query', 'page', 'explain'];
     var DOCUMENT_PARAMS   = ['server', 'database', 'collection', 'document'];
 
     return Models.Selection = Backbone.Model.extend({
@@ -64,7 +64,8 @@ define([
             switch(type) {
                 // yes, the breaks are intentionally left out:
                 case 'documents':
-                    url.unshift('documents');
+                case 'explain':
+                    url.unshift(type);
                     var params = {};
                     if (this.has('query')) {
                         params.q = encodeURIComponent(JSON.stringify(GenghisJSON.parse(this.get('query'))));
@@ -140,8 +141,8 @@ define([
 
             if (this.has('document') && !_.isEmpty(_.pick(changed, DOCUMENT_PARAMS))) {
                 this.currentDocument.clear({silent: true});
-                this.currentDocument.id = this.get('document');
-                this.currentDocument.urlRoot = this.documents.url;
+                this.currentDocument.id      = this.get('document');
+                this.currentDocument.urlRoot = this.buildUrl('documents');
                 this.currentDocument.fetch({
                     reset: true,
                     error: fetchErrorHandler(
@@ -153,7 +154,7 @@ define([
             }
 
             if (this.get('explain')) {
-                this.explain.url = this.buildUrl('documents').replace('/documents/', '/explain/');
+                this.explain.url = this.buildUrl('explain');
                 this.explain.fetch({error: showErrorMessage});
             }
 
