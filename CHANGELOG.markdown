@@ -8,6 +8,13 @@
 [i115]: https://github.com/bobthecow/genghis/issues/115
 
 
+## v2.3.7
+
+ * [Fix #126][i126] — Resolve bug editing non-ObjectId `_id` in Ruby 1.8.7.
+
+[i126]: https://github.com/bobthecow/genghis/issues/126
+
+
 ## v2.3.6
 
  * Change grippie cursor to `row-resize` — Thanks @Zatsugami.
