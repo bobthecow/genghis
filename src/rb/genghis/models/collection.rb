@@ -124,7 +124,7 @@ module Genghis
       def thunk_mongo_id(doc_id)
         if doc_id.is_a? BSON::ObjectId
           doc_id
-        elsif (doc_id[0] == '~')
+        elsif (doc_id[0..0] == '~')
           doc_id = Base64.decode64(doc_id[1..-1])
           ::Genghis::JSON.decode("{\"_id\":#{doc_id}}")['_id']
         else
