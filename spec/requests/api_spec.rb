@@ -643,6 +643,22 @@ genghis_backends.each do |backend|
             test: 2
         end
 
+        it 'can deal with non-objectid _id properties' do
+          id = "testier"
+          @coll.insert({_id: id})
+          id_str = "~#{Base64.encode64('"testier"')}"
+          res = @api.put do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id_str
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { test: 1 }.to_json
+          end
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id: "testier",
+            test: 1
+        end
+
         it 'returns 400 if a document id is updated' do
           id  = @coll.insert({test: 1})
           res = @api.put do |req|
