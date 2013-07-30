@@ -27,10 +27,9 @@ Genghis.Views.BaseRow = Backbone.View.extend({
         return this;
     },
     navigate: function(e) {
-        if (!e.shiftKey && !e.ctrlKey) {
-            e.preventDefault();
-            app.router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
-        }
+        if (e.ctrlKey || e.shiftKey || e.metaKey) return;
+        e.preventDefault();
+        app.router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
     },
     remove: function() {
         this.$el.remove();

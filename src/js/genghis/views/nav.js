@@ -51,10 +51,9 @@ Genghis.Views.Nav = Backbone.View.extend({
         return this;
     },
     navigate: function(e) {
-        if (!e.shiftKey && !e.ctrlKey) {
-            e.preventDefault();
-            app.router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
-        }
+        if (e.ctrlKey || e.shiftKey || e.metaKey) return;
+        e.preventDefault();
+        app.router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
     },
     navigateToServers: function(e) {
         e.preventDefault();
