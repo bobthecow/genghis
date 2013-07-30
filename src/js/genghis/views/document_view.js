@@ -36,8 +36,10 @@ Genghis.Views.DocumentView = Genghis.Views.BaseDocument.extend({
         this.$('.document').html('').append(this.model.prettyPrint()).show();
     },
     navigate: function(e) {
-        e.preventDefault();
-        app.router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
+        if (!e.shiftKey && !e.ctrlKey) {
+            e.preventDefault();
+            app.router.navigate(Genghis.Util.route($(e.target).attr('href')), true);
+        }
     },
     navigateDb: function(e) {
         var $dbRef = $(e.target).parents('.ref');

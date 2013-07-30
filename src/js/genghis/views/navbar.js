@@ -8,7 +8,9 @@ Genghis.Views.Navbar = Backbone.View.extend({
         this.navView = new Genghis.Views.Nav({model: this.model, baseUrl: this.options.baseUrl});
     },
     onClickBrand: function(e) {
-        e.preventDefault();
-        this.router.navigate('', true);
+        if (!e.shiftKey && !e.ctrlKey) {
+            e.preventDefault();
+            this.router.navigate('', true);
+        }
     }
 });
