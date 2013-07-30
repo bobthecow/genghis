@@ -1,6 +1,6 @@
 [submodule "vendor/bootstrap"]
 	path = vendor/bootstrap
-	url = https://github.com/twitter/bootstrap.git
+	url = https://github.com/twbs/bootstrap.git
 [submodule "vendor/keyscss"]
 	path = vendor/keyscss
 	url = https://github.com/michaelhue/keyscss.git
