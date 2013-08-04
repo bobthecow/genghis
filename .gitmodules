@@ -1,3 +1,6 @@
 [submodule "assets/vendor/keyscss"]
 	path = assets/vendor/keyscss
 	url = https://github.com/michaelhue/keyscss.git
+[submodule "assets/vendor/backbone.giraffe"]
+	path = assets/vendor/backbone.giraffe
+	url = https://github.com/barc/backbone.giraffe.git

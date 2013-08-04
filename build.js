@@ -23,6 +23,7 @@
   paths: {
     'almond':                   '../vendor/almond/almond',
     'backbone':                 '../vendor/backbone/backbone',
+    'backbone.giraffe':         '../vendor/backbone/backbone',
     'backgrounds-dev':          '../css/backgrounds-dev',
     'bootstrap.dropdown':       '../vendor/bootstrap/js/dropdown',
     'bootstrap.modal':          '../vendor/bootstrap/js/modal',
@@ -61,6 +62,11 @@
     'backbone': {
       deps:    ['underscore', 'jquery'],
       exports: 'Backbone'
+    },
+
+    'backbone.giraffe': {
+      deps:    ['backbone'],
+      exports: 'Giraffe'
     },
 
     'bootstrap.dropdown': ['jquery'],
