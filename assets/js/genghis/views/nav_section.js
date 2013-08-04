@@ -1,9 +1,9 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views', 'hgn!genghis/templates/nav_section',
+    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/nav_section',
     'hgn!genghis/templates/nav_section_menu', 'jquery.hoverintent'
-], function($, _, Backbone, Views, template, menuTemplate, _1) {
+], function($, _, Backbone, View, Views, template, menuTemplate, _1) {
 
-    return Views.NavSection = Backbone.View.extend({
+    return Views.NavSection = View.extend({
         template:     template,
         menuTemplate: menuTemplate,
 

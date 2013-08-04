@@ -1,9 +1,9 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views', 'genghis/util', 'genghis/views/confirm',
-    'jquery.hoverintent', 'bootstrap.tooltip', 'bootstrap.popover'
-], function($, _, Backbone, Views, Util, Confirm, _1, _2) {
+    'jquery', 'underscore', 'genghis/views/view', 'genghis/views', 'genghis/util',
+    'genghis/views/confirm', 'jquery.hoverintent', 'bootstrap.tooltip', 'bootstrap.popover'
+], function($, _, View, Views, Util, Confirm, _1, _2) {
 
-    return Views.Row = Backbone.View.extend({
+    return Views.Row = View.extend({
         tagName: 'tr',
 
         events: {

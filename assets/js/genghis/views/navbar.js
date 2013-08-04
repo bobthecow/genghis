@@ -1,6 +1,6 @@
-define(['backbone', 'genghis/views', 'genghis/views/nav'], function(Backbone, Views, Nav) {
+define(['backbone', 'genghis/views/view', 'genghis/views', 'genghis/views/nav'], function(Backbone, View, Views, Nav) {
 
-    return Views.Navbar = Backbone.View.extend({
+    return Views.Navbar = View.extend({
         el: '.navbar',
         events: {
             'click a.navbar-brand': 'onClickBrand'

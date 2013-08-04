@@ -1,6 +1,6 @@
-define(['backbone', 'genghis/views', 'hgn!genghis/templates/masthead'], function(Backbone, Views, template) {
+define(['backbone', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/masthead'], function(Backbone, View, Views, template) {
 
-    return Views.Masthead = Backbone.View.extend({
+    return Views.Masthead = View.extend({
         tagName: 'header',
         attributes: {
             'class': 'masthead'

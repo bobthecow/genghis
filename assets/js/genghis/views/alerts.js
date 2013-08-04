@@ -1,6 +1,8 @@
-define(['underscore', 'backbone', 'genghis/views', 'genghis/views/alert'], function(_, Backbone, Views, Alert) {
+define([
+    'underscore', 'genghis/views/view', 'genghis/views', 'genghis/views/alert'
+], function(_, View, Views, Alert) {
 
-    return Views.Alerts = Backbone.View.extend({
+    return Views.Alerts = View.extend({
         el: 'aside#alerts',
 
         initialize: function() {

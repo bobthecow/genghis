@@ -1,9 +1,9 @@
 define([
-    'jquery', 'underscore', 'backbone', 'mousetrap', 'genghis/util', 'genghis/views', 'genghis/views/nav_section',
-    'genghis/views/search', 'hgn!genghis/templates/nav'
-], function($, _, Backbone, Mousetrap, Util, Views, NavSection, Search, template) {
+    'jquery', 'underscore', 'backbone', 'mousetrap', 'genghis/util', 'genghis/views/view', 'genghis/views',
+    'genghis/views/nav_section', 'genghis/views/search', 'hgn!genghis/templates/nav'
+], function($, _, Backbone, Mousetrap, Util, View, Views, NavSection, Search, template) {
 
-    return Views.Nav = Backbone.View.extend({
+    return Views.Nav = View.extend({
         el:       '.navbar nav',
         template: template,
         events: {

@@ -1,8 +1,8 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views', 'genghis/views/document', 'hgn!genghis/templates/document_section'
-], function($, _, Backbone, Views, DocumentView, template) {
+    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'genghis/views/document', 'hgn!genghis/templates/document_section'
+], function($, _, Backbone, View, Views, DocumentView, template) {
 
-    return Views.DocumentSection = Backbone.View.extend({
+    return Views.DocumentSection = View.extend({
         el:       'section#document',
         template: template,
 

@@ -1,6 +1,8 @@
-define(['underscore', 'backbone', 'genghis/views', 'hgn!genghis/templates/alert'], function(_, Backbone, Views, template) {
+define([
+    'underscore', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/alert'
+], function(_, View, Views, template) {
 
-    return Views.Alert = Backbone.View.extend({
+    return Views.Alert = View.extend({
 
         tagName:  'div',
         template: template,

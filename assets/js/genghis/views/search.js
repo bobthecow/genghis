@@ -1,9 +1,9 @@
 define([
-    'jquery', 'underscore', 'backbone', 'mousetrap', 'genghis/util', 'genghis/json', 'genghis/defaults', 'genghis/views',
-    'hgn!genghis/templates/search'
-], function($, _, Backbone, Mousetrap, Util, GenghisJSON, defaults, Views, template) {
+    'jquery', 'underscore', 'backbone', 'mousetrap', 'genghis/util', 'genghis/json', 'genghis/defaults',
+    'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/search'
+], function($, _, Backbone, Mousetrap, Util, GenghisJSON, defaults, View, Views, template) {
 
-    return Views.Search = Backbone.View.extend({
+    return Views.Search = View.extend({
         tagName:   'form',
         className: 'navbar-search navbar-form navbar-left',
         template:  template,

@@ -1,8 +1,9 @@
 define([
-    'jquery', 'underscore', 'backbone', 'mousetrap', 'genghis/views', 'genghis/util', 'hgn!genghis/templates/pagination'
-], function($, _, Backbone, Mousetrap, Views, Util, template) {
+    'jquery', 'underscore', 'backbone', 'mousetrap', 'genghis/views/view', 'genghis/views', 'genghis/util',
+    'hgn!genghis/templates/pagination'
+], function($, _, Backbone, Mousetrap, View, Views, Util, template) {
 
-    return Views.Pagination = Backbone.View.extend({
+    return Views.Pagination = View.extend({
         template: template,
         events: {
             'click a': 'navigate'

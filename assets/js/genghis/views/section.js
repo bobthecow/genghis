@@ -1,8 +1,8 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views', 'mousetrap', 'jquery.tablesorter', 'tablesorter-size-parser'
-], function($, _, Backbone, Views, Mousetrap, _1, _2) {
+    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'mousetrap', 'jquery.tablesorter', 'tablesorter-size-parser'
+], function($, _, Backbone, View, Views, Mousetrap, _1, _2) {
 
-    return Views.Section = Backbone.View.extend({
+    return Views.Section = View.extend({
 
         events: {
             'click .add-form-toggle button': 'showAddForm',

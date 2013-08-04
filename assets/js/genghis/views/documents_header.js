@@ -1,6 +1,6 @@
-define(['underscore', 'backbone', 'genghis/views'], function(_, Backbone, Views) {
+define(['underscore', 'backbone', 'genghis/views/view', 'genghis/views'], function(_, Backbone, View, Views) {
 
-    return Views.DocumentsHeader = Backbone.View.extend({
+    return Views.DocumentsHeader = View.extend({
         el: 'section#documents > header h2',
 
         initialize: function() {

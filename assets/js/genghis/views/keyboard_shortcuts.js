@@ -1,8 +1,8 @@
 define([
-    'underscore', 'backbone', 'mousetrap', 'genghis/views', 'hgn!genghis/templates/keyboard_shortcuts', 'bootstrap.modal'
-], function(_, Backbone, Mousetrap, Views, template, _1) {
+    'underscore', 'backbone', 'mousetrap', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/keyboard_shortcuts', 'bootstrap.modal'
+], function(_, Backbone, Mousetrap, View, Views, template, _1) {
 
-    return Views.KeyboardShortcuts = Backbone.View.extend({
+    return Views.KeyboardShortcuts = View.extend({
         tagName:   'div',
         id:        'keyboard-shortcuts',
         className: 'modal',
