@@ -40,9 +40,15 @@ class Genghis_Json
                     );
 
                 case 'MongoDate':
+                    $str = gmdate('Y-m-d\TH:i:s', $object->sec);
+                    if ($object->usec) {
+                        $str .= rtrim(sprintf('.%06d', $object->usec), '0');
+                    }
+                    $str .= 'Z';
+
                     return array(
                         '$genghisType' => 'ISODate',
-                        '$value' => date(DATE_W3C, $object->sec) // 2012-08-30T06:35:22.056Z
+                        '$value'       => $str       // 2012-08-30T06:35:22.056Z
                     );
 
                 case 'MongoRegex':
@@ -102,7 +108,13 @@ class Genghis_Json
                         return new MongoId($value);
 
                     case 'ISODate':
-                        return ($value === null) ? new MongoDate : new MongoDate(strtotime($value));
+                        if ($value === null) {
+                            return new MongoDate;
+                        } else {
+                            $date = new DateTime($value);
+
+                            return new MongoDate($date->getTimestamp(), (int) $date->format('u'));
+                        }
 
                     case 'RegExp':
                         $pattern = self::getProp($value, 'pattern');

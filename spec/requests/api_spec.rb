@@ -550,24 +550,34 @@ genghis_backends.each do |backend|
         end
 
         it 'does not mangle dates' do
-          res = @api.post do |req|
-            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
-            req.headers['Content-Type'] = 'application/json'
-            req.body = {
+          dates = [
+            '0001-01-01T01:01:01Z',
+            '0001-01-01T01:01:01.1Z',
+            '0001-01-01T01:01:01.01Z',
+            '0001-01-01T01:01:01.001Z',
+            '1234-12-23T01:02:03.123Z',
+          ]
+
+          dates.each do |date|
+            res = @api.post do |req|
+              req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
+              req.headers['Content-Type'] = 'application/json'
+              req.body = {
+                date: {
+                  :$genghisType => 'ISODate',
+                  :$value       => date
+                }
+              }.to_json
+            end
+
+            res.status.should eq 200
+            res.body.should match_json_expression \
+              _id: @id_pattern,
               date: {
                 :$genghisType => 'ISODate',
-                :$value       => '0001-01-01T01:01:01.001Z'
+                :$value       => date
               }
-            }.to_json
           end
-
-          res.status.should eq 200
-          res.body.should match_json_expression \
-            _id: @id_pattern,
-            date: {
-              :$genghisType => 'ISODate',
-              :$value       => '0001-01-01T01:01:01.001Z'
-            }
         end
 
         it 'returns 400 if the document is invalid' do

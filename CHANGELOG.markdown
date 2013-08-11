@@ -1,6 +1,7 @@
 ## v2.3.8
 
  * [Fix #130][i130] — Resolve bug creating or editing `ISODate` instances with years between 1 and 99.
+ * Improve time rendering, prevent microsecond truncation.
 
 [i130]: https://github.com/bobthecow/genghis/issues/130
 
