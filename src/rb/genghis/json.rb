@@ -25,13 +25,18 @@ module Genghis
         when Genghis::Models::Query then enc(o.as_json)
         when Array then o.map { |e| enc(e) }
         when Hash then enc_hash(o.clone)
-        when Time then thunk('ISODate', o.strftime('%FT%T%:z'))
+        when Time then thunk('ISODate', enc_time(o))
         when Regexp then thunk('RegExp', {'$pattern' => o.source, '$flags' => enc_re_flags(o.options)})
         when BSON::ObjectId then thunk('ObjectId', o.to_s)
         when BSON::DBRef then db_ref(o)
         when BSON::Binary then thunk('BinData', {'$subtype' => o.subtype, '$binary' => enc_bin_data(o)})
         else o
         end
+      end
+
+      def enc_time(o)
+        # strip trailing microsecond zeros, because wtf.
+        o.strftime('%FT%T.%LZ').sub(/\.?[0]{0,3}Z$/, 'Z')
       end
 
       def enc_hash(o)
@@ -81,7 +86,11 @@ module Genghis
       end
 
       def mongo_iso_date(value)
-        value.nil? ? Time.now : Time.at(DateTime.parse(value).strftime('%s').to_i)
+        return Time.now if value.nil?
+
+        # because Rails overrides DateTime.to_time to return a DateTime. Grr.
+        d = DateTime.parse(value)
+        Time.utc(d.year, d.month, d.day, d.hour, d.min, d.sec + d.sec_fraction)
       end
 
       def mongo_reg_exp(value)

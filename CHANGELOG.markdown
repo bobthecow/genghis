@@ -1,3 +1,11 @@
+## v2.3.8
+
+ * [Fix #130][i130] — Resolve bug creating or editing `ISODate` instances with years between 1 and 99.
+ * Improve time rendering, prevent microsecond truncation.
+
+[i130]: https://github.com/bobthecow/genghis/issues/130
+
+
 ## v2.3.7
 
  * [Fix #126][i126] — Resolve bug editing non-ObjectId `_id` in Ruby 1.8.7.
