@@ -5,7 +5,7 @@
     }
 
     // only show breadcrumbs in appropriate views
-    .nav-section {
+    .nav > li {
         display: none;
 
         body.section-databases   &.server,
@@ -31,7 +31,7 @@
     }
 
     // keep breadcrumb segments from leaking if they're too long
-    .nav-section > a {
+    .nav > li > a {
         html.textoverflow & {
             max-width: 8em;
             overflow: hidden;
@@ -42,6 +42,9 @@
 
 .navbar-search {
     padding-bottom: 16px;
+    .form-control {
+        width: 250px;
+    }
     .grippie {
         position: absolute;
         bottom: 2px;
@@ -79,8 +82,8 @@
         }
         &.focused {
             .well {
-                border-color:     fade(@linkColor, 80%);
-                @formFocusShadow: fade(@linkColor, 60%);
+                border-color:     fade(@link-color, 80%);
+                @formFocusShadow: fade(@link-color, 60%);
                 .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @{formFocusShadow}");
             }
         }
@@ -107,7 +110,7 @@
     &.expanded {
         position: relative;
         clear: both;
-        float: none;
+        float: none !important; // bootstrap important'd the other float :(
         margin: 0 20px;
         padding: 0;
         background-image: none;
@@ -115,7 +118,7 @@
         .grippie {
             margin-left: -15px;
         }
-        input.search-query {
+        .form-group {
             display: none;
         }
         .search-advanced {

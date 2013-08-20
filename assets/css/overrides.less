@@ -9,29 +9,31 @@
     max-width: 1400px;
 }
 
-.navbar {
-    .brand {
-        font-size: 32px;
-        line-height: 32px;
-        padding: 16px 20px 12px;
+.navbar-brand {
+    font-size: 32px;
+    line-height: 32px;
+    padding: 16px 20px 12px;
+    font-weight: bold;
+    .transition(color .1s linear);
 
-        font-weight: bold;
+    .navbar-default & {
         color: #ddd;
         text-shadow: 0 -1px 0 rgba(0,0,0,.25), 0 1px 0 #fff, 0 0 30px rgba(0,0,0,.125);
 
-        .transition(color .1s linear);
-
         &:hover {
-            color: @linkColor;
+            color: @link-color;
         }
     }
+}
+
+.navbar {
     .nav {
-        > li > a {
-            min-height: 18px;
+        > li {
+            min-height: @navbar-height;
         }
         li.dropdown {
             .dropdown-toggle {
-                padding: 20px 10px 21px 20px;
+                padding: 20px 10px 20px 20px;
                 white-space: nowrap;
             }
             &, &.open, &.active {
@@ -41,44 +43,33 @@
             }
         }
 
-        .dropdown-menu {
-            li a {
-                padding-right: 4em;
-                position: relative;
-                span {
-                    padding: 0 6px;
-                    display: inline-block;
-                    position: absolute;
-                    top:   50%;
-                    right: 10px;
-                    margin-top: -8px;
-                    .border-radius(8px);
-                    line-height: 16px;
-                    color: #666;
-                    background-color: rgba(0,0,0,.1);
-                    @shadow: inset 0 1px 0 rgba(0,0,0,.2), 0 1px 0 rgba(255,255,255,.2);
-                    .box-shadow(@shadow);
-                }
-                &:hover span {
-                    color: #DDD;
-                }
-            }
-            li.active a {
-                span {
-                    color: #CCC;
-                    background-color: rgba(0,0,0,.2);
-                }
-            }
-        }
+        // li a {
+        //     .badge {
+        //         color: #666;
+        //         background-color: rgba(0,0,0,.1);
+        //         @shadow: inset 0 1px 0 rgba(0,0,0,.2), 0 1px 0 rgba(255,255,255,.2);
+        //         .box-shadow(@shadow);
+        //     }
+        //     &:hover .badge {
+        //         color: #DDD;
+        //     }
+        // }
+        // li.active a {
+        //     .badge {
+        //         color: #CCC;
+        //         background-color: rgba(0,0,0,.2);
+        //     }
+        // }
     }
+
+    // optical correction for badge spacing
+    .dropdown-menu > li > a { padding-right: 65px; }
+    .badge {                  margin-right: -50px; }
+
 
     form {
-        padding-left: 20px;
-        margin: 15px 0 0 -10px;
-    }
-
-    .control-group {
-        margin-bottom: 0;
+        padding-left: 22px; // optical correction for breadcrumb spacing
+        margin: 15px 0 0 0;
     }
 }
 
@@ -87,43 +78,10 @@ code, pre {
     font-family: 'Source Code Pro', monospace;
 }
 
-// too much border — work around twitter/bootstrap#4512
-.navbar-fixed-top,
-.navbar-static-top {
-  .navbar-inner {
-    .box-shadow(0 1px 10px rgba(0,0,0,.1));
-  }
-}
-
-// Green glows.
-textarea,
-input[type="text"],
-input[type="password"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="date"],
-input[type="month"],
-input[type="time"],
-input[type="week"],
-input[type="number"],
-input[type="email"],
-input[type="url"],
-input[type="search"],
-input[type="tel"],
-input[type="color"],
-.uneditable-input {
-  // Focus state
-  &:focus {
-    border-color:     fade(@linkColor, 80%);
-    @formFocusShadow: fade(@linkColor, 60%);
-    .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @{formFocusShadow}");
-  }
-}
-
 // Navbar nav
 .nav .dropdown, .navbar-search {
     background-color:    transparent;
-    background-position: center left;
+    background-position: left center;
     background-repeat:   no-repeat;
 }
 .navbar-search {
@@ -132,14 +90,29 @@ input[type="color"],
 }
 
 .popover-title {
-  font-size: 18px;
+    font-size: 18px;
 }
 
-.confirm-modal {
-    width:        420px;
-    margin-left: -210px;
+.popover-content {
+    ul {
+        padding-left: 0px;
+    }
+    li {
+        list-style:    none;
+        white-space:   nowrap;
+        overflow:      hidden;
+        text-overflow: ellipsis;
 
-    .confirm-input {
-        width: 97%;
+        // Fake the bullets since we're using text overflow
+        &:before {
+            color:         lighten(#000, 66%);
+            content:       '\25CF'; // black circle
+            padding-right: 10px;
+        }
+    }
+
+    // No bullets for the index details list items
+    ul.index-details li:before {
+        display: none;
     }
 }

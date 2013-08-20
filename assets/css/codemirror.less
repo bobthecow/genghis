@@ -22,26 +22,26 @@
         &.cm-header     { color: @blackish;  }
         &.cm-quote      { color: @blackish;  }
         &.cm-hr         { color: @blackish;  }
-        &.cm-link       { color: @linkColor; }
+        &.cm-link       { color: @link-color; }
     }
 }
 .CodeMirror-focused div.CodeMirror-selected {
-    background: desaturate(lighten(@linkColor, 45%), 35%);
+    background: desaturate(lighten(@link-color, 45%), 35%);
 }
 
 .CodeMirror {
     font-family: 'Source Code Pro', monospace;
     line-height: 1.4em;
     background-color: white;
-    .border-radius(4px);
+    border-radius: 4px;
     .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075)");
 
     .error-line {
-        background-color: @errorBackground;
+        background-color: @state-danger-bg;
     }
 }
 
 .CodeMirror-gutters {
-    .border-top-left-radius(4px);
-    .border-bottom-left-radius(4px);
+    border-top-left-radius:    4px;
+    border-bottom-left-radius: 4px;
 }

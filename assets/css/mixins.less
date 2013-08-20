@@ -17,18 +17,18 @@
 
         content: " ";
 
-        background-color: @btnBackground;
-        background-image: -webkit-gradient(linear, top left, bottom right, from(@btnBackground), to(@btnBackgroundHighlight));
-        background-image: -webkit-linear-gradient(-45deg, @btnBackground, @btnBackgroundHighlight);
-        background-image:    -moz-linear-gradient(-45deg, @btnBackground, @btnBackgroundHighlight);
-        background-image:      -o-linear-gradient(-45deg, @btnBackground, @btnBackgroundHighlight);
-        background-image:         linear-gradient(-45deg, @btnBackground, @btnBackgroundHighlight);
+        background-color: @btn-default-bg;
+        // background-image: -webkit-gradient(linear, top left, bottom right, from(@btn-default-bg), to(@btn-default-bg-highlight));
+        // background-image: -webkit-linear-gradient(-45deg, @btn-default-bg, @btn-default-bg-highlight);
+        // background-image:    -moz-linear-gradient(-45deg, @btn-default-bg, @btn-default-bg-highlight);
+        // background-image:      -o-linear-gradient(-45deg, @btn-default-bg, @btn-default-bg-highlight);
+        // background-image:         linear-gradient(-45deg, @btn-default-bg, @btn-default-bg-highlight);
 
         background-repeat: repeat-x;
 
-        border-left:   1px solid lighten(@btnBorder, 5%);
-        border-bottom: 1px solid darken(@btnBorder, 5%);
-        .border-radius(7px 0 7px 0);
+        border-left:   1px solid lighten(@btn-default-border, 5%);
+        border-bottom: 1px solid darken(@btn-default-border, 5%);
+        border-radius: 7px 0 7px 0;
 
         display: inline-block;
         .rotate-skew(45deg, 3deg, 3deg);
@@ -41,18 +41,18 @@
              -o-mask-image:      -o-linear-gradient(45deg, #000, #000 25%, #000 50%, transparent 50%, transparent);
                 mask-image:         linear-gradient(45deg, #000, #000 25%, #000 50%, transparent 50%, transparent);
 
-        .background-clip(content);
+        background-clip: content;
 
         // for some reason, this guy doesn't work...
         // .transition(background-position .1s linear);
     }
     html.cssmask &:hover:before {
-        background-color: darken(@white, 9%);
+        background-color: darken(white, 9%);
         background-position: -10px -10px;
     }
     html.cssmask &:active:before {
-        background-color: darken(@white, 10%);
-        background-color: darken(@white, 15%) e("\9");
+        background-color: darken(white, 10%);
+        background-color: darken(white, 15%) e("\9");
         background-image: none;
         .box-shadow(inset 0 3px 4px rgba(0,0,0,.15));
     }

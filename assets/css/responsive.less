@@ -92,7 +92,7 @@
             }
         }
 
-        .brand {
+        .navbar-brand {
             display: none;
             body.section-servers &,
             body:not(.has-section) & {
@@ -102,7 +102,7 @@
             }
         }
 
-        .nav-section {
+        .nav > li {
             position: absolute;
             background: none;
 
@@ -133,9 +133,10 @@
                 display: inline-block;
                 float: left;
                 padding: 16px 0 0 2px;
-                z-index: @zindexFixedNavbar + 2;
+                z-index: @zindex-navbar-fixed + 2;
                 > a.dropdown-toggle, > a {
                     .btn;
+                    .btn-default;
                     .back-button;
                     .transition(none);
                     z-index: 10;
@@ -158,7 +159,7 @@
                 display: inline-block;
                 float: none;
                 text-align: center;
-                z-index: @zindexFixedNavbar + 1;
+                z-index: @zindex-navbar-fixed + 1;
                 > a {
                     font-family: "Rokkitt", serif;
                     font-size:   24px;
@@ -185,7 +186,7 @@
 
     .app-section {
         border: none;
-        .border-radius(0);
+        border-radius: 0;
     }
 
     /* Force table to not be like tables anymore */
@@ -210,12 +211,12 @@
                 border-bottom: 1px solid #DDD;
             }
             &:first-child, &:first-child > td:first-child {
-                .border-top-left-radius(5px);
-                .border-top-right-radius(5px);
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
             }
             &:last-child, &:last-child > td:last-child {
-                .border-bottom-left-radius(5px);
-                .border-bottom-right-radius(5px);
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
             }
         }
 
