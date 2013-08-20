@@ -1,7 +1,7 @@
 {{# error }}
     <td colspan="4">
         <span class="value">{{ name }}</span>
-        <span class="label label-important" title="{{ error }}">Error</span>
+        <span class="label label-danger" title="{{ error }}">Error</span>
     </td>
 {{/ error }}
 {{^ error }}
@@ -38,6 +38,6 @@
         </div>
     </td>
     <td class="action-column">
-        <button class="btn btn-mini btn-danger destroy">Remove</button>
+        <button class="btn btn-xs btn-danger destroy">Remove</button>
     </td>
 {{/ error }}

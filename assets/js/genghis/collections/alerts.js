@@ -16,7 +16,7 @@ define(['underscore', 'backbone', 'genghis/collections', 'genghis/models/alert']
                 data = {error: response.responseText};
             }
             msg = data.error || '<strong>FAIL</strong> An unexpected server error has occurred.';
-            this.add({level: 'error', msg: msg, block: !msg.search(/<(p|ul|ol|div)[ >]/)});
+            this.add({level: 'danger', msg: msg, block: !msg.search(/<(p|ul|ol|div)[ >]/)});
         }
     });
 });

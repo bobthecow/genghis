@@ -1,23 +1,26 @@
-{{# header }}
-  <div class="modal-header">
-    <button class="dismiss close" aria-hidden="true">&times;</button>
-    <h3>{{ header }}</h3>
-  </div>
-{{/ header }}
+<div class="modal-dialog">
+  <div class="modal-content">
+    {{# header }}
+      <div class="modal-header">
+        <button type="button" class="close dismiss" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">{{ header }}</h4>
+      </div>
+    {{/ header }}
 
-<div class="modal-body">
-  {{# body }}
-    <p>{{{ body }}}</p>
-  {{/ body }}
-  {{# confirmInput }}
-    <div>
-      <input type="text" class="confirm-input">
+    <div class="modal-body">
+      {{# body }}
+        <p>{{{ body }}}</p>
+      {{/ body }}
+      {{# confirmInput }}
+        <div class="form-group">
+          <input type="text" class="confirm-input input-lg form-control">
+        </div>
+      {{/ confirmInput }}
     </div>
-  {{/ confirmInput }}
-</div>
 
-
-<div class="modal-footer">
-  <button class="dismiss btn" aria-hidden="true">{{ dismissText }}</button>
-  <button class="confirm btn btn-primary"{{# confirmInput }} disabled{{/ confirmInput }}>{{{ confirmText }}}</button>
+    <div class="modal-footer">
+      <button class="dismiss btn btn-default" aria-hidden="true">{{ dismissText }}</button>
+      <button class="confirm btn btn-danger"{{# confirmInput }} disabled{{/ confirmInput }}>{{{ confirmText }}}</button>
+    </div>
+  </div>
 </div>

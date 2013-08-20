@@ -123,7 +123,7 @@ define([
 
         showServerError: function(message) {
             var alertView = new AlertView({
-                model: new Alert({level: 'error', msg: message, block: true})
+                model: new Alert({level: 'danger', msg: message, block: true})
             });
 
             this.getErrorBlock().append(alertView.render().el);
@@ -180,7 +180,7 @@ define([
                             }
 
                             app.alerts.create({
-                                level: 'error',
+                                level: 'danger',
                                 msg: msg || 'Error deleting ' + docType + '.'
                             });
                         },

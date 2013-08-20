@@ -69,7 +69,7 @@ define([
                 if (!Modernizr.filereader) {
                     app.alerts.create({
                         msg:   '<h2>Unable to upload file.</h2> Your browser does not support the File API. Please use a modern browser.',
-                        level: 'error',
+                        level: 'danger',
                         block: true
                     });
 
@@ -103,7 +103,7 @@ define([
             if (!Modernizr.filereader) {
                 app.alerts.create({
                     msg:   '<h2>Unable to upload file.</h2> Your browser does not support the File API. Please use a modern browser.',
-                    level: 'error',
+                    level: 'danger',
                     block: true
                 });
 

@@ -11,7 +11,9 @@ define(['backbone', 'genghis/models'], function(Backbone, Models) {
         },
 
         level: function() {
-            return this.get('level');
+            var level = this.get('level');
+
+            return (level === 'error') ? 'danger' : level;
         },
 
         msg: function() {

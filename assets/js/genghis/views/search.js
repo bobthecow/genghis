@@ -5,7 +5,7 @@ define([
 
     return Views.Search = Backbone.View.extend({
         tagName:   'form',
-        className: 'navbar-search form-search control-group',
+        className: 'navbar-search navbar-form navbar-left',
         template:  template,
         events: {
             'keyup input#navbar-query': 'handleSearchKeyup',

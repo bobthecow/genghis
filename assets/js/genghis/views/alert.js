@@ -18,6 +18,8 @@ define(['underscore', 'backbone', 'genghis/views', 'hgn!genghis/templates/alert'
 
         render: function() {
             this.$el.html(this.template(this.model));
+            this.$('a').addClass('alert-link');
+
             return this;
         },
 

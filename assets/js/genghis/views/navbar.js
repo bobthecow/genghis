@@ -3,7 +3,7 @@ define(['backbone', 'genghis/views', 'genghis/views/nav'], function(Backbone, Vi
     return Views.Navbar = Backbone.View.extend({
         el: '.navbar',
         events: {
-            'click a.brand': 'onClickBrand'
+            'click a.navbar-brand': 'onClickBrand'
         },
 
         initialize: function() {

@@ -168,7 +168,7 @@ define([
 
                     app.alerts.add({
                         msg:   data.error || 'Unknown error',
-                        level: 'error',
+                        level: 'danger',
                         block: true
                     });
                 }
