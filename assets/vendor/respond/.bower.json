@@ -1,0 +1,13 @@
+{
+  "name": "respond",
+  "homepage": "https://github.com/scottjehl/Respond",
+  "version": "1.2.0",
+  "_release": "1.2.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.2.0",
+    "commit": "6b37016ceb6ed70fac78af65389ac3762918eb06"
+  },
+  "_source": "git://github.com/scottjehl/Respond.git",
+  "_target": "*"
+}

@@ -33,10 +33,7 @@ It is best used for libraries or apps that use AMD and:
 
 * optimize all the modules into one file -- no dynamic code loading.
 * all modules have IDs and dependency arrays in their define() calls -- the RequireJS optimizer will take care of this for you.
-* do not use requirejs.ready(). If you use explicit dependencies for all modules, and you place
-the optimized file in a script tag before the ending body tag, then this should not be a problem.
-* the modules avoid circular dependencies. Some kinds may work, but you will likely have to manually control
-the module listing order in the optimizer build profile.
+* only have **one** requirejs.config() or require.config() call.
 * do not use [RequireJS multiversion support/contexts](http://requirejs.org/docs/api.html#multiversion).
 * do not use require.toUrl() or require.nameToUrl().
 * do not use [packages/packagePaths config](http://requirejs.org/docs/api.html#packages). If you need to use packages that have a main property, [volo](https://github.com/volojs/volo) can create an adapter module so that it can work without this config. Use the `amdify add` command to add the dependency to your project.
@@ -82,6 +79,7 @@ If you do not want that wrapper, leave off the wrap=true argument.
 These optimizer arguments can also be used in a build config object, so it can be used
 in [runtime-generated server builds](https://github.com/jrburke/r.js/blob/master/build/tests/http/httpBuild.js).
 
+
 ## Triggering module execution <a name="execution"></a>
 
 As of RequireJS 2.0 and almond 0.1, modules are only executed if they are
@@ -113,6 +111,61 @@ or, if using a build config file:
 ```
 
 This will result with `require(["main"]);` at the bottom of main-built.js.
+
+## Exporting a public API
+
+If you are making a library that is made up of AMD modules in source form, but will be built with almond into one file, and you want to export a small public
+API for that library, you can use the `wrap` build config to do so. Build
+config:
+
+```javascript
+{
+    baseUrl: '.',
+    name: 'path/to/almond',
+    include: ['main'],
+    out: 'lib-built.js',
+    wrap: {
+        startFile: 'path/to/start.frag',
+        endFile: 'path/to/end.frag'
+    }
+}
+```
+
+Where start.frag could look like this:
+
+```javascript
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        //Allow using this built library as an AMD module
+        //in another project. That other project will only
+        //see this AMD call, not the internal modules in
+        //the closure below.
+        define(factory);
+    } else {
+        //Browser globals case. Just assign the
+        //result to a property on the global.
+        root.libGlobalName = factory();
+    }
+}(this, function () {
+    //almond, and your modules will be inlined here
+```
+
+and end.frag is like this:
+```javascript
+    //The modules for your project will be inlined above
+    //this snippet. Ask almond to synchronously require the
+    //module value for 'main' here and return it as the
+    //value to use for the public API for the built file.
+    return require('main');
+}));
+```
+
+After the build, then the built file should be structured like so:
+
+* start.frag
+* almond.js
+* modules for your lib, including 'main'
+* end.frag
 
 ## Common errors
 

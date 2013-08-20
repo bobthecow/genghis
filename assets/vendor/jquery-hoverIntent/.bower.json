@@ -1,0 +1,12 @@
+{
+  "name": "jquery-hoverIntent",
+  "homepage": "https://github.com/briancherne/jquery-hoverIntent",
+  "_release": "50f11356f8",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "50f11356f87c96097b48879c1aa1cd994d9599b2"
+  },
+  "_source": "git://github.com/briancherne/jquery-hoverIntent.git",
+  "_target": "*"
+}

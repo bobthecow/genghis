@@ -1,0 +1,18 @@
+{
+  "name": "require-css",
+  "version": "0.0.7",
+  "ignore": [
+    "example",
+    "test",
+    ".gitignore"
+  ],
+  "homepage": "https://github.com/guybedford/require-css",
+  "_release": "0.0.7",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.7",
+    "commit": "5217bd77a1b533ccc6220369a5eba254d06ffd06"
+  },
+  "_source": "git://github.com/guybedford/require-css.git",
+  "_target": "*"
+}

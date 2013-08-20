@@ -1,0 +1,13 @@
+{
+  "name": "almond",
+  "homepage": "https://github.com/jrburke/almond",
+  "version": "0.2.6",
+  "_release": "0.2.6",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.2.6",
+    "commit": "ce9988e79ef7e505df80177827a33d9ab499c7c9"
+  },
+  "_source": "git://github.com/jrburke/almond.git",
+  "_target": "*"
+}

@@ -20,6 +20,10 @@ define(['css', 'require'], function(css, require) {
   }
 
   less.parse = function(less, callback) {
+    // set initial configuration
+    window.less = window.less || {
+      env: 'development'
+    };
     require(['./lessc'], function(lessc) {
       var css;
       var parser = new lessc.Parser();

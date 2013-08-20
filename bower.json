@@ -1,4 +1,5 @@
 {
+	"name": "genghis",
 	"dependencies": {
 		"almond":                 "*",
 		"backbone":               "*",

@@ -1,0 +1,13 @@
+{
+  "name": "backbone",
+  "homepage": "https://github.com/documentcloud/backbone",
+  "version": "1.0.0",
+  "_release": "1.0.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.0",
+    "commit": "699fe3271262043bb137bae97bd0003d6d193f27"
+  },
+  "_source": "git://github.com/documentcloud/backbone.git",
+  "_target": "*"
+}

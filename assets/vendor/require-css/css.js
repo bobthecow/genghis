@@ -195,11 +195,12 @@ define(['./normalize'], function(normalize) {
         cb: callback
       });
       style = ieStyles.shift();
-      if (!style && ieStyleCnt++ < 12) {
+      if (!style && ieStyleCnt++ < 31) {
         style = document.createElement('style');
         head.appendChild(style);
       }
-      ieLoadNextImport(style);
+      if (style)
+        ieLoadNextImport(style);
     }
     var ieLoadNextImport = function(style) {
       var curImport = ieQueue.shift();
@@ -401,7 +402,7 @@ define(['./normalize'], function(normalize) {
     if (cssAPI.attachBuffer(resourceId, load))
       return;
 
-    fileUrl = req.toUrl(resourceId);
+    var fileUrl = req.toUrl(resourceId);
     
     if (!alerted && testing) {
       alert(hackLinks ? 'hacking links' : 'not hacking');
