@@ -3,8 +3,14 @@ pkg/*
 Gemfile.lock
 
 # Ignore some giant vendor directories
-assets/vendor/*/build/
-assets/vendor/*/docs/
-assets/vendor/*/test/
-assets/vendor/*/tests/
-assets/vendor/bootstrap/js/tests/
+assets/vendor/**/build/
+assets/vendor/**/docs/
+assets/vendor/**/test/
+assets/vendor/**/tests/
+
+assets/vendor/bootstrap/_includes/
+assets/vendor/bootstrap/_layouts/
+assets/vendor/bootstrap/assets/
+assets/vendor/bootstrap/dist/
+assets/vendor/bootstrap/examples/
+assets/vendor/bootstrap/fonts/
