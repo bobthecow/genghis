@@ -1,15 +1,15 @@
 <div class="well">
     <div class="document-actions">
         {{# isGridFile }}
-            <a class="btn btn-small btn-primary grid-download" href="{{ downloadUrl }}">Download</a>
+            <a class="btn btn-sm btn-primary grid-download" href="{{ downloadUrl }}">Download</a>
         {{/ isGridFile }}
         {{# isGridChunk }}
-            <a class="btn btn-small grid-file" href="{{ fileUrl }}">Grid File</a>
+            <a class="btn btn-sm btn-default grid-file" href="{{ fileUrl }}">Grid File</a>
         {{/ isGridChunk }}
-        <button class="btn btn-small btn-primary save">Save</button>
-        <button class="btn btn-small cancel">Cancel</button>
-        <button class="btn btn-small edit">Edit</button>
-        <button class="btn btn-small btn-danger destroy">Delete</button>
+        <button class="btn btn-sm btn-primary save">Save</button>
+        <button class="btn btn-sm btn-default cancel">Cancel</button>
+        <button class="btn btn-sm btn-default edit">Edit</button>
+        <button class="btn btn-sm btn-danger destroy">Delete</button>
     </div>
 
     <h3>
