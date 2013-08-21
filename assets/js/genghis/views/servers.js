@@ -11,7 +11,7 @@ define([
             Section.prototype.render.apply(this, arguments);
 
             // add placeholder help
-            $('.help', this.addForm).tooltip();
+            $('.help', this.addForm).tooltip({container: 'body'});
 
             return this;
         },

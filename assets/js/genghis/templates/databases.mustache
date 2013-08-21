@@ -15,12 +15,15 @@
 </div>
 
 
-<div class="add-form-toggle form-horizontal">
+<div class="add-form-toggle form-inline" role="form">
     <button class="btn">Add database</button>
 </div>
 
-<div class="add-form form-horizontal">
-    <input class="name span4" type="text" size="30">
+<div class="add-form form-inline" role="form">
+    <div class="form-group">
+        <label class="sr-only" for="new-database-name">Database name</label>
+        <input class="name form-control add-form-input" type="text" id="new-database-name">
+    </div>
     <button class="add btn btn-primary">Add database</button>
     <button class="cancel btn">Cancel</button>
 </div>
