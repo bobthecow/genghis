@@ -1,26 +1,24 @@
-<div class="pagination pagination-right">
-  <ul>
-    <li class="prev{{# isFirst }} disabled{{/ isFirst }}">
-        <a{{^ isFirst }} href="{{ prevUrl }}"{{/ isFirst }}>&larr;</a>
-    </li>
+<ul class="pagination pull-right">
+  <li class="prev{{# isFirst }} disabled{{/ isFirst }}">
+      <a{{^ isFirst }} href="{{ prevUrl }}"{{/ isFirst }}>&larr;</a>
+  </li>
 
-    {{^ isStart }}
-        <li class="first"><a href="{{ firstUrl }}">1</a></li>
-        <li class="disabled"><a>&hellip;</a></li>
-    {{/ isStart }}
+  {{^ isStart }}
+      <li class="first"><a href="{{ firstUrl }}">1</a></li>
+      <li class="disabled"><a>&hellip;</a></li>
+  {{/ isStart }}
 
 
-    {{# pageUrls }}
-        <li{{# active }} class="active"{{/ active }}><a href="{{ url }}">{{ index }}</a></li>
-    {{/ pageUrls }}
+  {{# pageUrls }}
+      <li{{# active }} class="active"{{/ active }}><a href="{{ url }}">{{ index }}</a></li>
+  {{/ pageUrls }}
 
-    {{^ isEnd }}
-        <li class="disabled"><a>&hellip;</a></li>
-        <li class="last"><a href="{{ lastUrl }}">{{ last }}</a></li>
-    {{/ isEnd }}
+  {{^ isEnd }}
+      <li class="disabled"><a>&hellip;</a></li>
+      <li class="last"><a href="{{ lastUrl }}">{{ last }}</a></li>
+  {{/ isEnd }}
 
-    <li class="next{{# isLast }} disabled{{/ isLast }}">
-        <a{{^ isLast }} href="{{ nextUrl }}"{{/ isLast }}>&rarr;</a>
-    </li>
-  </ul>
-</div>
+  <li class="next{{# isLast }} disabled{{/ isLast }}">
+      <a{{^ isLast }} href="{{ nextUrl }}"{{/ isLast }}>&rarr;</a>
+  </li>
+</ul>
