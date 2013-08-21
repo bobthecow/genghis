@@ -1,4 +1,5 @@
 
+// Navbar breadcrumbs
 .navbar {
     .servers {
         display: none;
@@ -40,16 +41,146 @@
     }
 }
 
+
+.navbar-brand {
+    font-size: 32px;
+    line-height: 32px;
+    padding: 16px 20px 12px;
+    font-weight: bold;
+    .transition(color .1s linear);
+
+    .navbar-default & {
+        color: #ddd;
+        text-shadow: 0 -1px 0 rgba(0,0,0,.25), 0 1px 0 #fff, 0 0 30px rgba(0,0,0,.125);
+
+        &:hover {
+            color: @link-color;
+        }
+    }
+}
+
+.navbar {
+    .nav {
+        > li {
+            min-height: @navbar-height;
+        }
+        li.dropdown {
+            .dropdown-toggle {
+                padding: 20px 15px 20px 30px;
+                white-space: nowrap;
+            }
+            &, &.open, &.active {
+                > .dropdown-toggle {
+                    background-color: transparent;
+                }
+            }
+        }
+
+        // li a {
+        //     .badge {
+        //         color: #666;
+        //         background-color: rgba(0,0,0,.1);
+        //         @shadow: inset 0 1px 0 rgba(0,0,0,.2), 0 1px 0 rgba(255,255,255,.2);
+        //         .box-shadow(@shadow);
+        //     }
+        //     &:hover .badge {
+        //         color: #DDD;
+        //     }
+        // }
+        // li.active a {
+        //     .badge {
+        //         color: #CCC;
+        //         background-color: rgba(0,0,0,.2);
+        //     }
+        // }
+    }
+
+    // optical correction for badge spacing
+    .dropdown-menu > li > a { padding-right: 65px; }
+    .badge {                  margin-right: -50px; }
+}
+
+// Navbar nav
+.nav .dropdown {
+    @from: darken(@navbar-default-bg, 2.5%);
+    @to:   @navbar-default-bg;
+
+    &:before {
+        content: 'a';
+        display: block;
+        position: absolute;
+        color: transparent;
+        background-color: @to;
+        height: 32px;
+        width:  32px;
+        top:    14px;
+        left:   -16px;
+
+        border: solid #D3D3D3;
+        border-width: 1px 1px 0 0;
+        box-shadow: inset -1px 1px 3px white;
+
+        .rotate-skew(45deg, 22deg, 22deg);
+
+        -webkit-mask-image: -webkit-gradient(linear, left bottom, right top, from(#000), color-stop(0.5, #000), color-stop(0.5, transparent), to(transparent));
+        -webkit-mask-image: -webkit-linear-gradient(45deg, transparent, transparent 50%, #000 50%, #000);
+           -moz-mask-image:    -moz-linear-gradient(45deg, transparent, transparent 50%, #000 50%, #000);
+             -o-mask-image:      -o-linear-gradient(45deg, transparent, transparent 50%, #000 50%, #000);
+                mask-image:         linear-gradient(45deg, transparent, transparent 50%, #000 50%, #000);
+    }
+
+    background-image: -webkit-gradient(linear, left, right, from(@from), @to);
+    background-image: -webkit-linear-gradient(90deg, @from, @to);
+    background-image:    -moz-linear-gradient(90deg, @from, @to);
+    background-image:      -o-linear-gradient(90deg, @from, @to);
+    background-image:         linear-gradient(90deg, @from, @to);
+}
+
+
+// Let's bring these guys back
+.navbar-nav > li > .dropdown-menu {
+    .border-top-radius(@border-radius-base);
+}
+.nav .dropdown-menu {
+    &:before {
+        position: absolute;
+        top: @navbar-arrow-outer-width * -1;
+        left: 12px;
+        display: inline-block;
+        border: @navbar-arrow-outer-width solid transparent;
+        border-top-width: 0;
+        border-bottom-color: #ccc;
+        border-bottom-color: rgba(0, 0, 0, 0.2);
+        content: '';
+    }
+    &:after {
+        position: absolute;
+        top:  @navbar-arrow-width * -1;
+        left: 12px + (@navbar-arrow-outer-width - @navbar-arrow-width);
+        display: inline-block;
+        border: @navbar-arrow-width solid transparent;
+        border-top-width: 0;
+        border-bottom-color: #ffffff;
+        content: '';
+    }
+}
+
+// Search (and advanced search) form
 .navbar-search {
-    padding-bottom: 16px;
+    position: relative;
+    margin:  14px 0 0 5px;
+    padding: 0 0 10px 0;
+    border:  none;
+
     .form-control {
         width: 250px;
     }
+
     .grippie {
         position: absolute;
-        bottom: 2px;
+        bottom: -3px;
         left: 50%;
-        margin-left: -5px;
+        margin-left: -15px;
         clear: both;
         display: block;
         height: 12px;
@@ -64,6 +195,7 @@
             .opacity(100);
         }
     }
+
     .search-advanced {
         display: none;
         position: absolute;
@@ -113,10 +245,10 @@
         float: none !important; // bootstrap important'd the other float :(
         margin: 0 20px;
         padding: 0;
-        background-image: none;
         min-height: 120px;
         .grippie {
-            margin-left: -15px;
+            bottom: 1px;
+            margin-left: -5px;
         }
         .form-group {
             display: none;

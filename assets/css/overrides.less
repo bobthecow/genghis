@@ -9,85 +9,12 @@
     max-width: 1400px;
 }
 
-.navbar-brand {
-    font-size: 32px;
-    line-height: 32px;
-    padding: 16px 20px 12px;
-    font-weight: bold;
-    .transition(color .1s linear);
-
-    .navbar-default & {
-        color: #ddd;
-        text-shadow: 0 -1px 0 rgba(0,0,0,.25), 0 1px 0 #fff, 0 0 30px rgba(0,0,0,.125);
-
-        &:hover {
-            color: @link-color;
-        }
-    }
-}
-
-.navbar {
-    .nav {
-        > li {
-            min-height: @navbar-height;
-        }
-        li.dropdown {
-            .dropdown-toggle {
-                padding: 20px 10px 20px 20px;
-                white-space: nowrap;
-            }
-            &, &.open, &.active {
-                > .dropdown-toggle {
-                    background-color: transparent;
-                }
-            }
-        }
-
-        // li a {
-        //     .badge {
-        //         color: #666;
-        //         background-color: rgba(0,0,0,.1);
-        //         @shadow: inset 0 1px 0 rgba(0,0,0,.2), 0 1px 0 rgba(255,255,255,.2);
-        //         .box-shadow(@shadow);
-        //     }
-        //     &:hover .badge {
-        //         color: #DDD;
-        //     }
-        // }
-        // li.active a {
-        //     .badge {
-        //         color: #CCC;
-        //         background-color: rgba(0,0,0,.2);
-        //     }
-        // }
-    }
-
-    // optical correction for badge spacing
-    .dropdown-menu > li > a { padding-right: 65px; }
-    .badge {                  margin-right: -50px; }
-
-
-    form {
-        padding-left: 22px; // optical correction for breadcrumb spacing
-        margin: 15px 0 0 0;
-    }
-}
 
 // better font family
 code, pre {
     font-family: 'Source Code Pro', monospace;
 }
 
-// Navbar nav
-.nav .dropdown, .navbar-search {
-    background-color:    transparent;
-    background-position: left center;
-    background-repeat:   no-repeat;
-}
-.navbar-search {
-    // center the breadcrumb separator in front of the search form
-    background-position: left -1px;
-}
 
 .popover-title {
     font-size: 18px;

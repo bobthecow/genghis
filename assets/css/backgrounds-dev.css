@@ -6,10 +6,6 @@ html, body {
     background-image: url('../img/backgrounds/grippie.png');
 }
 
-.nav .dropdown, .navbar-search {
-    background-image: url('../img/backgrounds/nav.png');
-}
-
 section#servers tr.spinning td:first-child {
     background-image: url('../img/backgrounds/servers_spin.gif');
 }
