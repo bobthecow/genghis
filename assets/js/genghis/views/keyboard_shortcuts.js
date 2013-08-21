@@ -3,8 +3,10 @@ define([
 ], function(_, Backbone, Mousetrap, Views, template, _1) {
 
     return Views.KeyboardShortcuts = Backbone.View.extend({
-        tagName:  'div',
-        template: template,
+        tagName:   'div',
+        id:        'keyboard-shortcuts',
+        className: 'modal',
+        template:  template,
 
         events: {
             'click a.close': 'hide'
