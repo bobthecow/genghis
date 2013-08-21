@@ -40,7 +40,7 @@ define([
             var $el = this.$el.html(this.template(this.renderContext));
 
             if (this.confirmInput) {
-                $el.on('shown', function() {
+                $el.on('shown.bs.modal', function() {
                     $el.find('.confirm-input').focus();
                 });
             }
@@ -72,7 +72,7 @@ define([
         },
 
         dismiss: function() {
-            this.$el.on('hidden', this.remove).modal('hide');
+            this.$el.on('hidden.bs.modal', this.remove).modal('hide');
         },
 
         remove: function() {

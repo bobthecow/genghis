@@ -39,8 +39,8 @@ define([
 
             $(window).resize(_.throttle(this.refreshEditor, 100));
 
-            this.modal.bind('hide', this.cancelEdit);
-            this.modal.bind('shown', this.refreshEditor);
+            this.modal.on('hide.bs.modal', this.cancelEdit);
+            this.modal.on('shown.bs.modal', this.refreshEditor);
 
             this.modal.find('button.cancel').bind('click', this.closeModal);
             this.modal.find('button.save').bind('click', this.saveDocument);
