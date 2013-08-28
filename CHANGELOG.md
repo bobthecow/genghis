@@ -1,5 +1,6 @@
 ## v2.4.0
 
+ * Update to Bootstrap v3.0.
  * Add "Explain query" feature — Thanks @craigerm for doing all the hard work!
  * Add support for emptying collections.
  * [Fix #115][i115] — Add support for viewing and updating NaN values.
