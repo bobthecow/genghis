@@ -17,11 +17,13 @@ define([
         },
 
         submitAddForm: function() {
+            var alerts = this.app.alerts;
+
             this.collection.create({url: this.addInput.val()}, {
                 wait:    true,
                 success: this.closeAddForm,
                 error:   function(model, response) {
-                    window.app.alerts.handleError(response);
+                    alerts.handleError(response);
                 }
             });
         },

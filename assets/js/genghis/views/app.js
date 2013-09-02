@@ -30,7 +30,7 @@ define([
             var router = this.router = new Router({app: this});
 
             // initialize all our app views
-            this.navbarView            = new NavbarView({model: selection, baseUrl: baseUrl, router: router});
+            this.navbarView            = new NavbarView({model: selection, baseUrl: this.baseUrl, router: router});
             this.alertsView            = new AlertsView({collection: alerts});
             this.keyboardShortcutsView = new KeyboardShortcutsView();
             this.serversView           = new ServersView({collection: selection.servers});

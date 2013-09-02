@@ -48,9 +48,10 @@ define([
         },
 
         submitAddFormGridFs: function() {
-            var name = this.addInputGridFs.val().replace(/^\s+/, '').replace(/\s+$/, '');
+            var alerts = this.app.alerts;
+            var name   = this.addInputGridFs.val().replace(/^\s+/, '').replace(/\s+$/, '');
             if (name === '') {
-                window.app.alerts.add({msg: 'Please enter a valid collection name.'});
+                alerts.add({msg: 'Please enter a valid collection name.'});
                 return;
             }
 
@@ -62,7 +63,7 @@ define([
                 wait:    true,
                 success: closeAfterTwo,
                 error:   function(model, response) {
-                    window.app.alerts.handleError(response);
+                    alerts.handleError(response);
                 }
             });
 
@@ -70,7 +71,7 @@ define([
                 wait:    true,
                 success: closeAfterTwo,
                 error:   function(model, response) {
-                    window.app.alerts.handleError(response);
+                    alerts.handleError(response);
                 }
             });
         },
