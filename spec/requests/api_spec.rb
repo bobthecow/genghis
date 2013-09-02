@@ -53,7 +53,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { name: 'mongo.example.com:27017' }.to_json
+            req.body = { url: 'mongo.example.com:27017' }.to_json
           end
 
           res.status.should eq 200
@@ -70,7 +70,7 @@ genghis_backends.each do |backend|
             req.url '/servers'
             req.headers['Content-Type'] = 'application/json'
             req.headers['Cookie'] = 'genghis_servers=%7B%22localhost%22%3A%22mongodb%3A%5C%2F%5C%2Flocalhost%3A27017%22%7D'
-            req.body = { name: 'mongo.example.com:27017' }.to_json
+            req.body = { url: 'mongo.example.com:27017' }.to_json
           end
           res.headers['set-cookie'].should_not be_empty
           servers_cookie = URI.decode(res.headers['set-cookie'].split(';').first.split('=').last)
@@ -86,7 +86,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { name: '' }.to_json
+            req.body = { url: '' }.to_json
           end
 
           res.status.should eq 400
@@ -99,7 +99,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { name: 'http://foo/bar' }.to_json
+            req.body = { url: 'http://foo/bar' }.to_json
           end
 
           res.status.should eq 400

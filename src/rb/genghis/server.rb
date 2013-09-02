@@ -110,7 +110,7 @@ module Genghis
     end
 
     post '/servers' do
-      json add_server request_json['name']
+      json add_server request_json['url']
     end
 
     get '/servers/:server' do |server|

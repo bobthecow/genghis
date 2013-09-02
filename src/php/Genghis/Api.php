@@ -310,7 +310,7 @@ class Genghis_Api extends Genghis_App
                 return $this->servers;
 
             case 'POST':
-                $server = new Genghis_Models_Server($this->getRequestParam('name'));
+                $server = new Genghis_Models_Server($this->getRequestParam('url'));
                 if ($server->error) {
                     throw new Genghis_HttpException(400, $server->error);
                 }
@@ -383,7 +383,7 @@ class Genghis_Api extends Genghis_App
         $data = $this->getRequestData(false);
 
         if (!isset($data[$name])) {
-            throw new HttpException(400, sprintf("'%s' must be specified", $name));
+            throw new Genghis_HttpException(400, sprintf("'%s' must be specified", $name));
         }
 
         return $data[$name];

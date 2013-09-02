@@ -16,6 +16,16 @@ define([
             return this;
         },
 
+        submitAddForm: function() {
+            this.collection.create({url: this.addInput.val()}, {
+                wait:    true,
+                success: this.closeAddForm,
+                error:   function(model, response) {
+                    window.app.alerts.handleError(response);
+                }
+            });
+        },
+
         updateTitle: function() {
             //noop
         },
