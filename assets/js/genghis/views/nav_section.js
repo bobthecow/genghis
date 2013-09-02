@@ -19,7 +19,11 @@ define([
         render: function() {
             this.$el.html(this.template(this.model));
 
-            this.$('.dropdown-toggle').hoverIntent(function(e) {
+            // TODO: remove this after wiring up UI hash.
+            this.$toggle = this.$('.dropdown-toggle');
+            this.$menu   = this.$('ul.dropdown-menu');
+
+            this.$toggle.hoverIntent(function(e) {
                 $(e.target)
                     .parent('li').addClass('open')
                         .siblings('li').removeClass('open');
@@ -29,14 +33,14 @@ define([
         },
 
         updateLink: function() {
-            this.$('a.dropdown-toggle').text(this.model.id ? this.model.id : '').attr('href', this.model.id ? this.model.url : '');
+            this.$toggle.text(this.model.id ? this.model.id : '').attr('href', this.model.id ? this.model.url : '');
         },
 
         renderMenu: function() {
-            this.$('ul.dropdown-menu').html(this.menuTemplate({model: this.model, collection: this.collection}));
+            this.$menu.html(this.menuTemplate({model: this.model, collection: this.collection}));
 
             // Handle really wide badges on the menu dropdown
-            this.$('ul.dropdown-menu a span').each(function(i, el) {
+            this.$menu.find('a span').each(function(i, el) {
                 var $el = $(el);
                 var len = $el.text().length;
                 if (len > 3) {

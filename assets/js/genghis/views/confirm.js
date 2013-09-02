@@ -39,6 +39,9 @@ define([
         render: function() {
             var $el = this.$el.html(this.template(this.renderContext));
 
+            // TODO: remove this after UI hash works.
+            this.$confirm = this.$('button.confirm');
+
             if (this.confirmInput) {
                 $el.on('shown.bs.modal', function() {
                     $el.find('.confirm-input').focus();
@@ -56,18 +59,16 @@ define([
         },
 
         validateInput: function(e) {
-            var btn = this.$('button.confirm');
-
             if ($(e.target).val() == this.confirmInput) {
-                btn.removeAttr('disabled');
+                this.$confirm.removeAttr('disabled');
 
                 // handle enter
                 if (e.keyCode == 13) {
                     e.preventDefault();
-                    btn.click();
+                    this.$confirm.click();
                 }
             } else {
-                btn.attr('disabled', true);
+                this.$confirm.attr('disabled', true);
             }
         },
 

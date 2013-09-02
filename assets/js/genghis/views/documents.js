@@ -41,14 +41,18 @@ define([
                 collection: this.collection
             });
 
+            // TODO: remove this after wiring up UI hash
+            this.$content   = this.$('.content');
+            this.$addButton = this.$('button.add-document');
+
             this.addAll();
 
             return this;
         },
 
         addAll: function() {
-            this.$('.content').html('');
-            this.$('button.add-document')
+            this.$content.html('');
+            this.$addButton
                 .text(this.model.isGridCollection() ? 'Upload file' : 'Add document')
                 .toggleClass('file-upload', this.model.isGridCollection());
             this.collection.each(this.addDocument);
@@ -56,7 +60,7 @@ define([
 
         addDocument: function(document) {
             var view = new DocumentView({model: document});
-            this.$('.content').append(view.render().el);
+            this.$content.append(view.render().el);
         },
 
         createDocument: function(e) {

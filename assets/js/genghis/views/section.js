@@ -35,24 +35,30 @@ define([
         render: function() {
             this.$el.html(this.template({title: this.formatTitle(this.model)}));
 
-            this.addForm      = this.$('.add-form');
-            this.addButton    = this.$('.add-form button.add');
-            this.addInput     = this.$('.add-form input');
-            this.cancelButton = this.$('.add-form button.cancel');
+            // TODO: remove after wiring up UI hash.
+            this.$title         = this.$('> header h2');
+            this.$table         = this.$('table');
+            this.$tbody         = this.$('table tbody');
+            this.$addForm       = this.$('.add-form');
+            this.$addInput      = this.$('.add-form input');
+            this.$addFormToggle = this.$('.add-form-toggle');
 
             this.addAll();
 
             // Sort this bad boy.
-            this.$('table').tablesorter({textExtraction: function(el) {
+            this.$table.tablesorter({textExtraction: function(el) {
                 return $('.value', el).text() || $(el).text();
             }});
-            if (this.collection.size()) this.$('table').trigger('sorton', [[[0,0]]]);
+
+            if (this.collection.size()) {
+                this.$table.trigger('sorton', [[[0,0]]]);
+            }
 
             return this;
         },
 
         updateTitle: function() {
-            this.$('> header h2').text(this.formatTitle(this.model));
+            this.$title.text(this.formatTitle(this.model));
         },
 
         showAddForm: function(e) {
@@ -60,15 +66,15 @@ define([
                 e.preventDefault();
             }
 
-            this.$('.add-form-toggle').hide();
-            this.addForm.show();
-            this.addInput.select().focus();
+            this.$addFormToggle.hide();
+            this.$addForm.show();
+            this.$addInput.select().focus();
         },
 
         submitAddForm: function() {
             var alerts = this.app.alerts;
 
-            this.collection.create({name: this.addInput.val()}, {
+            this.collection.create({name: this.$addInput.val()}, {
                 wait:    true,
                 success: this.closeAddForm,
                 error:   function(model, response) {
@@ -78,9 +84,9 @@ define([
         },
 
         closeAddForm: function() {
-            this.$('.add-form-toggle').show();
-            this.addForm.hide();
-            this.addInput.val('');
+            this.$addFormToggle.show();
+            this.$addForm.hide();
+            this.$addInput.val('');
         },
 
         updateOnKeyup: function(e) {
@@ -90,16 +96,16 @@ define([
 
         addModel: function(model) {
             var view = new this.rowView({model: model});
-            this.$('table tbody').append(view.render().el);
+            this.$tbody.append(view.render().el);
         },
 
         addModelAndUpdate: function(model) {
             this.addModel(model);
-            this.$('table').trigger('update');
+            this.$table.trigger('update');
         },
 
         addAll: function() {
-            this.$('table tbody').html('');
+            this.$tbody.html('');
             this.collection.each(this.addModel);
         },
 

@@ -24,8 +24,10 @@ define([
         render: function() {
             Section.prototype.render.apply(this, arguments);
 
-            this.addFormGridFs  = this.$('.add-form-gridfs');
-            this.addInputGridFs = this.$('.add-form-gridfs input');
+            // TODO: remove this once we switch to using default render :)
+            this.$addFormGridFs  = this.$('.add-form-gridfs');
+            this.$addInputGridFs = this.$('.add-input-gridfs');
+            this.$addFormToggle  = this.$('.add-form-toggle');
 
             // Yay dropdowns!
             this.$('.dropdown-toggle').dropdown();
@@ -42,14 +44,14 @@ define([
                 e.preventDefault();
             }
 
-            this.$('.add-form-toggle').hide();
-            this.addFormGridFs.show();
-            this.addInputGridFs.select().focus();
+            this.$addFormToggle.hide();
+            this.$addFormGridFs.show();
+            this.$addInputGridFs.select().focus();
         },
 
         submitAddFormGridFs: function() {
             var alerts = this.app.alerts;
-            var name   = this.addInputGridFs.val().replace(/^\s+/, '').replace(/\s+$/, '');
+            var name   = this.$addInputGridFs.val().replace(/^\s+/, '').replace(/\s+$/, '');
             if (name === '') {
                 alerts.add({msg: 'Please enter a valid collection name.'});
                 return;
@@ -77,9 +79,9 @@ define([
         },
 
         closeAddFormGridFs: function() {
-            this.$('.add-form-toggle').show();
-            this.addFormGridFs.hide();
-            this.addInputGridFs.val('');
+            this.$addFormToggle.show();
+            this.$addFormGridFs.hide();
+            this.$addInputGridFs.val('');
         },
 
         updateOnKeyupGridFs: function(e) {

@@ -58,6 +58,11 @@ define([
                     isLast:  page === pages
                 })).show();
             }
+
+            // TODO: remove after wiring up UI hash
+            this.$next = this.$('li.next a[href]');
+            this.$prev = this.$('li.prev a[href]');
+
             return this;
         },
 
@@ -89,14 +94,14 @@ define([
             // TODO: bind/unbind mousetrap so we don't have to check visibilty?
             if (this.$el.is(':visible')) {
                 e.preventDefault();
-                this.$('li.next a[href]').click();
+                this.$next.click();
             }
         },
 
         prevPage: function(e) {
             if (this.$el.is(':visible')) {
                 e.preventDefault();
-                this.$('li.prev a[href]').click();
+                this.$prev.click();
             }
         }
     });

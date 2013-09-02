@@ -12,9 +12,12 @@ define([
         },
 
         render: function() {
+            // TODO: remove after wiring up UI hash
+            this.$content = this.$('.content');
+
             var view = new DocumentView({model: this.model});
             this.$el.removeClass('spinning').html(this.template({model: this.model}));
-            this.$('.content').html(view.render().el);
+            this.$content.html(view.render().el);
             return this;
         },
 

@@ -27,6 +27,11 @@ define([
 
         render: function() {
             this.$el.html(this.template({query: this.model.get('query')}));
+
+            // TODO: remove after wiring up UI hash
+            this.$query = this.$('input#navbar-query');
+            this.$well  = this.$('.well');
+
             this.$el.submit(function(e) { e.preventDefault(); });
 
             Mousetrap.bind('/', this.focusSearch);
@@ -78,7 +83,7 @@ define([
         updateQuery: function() {
             var q = this.normalizeQuery(this.model.get('query') || this.getDocumentQuery() || '');
 
-            this.$('input#navbar-query').val(q);
+            this.$query.val(q);
         },
 
         getDocumentQuery: function() {
@@ -134,17 +139,17 @@ define([
 
         focusSearch: function(e) {
             // TODO: make the view stateful rather than querying the DOM
-            if (this.$('input#navbar-query').is(':visible')) {
+            if (this.$query.is(':visible')) {
                 if (e) e.preventDefault();
-                this.$('input#navbar-query').focus();
-            } else if (this.editor && this.$('.well').is(':visible')) {
+                this.$query.focus();
+            } else if (this.editor && this.$well.is(':visible')) {
                 if (e) e.preventDefault();
                 this.editor.focus();
             }
         },
 
         blurSearch: function() {
-            this.$('input#navbar-query').blur();
+            this.$query.blur();
             this.updateQuery();
         },
 
@@ -165,11 +170,11 @@ define([
         },
 
         advancedSearchToQuery: function() {
-            this.$('input#navbar-query').val(this.normalizeQuery(this.editor.getValue()));
+            this.$query.val(this.normalizeQuery(this.editor.getValue()));
         },
 
         queryToAdvancedSearch: function() {
-            var q = this.$('input#navbar-query').val().trim();
+            var q = this.$query.val().trim();
 
             if (q.match(/^[a-z\d]+$/i)) {
                 q = '{_id:ObjectId("'+q+'")}';
@@ -189,7 +194,7 @@ define([
         expandSearch: function(expand) {
             if (!this.editor) {
                 var wrapper = this.$('.search-advanced');
-                this.editor = CodeMirror(this.$('.well')[0], _.extend({}, defaults.codeMirror, {
+                this.editor = CodeMirror(this.$well[0], _.extend({}, defaults.codeMirror, {
                     lineNumbers: false,
                     extraKeys: {
                         'Ctrl-Enter': this.findDocumentsAdvanced,
