@@ -1,17 +1,17 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views', 'genghis/models/selection',
+    'jquery', 'underscore', 'backbone.giraffe', 'genghis/views', 'genghis/models/selection',
     'genghis/collections/alerts', 'genghis/router', 'genghis/views/navbar',
     'genghis/views/alerts', 'genghis/views/keyboard_shortcuts', 'genghis/views/servers',
     'genghis/views/databases', 'genghis/views/collections', 'genghis/views/documents',
     'genghis/views/explain', 'genghis/views/document_section', 'genghis/views/masthead',
     'hgn!genghis/templates/welcome'
 ], function(
-    $, _, Backbone, Views, Selection, Alerts, Router, NavbarView, AlertsView,
+    $, _, Giraffe, Views, Selection, Alerts, Router, NavbarView, AlertsView,
     KeyboardShortcutsView, ServersView, DatabasesView, CollectionsView, DocumentsView,
     ExplainView, DocumentSectionView, MastheadView, welcomeTemplate
 ) {
 
-    return Views.App = Backbone.View.extend({
+    return Views.App = Giraffe.App.extend({
         el: 'section#genghis',
 
         initialize: function() {
