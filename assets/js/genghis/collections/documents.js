@@ -1,6 +1,6 @@
-define(['underscore', 'backbone', 'genghis/collections', 'genghis/models/document'], function(_, Backbone, Collections, Document) {
+define(['underscore', 'backbone.giraffe', 'genghis/collections', 'genghis/models/document'], function(_, Giraffe, Collections, Document) {
 
-    return Collections.Documents = Backbone.Collection.extend({
+    return Collections.Documents = Giraffe.Collection.extend({
         model: Document,
 
         parse: function(resp) {

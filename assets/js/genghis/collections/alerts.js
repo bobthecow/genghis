@@ -1,6 +1,6 @@
-define(['underscore', 'backbone', 'genghis/collections', 'genghis/models/alert'], function(_, Backbone, Collections, Alert) {
+define(['underscore', 'backbone.giraffe', 'genghis/collections', 'genghis/models/alert'], function(_, Giraffe, Collections, Alert) {
 
-    return Collections.Alerts = Backbone.Collection.extend({
+    return Collections.Alerts = Giraffe.Collection.extend({
         model: Alert,
 
         initialize: function() {

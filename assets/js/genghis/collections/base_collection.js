@@ -1,6 +1,6 @@
-define(['backbone', 'genghis/collections'], function(Backbone, Collections) {
+define(['backbone.giraffe', 'genghis/collections'], function(Giraffe, Collections) {
 
-    return Collections.BaseCollection = Backbone.Collection.extend({
+    return Collections.BaseCollection = Giraffe.Collection.extend({
         firstChildren: function() {
             return this.collection.toArray().slice(0, 10);
         },

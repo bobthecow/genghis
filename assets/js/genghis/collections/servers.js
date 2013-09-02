@@ -1,6 +1,6 @@
-define(['underscore', 'backbone', 'genghis/collections', 'genghis/models/server'], function(_, Backbone, Collections, Server) {
+define(['underscore', 'backbone.giraffe', 'genghis/collections', 'genghis/models/server'], function(_, Giraffe, Collections, Server) {
 
-    return Collections.Servers = Backbone.Collection.extend({
+    return Collections.Servers = Giraffe.Collection.extend({
         model: Server,
         firstChildren: function() {
             return this.collection.reject(function(m) { return m.has('error'); }).slice(0, 10);
