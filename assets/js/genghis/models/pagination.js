@@ -1,6 +1,6 @@
-define(['underscore', 'backbone', 'genghis/models'], function(_, Backbone, Models) {
+define(['underscore', 'backbone.giraffe', 'genghis/models'], function(_, Giraffe, Models) {
 
-    return Models.Pagination = Backbone.Model.extend({
+    return Models.Pagination = Giraffe.Model.extend({
 
         defaults: {
             page:  1,

@@ -1,6 +1,6 @@
-define(['backbone', 'genghis/models'], function(Backbone, Models) {
+define(['backbone.giraffe', 'genghis/models'], function(Giraffe, Models) {
 
-    return Models.Alert = Backbone.Model.extend({
+    return Models.Alert = Giraffe.Model.extend({
         defaults: {
             level: 'warning',
             block: false

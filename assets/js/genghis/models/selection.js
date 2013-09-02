@@ -1,9 +1,9 @@
 define([
-    'underscore', 'backbone', 'genghis/models', 'genghis/models/pagination', 'genghis/collections/servers',
+    'underscore', 'backbone.giraffe', 'genghis/models', 'genghis/models/pagination', 'genghis/collections/servers',
     'genghis/models/server', 'genghis/collections/databases', 'genghis/models/database',
     'genghis/collections/collections', 'genghis/models/collection', 'genghis/collections/documents',
     'genghis/models/document', 'genghis/util', 'genghis/json'
-], function(_, Backbone, Models, Pagination, Servers, Server, Databases, Database, Collections, Collection, Documents, Document, Util, GenghisJSON) {
+], function(_, Giraffe, Models, Pagination, Servers, Server, Databases, Database, Collections, Collection, Documents, Document, Util, GenghisJSON) {
 
     var SERVER_PARAMS     = ['server'];
     var DATABASE_PARAMS   = ['server', 'database'];
@@ -11,7 +11,7 @@ define([
     var DOCUMENTS_PARAMS  = ['server', 'database', 'collection', 'query', 'page', 'explain'];
     var DOCUMENT_PARAMS   = ['server', 'database', 'collection', 'document'];
 
-    return Models.Selection = Backbone.Model.extend({
+    return Models.Selection = Giraffe.Model.extend({
 
         defaults: {
             server:     null,

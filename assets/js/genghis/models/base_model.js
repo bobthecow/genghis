@@ -1,6 +1,6 @@
-define(['backbone', 'genghis/models', 'genghis/util'], function(Backbone, Models, Util) {
+define(['backbone.giraffe', 'genghis/models', 'genghis/util'], function(Giraffe, Models, Util) {
 
-    return Models.BaseModel = Backbone.Model.extend({
+    return Models.BaseModel = Giraffe.Model.extend({
 
         name: function() {
             return this.get('name');

@@ -1,6 +1,6 @@
-define(['underscore', 'backbone', 'genghis/models', 'genghis/util', 'genghis/json'], function(_, Backbone, Models, Util, GenghisJSON) {
+define(['underscore', 'backbone.giraffe', 'genghis/models', 'genghis/util', 'genghis/json'], function(_, Giraffe, Models, Util, GenghisJSON) {
 
-    return Models.Document = Backbone.Model.extend({
+    return Models.Document = Giraffe.Model.extend({
 
         idAttribute: null,
 
