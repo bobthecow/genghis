@@ -9,5 +9,6 @@
     "commit": "5637fd8f0b6b4e314d60e03e886d280bb8d2e419"
   },
   "_source": "git://github.com/jrburke/r.js.git",
-  "_target": "*"
+  "_target": "*",
+  "_originalSource": "r.js"
 }

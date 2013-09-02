@@ -67,15 +67,11 @@
         finished = true;
         completion.close();
         completion.cm.off("cursorActivity", activity);
-        CodeMirror.signal(data, "close");
-      }
-      function isDone() {
-        if (finished) return true;
-        if (!completion.widget) { done(); return true; }
+        if (data) CodeMirror.signal(data, "close");
       }
 
       function update() {
-        if (isDone()) return;
+        if (finished) return;
         CodeMirror.signal(data, "update");
         if (completion.options.async)
           completion.getHints(completion.cm, finishUpdate, completion.options);
@@ -84,9 +80,8 @@
       }
       function finishUpdate(data_) {
         data = data_;
-        if (isDone()) return;
+        if (finished) return;
         if (!data || !data.list.length) return done();
-        completion.widget.close();
         completion.widget = new Widget(completion, data);
       }
 
@@ -95,10 +90,12 @@
         var pos = completion.cm.getCursor(), line = completion.cm.getLine(pos.line);
         if (pos.line != startPos.line || line.length - pos.ch != startLen - startPos.ch ||
             pos.ch < startPos.ch || completion.cm.somethingSelected() ||
-            (pos.ch && closeOn.test(line.charAt(pos.ch - 1))))
+            (pos.ch && closeOn.test(line.charAt(pos.ch - 1)))) {
           completion.close();
-        else
+        } else {
           debounce = setTimeout(update, 170);
+          if (completion.widget) completion.widget.close();
+        }
       }
       this.cm.on("cursorActivity", activity);
       this.onClose = done;

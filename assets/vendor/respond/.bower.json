@@ -1,13 +1,14 @@
 {
   "name": "respond",
   "homepage": "https://github.com/scottjehl/Respond",
-  "version": "1.2.0",
-  "_release": "1.2.0",
+  "version": "1.3.0",
+  "_release": "1.3.0",
   "_resolution": {
     "type": "version",
-    "tag": "1.2.0",
-    "commit": "6b37016ceb6ed70fac78af65389ac3762918eb06"
+    "tag": "1.3.0",
+    "commit": "ad87635f83f8b811e1da53c082325a4b35960771"
   },
   "_source": "git://github.com/scottjehl/Respond.git",
-  "_target": "*"
+  "_target": "*",
+  "_originalSource": "respond"
 }

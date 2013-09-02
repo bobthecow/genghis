@@ -1,8 +1,13 @@
 {
   "name": "esprima",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "./esprima.js",
   "dependencies": {},
+  "ignore": [
+    "examples",
+    "test",
+    "tools"
+  ],
   "repository": {
     "type": "git",
     "url": "http://github.com/ariya/esprima.git"
@@ -13,13 +18,21 @@
       "url": "http://github.com/ariya/esprima/raw/master/LICENSE.BSD"
     }
   ],
+  "keywords": [
+    "ast",
+    "ecmascript",
+    "javascript",
+    "parser",
+    "syntax"
+  ],
   "homepage": "https://github.com/ariya/esprima",
-  "_release": "1.0.3",
+  "_release": "1.0.4",
   "_resolution": {
     "type": "version",
-    "tag": "1.0.3",
-    "commit": "dcf3d129e86a9e7cd8006e9ee8105991367fa905"
+    "tag": "1.0.4",
+    "commit": "092c44c696f78479f82388602f051189ff9cdec8"
   },
   "_source": "git://github.com/ariya/esprima.git",
-  "_target": "*"
+  "_target": "*",
+  "_originalSource": "esprima"
 }

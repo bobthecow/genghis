@@ -17,5 +17,6 @@
     "commit": "d73022ceb550c170ad3df630b450063888a5a7e1"
   },
   "_source": "git://github.com/millermedeiros/requirejs-hogan-plugin.git",
-  "_target": "*"
+  "_target": "*",
+  "_originalSource": "requirejs-hogan-plugin"
 }

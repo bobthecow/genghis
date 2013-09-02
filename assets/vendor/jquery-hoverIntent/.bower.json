@@ -8,5 +8,6 @@
     "commit": "50f11356f87c96097b48879c1aa1cd994d9599b2"
   },
   "_source": "git://github.com/briancherne/jquery-hoverIntent.git",
-  "_target": "*"
+  "_target": "*",
+  "_originalSource": "jquery-hoverIntent"
 }

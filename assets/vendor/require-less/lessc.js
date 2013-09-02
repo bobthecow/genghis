@@ -2014,8 +2014,8 @@ tree.functions = {
         var mimetype = mimetypeNode.value;
         var filePath = (filePathNode && filePathNode.value);
 
-        var fs = require("fs"),
-            path = require("path"),
+        var fs = nodeRequire("fs"),
+            path = nodeRequire("path"),
             useBase64 = false;
 
         if (arguments.length < 2) {
@@ -2034,7 +2034,7 @@ tree.functions = {
         if (arguments.length < 2) {
             var mime;
             try {
-                mime = require('mime');
+                mime = nodeRequire('mime');
             } catch (ex) {
                 mime = tree._mime;
             }
@@ -2091,7 +2091,7 @@ tree._mime = {
         '.png' : 'image/png'
     },
     lookup: function (filepath) {
-        var ext = require('path').extname(filepath),
+        var ext = nodeRequire('path').extname(filepath),
             type = tree._mime._types[ext];
         if (type === undefined) {
             throw new Error('Optional dependency "mime" is required for ' + ext);
