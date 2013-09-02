@@ -1,0 +1,20 @@
+{
+  "name": "jquery.cookie",
+  "version": "1.3.1",
+  "main": [
+    "./jquery.cookie.js"
+  ],
+  "dependencies": {
+    "jquery": ">=1.0"
+  },
+  "homepage": "https://github.com/carhartl/jquery-cookie",
+  "_release": "1.3.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.3.1",
+    "commit": "fedc4cbb420ff48fe3d10c60ed0d594e8480e57b"
+  },
+  "_source": "git://github.com/carhartl/jquery-cookie.git",
+  "_target": "*",
+  "_originalSource": "jquery.cookie"
+}

@@ -8,13 +8,14 @@
 		"esprima":                "*",
 		"jquery":                 "*",
 		"jquery-hoverIntent":     "*",
+		"jquery.cookie":          "*",
 		"jquery.tablesorter":     "*",
 		"mousetrap":              "*",
 		"r.js":                   "*",
-		"requirejs":              "*",
-		"requirejs-hogan-plugin": "*",
 		"require-css":            "*",
 		"require-less":           "*",
+		"requirejs":              "*",
+		"requirejs-hogan-plugin": "*",
 		"respond":                "*",
 		"underscore":             "*"
 	}
