@@ -9,18 +9,19 @@ define([
         template:  template,
 
         events: {
-            'click a.close': 'hide'
+            'click button.close': 'hide'
         },
 
         initialize: function() {
             _.bindAll(this, 'render', 'show', 'hide', 'toggle');
             Mousetrap.bind('?', this.toggle);
-            $('footer a.keyboard-shortcuts').click(this.show);
             this.render();
         },
 
         afterRender: function() {
-            $('footer a.keyboard-shortcuts').show();
+            $('footer a.keyboard-shortcuts')
+                .click(this.show)
+                .show();
 
             this.$el.modal({
                 backdrop: true,

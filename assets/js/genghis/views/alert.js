@@ -8,7 +8,7 @@ define([
         template: template,
 
         events: {
-            'click a.close': 'destroy'
+            'click button.close': 'destroy'
         },
 
         initialize: function() {
