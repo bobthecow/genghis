@@ -20,6 +20,8 @@ define([
         },
 
         afterRender: function() {
+            $('footer a.keyboard-shortcuts').show();
+
             this.$el.modal({
                 backdrop: true,
                 keyboard: true,
