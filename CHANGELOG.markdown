@@ -1,3 +1,10 @@
+## v2.3.9
+
+ * [Fix #135][i135] — error when entering a `new Date()` value in a document.
+
+[i135]: https://github.com/bobthecow/genghis/issues/135
+
+
 ## v2.3.8
 
  * [Fix #130][i130] — Resolve bug creating or editing `ISODate` instances with years between 1 and 99.
