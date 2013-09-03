@@ -14,10 +14,13 @@ define([
         },
 
         events: {
-            'click     button.add-document': 'createDocument',
-            'dragover  button.file-upload':  'dragGridFile',
-            'dragleave button.file-upload':  'dragLeave',
-            'drop      button.file-upload':  'dropGridFile'
+            'click     $addButton':         'createDocument',
+
+            // This class is toggled to change the button between "create document"
+            // and "file upload", so we're totally not adding it to the UI hash above.
+            'dragover  button.file-upload': 'dragGridFile',
+            'dragleave button.file-upload': 'dragLeave',
+            'drop      button.file-upload': 'dropGridFile'
         },
 
         initialize: function() {

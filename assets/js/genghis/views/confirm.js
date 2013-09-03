@@ -11,8 +11,8 @@ define([
         },
 
         events: {
+            'click $confirm':       'confirm',
             'click button.dismiss': 'dismiss',
-            'click button.confirm': 'confirm',
             'keyup .confirm-input': 'validateInput'
         },
 

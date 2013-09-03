@@ -14,11 +14,11 @@ define([
         },
 
         events: {
-            'keyup input#navbar-query': 'handleSearchKeyup',
-            'click span.grippie':       'toggleExpanded',
-            'click button.cancel':      'collapseSearch',
-            'click button.search':      'findDocumentsAdvanced',
-            'click button.explain':     'explainQuery'
+            'keyup $query':         'handleSearchKeyup',
+            'click span.grippie':   'toggleExpanded',
+            'click button.cancel':  'collapseSearch',
+            'click button.search':  'findDocumentsAdvanced',
+            'click button.explain': 'explainQuery'
         },
 
         initialize: function() {
