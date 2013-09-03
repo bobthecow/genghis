@@ -22,10 +22,6 @@ define([
             this.$('a').addClass('alert-link');
         },
 
-        serialize: function() {
-            return this.model;
-        },
-
         destroy: function() {
             this.model.destroy();
         }

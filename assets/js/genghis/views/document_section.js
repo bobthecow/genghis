@@ -15,10 +15,6 @@ define([
             this.model.bind('change', this.render);
         },
 
-        serialize: function() {
-            return {model: this.model};
-        },
-
         afterRender: function() {
             this.$el.removeClass('spinning');
             var view = new DocumentView({model: this.model});

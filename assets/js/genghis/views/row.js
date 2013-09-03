@@ -18,10 +18,6 @@ define([
             this.model.bind('destroy', this.remove);
         },
 
-        serialize: function() {
-            return this.model;
-        },
-
         afterRender: function() {
             this.$el
                 .toggleClass('error', !!this.model.get('error'))

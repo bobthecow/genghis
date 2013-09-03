@@ -21,10 +21,6 @@ define([
             this.render();
         },
 
-        serialize: function() {
-            return this.model;
-        },
-
         afterRender: function() {
             this.$toggle.hoverIntent(function(e) {
                 $(e.target)

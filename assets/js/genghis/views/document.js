@@ -34,10 +34,6 @@ define([
             this.model.bind('destroy', this.remove);
         },
 
-        serialize: function() {
-            return this.model;
-        },
-
         afterRender: function() {
             Util.attachCollapsers(this.el);
             setTimeout(this.updateDocument, 1);
