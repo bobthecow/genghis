@@ -4,3 +4,6 @@
 [submodule "assets/vendor/backbone.giraffe"]
 	path = assets/vendor/backbone.giraffe
 	url = https://github.com/barc/backbone.giraffe.git
+[submodule "assets/vendor/backbone.mousetrap"]
+	path = assets/vendor/backbone.mousetrap
+	url = https://github.com/elasticsales/backbone.mousetrap.git

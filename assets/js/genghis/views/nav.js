@@ -1,13 +1,19 @@
 define([
-    'jquery', 'underscore', 'backbone', 'mousetrap', 'genghis/util', 'genghis/views/view', 'genghis/views',
-    'genghis/views/nav_section', 'genghis/views/search', 'hgn!genghis/templates/nav'
-], function($, _, Backbone, Mousetrap, Util, View, Views, NavSection, Search, template) {
+    'jquery', 'underscore', 'backbone', 'genghis/util', 'genghis/views/view', 'genghis/views',
+    'genghis/views/nav_section', 'genghis/views/search', 'hgn!genghis/templates/nav', 'backbone.mousetrap'
+], function($, _, Backbone, Util, View, Views, NavSection, Search, template, _1) {
 
     return Views.Nav = View.extend({
         el:       '.navbar nav',
         template: template,
+
         events: {
             'click a': 'navigate'
+        },
+
+        keyboardEvents: {
+            's': 'navigateToServers',
+            'u': 'navigateUp'
         },
 
         initialize: function() {
@@ -25,9 +31,6 @@ define([
             $('body').bind('click', function(e) {
                 $('.dropdown-toggle, .menu').parent('li').removeClass('open');
             });
-
-            Mousetrap.bind('s', this.navigateToServers);
-            Mousetrap.bind('u', this.navigateUp);
 
             this.render();
         },

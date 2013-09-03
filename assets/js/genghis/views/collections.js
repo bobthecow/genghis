@@ -1,7 +1,7 @@
 define([
-    'underscore', 'mousetrap', 'genghis/views', 'genghis/views/section', 'genghis/views/collection_row',
-    'hgn!genghis/templates/collections', 'bootstrap.dropdown'
-], function(_, Mousetrap, Views, Section, CollectionRow, template, _1) {
+    'underscore', 'genghis/views', 'genghis/views/section', 'genghis/views/collection_row',
+    'hgn!genghis/templates/collections', 'bootstrap.dropdown', 'backbone.mousetrap'
+], function(_, Views, Section, CollectionRow, template, _1, _2) {
 
     return Views.Collections = Section.extend({
         el:       'section#collections',
@@ -21,6 +21,10 @@ define([
             'click .add-form-gridfs button.cancel': 'closeAddFormGridFs',
             'keyup .add-form-gridfs input.name':    'updateOnKeyupGridFs'
         }, Section.prototype.events),
+
+        keyboardEvents: _.extend({
+            'shift+c': 'showAddFormGridFs'
+        }, Section.prototype.keyboardEvents),
 
         initialize: function() {
             _.bindAll(this, 'showAddFormGridFs', 'submitAddFormGridFs', 'closeAddFormGridFs', 'updateOnKeyupGridFs');
@@ -86,16 +90,6 @@ define([
         updateOnKeyupGridFs: function(e) {
             if (e.keyCode == 13) this.submitAddFormGridFs();  // enter
             if (e.keyCode == 27) this.closeAddFormGridFs();   // escape
-        },
-
-        show: function() {
-            Mousetrap.bind('shift+c', this.showAddFormGridFs);
-            Section.prototype.show.apply(this, arguments);
-        },
-
-        hide: function() {
-            Mousetrap.unbind('shift+c');
-            Section.prototype.hide.apply(this, arguments);
         }
     });
 });

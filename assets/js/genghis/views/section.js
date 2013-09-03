@@ -1,6 +1,7 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'mousetrap', 'jquery.tablesorter', 'tablesorter-size-parser'
-], function($, _, Backbone, View, Views, Mousetrap, _1, _2) {
+    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'jquery.tablesorter',
+    'tablesorter-size-parser', 'backbone.mousetrap'
+], function($, _, Backbone, View, Views, _1, _2, _3) {
 
     return Views.Section = View.extend({
 
@@ -18,6 +19,10 @@ define([
             'click .add-form button.add':    'submitAddForm',
             'click .add-form button.cancel': 'closeAddForm',
             'keyup .add-form input.name':    'updateOnKeyup'
+        },
+
+        keyboardEvents: {
+            'c': 'showAddForm'
         },
 
         initialize: function() {
@@ -115,14 +120,14 @@ define([
         },
 
         show: function() {
-            Mousetrap.bind('c', this.showAddForm);
+            this.bindKeyboardEvents();
             $('body').addClass('section-' + this.$el.attr('id'));
             this.$el.show();
             $(document).scrollTop(0);
         },
 
         hide: function() {
-            Mousetrap.unbind('c');
+            this.unbindKeyboardEvents();
             $('body').removeClass('section-' + this.$el.attr('id'));
             this.$el.hide();
         },

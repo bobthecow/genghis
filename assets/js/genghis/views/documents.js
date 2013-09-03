@@ -1,8 +1,8 @@
 define([
-    'jquery', 'underscore', 'backbone', 'mousetrap', 'modernizr-detects', 'genghis/views/view',
+    'jquery', 'underscore', 'backbone', 'modernizr-detects', 'genghis/views/view',
     'genghis/views', 'genghis/views/documents_header', 'genghis/views/pagination', 'genghis/views/document',
-    'genghis/views/new_document', 'genghis/views/new_grid_file', 'hgn!genghis/templates/documents'
-], function($, _, Backbone, Mousetrap, Modernizr, View, Views, DocumentsHeader, Pagination, DocumentView, NewDocument, NewGridFile, template) {
+    'genghis/views/new_document', 'genghis/views/new_grid_file', 'hgn!genghis/templates/documents', 'backbone.mousetrap'
+], function($, _, Backbone, Modernizr, View, Views, DocumentsHeader, Pagination, DocumentView, NewDocument, NewGridFile, template, _1) {
 
     return Views.Documents = View.extend({
         el:       'section#documents',
@@ -21,6 +21,10 @@ define([
             'dragover  button.file-upload': 'dragGridFile',
             'dragleave button.file-upload': 'dragLeave',
             'drop      button.file-upload': 'dropGridFile'
+        },
+
+        keyboardEvents: {
+            'c': 'createDocument'
         },
 
         initialize: function() {
@@ -141,14 +145,14 @@ define([
         },
 
         show: function() {
-            Mousetrap.bind('c', this.createDocument);
+            this.bindKeyboardEvents();
             $('body').addClass('section-' + this.$el.attr('id'));
             this.$el.show();
             $(document).scrollTop(0);
         },
 
         hide: function() {
-            Mousetrap.unbind('c');
+            this.unbindKeyboardEvents();
             $('body').removeClass('section-' + this.$el.attr('id'));
             this.$el.hide();
         },

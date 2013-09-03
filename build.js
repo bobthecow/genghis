@@ -24,6 +24,7 @@
     'almond':                   '../vendor/almond/almond',
     'backbone':                 '../vendor/backbone/backbone',
     'backbone.giraffe':         '../vendor/backbone.giraffe/dist/backbone.giraffe',
+    'backbone.mousetrap':       '../vendor/backbone.mousetrap/backbone.mousetrap',
     'backgrounds-dev':          '../css/backgrounds-dev',
     'bootstrap.dropdown':       '../vendor/bootstrap/js/dropdown',
     'bootstrap.modal':          '../vendor/bootstrap/js/modal',
@@ -68,6 +69,8 @@
       deps:    ['backbone'],
       exports: 'Giraffe'
     },
+
+    'backbone.mousetrap': ['backbone', 'mousetrap'],
 
     'bootstrap.dropdown': ['jquery'],
     'bootstrap.tooltip':  ['jquery'],

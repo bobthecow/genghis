@@ -1,7 +1,7 @@
 define([
-    'jquery', 'underscore', 'backbone', 'mousetrap', 'genghis/views/view', 'genghis/views', 'genghis/util',
-    'hgn!genghis/templates/pagination'
-], function($, _, Backbone, Mousetrap, View, Views, Util, template) {
+    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'genghis/util',
+    'hgn!genghis/templates/pagination', 'backbone.mousetrap'
+], function($, _, Backbone, View, Views, Util, template, _1) {
 
     return Views.Pagination = View.extend({
         template: template,
@@ -15,15 +15,17 @@ define([
             'click a': 'navigate'
         },
 
+        keyboardEvents: {
+            'n': 'nextPage',
+            'p': 'prevPage'
+        },
+
         initialize: function() {
             _.bindAll(this, 'render', 'urlTemplate', 'navigate', 'nextPage', 'prevPage');
 
             this.listenTo(this.model, {
                 'change': this.render
             });
-
-            Mousetrap.bind('n', this.nextPage);
-            Mousetrap.bind('p', this.prevPage);
         },
 
         serialize: function() {

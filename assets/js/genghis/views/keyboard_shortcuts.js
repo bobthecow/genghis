@@ -1,6 +1,6 @@
 define([
-    'underscore', 'backbone', 'mousetrap', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/keyboard_shortcuts', 'bootstrap.modal'
-], function(_, Backbone, Mousetrap, View, Views, template, _1) {
+    'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/keyboard_shortcuts', 'bootstrap.modal', 'backbone.mousetrap'
+], function(_, Backbone, View, Views, template, _1, _2) {
 
     return Views.KeyboardShortcuts = View.extend({
         tagName:   'div',
@@ -12,9 +12,12 @@ define([
             'click button.close': 'hide'
         },
 
+        keyboardEvents: {
+            '?': 'toggle'
+        },
+
         initialize: function() {
             _.bindAll(this, 'render', 'show', 'hide', 'toggle');
-            Mousetrap.bind('?', this.toggle);
             this.render();
         },
 

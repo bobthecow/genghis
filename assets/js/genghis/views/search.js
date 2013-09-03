@@ -1,7 +1,7 @@
 define([
-    'jquery', 'underscore', 'backbone', 'mousetrap', 'genghis/util', 'genghis/json', 'genghis/defaults',
-    'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/search'
-], function($, _, Backbone, Mousetrap, Util, GenghisJSON, defaults, View, Views, template) {
+    'jquery', 'underscore', 'backbone', 'genghis/util', 'genghis/json', 'genghis/defaults',
+    'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/search', 'backbone.mousetrap'
+], function($, _, Backbone, Util, GenghisJSON, defaults, View, Views, template, _1) {
 
     return Views.Search = View.extend({
         tagName:   'form',
@@ -19,6 +19,10 @@ define([
             'click button.cancel':  'collapseSearch',
             'click button.search':  'findDocumentsAdvanced',
             'click button.explain': 'explainQuery'
+        },
+
+        keyboardEvents: {
+            '/': 'focusSearch'
         },
 
         initialize: function() {
@@ -42,8 +46,6 @@ define([
             this.$el.submit(function(e) {
                 e.preventDefault();
             });
-
-            Mousetrap.bind('/', this.focusSearch);
 
             var wrapper   = this.$el;
             var resizable = wrapper.find('.well');
