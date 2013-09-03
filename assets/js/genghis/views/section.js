@@ -1,7 +1,7 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'jquery.tablesorter',
-    'tablesorter-size-parser', 'backbone.mousetrap', 'backbone.declarative'
-], function($, _, Backbone, View, Views, _1, _2, _3, _4) {
+    'jquery', 'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'jquery.tablesorter',
+    'tablesorter-size-parser'
+], function($, _, Backbone, View, Views, _1, _2) {
 
     return Views.Section = View.extend({
 

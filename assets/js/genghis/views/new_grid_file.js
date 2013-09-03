@@ -1,5 +1,5 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views', 'genghis/views/new_document', 'genghis/models/document',
+    'jquery', 'underscore', 'backbone-stack', 'genghis/views', 'genghis/views/new_document', 'genghis/models/document',
     'genghis/util', 'genghis/json', 'hgn!genghis/templates/new_grid_file', 'bootstrap.modal'
 ], function($, _, Backbone, Views, NewDocument, Document, Util, GenghisJSON, template, _1) {
 

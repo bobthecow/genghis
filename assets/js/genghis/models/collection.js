@@ -1,5 +1,5 @@
 define([
-    'underscore', 'backbone', 'genghis/models', 'genghis/models/base_model', 'genghis/json', 'genghis/util'
+    'underscore', 'backbone-stack', 'genghis/models', 'genghis/models/base_model', 'genghis/json', 'genghis/util'
 ], function(_, Backbone, Models, BaseModel, GenghisJSON, Util) {
 
     return Models.Collection = BaseModel.extend({

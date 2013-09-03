@@ -1,5 +1,5 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/confirm', 'bootstrap.modal'
+    'jquery', 'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/confirm', 'bootstrap.modal'
 ], function($, _, Backbone, View, Views, template, _1) {
 
     return Views.Confirm = View.extend({

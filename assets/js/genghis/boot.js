@@ -1,4 +1,4 @@
-define(['jquery', 'backbone', 'genghis', 'genghis/views/app'], function($, Backbone, Genghis, AppView) {
+define(['jquery', 'backbone-stack', 'genghis', 'genghis/views/app'], function($, Backbone, Genghis, AppView) {
     return Genghis.boot = function(baseUrl) {
         $(function() {
             baseUrl = baseUrl + (baseUrl.charAt(baseUrl.length - 1) == '/' ? '' : '/');

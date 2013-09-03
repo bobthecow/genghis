@@ -1,7 +1,7 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'genghis/util',
-    'hgn!genghis/templates/pagination', 'backbone.mousetrap', 'backbone.declarative'
-], function($, _, Backbone, View, Views, Util, template, _1, _2) {
+    'jquery', 'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'genghis/util',
+    'hgn!genghis/templates/pagination'
+], function($, _, Backbone, View, Views, Util, template) {
 
     return Views.Pagination = View.extend({
         template: template,

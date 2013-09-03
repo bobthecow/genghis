@@ -1,4 +1,4 @@
-define(['backbone', 'genghis'], function(Backbone, Genghis) {
+define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
     var e = encodeURIComponent;
 
     function setTitle() {

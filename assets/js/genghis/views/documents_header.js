@@ -1,6 +1,6 @@
 define([
-    'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/documents_header', 'backbone.declarative'
-], function(_, Backbone, View, Views, template, _1) {
+    'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/documents_header'
+], function(_, Backbone, View, Views, template) {
 
     return Views.DocumentsHeader = View.extend({
         template: template,

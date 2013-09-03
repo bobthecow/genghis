@@ -1,7 +1,7 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/util', 'genghis/json', 'genghis/defaults', 'genghis/views/view',
-    'genghis/views', 'hgn!genghis/templates/search', 'backbone.mousetrap', 'backbone.declarative'
-], function($, _, Backbone, Util, GenghisJSON, defaults, View, Views, template, _1, _2) {
+    'jquery', 'underscore', 'backbone-stack', 'genghis/util', 'genghis/json', 'genghis/defaults', 'genghis/views/view',
+    'genghis/views', 'hgn!genghis/templates/search'
+], function($, _, Backbone, Util, GenghisJSON, defaults, View, Views, template) {
 
     return Views.Search = View.extend({
         tagName:   'form',

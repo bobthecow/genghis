@@ -1,8 +1,8 @@
 define([
     'jquery', 'underscore', 'codemirror', 'genghis/views', 'genghis/views/base_document', 'genghis/util',
     'genghis/views/alert', 'genghis/models/alert', 'genghis/views/confirm', 'hgn!genghis/templates/document',
-    'codemirror.matchbrackets', 'codemirror.javascript', 'backbone.declarative'
-], function($, _, CodeMirror, Views, BaseDocument, Util, AlertView, Alert, Confirm, template, _1, _2, _3) {
+    'codemirror.matchbrackets', 'codemirror.javascript'
+], function($, _, CodeMirror, Views, BaseDocument, Util, AlertView, Alert, Confirm, template, _1, _2) {
 
     return Views.Document = BaseDocument.extend({
         tagName:  'article',

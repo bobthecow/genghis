@@ -1,9 +1,8 @@
 define([
-    'jquery', 'underscore', 'backbone', 'modernizr-detects', 'genghis/views/view',
+    'jquery', 'underscore', 'backbone-stack', 'modernizr-detects', 'genghis/views/view',
     'genghis/views', 'genghis/views/documents_header', 'genghis/views/pagination', 'genghis/views/document',
-    'genghis/views/new_document', 'genghis/views/new_grid_file', 'hgn!genghis/templates/documents', 'backbone.mousetrap',
-    'backbone.declarative'
-], function($, _, Backbone, Modernizr, View, Views, DocumentsHeader, Pagination, DocumentView, NewDocument, NewGridFile, template, _1, _2) {
+    'genghis/views/new_document', 'genghis/views/new_grid_file', 'hgn!genghis/templates/documents'
+], function($, _, Backbone, Modernizr, View, Views, DocumentsHeader, Pagination, DocumentView, NewDocument, NewGridFile, template) {
 
     return Views.Documents = View.extend({
         el:       'section#documents',

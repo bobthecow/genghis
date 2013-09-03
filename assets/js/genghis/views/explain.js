@@ -1,6 +1,6 @@
 define([
-    'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'genghis/util', 'hgn!genghis/templates/explain', 'backbone.declarative'
-], function(_, Backbone, View, Views, Util, template, _1) {
+    'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'genghis/util', 'hgn!genghis/templates/explain'
+], function(_, Backbone, View, Views, Util, template) {
 
     return Views.Explain = View.extend({
         el:       'section#explain',

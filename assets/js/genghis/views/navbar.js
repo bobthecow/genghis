@@ -1,4 +1,4 @@
-define(['backbone', 'genghis/views/view', 'genghis/views', 'genghis/views/nav'], function(Backbone, View, Views, Nav) {
+define(['backbone-stack', 'genghis/views/view', 'genghis/views', 'genghis/views/nav'], function(Backbone, View, Views, Nav) {
 
     return Views.Navbar = View.extend({
         el: '.navbar',
