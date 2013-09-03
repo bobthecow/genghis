@@ -6,8 +6,9 @@ define([
         template: template,
 
         initialize: function() {
-            _.bindAll(this, 'render');
-            this.model.bind('change', this.render);
+            this.listenTo(this.model, {
+                'change': this.render
+            });
         },
 
         serialize: function() {
@@ -15,7 +16,6 @@ define([
             var to    = '';
             var count = this.model.get('count');
             var page  = this.model.get('page');
-            var pages = this.model.get('pages');
             var limit = this.model.get('limit');
             var total = this.model.get('total');
 

@@ -30,8 +30,10 @@ define([
                 'remove', 'download', 'navigateColl', 'navigateDb', 'navigateId', 'showServerError'
             );
 
-            this.model.bind('change',  this.updateDocument);
-            this.model.bind('destroy', this.remove);
+            this.listenTo(this.model, {
+                'change':  this.updateDocument,
+                'destroy': this.remove
+            });
         },
 
         afterRender: function() {

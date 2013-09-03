@@ -27,8 +27,10 @@ define([
                 'advancedSearchToQuery', 'queryToAdvancedSearch', 'expandSearch', 'collapseSearch', 'collapseNoFocus', 'toggleExpanded'
             );
 
-            this.model.bind('change',            this.updateQuery);
-            this.model.bind('change:collection', this.collapseNoFocus);
+            this.listenTo(this.model, {
+                'change':            this.updateQuery,
+                'change:collection': this.collapseNoFocus,
+            });
         },
 
         serialize: function() {

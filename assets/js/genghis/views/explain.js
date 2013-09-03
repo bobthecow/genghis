@@ -11,8 +11,10 @@ define([
         },
 
         initialize: function() {
-            _.bindAll(this, 'render');
-            this.model.bind('sync', this.updateExplain, this);
+            this.listenTo(this.model, {
+                'sync': this.updateExplain
+            });
+
             this.render();
         },
 

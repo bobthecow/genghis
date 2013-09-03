@@ -16,8 +16,12 @@ define([
             );
 
             this.baseUrl = this.options.baseUrl;
-            this.model.bind('change', this.updateQuery);
 
+            this.listenTo(this.model, {
+                'change': this.updateQuery
+            });
+
+            // TODO: clean this up somehow
             $('body').bind('click', function(e) {
                 $('.dropdown-toggle, .menu').parent('li').removeClass('open');
             });

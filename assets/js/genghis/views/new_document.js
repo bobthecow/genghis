@@ -14,6 +14,7 @@ define([
                 this, 'render', 'getTextArea', 'show', 'refreshEditor', 'closeModal',
                 'cancelEdit', 'saveDocument', 'showServerError'
             );
+
             this.render();
         },
 

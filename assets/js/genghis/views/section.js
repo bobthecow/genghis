@@ -28,14 +28,18 @@ define([
             );
 
             if (this.model) {
-                this.model.bind('change', this.updateTitle);
+                this.listenTo(this.model, {
+                    'change': this.updateTitle
+                });
             }
 
             if (this.collection) {
-                this.collection.bind('reset', this.render);
-                this.collection.bind('add',   this.addModelAndUpdate);
-                this.collection.bind('request', this.onRequest);
-                this.collection.bind('sync',    this.onSync);
+                this.listenTo(this.collection, {
+                    'reset':   this.render,
+                    'add':     this.addModelAndUpdate,
+                    'request': this.onRequest,
+                    'sync':    this.onSync,
+                });
             }
 
             this.render();

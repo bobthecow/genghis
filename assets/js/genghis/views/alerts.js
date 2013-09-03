@@ -6,15 +6,14 @@ define([
         el: 'aside#alerts',
 
         initialize: function() {
-            _.bindAll(this, 'render', 'addModel');
-
-            this.collection.bind('reset', this.render);
-            this.collection.bind('add',   this.addModel);
+            this.listenTo(this.collection, {
+                'reset': this.render,
+                'add':   this.addModel
+            });
         },
 
         addModel: function(model) {
-            var view = new Alert({model: model});
-            this.$el.append(view.render().el);
+            this.attach(new Alert({model: model}));
         }
     });
 });

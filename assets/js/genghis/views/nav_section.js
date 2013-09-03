@@ -13,10 +13,13 @@ define([
         },
 
         initialize: function() {
-            _.bindAll(this, 'render');
+            this.listenTo(this.model, {
+                'change': this.updateLink
+            });
 
-            this.model.bind('change',     this.updateLink, this);
-            this.collection.bind('reset', this.renderMenu, this);
+            this.listenTo(this.collection, {
+                'reset': this.renderMenu
+            });
 
             this.render();
         },

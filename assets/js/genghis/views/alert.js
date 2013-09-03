@@ -12,10 +12,10 @@ define([
         },
 
         initialize: function() {
-            _.bindAll(this, 'render', 'remove', 'destroy');
-
-            this.model.bind('change',  this.render);
-            this.model.bind('destroy', this.remove);
+            this.listenTo(this.model, {
+                'change':  this.render,
+                'destroy': this.remove
+            });
         },
 
         afterRender: function() {

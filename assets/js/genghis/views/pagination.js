@@ -17,7 +17,10 @@ define([
 
         initialize: function() {
             _.bindAll(this, 'render', 'urlTemplate', 'navigate', 'nextPage', 'prevPage');
-            this.model.bind('change', this.render);
+
+            this.listenTo(this.model, {
+                'change': this.render
+            });
 
             Mousetrap.bind('n', this.nextPage);
             Mousetrap.bind('p', this.prevPage);

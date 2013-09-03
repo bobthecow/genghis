@@ -31,23 +31,25 @@ define([
 
             this.pagination = this.options.pagination;
 
-            this.collection.bind('reset',   this.addAll);
-            this.collection.bind('add',     this.addDocument);
-            this.collection.bind('request', this.onRequest);
-            this.collection.bind('sync',    this.onSync);
+            this.listenTo(this.collection, {
+                'reset':   this.addAll,
+                'add':     this.addDocument,
+                'request': this.onRequest,
+                'sync':    this.onSync
+            });
 
             this.render();
         },
 
         afterRender: function() {
             this.headerView = new DocumentsHeader({
-                el: this.$('header'),
+                el:    this.$('header'),
                 model: this.pagination
             });
 
             this.paginationView = new Pagination({
-                el: this.$('.pagination-wrapper'),
-                model: this.pagination,
+                el:         this.$('.pagination-wrapper'),
+                model:      this.pagination,
                 collection: this.collection
             });
 
