@@ -1,6 +1,7 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'genghis/views/document', 'hgn!genghis/templates/document_section'
-], function($, _, Backbone, View, Views, DocumentView, template) {
+    'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'genghis/views/document',
+    'hgn!genghis/templates/document_section', 'backbone.declarative'
+], function($, _, Backbone, View, Views, DocumentView, template, _1) {
 
     return Views.DocumentSection = View.extend({
         el:       'section#document',
@@ -10,10 +11,8 @@ define([
             '$content': '.content'
         },
 
-        initialize: function() {
-            this.listenTo(this.model, {
-                'change': this.render
-            });
+        modelEvents: {
+            'change': 'render'
         },
 
         afterRender: function() {

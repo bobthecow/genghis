@@ -1,8 +1,8 @@
 define([
     'jquery', 'underscore', 'codemirror', 'genghis/views', 'genghis/views/base_document', 'genghis/util',
     'genghis/views/alert', 'genghis/models/alert', 'genghis/views/confirm', 'hgn!genghis/templates/document',
-    'codemirror.matchbrackets', 'codemirror.javascript'
-], function($, _, CodeMirror, Views, BaseDocument, Util, AlertView, Alert, Confirm, template, _1, _2) {
+    'codemirror.matchbrackets', 'codemirror.javascript', 'backbone.declarative'
+], function($, _, CodeMirror, Views, BaseDocument, Util, AlertView, Alert, Confirm, template, _1, _2, _3) {
 
     return Views.Document = BaseDocument.extend({
         tagName:  'article',
@@ -24,16 +24,16 @@ define([
             'click .ref .ref-id .v .s, .ref .ref-id .v.n':  'navigateId'    // handle numeric IDs too
         },
 
+        modelEvents: {
+            'change':  'updateDocument',
+            'destroy': 'remove'
+        },
+
         initialize: function() {
             _.bindAll(
                 this, 'render', 'updateDocument', 'navigate', 'openEditDialog', 'cancelEdit', 'saveDocument', 'destroy',
                 'remove', 'download', 'navigateColl', 'navigateDb', 'navigateId', 'showServerError'
             );
-
-            this.listenTo(this.model, {
-                'change':  this.updateDocument,
-                'destroy': this.remove
-            });
         },
 
         afterRender: function() {

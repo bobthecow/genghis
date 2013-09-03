@@ -1,8 +1,9 @@
 define([
     'jquery', 'underscore', 'backbone', 'modernizr-detects', 'genghis/views/view',
     'genghis/views', 'genghis/views/documents_header', 'genghis/views/pagination', 'genghis/views/document',
-    'genghis/views/new_document', 'genghis/views/new_grid_file', 'hgn!genghis/templates/documents', 'backbone.mousetrap'
-], function($, _, Backbone, Modernizr, View, Views, DocumentsHeader, Pagination, DocumentView, NewDocument, NewGridFile, template, _1) {
+    'genghis/views/new_document', 'genghis/views/new_grid_file', 'hgn!genghis/templates/documents', 'backbone.mousetrap',
+    'backbone.declarative'
+], function($, _, Backbone, Modernizr, View, Views, DocumentsHeader, Pagination, DocumentView, NewDocument, NewGridFile, template, _1, _2) {
 
     return Views.Documents = View.extend({
         el:       'section#documents',
@@ -27,6 +28,13 @@ define([
             'c': 'createDocument'
         },
 
+        collectionEvents: {
+            'reset':   'addAll',
+            'add':     'addDocument',
+            'request': 'onRequest',
+            'sync':    'onSync'
+        },
+
         initialize: function() {
             _.bindAll(
                 this, 'render', 'addAll', 'addDocument', 'createDocument', 'dragGridFile', 'dragLeave', 'dropGridFile',
@@ -34,14 +42,6 @@ define([
             );
 
             this.pagination = this.options.pagination;
-
-            this.listenTo(this.collection, {
-                'reset':   this.addAll,
-                'add':     this.addDocument,
-                'request': this.onRequest,
-                'sync':    this.onSync
-            });
-
             this.render();
         },
 

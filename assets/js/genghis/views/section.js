@@ -1,7 +1,7 @@
 define([
     'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'jquery.tablesorter',
-    'tablesorter-size-parser', 'backbone.mousetrap'
-], function($, _, Backbone, View, Views, _1, _2, _3) {
+    'tablesorter-size-parser', 'backbone.mousetrap', 'backbone.declarative'
+], function($, _, Backbone, View, Views, _1, _2, _3, _4) {
 
     return Views.Section = View.extend({
 
@@ -25,27 +25,23 @@ define([
             'c': 'showAddForm'
         },
 
+        modelEvents: {
+            'change': 'updateTitle',
+        },
+
+        collectionEvents: {
+            'reset':   'render',
+            'add':     'addModelAndUpdate',
+            'request': 'onRequest',
+            'sync':    'onSync'
+        },
+
         initialize: function() {
             _.bindAll(
                 this, 'render', 'updateTitle', 'showAddForm', 'submitAddForm',
                 'closeAddForm', 'updateOnKeyup', 'addModel', 'addModelAndUpdate',
-                'addAll', 'onRequest', 'onSync'
+                'addAll', 'show', 'hide', 'onRequest', 'onSync'
             );
-
-            if (this.model) {
-                this.listenTo(this.model, {
-                    'change': this.updateTitle
-                });
-            }
-
-            if (this.collection) {
-                this.listenTo(this.collection, {
-                    'reset':   this.render,
-                    'add':     this.addModelAndUpdate,
-                    'request': this.onRequest,
-                    'sync':    this.onSync,
-                });
-            }
 
             this.render();
         },

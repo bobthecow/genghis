@@ -7,6 +7,11 @@ define([
         template: template,
         rowView:  ServerRow,
 
+        // override, since the servers section has no model
+        // mebbe this model should be the one that holds user config?
+        // who knows...
+        modelEvents: null,
+
         afterRender: function() {
             Section.prototype.afterRender.apply(this, arguments);
 
@@ -26,9 +31,7 @@ define([
             });
         },
 
-        updateTitle: function() {
-            //noop
-        },
+        updateTitle: $.noop,
 
         formatTitle: function() {
             return 'Servers';

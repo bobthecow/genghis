@@ -1,14 +1,12 @@
 define([
-    'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/documents_header'
-], function(_, Backbone, View, Views, template) {
+    'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/documents_header', 'backbone.declarative'
+], function(_, Backbone, View, Views, template, _1) {
 
     return Views.DocumentsHeader = View.extend({
         template: template,
 
-        initialize: function() {
-            this.listenTo(this.model, {
-                'change': this.render
-            });
+        modelEvents: {
+            'change': 'render'
         },
 
         serialize: function() {

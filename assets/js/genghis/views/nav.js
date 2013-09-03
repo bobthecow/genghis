@@ -1,7 +1,7 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/util', 'genghis/views/view', 'genghis/views',
-    'genghis/views/nav_section', 'genghis/views/search', 'hgn!genghis/templates/nav', 'backbone.mousetrap'
-], function($, _, Backbone, Util, View, Views, NavSection, Search, template, _1) {
+    'jquery', 'underscore', 'backbone-stack', 'genghis/util', 'genghis/views/view', 'genghis/views',
+    'genghis/views/nav_section', 'genghis/views/search', 'hgn!genghis/templates/nav'
+], function($, _, Backbone, Util, View, Views, NavSection, Search, template) {
 
     return Views.Nav = View.extend({
         el:       '.navbar nav',
@@ -22,10 +22,6 @@ define([
             );
 
             this.baseUrl = this.options.baseUrl;
-
-            this.listenTo(this.model, {
-                'change': this.updateQuery
-            });
 
             // TODO: clean this up somehow
             $('body').bind('click', function(e) {

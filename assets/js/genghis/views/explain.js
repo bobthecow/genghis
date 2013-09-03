@@ -1,6 +1,6 @@
 define([
-    'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'genghis/util', 'hgn!genghis/templates/explain'
-], function(_, Backbone, View, Views, Util, template) {
+    'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'genghis/util', 'hgn!genghis/templates/explain', 'backbone.declarative'
+], function(_, Backbone, View, Views, Util, template, _1) {
 
     return Views.Explain = View.extend({
         el:       'section#explain',
@@ -10,11 +10,11 @@ define([
             '$doc': '.document'
         },
 
-        initialize: function() {
-            this.listenTo(this.model, {
-                'sync': this.updateExplain
-            });
+        modelEvents: {
+            'sync': 'updateExplain'
+        },
 
+        initialize: function() {
             this.render();
         },
 

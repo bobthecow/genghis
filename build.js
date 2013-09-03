@@ -23,6 +23,7 @@
   paths: {
     'almond':                   '../vendor/almond/almond',
     'backbone':                 '../vendor/backbone/backbone',
+    'backbone.declarative':     '../vendor/backbone.declarative/backbone.declarative',
     'backbone.giraffe':         '../vendor/backbone.giraffe/dist/backbone.giraffe',
     'backbone.mousetrap':       '../vendor/backbone.mousetrap/backbone.mousetrap',
     'backgrounds-dev':          '../css/backgrounds-dev',
@@ -64,6 +65,8 @@
       deps:    ['underscore', 'jquery'],
       exports: 'Backbone'
     },
+
+    'backbone.declarative': ['backbone'],
 
     'backbone.giraffe': {
       deps:    ['backbone'],

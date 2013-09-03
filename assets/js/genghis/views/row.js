@@ -1,7 +1,7 @@
 define([
-    'jquery', 'underscore', 'genghis/views/view', 'genghis/views', 'genghis/util',
-    'genghis/views/confirm', 'jquery.hoverintent', 'bootstrap.tooltip', 'bootstrap.popover'
-], function($, _, View, Views, Util, Confirm, _1, _2) {
+    'jquery', 'underscore', 'genghis/views/view', 'genghis/views', 'genghis/util', 'genghis/views/confirm',
+    'jquery.hoverintent', 'bootstrap.tooltip', 'bootstrap.popover', 'backbone.declarative'
+], function($, _, View, Views, Util, Confirm, _1, _2, _3) {
 
     return Views.Row = View.extend({
         tagName: 'tr',
@@ -11,13 +11,13 @@ define([
             'click button.destroy': 'destroy'
         },
 
+        modelEvents: {
+            'change':  'render',
+            'destroy': 'remove'
+        },
+
         initialize: function() {
             _.bindAll(this, 'navigate', 'remove', 'destroy');
-
-            this.listenTo(this.model, {
-                'change':  this.render,
-                'destroy': this.remove,
-            });
         },
 
         afterRender: function() {

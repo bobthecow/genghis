@@ -1,7 +1,7 @@
 define([
     'jquery', 'underscore', 'backbone', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/nav_section',
-    'hgn!genghis/templates/nav_section_menu', 'jquery.hoverintent'
-], function($, _, Backbone, View, Views, template, menuTemplate, _1) {
+    'hgn!genghis/templates/nav_section_menu', 'jquery.hoverintent', 'backbone.declarative'
+], function($, _, Backbone, View, Views, template, menuTemplate, _1, _2) {
 
     return Views.NavSection = View.extend({
         template:     template,
@@ -12,15 +12,15 @@ define([
             '$menu':   'ul.dropdown-menu'
         },
 
+        modelEvents: {
+            'change': 'updateLink'
+        },
+
+        collectionEvents: {
+            'reset': 'renderMenu'
+        },
+
         initialize: function() {
-            this.listenTo(this.model, {
-                'change': this.updateLink
-            });
-
-            this.listenTo(this.collection, {
-                'reset': this.renderMenu
-            });
-
             this.render();
         },
 

@@ -1,7 +1,7 @@
 define([
-    'jquery', 'underscore', 'backbone', 'genghis/util', 'genghis/json', 'genghis/defaults',
-    'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/search', 'backbone.mousetrap'
-], function($, _, Backbone, Util, GenghisJSON, defaults, View, Views, template, _1) {
+    'jquery', 'underscore', 'backbone', 'genghis/util', 'genghis/json', 'genghis/defaults', 'genghis/views/view',
+    'genghis/views', 'hgn!genghis/templates/search', 'backbone.mousetrap', 'backbone.declarative'
+], function($, _, Backbone, Util, GenghisJSON, defaults, View, Views, template, _1, _2) {
 
     return Views.Search = View.extend({
         tagName:   'form',
@@ -25,16 +25,16 @@ define([
             '/': 'focusSearch'
         },
 
+        modelEvents: {
+            'change':            'updateQuery',
+            'change:collection': 'collapseNoFocus'
+        },
+
         initialize: function() {
             _.bindAll(
                 this, 'render', 'updateQuery', 'handleSearchKeyup', 'findDocuments', 'findDocumentsAdvanced', 'focusSearch', 'blurSearch',
                 'advancedSearchToQuery', 'queryToAdvancedSearch', 'expandSearch', 'collapseSearch', 'collapseNoFocus', 'toggleExpanded'
             );
-
-            this.listenTo(this.model, {
-                'change':            this.updateQuery,
-                'change:collection': this.collapseNoFocus,
-            });
         },
 
         serialize: function() {

@@ -1,6 +1,6 @@
 define([
-    'underscore', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/alert'
-], function(_, View, Views, template) {
+    'underscore', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/alert', 'backbone.declarative'
+], function(_, View, Views, template, _1) {
 
     return Views.Alert = View.extend({
 
@@ -11,11 +11,9 @@ define([
             'click button.close': 'destroy'
         },
 
-        initialize: function() {
-            this.listenTo(this.model, {
-                'change':  this.render,
-                'destroy': this.remove
-            });
+        modelEvents: {
+            'change':  'render',
+            'destroy': 'remove'
         },
 
         afterRender: function() {
