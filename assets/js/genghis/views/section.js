@@ -4,6 +4,15 @@ define([
 
     return Views.Section = View.extend({
 
+        ui: {
+            '$title':         '> header h2',
+            '$table':         'table',
+            '$tbody':         'table tbody',
+            '$addForm':       '.add-form',
+            '$addInput':      '.add-form input',
+            '$addFormToggle': '.add-form-toggle'
+        },
+
         events: {
             'click .add-form-toggle button': 'showAddForm',
             'click .add-form button.add':    'submitAddForm',
@@ -32,17 +41,11 @@ define([
             this.render();
         },
 
-        render: function() {
-            this.$el.html(this.template({title: this.formatTitle(this.model)}));
+        serialize: function() {
+            return {title: this.formatTitle(this.model)};
+        },
 
-            // TODO: remove after wiring up UI hash.
-            this.$title         = this.$('> header h2');
-            this.$table         = this.$('table');
-            this.$tbody         = this.$('table tbody');
-            this.$addForm       = this.$('.add-form');
-            this.$addInput      = this.$('.add-form input');
-            this.$addFormToggle = this.$('.add-form-toggle');
-
+        afterRender: function() {
             this.addAll();
 
             // Sort this bad boy.
@@ -53,8 +56,6 @@ define([
             if (this.collection.size()) {
                 this.$table.trigger('sorton', [[[0,0]]]);
             }
-
-            return this;
         },
 
         updateTitle: function() {

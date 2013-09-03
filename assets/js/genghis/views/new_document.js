@@ -18,6 +18,8 @@ define([
         },
 
         render: function() {
+
+            // TODO: clean this up, it's weird.
             this.$el   = $(this.template()).hide().appendTo('body');
             this.el    = this.$el[0];
             this.modal = this.$el.modal({

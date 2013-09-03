@@ -18,11 +18,15 @@ define([
             this.model.bind('destroy', this.remove);
         },
 
-        render: function() {
+        serialize: function() {
+            return this.model;
+        },
+
+        afterRender: function() {
             this.$el
-                .html(this.template(this.model))
                 .toggleClass('error', !!this.model.get('error'))
                 .find('.label[title]').tooltip({placement: 'bottom'});
+
             this.$('.has-details').popover({
                 html: true,
                 content: function() { return $(this).siblings('.details').html(); },
@@ -32,18 +36,12 @@ define([
                 function() { $(this).popover('show'); },
                 function() { $(this).popover('hide'); }
             );
-
-            return this;
         },
 
         navigate: function(e) {
             if (e.ctrlKey || e.shiftKey || e.metaKey) return;
             e.preventDefault();
             app.router.navigate(Util.route($(e.target).attr('href')), true);
-        },
-
-        remove: function() {
-            this.$el.remove();
         },
 
         isParanoid: false,

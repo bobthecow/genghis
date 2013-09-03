@@ -7,6 +7,12 @@ define([
         tagName:   'form',
         className: 'navbar-search navbar-form navbar-left',
         template:  template,
+
+        ui: {
+            '$query': 'input#navbar-query',
+            '$well':  '.well'
+        },
+
         events: {
             'keyup input#navbar-query': 'handleSearchKeyup',
             'click span.grippie':       'toggleExpanded',
@@ -25,14 +31,15 @@ define([
             this.model.bind('change:collection', this.collapseNoFocus);
         },
 
-        render: function() {
-            this.$el.html(this.template({query: this.model.get('query')}));
+        serialize: function() {
+            return {query: this.model.get('query')};
+        },
 
-            // TODO: remove after wiring up UI hash
-            this.$query = this.$('input#navbar-query');
-            this.$well  = this.$('.well');
+        afterRender: function() {
 
-            this.$el.submit(function(e) { e.preventDefault(); });
+            this.$el.submit(function(e) {
+                e.preventDefault();
+            });
 
             Mousetrap.bind('/', this.focusSearch);
 
@@ -76,8 +83,6 @@ define([
                     e.preventDefault();
                 }
             });
-
-            return this;
         },
 
         updateQuery: function() {

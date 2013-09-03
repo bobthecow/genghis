@@ -6,6 +6,10 @@ define([
         className: 'modal confirm-modal',
         template: template,
 
+        ui: {
+            '$confirm': 'button.confirm'
+        },
+
         events: {
             'click button.dismiss': 'dismiss',
             'click button.confirm': 'confirm',
@@ -24,23 +28,23 @@ define([
 
             this.onConfirm = this.options.confirm || function() {};
 
-            this.confirmInput  = this.options.confirmInput;
-            this.modalOptions  = _.pick(this.options, 'backdrop', 'keyboard');
-            this.renderContext = _.defaults(
-                _.pick(this.options, 'header', 'body', 'confirmText', 'confirmInput', 'dismissText'),
-                this.defaults
-            );
+            this.confirmInput = this.options.confirmInput;
+            this.modalOptions = _.pick(this.options, 'backdrop', 'keyboard');
 
             if (this.options.show !== false) {
                 this.render();
             }
         },
 
-        render: function() {
-            var $el = this.$el.html(this.template(this.renderContext));
+        serialize: function() {
+            return _.defaults(
+                _.pick(this.options, 'header', 'body', 'confirmText', 'confirmInput', 'dismissText'),
+                this.defaults
+            );
+        },
 
-            // TODO: remove this after UI hash works.
-            this.$confirm = this.$('button.confirm');
+        afterRender: function() {
+            var $el = this.$el;
 
             if (this.confirmInput) {
                 $el.on('shown.bs.modal', function() {
@@ -49,8 +53,6 @@ define([
             }
 
             $el.modal(this.modalOptions);
-
-            return this;
         },
 
         confirm: function() {
@@ -74,10 +76,6 @@ define([
 
         dismiss: function() {
             this.$el.on('hidden.bs.modal', this.remove).modal('hide');
-        },
-
-        remove: function() {
-            this.$el.remove();
         }
     });
 });

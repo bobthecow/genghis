@@ -17,18 +17,19 @@ define(['backbone', 'genghis/views/view', 'genghis/views', 'hgn!genghis/template
             this.render();
         },
 
-        render: function() {
+        serialize: function() {
+            return {
+                heading: this.heading,
+                content: this.content
+            };
+        },
+
+        afterRender: function() {
             this.$el
-                .html(this.template({
-                    heading: this.heading,
-                    content: this.content
-                }))
-                .toggleClass('error', this.error)
-                .toggleClass('epic', this.epic)
+                .toggleClass('error',  this.error)
+                .toggleClass('epic',   this.epic)
                 .toggleClass('sticky', this.sticky)
                 .insertAfter('header.navbar');
-
-            return this;
         }
     });
 });

@@ -1,3 +1,3 @@
 define(['genghis'], function(Genghis) {
-  return Genghis.Models = {};
+    return Genghis.Models = {};
 });

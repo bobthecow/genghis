@@ -8,6 +8,11 @@ define([
         el:       'section#documents',
         template: template,
 
+        ui: {
+            '$content':   '.content',
+            '$addButton': 'button.add-document'
+        },
+
         events: {
             'click     button.add-document': 'createDocument',
             'dragover  button.file-upload':  'dragGridFile',
@@ -31,23 +36,19 @@ define([
             this.render();
         },
 
-        render: function() {
-            this.$el.html(this.template({}));
+        afterRender: function() {
+            this.headerView = new DocumentsHeader({
+                el: this.$('header'),
+                model: this.pagination
+            });
 
-            this.headerView      = new DocumentsHeader({model: this.pagination});
-            this.paginationView  = new Pagination({
+            this.paginationView = new Pagination({
                 el: this.$('.pagination-wrapper'),
                 model: this.pagination,
                 collection: this.collection
             });
 
-            // TODO: remove this after wiring up UI hash
-            this.$content   = this.$('.content');
-            this.$addButton = this.$('button.add-document');
-
             this.addAll();
-
-            return this;
         },
 
         addAll: function() {

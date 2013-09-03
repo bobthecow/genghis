@@ -6,20 +6,22 @@ define([
         el:       'section#explain',
         template: template,
 
+        ui: {
+            '$doc': '.document'
+        },
+
         initialize: function() {
             _.bindAll(this, 'render');
             this.model.bind('sync', this.updateExplain, this);
             this.render();
         },
 
-        render: function() {
-            this.$el.html(this.template({}));
+        afterRender: function() {
             Util.attachCollapsers(this.$('article')[0]);
-            return this;
         },
 
         updateExplain: function() {
-            this.$('.document').html(this.model.prettyPrint());
+            this.$doc.html(this.model.prettyPrint());
             this.$el.removeClass('spinning');
         },
 

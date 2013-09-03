@@ -12,11 +12,6 @@ define([
             this.collection.bind('add',   this.addModel);
         },
 
-        render: function() {
-            this.$el.html('');
-            return this;
-        },
-
         addModel: function(model) {
             var view = new Alert({model: model});
             this.$el.append(view.render().el);

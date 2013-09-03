@@ -7,6 +7,11 @@ define([
         template:     template,
         menuTemplate: menuTemplate,
 
+        ui: {
+            '$toggle': '.dropdown-toggle',
+            '$menu':   'ul.dropdown-menu'
+        },
+
         initialize: function() {
             _.bindAll(this, 'render');
 
@@ -16,20 +21,16 @@ define([
             this.render();
         },
 
-        render: function() {
-            this.$el.html(this.template(this.model));
+        serialize: function() {
+            return this.model;
+        },
 
-            // TODO: remove this after wiring up UI hash.
-            this.$toggle = this.$('.dropdown-toggle');
-            this.$menu   = this.$('ul.dropdown-menu');
-
+        afterRender: function() {
             this.$toggle.hoverIntent(function(e) {
                 $(e.target)
                     .parent('li').addClass('open')
-                        .siblings('li').removeClass('open');
+                    .siblings('li').removeClass('open');
             }, $.noop);
-
-            return this;
         },
 
         updateLink: function() {

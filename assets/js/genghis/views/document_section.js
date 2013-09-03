@@ -6,19 +6,23 @@ define([
         el:       'section#document',
         template: template,
 
+        ui: {
+            '$content': '.content'
+        },
+
         initialize: function() {
             _.bindAll(this, 'render');
             this.model.bind('change', this.render);
         },
 
-        render: function() {
-            // TODO: remove after wiring up UI hash
-            this.$content = this.$('.content');
+        serialize: function() {
+            return {model: this.model};
+        },
 
+        afterRender: function() {
+            this.$el.removeClass('spinning');
             var view = new DocumentView({model: this.model});
-            this.$el.removeClass('spinning').html(this.template({model: this.model}));
             this.$content.html(view.render().el);
-            return this;
         },
 
         show: function() {

@@ -19,10 +19,12 @@ define([
             this.render();
         },
 
-        render: function() {
-            this.$el.html(this.template()).modal({backdrop: true, keyboard: true, show: false});
-
-            return this;
+        afterRender: function() {
+            this.$el.modal({
+                backdrop: true,
+                keyboard: true,
+                show:     false
+            });
         },
 
         show: function(e) {

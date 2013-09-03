@@ -18,19 +18,16 @@ define([
             this.model.bind('destroy', this.remove);
         },
 
-        render: function() {
-            this.$el.html(this.template(this.model));
+        afterRender: function() {
             this.$('a').addClass('alert-link');
+        },
 
-            return this;
+        serialize: function() {
+            return this.model;
         },
 
         destroy: function() {
             this.model.destroy();
-        },
-
-        remove: function() {
-            this.$el.remove();
         }
     });
 });

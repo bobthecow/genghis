@@ -28,9 +28,11 @@ define([
             this.render();
         },
 
-        render: function() {
-            this.$el.html(this.template({baseUrl: this.baseUrl}));
+        serialize: function() {
+            return {baseUrl: this.baseUrl};
+        },
 
+        afterRender: function() {
             this.serverNavView = new NavSection({
                 el: this.$('li.server'),
                 model: this.model.currentServer,
@@ -54,8 +56,6 @@ define([
             });
 
             this.$el.append(this.searchView.render().el);
-
-            return this;
         },
 
         navigate: function(e) {

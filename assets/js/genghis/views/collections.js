@@ -8,6 +8,12 @@ define([
         template: template,
         rowView:  CollectionRow,
 
+        ui: _.extend({
+            '$addFormGridFs':  '.add-form-gridfs',
+            '$addInputGridFs': '.add-input-gridfs',
+            '$addFormToggle':  '.add-form-toggle'
+        }, Section.prototype.ui),
+
         events: _.extend({
             'click .add-form-toggle a.show':        'showAddForm',
             'click .add-form-toggle a.show-gridfs': 'showAddFormGridFs',
@@ -21,18 +27,11 @@ define([
             Section.prototype.initialize.apply(this, arguments);
         },
 
-        render: function() {
-            Section.prototype.render.apply(this, arguments);
-
-            // TODO: remove this once we switch to using default render :)
-            this.$addFormGridFs  = this.$('.add-form-gridfs');
-            this.$addInputGridFs = this.$('.add-input-gridfs');
-            this.$addFormToggle  = this.$('.add-form-toggle');
+        afterRender: function() {
+            Section.prototype.afterRender.apply(this, arguments);
 
             // Yay dropdowns!
             this.$('.dropdown-toggle').dropdown();
-
-            return this;
         },
 
         formatTitle: function(model) {
