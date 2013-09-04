@@ -25,7 +25,7 @@ services: mongodb
 
 before_script:
  - 'sh -c "if [ ! -z $MONGO_PHP_VERSION ]; then pecl install -f mongo-${MONGO_PHP_VERSION}; fi"'
- - 'sh -c "if [ $GENGHIS_BACKEND = php -a -z $(php -i | grep mongo) ]; then echo extension=mongo.so >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi"'
+ - 'sh -c "if [ -z $(php -i | grep mongo) ]; then echo extension=mongo.so >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi"'
 
 install: bundle install --without development
 
