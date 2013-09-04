@@ -5,7 +5,11 @@ require_relative '../genghis.rb'
 
 RSpec.configure do |config|
   def genghis_backends
-    [:php, :ruby]
+    if ENV['GENGHIS_BACKEND']
+      ENV['GENGHIS_BACKEND'].split(',').map(&:to_sym)
+    else
+      [:php, :ruby]
+    end
   end
 
   def find_available_port
