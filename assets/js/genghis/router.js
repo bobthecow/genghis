@@ -1,5 +1,6 @@
 define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
     var e = encodeURIComponent;
+    var NOT_FOUND = "<p>If you think you've reached this message in error, please press <strong>0</strong> to speak with an operator. Otherwise, hang up and try again.</p>";
 
     function getParams() {
         if (!document.location.search) return {};
@@ -34,7 +35,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
 
         index: function() {
             this.app.selection.select();
-            this.app.showSection('servers');
         },
 
         indexRoute: function() {
@@ -47,7 +47,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
 
         server: function(server) {
             this.app.selection.select(server);
-            this.app.showSection('databases');
         },
 
         serverRoute: function(server) {
@@ -60,7 +59,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
 
         database: function(server, db) {
             this.app.selection.select(server, db);
-            this.app.showSection('collections');
         },
 
         databaseRoute: function(server, db) {
@@ -77,7 +75,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
             }
 
             this.app.selection.select(server, db, coll);
-            this.app.showSection('documents');
         },
 
         collectionRoute: function(server, db, coll) {
@@ -95,7 +92,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
 
             var params = getParams();
             this.app.selection.select(server, db, coll, null, params.q, params.page);
-            this.app.showSection('documents');
         },
 
         collectionQueryRoute: function(server, db, coll, query) {
@@ -113,12 +109,10 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
 
         explainQuery: function(server, db, coll) {
             this.app.selection.select(server, db, coll, null, getQuery(), null, true);
-            this.app.showSection('explain');
         },
 
         document: function(server, db, coll, docId) {
             this.app.selection.select(server, db, coll, docId);
-            this.app.showSection('document');
         },
 
         documentRoute: function(server, db, coll, docId) {
@@ -145,7 +139,7 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
 
         notFound: function(path) {
             this.app.showSection();
-            this.app.showMasthead('404: Not Found', "<p>If you think you've reached this message in error, please press <strong>0</strong> to speak with an operator. Otherwise, hang up and try again.</p>", {
+            this.app.showMasthead('404: Not Found', NOT_FOUND, {
                 error: true,
                 epic:  true
             });

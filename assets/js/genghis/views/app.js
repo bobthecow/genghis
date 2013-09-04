@@ -28,6 +28,7 @@ define([
 
             // initialize the router
             var router = this.router = new Router({app: this});
+            this.listenTo(this.router, 'all', this.autoShowSection);
 
             // initialize all our app views
             this.titleView             = new TitleView({model: router});
@@ -89,6 +90,42 @@ define([
                 masthead = masthead.not('.sticky');
             }
             masthead.remove();
+        },
+
+        autoShowSection: function(route) {
+            var section;
+
+            switch (route) {
+                case 'route:index':
+                    section = 'servers';
+                    break;
+
+                case 'route:server':
+                    section = 'databases';
+                    break;
+
+                case 'route:database':
+                    section = 'collections';
+                    break;
+
+                case 'route:collection':
+                case 'route:collectionQuery':
+                    section = 'documents';
+                    break;
+
+                case 'route:explainQuery':
+                    section = 'explain';
+                    break;
+
+                case 'route:document':
+                    section = 'document';
+                    break;
+
+                default:
+                    return;
+            }
+
+            this.showSection(section);
         },
 
         showSection: function(section) {
