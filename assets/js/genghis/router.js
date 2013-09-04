@@ -1,25 +1,35 @@
 define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
     var e = encodeURIComponent;
 
+    function getParams() {
+        if (!document.location.search) return {};
+
+        return Genghis.Util.parseQuery(window.location.search.substr(1));
+    }
+
+    function getQuery() {
+        return getParams().q
+    }
+
     return Genghis.Router = Backbone.Router.extend({
         initialize: function(options) {
             this.app = options.app;
         },
 
         routes: {
-            '':                                                                                  'index',
-            'servers':                                                                           'redirectToIndex',
-            'servers/:server':                                                                   'server',
-            'servers/:server/databases':                                                         'redirectToServer',
-            'servers/:server/databases/:database':                                               'database',
-            'servers/:server/databases/:database/collections':                                   'redirectToDatabase',
-            'servers/:server/databases/:database/collections/:collection':                       'collection',
-            'servers/:server/databases/:database/collections/:collection/documents':             'collectionQueryOrRedirect',
-            'servers/:server/databases/:database/collections/:collection/documents?*query':      'collectionQueryOrRedirect',
-            'servers/:server/databases/:database/collections/:collection/explain':               'explainQuery',
-            'servers/:server/databases/:database/collections/:collection/explain?*query':        'explainQuery',
-            'servers/:server/databases/:database/collections/:collection/documents/:documentId': 'document',
-            '*path':                                                                             'notFound'
+            '':                                                                 'index',
+            'servers':                                                          'redirectToIndex',
+            'servers/:server':                                                  'server',
+            'servers/:server/databases':                                        'redirectToServer',
+            'servers/:server/databases/:db':                                    'database',
+            'servers/:server/databases/:db/collections':                        'redirectToDatabase',
+            'servers/:server/databases/:db/collections/:coll':                  'collection',
+            'servers/:server/databases/:db/collections/:coll/documents':        'collectionQuery',
+            'servers/:server/databases/:db/collections/:coll/documents?*query': 'collectionQuery',
+            'servers/:server/databases/:db/collections/:coll/explain':          'explainQuery',
+            'servers/:server/databases/:db/collections/:coll/explain?*query':   'explainQuery',
+            'servers/:server/databases/:db/collections/:coll/documents/:docId': 'document',
+            '*path':                                                            'notFound'
         },
 
         index: function() {
@@ -27,8 +37,12 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
             this.app.showSection('servers');
         },
 
+        indexRoute: function() {
+            return '';
+        },
+
         redirectToIndex: function() {
-            this.navigate('', true);
+            this.navigate(this.indexRoute(), true);
         },
 
         server: function(server) {
@@ -36,78 +50,96 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
             this.app.showSection('databases');
         },
 
-        redirectToServer: function(server) {
-            this.navigate('servers/' + e(server), true);
+        serverRoute: function(server) {
+            return ['servers', e(server)].join('/');
         },
 
-        database: function(server, database) {
-            this.app.selection.select(server, database);
+        redirectToServer: function(server) {
+            this.navigate(this.serverRoute(server), true);
+        },
+
+        database: function(server, db) {
+            this.app.selection.select(server, db);
             this.app.showSection('collections');
         },
 
-        redirectToDatabase: function(server, database) {
-            this.navigate('servers/' + e(server) + '/databases/' + e(database), true);
+        databaseRoute: function(server, db) {
+            return ['servers', e(server), 'databases', e(db)].join('/');
         },
 
-        collection: function(server, database, collection) {
+        redirectToDatabase: function(server, db) {
+            this.navigate(this.databaseRoute(server, db), true);
+        },
+
+        collection: function(server, db, coll) {
             if (!!window.location.search) {
-                return this.collectionQueryOrRedirect(server, database, collection);
+                return this.redirectToQuery(server, db, coll, getQuery());
             }
 
-            this.app.selection.select(server, database, collection);
+            this.app.selection.select(server, db, coll);
             this.app.showSection('documents');
         },
 
-        redirectToCollection: function(server, database, collection) {
-            this.navigate('servers/' + e(server) + '/databases/' + e(database) + '/collections/' + e(collection), true);
+        collectionRoute: function(server, db, coll) {
+            return ['servers', e(server), 'databases', e(db), 'collections', e(coll)].join('/');
         },
 
-        collectionQueryOrRedirect: function(server, database, collection) {
-            if (!!window.location.search) {
-                return this.collectionQuery(server, database, collection, window.location.search.substr(1));
-            } else {
-                this.redirectToCollection(server, database, collection);
+        redirectToCollection: function(server, db, coll) {
+            this.navigate(this.collectionRoute(server, db, coll), true);
+        },
+
+        collectionQuery: function(server, db, coll) {
+            if (!window.location.search) {
+                return this.redirectToCollection(server, db, coll);
             }
-        },
 
-        collectionQuery: function(server, database, collection, query) {
-            var params = Genghis.Util.parseQuery(query);
-            this.app.selection.select(server, database, collection, null, params.q, params.page);
+            var params = getParams();
+            this.app.selection.select(server, db, coll, null, params.q, params.page);
             this.app.showSection('documents');
         },
 
-        redirectToQuery: function(server, database, collection, query) {
-            this.navigate('servers/' + e(server) + '/databases/' + e(database) + '/collections/' + e(collection) + '/documents?' + Genghis.Util.buildQuery({q: e(query)}), true);
+        collectionQueryRoute: function(server, db, coll, query) {
+            return ['servers', e(server), 'databases', e(db), 'collections', e(coll), 'documents'].join('/')
+                 + '?' + Genghis.Util.buildQuery({q: e(query)});
         },
 
-        explainQuery: function(server, database, collection) {
-            var query = window.location.search.substr(1);
-            var params = Genghis.Util.parseQuery(query);
-            this.app.selection.select(server, database, collection, null, params.q, null, true);
+        redirectToCollectionQuery: function(server, db, coll, query) {
+            if (typeof query === 'undefined') {
+                query = getQuery();
+            }
+
+            this.navigate(this.collectionQueryRoute(server, db, coll, query), true);
+        },
+
+        explainQuery: function(server, db, coll) {
+            this.app.selection.select(server, db, coll, null, getQuery(), null, true);
             this.app.showSection('explain');
         },
 
-        document: function(server, database, collection, documentId) {
-            this.app.selection.select(server, database, collection, documentId);
+        document: function(server, db, coll, docId) {
+            this.app.selection.select(server, db, coll, docId);
             this.app.showSection('document');
         },
 
-        redirectToDocument: function(server, database, collection, documentId) {
-            var e = encodeURIComponent;
-            this.navigate('servers/' + e(server) + '/databases/' + e(database) + '/collections/' + e(collection) + '/documents/' + e(documentId), true);
+        documentRoute: function(server, db, coll, docId) {
+            return ['servers', e(server), 'databases', e(db), 'collections', e(coll), 'documents', e(docId)].join('/');
         },
 
-        redirectTo: function(server, database, collection, documentId, query) {
-            if (!server)     return this.redirectToIndex();
-            if (!database)   return this.redirectToServer(server);
-            if (!collection) return this.redirectToDatabase(server, database);
+        redirectToDocument: function(server, db, coll, docId) {
+            this.navigate(this.documentRoute(server, db, coll, docId), true);
+        },
 
-            if (!documentId && !query) {
-                return this.redirectToCollection(server, database, collection);
+        redirectTo: function(server, db, coll, docId, query) {
+            if (!server) return this.redirectToIndex();
+            if (!db)     return this.redirectToServer(server);
+            if (!coll)   return this.redirectToDatabase(server, db);
+
+            if (!docId && !query) {
+                return this.redirectToCollection(server, db, coll);
             } else if (!query) {
-                return this.redirectToDocument(server, database, collection, documentId);
+                return this.redirectToDocument(server, db, coll, docId);
             } else {
-                return this.redirectToQuery(server, database, collection, query);
+                return this.redirectToCollectionQuery(server, db, coll, query);
             }
         },
 

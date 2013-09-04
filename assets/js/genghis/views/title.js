@@ -22,7 +22,7 @@ define([
                     args.push(Genghis.Util.decodeDocumentId(args.pop()));
                     break;
 
-                case 'route:collectionQueryOrRedirect':
+                case 'route:collectionQuery':
                     args.push('Query results');
                     break;
 
