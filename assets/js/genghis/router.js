@@ -1,11 +1,6 @@
 define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
     var e = encodeURIComponent;
 
-    function setTitle() {
-        var args = Array.prototype.slice.call(arguments);
-        document.title = (args.length) ? 'Genghis \u2014 ' + args.join(' \u203A ') : 'Genghis';
-    }
-
     return Genghis.Router = Backbone.Router.extend({
         initialize: function(options) {
             this.app = options.app;
@@ -28,7 +23,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
         },
 
         index: function() {
-            setTitle();
             this.app.selection.select();
             this.app.showSection('servers');
         },
@@ -38,7 +32,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
         },
 
         server: function(server) {
-            setTitle(server);
             this.app.selection.select(server);
             this.app.showSection('databases');
         },
@@ -48,7 +41,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
         },
 
         database: function(server, database) {
-            setTitle(server, database);
             this.app.selection.select(server, database);
             this.app.showSection('collections');
         },
@@ -62,7 +54,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
                 return this.collectionQueryOrRedirect(server, database, collection);
             }
 
-            setTitle(server, database, collection);
             this.app.selection.select(server, database, collection);
             this.app.showSection('documents');
         },
@@ -80,7 +71,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
         },
 
         collectionQuery: function(server, database, collection, query) {
-            setTitle(server, database, collection, 'Query results');
             var params = Genghis.Util.parseQuery(query);
             this.app.selection.select(server, database, collection, null, params.q, params.page);
             this.app.showSection('documents');
@@ -92,14 +82,12 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
 
         explainQuery: function(server, database, collection) {
             var query = window.location.search.substr(1);
-            setTitle(server, database, collection, 'Query explanation');
             var params = Genghis.Util.parseQuery(query);
             this.app.selection.select(server, database, collection, null, params.q, null, true);
             this.app.showSection('explain');
         },
 
         document: function(server, database, collection, documentId) {
-            setTitle(server, database, collection, Genghis.Util.decodeDocumentId(documentId));
             this.app.selection.select(server, database, collection, documentId);
             this.app.showSection('document');
         },
@@ -124,7 +112,6 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
         },
 
         notFound: function(path) {
-            setTitle('404: Not Found');
             this.app.showSection();
             this.app.showMasthead('404: Not Found', "<p>If you think you've reached this message in error, please press <strong>0</strong> to speak with an operator. Otherwise, hang up and try again.</p>", {
                 error: true,

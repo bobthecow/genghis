@@ -1,12 +1,12 @@
 define([
     'jquery', 'underscore', 'backbone.giraffe', 'genghis/views', 'genghis/models/selection',
-    'genghis/collections/alerts', 'genghis/router', 'genghis/views/navbar',
+    'genghis/collections/alerts', 'genghis/router', 'genghis/views/title', 'genghis/views/navbar',
     'genghis/views/alerts', 'genghis/views/keyboard_shortcuts', 'genghis/views/servers',
     'genghis/views/databases', 'genghis/views/collections', 'genghis/views/documents',
     'genghis/views/explain', 'genghis/views/document_section', 'genghis/views/masthead',
     'hgn!genghis/templates/welcome'
 ], function(
-    $, _, Giraffe, Views, Selection, Alerts, Router, NavbarView, AlertsView,
+    $, _, Giraffe, Views, Selection, Alerts, Router, TitleView, NavbarView, AlertsView,
     KeyboardShortcutsView, ServersView, DatabasesView, CollectionsView, DocumentsView,
     ExplainView, DocumentSectionView, MastheadView, welcomeTemplate
 ) {
@@ -30,6 +30,7 @@ define([
             var router = this.router = new Router({app: this});
 
             // initialize all our app views
+            this.titleView             = new TitleView({model: router});
             this.navbarView            = new NavbarView({model: selection, baseUrl: this.baseUrl, router: router});
             this.alertsView            = new AlertsView({collection: alerts});
             this.keyboardShortcutsView = new KeyboardShortcutsView();
