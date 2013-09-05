@@ -18,7 +18,9 @@ define([
         },
 
         collectionEvents: {
-            'reset': 'renderMenu'
+            'add':    'renderMenu',
+            'remove': 'renderMenu',
+            'reset':  'renderMenu'
         },
 
         initialize: function() {
