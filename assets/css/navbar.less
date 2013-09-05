@@ -6,11 +6,23 @@
     }
 
     // keep breadcrumb segments from leaking if they're too long
-    .nav > li > a {
-        html.textoverflow & {
-            max-width: 8em;
-            overflow: hidden;
-            text-overflow: ellipsis;
+    .nav > li {
+        > a {
+            html.textoverflow & {
+                max-width: 8em;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+        &:last-child > a {
+            html.textoverflow & {
+                max-width: 32em;
+            }
+        }
+        &.collection > a {
+            html.textoverflow & {
+                max-width: 16em;
+            }
         }
     }
 }
