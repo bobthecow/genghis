@@ -521,7 +521,7 @@ define(['underscore', 'genghis', 'esprima'], function(_, Genghis, esprima) {
                                         return span('v a', 'NaN');
 
                                     case 'Timestamp':
-                                        return c('Timestamp', [value.$value.$t, value.$value.$i], 'timestamp');
+                                        return c('Timestamp', [span('n', String(value.$value.$t)), span('n', String(value.$value.$i))], 'timestamp');
                                 }
                             }
 
