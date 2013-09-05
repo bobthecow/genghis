@@ -4,6 +4,7 @@ define([
 ], function($, _, Backbone, View, Views, template, menuTemplate, _1) {
 
     return Views.NavSection = View.extend({
+        tagName:      'li',
         template:     template,
         menuTemplate: menuTemplate,
 

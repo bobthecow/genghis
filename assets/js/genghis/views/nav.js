@@ -1,14 +1,19 @@
 define([
     'jquery', 'underscore', 'backbone-stack', 'genghis/util', 'genghis/views/view', 'genghis/views',
-    'genghis/views/nav_section', 'genghis/views/search', 'hgn!genghis/templates/nav'
-], function($, _, Backbone, Util, View, Views, NavSection, Search, template) {
+    'genghis/views/nav_section', 'hgn!genghis/templates/nav'
+], function($, _, Backbone, Util, View, Views, NavSection, template) {
 
     return Views.Nav = View.extend({
-        el:       '.navbar nav',
-        template: template,
+        tagName:   'ul',
+        className: 'nav navbar-nav',
+        template:  template,
 
         events: {
             'click a': 'navigate'
+        },
+
+        modelEvents: {
+            'change': 'updateSubnav'
         },
 
         keyboardEvents: {
@@ -18,7 +23,7 @@ define([
 
         initialize: function() {
             _.bindAll(
-                this, 'render', 'navigate', 'navigateToServers', 'navigateUp'
+                this, 'render', 'navigate', 'navigateToServers', 'navigateUp', 'updateSubnav'
             );
 
             this.baseUrl = this.options.baseUrl;
@@ -28,37 +33,61 @@ define([
                 $('.dropdown-toggle, .menu').parent('li').removeClass('open');
             });
 
-            this.render();
+            this.serverNavView = new NavSection({
+                className:  'dropdown server',
+                model:      this.model.currentServer,
+                collection: this.model.servers
+            });
+
+            this.databaseNavView = new NavSection({
+                className:  'dropdown database',
+                model:      this.model.currentDatabase,
+                collection: this.model.databases
+            });
+
+            this.collectionNavView = new NavSection({
+                className:  'dropdown collection',
+                model:      this.model.currentCollection,
+                collection: this.model.collections
+            });
         },
 
         serialize: function() {
             return {baseUrl: this.baseUrl};
         },
 
-        afterRender: function() {
-            this.serverNavView = new NavSection({
-                el: this.$('li.server'),
-                model: this.model.currentServer,
-                collection: this.model.servers
-            });
+        updateSubnav: function(model) {
+            var attrs = model.changedAttributes();
 
-            this.databaseNavView = new NavSection({
-                el: this.$('li.database'),
-                model: this.model.currentDatabase,
-                collection: this.model.databases
-            });
+            if (_.has(attrs, 'server')) {
+                if (!!attrs.server) {
+                    if (!this.serverNavView.isAttached()) {
+                        this.attach(this.serverNavView);
+                    }
+                } else {
+                    this.serverNavView.detach(true);
+                }
+            }
 
-            this.collectionNavView = new NavSection({
-                el: this.$('li.collection'),
-                model: this.model.currentCollection,
-                collection: this.model.collections
-            });
+            if (_.has(attrs, 'database')) {
+                if (!!attrs.database) {
+                    if (!this.databaseNavView.isAttached()) {
+                        this.attach(this.databaseNavView);
+                    }
+                } else {
+                    this.databaseNavView.detach(true);
+                }
+            }
 
-            this.searchView = new Search({
-                model: this.model
-            });
-
-            this.$el.append(this.searchView.render().el);
+            if (_.has(attrs, 'collection')) {
+                if (!!attrs.collection) {
+                    if (!this.collectionNavView.isAttached()) {
+                        this.attach(this.collectionNavView);
+                    }
+                } else {
+                    this.collectionNavView.detach(true);
+                }
+            }
         },
 
         navigate: function(e) {

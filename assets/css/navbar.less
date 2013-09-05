@@ -5,32 +5,6 @@
         display: none;
     }
 
-    // only show breadcrumbs in appropriate views
-    .nav > li {
-        display: none;
-
-        body.section-databases   &.server,
-        body.section-collections &.server,
-        body.section-collections &.database,
-        body.section-documents   &.server,
-        body.section-documents   &.database,
-        body.section-documents   &.collection,
-        body.section-explain     &.server,
-        body.section-explain     &.database,
-        body.section-explain     &.collection,
-        body.section-document    &.server,
-        body.section-document    &.database,
-        body.section-document    &.collection { display: block; }
-    }
-
-    // only show search form in doc views
-    form {
-        display: none;
-        body.section-documents &,
-        body.section-explain &,
-        body.section-document & { display: block; }
-    }
-
     // keep breadcrumb segments from leaking if they're too long
     .nav > li > a {
         html.textoverflow & {
