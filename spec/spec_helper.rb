@@ -26,7 +26,7 @@ RSpec.configure do |config|
     when :php
       @genghis_pid = spawn 'php', '-S', "localhost:#{@genghis_port}", 'genghis.php', :out => '/dev/null'
       api = Faraday.new url: "http://localhost:#{@genghis_port}"
-      0.upto(10) do |i|
+      0.upto(20) do |i|
         break if api_started?(api)
         sleep 0.1
       end
