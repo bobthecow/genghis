@@ -16,12 +16,13 @@ define(['underscore', 'genghis', 'esprima'], function(_, Genghis, esprima) {
             };
 
             var allowedCalls = {
-                'ObjectId': true,
-                'Date':     true,
-                'ISODate':  true,
-                'DBRef':    true,
-                'RegExp':   true,
-                'BinData':  true
+                'ObjectId':  true,
+                'Date':      true,
+                'ISODate':   true,
+                'DBRef':     true,
+                'RegExp':    true,
+                'BinData':   true,
+                'Timestamp': true
             };
 
             var allowedPropertyValues = {
@@ -139,6 +140,16 @@ define(['underscore', 'genghis', 'esprima'], function(_, Genghis, esprima) {
                         '$value': {
                             '$subtype': subtype,
                             '$binary': base64str
+                        }
+                    };
+                }
+
+                function Timestamp(sec, inc) {
+                    return {
+                        '$genghisType': 'Timestamp',
+                        '$value': {
+                            '$t': sec,
+                            '$i': inc
                         }
                     };
                 }
@@ -508,6 +519,9 @@ define(['underscore', 'genghis', 'esprima'], function(_, Genghis, esprima) {
 
                                     case 'NaN':
                                         return span('v a', 'NaN');
+
+                                    case 'Timestamp':
+                                        return c('Timestamp', [value.$value.$t, value.$value.$i], 'timestamp');
                                 }
                             }
 

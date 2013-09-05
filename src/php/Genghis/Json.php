@@ -68,6 +68,15 @@ class Genghis_Json
                             '$binary'  => base64_encode($object->bin),
                         )
                     );
+
+                case 'MongoTimestamp':
+                    return array(
+                        '$genghisType' => 'Timestamp',
+                        '$value' => array(
+                            '$t' => $object->sec,
+                            '$i' => $object->inc,
+                        )
+                    );
             }
 
             // everything else is likely a StdClass...
@@ -132,6 +141,12 @@ class Genghis_Json
 
                     case 'NaN':
                         return NAN;
+
+                    case 'Timestamp':
+                        $sec = self::getProp($value, 't');
+                        $inc = self::getProp($value, 'i');
+
+                        return new MongoTimestamp($sec, $inc);
                 }
             } else {
                 foreach ($object as $prop => $value) {

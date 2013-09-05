@@ -8,6 +8,7 @@
  * Lots of internal refactoring, to make everything awesomer, and more future-proof.
  * [Fix #115][i115] — Add support for viewing and updating NaN values.
  * [Fix #128][i128] — Use normal browser navigation when ctrl/shift/meta-clicking links — Thanks @craigerm.
+ * Add support for BSON Timestamp values.
 
 [i115]: https://github.com/bobthecow/genghis/issues/115
 [i128]: https://github.com/bobthecow/genghis/issues/128

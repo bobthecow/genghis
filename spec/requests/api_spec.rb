@@ -568,6 +568,40 @@ genghis_backends.each do |backend|
             foo: 'bar'
         end
 
+        it 'handles NaN values' do
+          res = @api.post do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { foo: { '$genghisType' => 'NaN' } }.to_json
+          end
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id: @id_pattern,
+            foo: {
+              '$genghisType' => 'NaN'
+            }
+        end
+
+        it 'supports Timestamps' do
+          res = @api.post do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { foo: { '$genghisType' => 'Timestamp', '$value' => { '$t' => 123, '$i' => 456 } } }.to_json
+          end
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id: @id_pattern,
+            foo: {
+              '$genghisType' => 'Timestamp',
+              '$value' => {
+                '$t' => 123,
+                '$i' => 456,
+              }
+            }
+        end
+
         it 'does not mangle dates' do
           dates = [
             '0001-01-01T01:01:01Z',
@@ -727,6 +761,22 @@ genghis_backends.each do |backend|
             }
         end
 
+        it 'supports BSON Timestamps' do
+          id  = @coll.insert({foo: BSON::Timestamp.new(123, 456)})
+          res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id: @id_pattern,
+            foo: {
+              '$genghisType' => 'Timestamp',
+              '$value' => {
+                '$t' => 123,
+                '$i' => 456,
+              }
+            }
+        end
+
         it 'returns 404 if the document is not found' do
           res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/123'
           res.status.should eq 404
@@ -758,6 +808,42 @@ genghis_backends.each do |backend|
           res.body.should match_json_expression \
             _id: @id_pattern,
             test: 2
+        end
+
+        it 'handles NaN values' do
+          id  = @coll.insert({test: 1})
+          res = @api.put do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { test: { '$genghisType' => 'NaN' } }.to_json
+          end
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id: @id_pattern,
+            test: {
+              '$genghisType' => 'NaN'
+            }
+        end
+
+        it 'supports BSON Timestamps' do
+          id  = @coll.insert({test: 1})
+          res = @api.put do |req|
+            req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
+            req.headers['Content-Type'] = 'application/json'
+            req.body = { test: { '$genghisType' => 'Timestamp', '$value' => { '$t' => 123, '$i' => 456 } } }.to_json
+          end
+
+          res.status.should eq 200
+          res.body.should match_json_expression \
+            _id: @id_pattern,
+            test: {
+              '$genghisType' => 'Timestamp',
+              '$value' => {
+                '$t' => 123,
+                '$i' => 456,
+              }
+            }
         end
 
         it 'can deal with non-objectid _id properties' do
