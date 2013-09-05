@@ -32,15 +32,16 @@ define([
         collectionEvents: {
             'reset':   'render',
             'add':     'addModelAndUpdate',
-            'request': 'onRequest',
-            'sync':    'onSync'
+            'request': 'startSpinning',
+            'sync':    'stopSpinning',
+            'destroy': 'stopSpinning'
         },
 
         initialize: function() {
             _.bindAll(
                 this, 'render', 'updateTitle', 'showAddForm', 'submitAddForm',
                 'closeAddForm', 'updateOnKeyup', 'addModel', 'addModelAndUpdate',
-                'addAll', 'show', 'hide', 'onRequest', 'onSync'
+                'addAll', 'show', 'hide', 'startSpinning', 'stopSpinning'
             );
 
             this.render();
@@ -128,11 +129,11 @@ define([
             this.$el.hide();
         },
 
-        onRequest: function() {
+        startSpinning: function() {
             this.$el.addClass('spinning');
         },
 
-        onSync: function() {
+        stopSpinning: function() {
             this.$el.removeClass('spinning');
         }
     });
