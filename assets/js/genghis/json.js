@@ -62,57 +62,40 @@ define(['underscore', 'genghis', 'esprima'], function(_, Genghis, esprima) {
                 }
 
                 function GenghisDate(date) {
-                    function ISODateString(d){
-                        function pad(n){return n < 10 ? '0' + n : n}
+                    return new ISODate(date);
+                }
+
+                function ISODate(date) {
+                    function ISODateString(d) {
+                        function pad(n, l) {
+                            l = l || 2;
+                            return (new Array(l + 1).join('0') + n).substr(0 - l);
+                        }
+
+                        function msString(ms) {
+                            return ms ? ('.' + pad(ms, 3)) : '';
+                        }
+
                         d = new Date(d);
-                        return d.getUTCFullYear()+'-'
-                            + pad(d.getUTCMonth()+1)+'-'
-                            + pad(d.getUTCDate())+'T'
-                            + pad(d.getUTCHours())+':'
-                            + pad(d.getUTCMinutes())+':'
-                            + pad(d.getUTCSeconds())+'Z'
+
+                        if (typeof d.toISOString === 'function') {
+                            // Cheat code for ES5
+                            return d.toISOString();
+                        } else {
+                            return pad(d.getUTCFullYear(), 4)+'-'
+                                + pad(d.getUTCMonth()+1)+'-'
+                                + pad(d.getUTCDate())+'T'
+                                + pad(d.getUTCHours())+':'
+                                + pad(d.getUTCMinutes())+':'
+                                + pad(d.getUTCSeconds())
+                                + msString(d.getUTCMilliseconds())+'Z';
+                        }
                     }
 
                     return {
                         '$genghisType': 'ISODate',
                         '$value': date ? ISODateString(date) : null
                     };
-                }
-
-                function ISODate(date) {
-                    if (!date) {
-                        return new GenghisDate();
-                    }
-
-                    var pattern = /(\d{4})-?(\d{2})-?(\d{2})([T ](\d{2})(:?(\d{2})(:?(\d{2}(\.\d+)?))?)?(Z|([+\-])(\d{2}):?(\d{2})?)?)?/;
-                    var matches = pattern.exec(date);
-
-                    if (!matches) {
-                        throw 'Invalid ISO date';
-                    }
-
-                    var year  = parseInt(matches[1], 10) || 1970;
-                    var month = (parseInt(matches[2], 10) || 1) - 1;
-                    var day   = parseInt(matches[3], 10) || 0;
-                    var hour  = parseInt(matches[5], 10) || 0;
-                    var min   = parseInt(matches[7], 10) || 0;
-                    var sec   = parseFloat(matches[9]) || 0;
-                    var ms    = Math.round((sec % 1) * 1000);
-                    sec -= ms / 1000;
-
-                    var timestamp = Date.UTC(year, month, day, hour, min, sec, ms);
-
-                    if (matches[11] && matches[11] != 'Z') {
-                        var offset = 0;
-                        offset += (parseInt(matches[13], 10) || 0) * 60*60*1000; // hours
-                        offset += (parseInt(matches[14], 10) || 0) *    60*1000; // mins
-                        if (matches[12] == '+') // if ahead subtract
-                            offset *= -1;
-
-                        timestamp += offset;
-                    }
-
-                    return new GenghisDate(timestamp);
                 }
 
                 // DBRef isn't so much a custom type as it is a hash factory...
