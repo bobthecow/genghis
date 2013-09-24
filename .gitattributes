@@ -18,3 +18,5 @@ VERSION.txt export-ignore
 genghis-dev.php export-ignore
 genghis-dev.rb export-ignore
 genghisapp.gemspec export-ignore
+genghis.php merge=ours
+genghis.rb merge=ours
