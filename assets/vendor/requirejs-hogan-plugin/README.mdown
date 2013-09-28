@@ -65,6 +65,10 @@ It will update the `test/scripts/main_built.js` file.
 
 ## Changelog
 
+### v0.3.1 (2013/09/26)
+
+ - update text plugin to 2.0.10 fixing bug related to node-webkit.
+
 ### v0.3.0 (2013/06/11)
 
  - update Hogan to v3.0
