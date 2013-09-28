@@ -1,6 +1,7 @@
 ## v2.3.9
 
  * [Fix #135][i135] — error when entering a `new Date()` value in a document.
+ * Fix (future) backwards compatibility breaks in the PHP Mongo driver (using `'safe' => true` with `MongoClient`).
 
 [i135]: https://github.com/bobthecow/genghis/issues/135
 
