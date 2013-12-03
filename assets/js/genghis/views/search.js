@@ -3,6 +3,13 @@ define([
     'genghis/views', 'hgn!genghis/templates/search'
 ], function($, _, Backbone, Util, GenghisJSON, defaults, View, Views, template) {
 
+    var PLACEHOLDERS = [
+        '{name: /genghis(app)?/i}',
+        '{awesomeness: {$gt: 10}}',
+        '{search: "like this, yo."}',
+        '{neverGonna: ["give you up", "let you down", "run around", "desert you"]}'
+    ];
+
     return Views.Search = View.extend({
         tagName:   'form',
         className: 'navbar-search navbar-form navbar-left',
@@ -38,7 +45,10 @@ define([
         },
 
         serialize: function() {
-            return {query: this.model.get('query')};
+            return {
+                query: this.model.get('query'),
+                placeholder: _.sample(PLACEHOLDERS)
+            };
         },
 
         afterRender: function() {
