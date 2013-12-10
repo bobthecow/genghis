@@ -261,7 +261,7 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
 
     private static function safe()
     {
-        if (class_exists('MongoClient')) {
+        if (version_compare(Mongo::VERSION, '1.3.0', '>=')) {
             return array('w' => 1);
         } else {
             return array('safe' => true);
