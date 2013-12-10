@@ -13,8 +13,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'vegas',            '~> 0.1.8'
   gem.add_dependency 'sinatra',          '>= 1.3.3', '< 1.5.0'
   gem.add_dependency 'sinatra-contrib',  '>= 1.3.1', '< 1.5.0'
-  gem.add_dependency 'sinatra-mustache', '>= 0.0.4', '< 0.2.0'
-  gem.add_dependency 'mongo',            '>= 1.8.0', '<= 1.9.0'
+  gem.add_dependency 'sinatra-mustache', '>= 0.0.4', '< 0.4.0'
+  gem.add_dependency 'mongo',            '>= 1.8.0', '<= 1.9.2'
   gem.add_dependency 'json',             '>= 1.7.0', '< 1.9.0'
 
   gem.add_development_dependency 'rake'
