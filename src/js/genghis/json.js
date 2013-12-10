@@ -59,6 +59,10 @@ Genghis.JSON = {
                 };
             }
 
+            function GenghisDate(date) {
+                return new ISODate(date);
+            }
+
             function ISODate(date) {
                 function ISODateString(d) {
                     function pad(n, l) {

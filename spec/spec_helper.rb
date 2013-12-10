@@ -5,7 +5,11 @@ require_relative '../genghis.rb'
 
 RSpec.configure do |config|
   def genghis_backends
-    [:php, :ruby]
+    if ENV['GENGHIS_BACKEND']
+      ENV['GENGHIS_BACKEND'].split(',').map(&:to_sym)
+    else
+      [:php, :ruby]
+    end
   end
 
   def find_available_port
@@ -21,13 +25,24 @@ RSpec.configure do |config|
     case backend
     when :php
       @genghis_pid = spawn 'php', '-S', "localhost:#{@genghis_port}", 'genghis.php', :out => '/dev/null'
-      sleep 0.2
-      Faraday.new url: "http://localhost:#{@genghis_port}"
+      api = Faraday.new url: "http://localhost:#{@genghis_port}"
+      0.upto(20) do |i|
+        break if api_started?(api)
+        sleep 0.1
+      end
+      api
     when :ruby
       Faraday.new do |conn|
         conn.adapter :rack, Genghis::Server.new
       end
     end
+  end
+
+  def api_started?(api)
+    api.get '/'
+    true
+  rescue Faraday::Error::ConnectionFailed => e
+    false
   end
 
   def encode_upload(file)

@@ -3,12 +3,31 @@ language: php
 
 php:
  - 5.4
+ - 5.5
+
+env:
+ - GENGHIS_BACKEND=ruby
+ - GENGHIS_BACKEND=php
+ - GENGHIS_BACKEND=php MONGO_PHP_VERSION=1.1.4
+ - GENGHIS_BACKEND=php MONGO_PHP_VERSION=1.2.12
+ - GENGHIS_BACKEND=php MONGO_PHP_VERSION=1.3.0
+ - GENGHIS_BACKEND=php MONGO_PHP_VERSION=1.3.4
+ - GENGHIS_BACKEND=php MONGO_PHP_VERSION=1.3.7
+ - GENGHIS_BACKEND=php MONGO_PHP_VERSION=1.4.0
+ - GENGHIS_BACKEND=php MONGO_PHP_VERSION=1.4.3
+
+matrix:
+  exclude:
+    - php: 5.5
+      env: GENGHIS_BACKEND=ruby
 
 services: mongodb
 
 before_script:
- - 'echo "extension=mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini'
- - 'bundle install --without development'
+ - 'sh -c "if [ ! -z $MONGO_PHP_VERSION ]; then pecl install -f mongo-${MONGO_PHP_VERSION}; fi"'
+ - 'sh -c "if [ -z $(php -i | grep mongo) ]; then echo extension=mongo.so >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi"'
+
+install: bundle install --without development
 
 # wheee!
 script: rspec

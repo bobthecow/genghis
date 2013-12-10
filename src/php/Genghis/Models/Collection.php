@@ -39,7 +39,7 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         $query = array('_id' => $this->thunkMongoId($id));
 
         try {
-            $result = $this->collection->update($query, $doc, array('safe' => true));
+            $result = $this->collection->update($query, $doc, self::safe());
         } catch (MongoCursorException $e) {
             throw new Genghis_HttpException(400, ucfirst($e->doc['err']));
         }
@@ -53,8 +53,8 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
     {
         $this->findDocument($id);
 
-        $query = array('_id' => $this->thunkMongoId($id));
-        $result = $this->collection->remove($query, array('safe' => true));
+        $query  = array('_id' => $this->thunkMongoId($id));
+        $result = $this->collection->remove($query, self::safe());
 
         if (!(isset($result['ok']) && $result['ok'])) {
             throw new Genghis_HttpException;
@@ -164,7 +164,7 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
     public function insert($data)
     {
         try {
-            $result = $this->collection->insert($data, array('safe' => true));
+            $result = $this->collection->insert($data, self::safe());
         } catch (MongoCursorException $e) {
             throw new Genghis_HttpException(400, ucfirst($e->doc['err']));
         }
@@ -257,5 +257,14 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
     private function stats()
     {
         return $this->database->database->command(array('collStats' => $this->collection->getName()));
+    }
+
+    private static function safe()
+    {
+        if (version_compare(Mongo::VERSION, '1.3.0', '>=')) {
+            return array('w' => 1);
+        } else {
+            return array('safe' => true);
+        }
     }
 }
