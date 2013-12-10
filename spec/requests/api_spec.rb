@@ -462,19 +462,16 @@ genghis_backends.each do |backend|
 
         describe 'GET /servers/:server/databases/:db/collections/:coll' do
           before :all do
-            # TODO: fix path chunks with encoded slashes in them
-            # so this test can work under rack-protect v1.5.1+
-            # @db.create_collection 'foo bar.baz/qux\\quux…'
-            @db.create_collection 'foo bar.baz:qux\\quux…'
+            @db.create_collection 'foo bar.baz/qux\\quux…'
           end
 
           it 'returns collection info' do
-            res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/foo%20bar.baz:qux%5Cquux%E2%80%A6'
+            res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/foo%20bar.baz%2Fqux%5Cquux%E2%80%A6'
 
             res.status.should eq 200
             res.body.should match_json_expression \
-              id:      'foo bar.baz:qux\\quux…',
-              name:    'foo bar.baz:qux\\quux…',
+              id:      'foo bar.baz/qux\\quux…',
+              name:    'foo bar.baz/qux\\quux…',
               count:   0,
               indexes: Array,
               stats:   Hash
