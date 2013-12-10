@@ -10,6 +10,9 @@ module Genghis
     # default to 'production' because yeah
     set :environment, :production
 
+    # work around path param slash encoding issues.
+    set :protection, :except => :path_traversal
+
     enable :inline_templates
 
     helpers Sinatra::Streaming
