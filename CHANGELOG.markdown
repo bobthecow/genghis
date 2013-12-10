@@ -1,3 +1,11 @@
+## v2.3.10
+
+ * [Fix #145][i145], [#148][i148] — work around rack-protection's misguided path decoding.
+
+[i145]: https://github.com/bobthecow/genghis/issues/145
+[i148]: https://github.com/bobthecow/genghis/issues/148
+
+
 ## v2.3.9
 
  * [Fix #135][i135] — error when entering a `new Date()` value in a document.
