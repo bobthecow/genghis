@@ -52,7 +52,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :url => 'mongo.example.com:27017' }.to_json
+            req.body = {:url => 'mongo.example.com:27017'}.to_json
           end
 
           res.status.should eq 200
@@ -69,7 +69,7 @@ genghis_backends.each do |backend|
             req.url '/servers'
             req.headers['Content-Type'] = 'application/json'
             req.headers['Cookie'] = 'genghis_servers=%7B%22localhost%22%3A%22mongodb%3A%5C%2F%5C%2Flocalhost%3A27017%22%7D'
-            req.body = { :url => 'mongo.example.com:27017' }.to_json
+            req.body = {:url => 'mongo.example.com:27017'}.to_json
           end
           res.headers['set-cookie'].should_not be_empty
           servers_cookie = URI.decode(res.headers['set-cookie'].split(';').first.split('=').last)
@@ -84,7 +84,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :url => '' }.to_json
+            req.body = {:url => ''}.to_json
           end
 
           res.status.should eq 400
@@ -97,7 +97,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :url => 'http://foo/bar' }.to_json
+            req.body = {:url => 'http://foo/bar'}.to_json
           end
 
           res.status.should eq 400
@@ -181,7 +181,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :name => '__genghis_spec_create_db_test__' }.to_json
+            req.body = {:name => '__genghis_spec_create_db_test__'}.to_json
           end
 
           res.status.should eq 200
@@ -198,7 +198,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :name => '' }.to_json
+            req.body = {:name => ''}.to_json
           end
 
           res.status.should eq 400
@@ -212,7 +212,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :name => '__genghis_spec_create_db_test__' }.to_json
+            req.body = {:name => '__genghis_spec_create_db_test__'}.to_json
           end
 
           res.status.should eq 400
@@ -295,7 +295,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :name => 'spec_create_collection' }.to_json
+            req.body = {:name => 'spec_create_collection'}.to_json
           end
 
           res.status.should eq 200
@@ -312,7 +312,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :name => '' }.to_json
+            req.body = {:name => ''}.to_json
           end
 
           res.status.should eq 400
@@ -326,7 +326,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :name => 'already_exists' }.to_json
+            req.body = {:name => 'already_exists'}.to_json
           end
 
           res.status.should eq 400
@@ -444,7 +444,7 @@ genghis_backends.each do |backend|
             res = @api.post do |req|
               req.url '/servers/localhost/databases/__genghis_spec_test__/collections'
               req.headers['Content-Type'] = 'application/json'
-              req.body = { :name => 'a b.c/d\\e…' }.to_json
+              req.body = {:name => 'a b.c/d\\e…'}.to_json
             end
 
             res.status.should eq 200
@@ -539,7 +539,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :foo => 'FOO!', :bar => 123, :baz => { :qux => 4.56, :quux => false } }.to_json
+            req.body = {:foo => 'FOO!', :bar => 123, :baz => {:qux => 4.56, :quux => false}}.to_json
           end
 
           res.status.should eq 200
@@ -557,7 +557,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :_id => 1, :foo => 'bar' }.to_json
+            req.body = {:_id => 1, :foo => 'bar'}.to_json
           end
 
           res.status.should eq 200
@@ -570,7 +570,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :foo => { '$genghisType' => 'NaN' } }.to_json
+            req.body = {:foo => {'$genghisType' => 'NaN'}}.to_json
           end
 
           res.status.should eq 200
@@ -585,7 +585,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :foo => { '$genghisType' => 'Timestamp', '$value' => { '$t' => 123, '$i' => 456 } } }.to_json
+            req.body = {:foo => {'$genghisType' => 'Timestamp', '$value' => {'$t' => 123, '$i' => 456}}}.to_json
           end
 
           res.status.should eq 200
@@ -635,7 +635,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :foo => { '$genghisType' => 'NaN' } }.to_json
+            req.body = {:foo => {'$genghisType' => 'NaN'}}.to_json
           end
 
           res.status.should eq 200
@@ -670,7 +670,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/fake_docs/documents'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :test => 1 }.to_json
+            req.body = {:test => 1}.to_json
           end
           res.status.should eq 404
         end
@@ -679,7 +679,7 @@ genghis_backends.each do |backend|
           res = @api.post do |req|
             req.url '/servers/localhost/databases/__genghis_spec_fake_db__/collections/spec_docs/documents'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :test => 1 }.to_json
+            req.body = {:test => 1}.to_json
           end
           res.status.should eq 404
         end
@@ -799,7 +799,7 @@ genghis_backends.each do |backend|
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :test => 2 }.to_json
+            req.body = {:test => 2}.to_json
           end
 
           res.status.should eq 200
@@ -813,7 +813,7 @@ genghis_backends.each do |backend|
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :test => { '$genghisType' => 'NaN' } }.to_json
+            req.body = {:test => {'$genghisType' => 'NaN'}}.to_json
           end
 
           res.status.should eq 200
@@ -829,7 +829,7 @@ genghis_backends.each do |backend|
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :test => { '$genghisType' => 'Timestamp', '$value' => { '$t' => 123, '$i' => 456 } } }.to_json
+            req.body = {:test => {'$genghisType' => 'Timestamp', '$value' => {'$t' => 123, '$i' => 456}}}.to_json
           end
 
           res.status.should eq 200
@@ -851,7 +851,7 @@ genghis_backends.each do |backend|
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id_str
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :test => 1 }.to_json
+            req.body = {:test => 1}.to_json
           end
 
           res.status.should eq 200
@@ -865,7 +865,7 @@ genghis_backends.each do |backend|
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :test => { '$genghisType' => 'NaN' } }.to_json
+            req.body = {:test => {'$genghisType' => 'NaN'}}.to_json
           end
 
           res.status.should eq 200
@@ -881,7 +881,7 @@ genghis_backends.each do |backend|
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :_id => 1, :test => 2 }.to_json
+            req.body = {:_id => 1, :test => 2}.to_json
           end
 
           res.status.should eq 400
@@ -901,7 +901,7 @@ genghis_backends.each do |backend|
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/123'
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :test => 2 }.to_json
+            req.body = {:test => 2}.to_json
           end
           res.status.should eq 404
         end
@@ -911,7 +911,7 @@ genghis_backends.each do |backend|
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/fake_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :test => 2 }.to_json
+            req.body = {:test => 2}.to_json
           end
           res.status.should eq 404
         end
@@ -921,7 +921,7 @@ genghis_backends.each do |backend|
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_fake_db__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
-            req.body = { :test => 2 }.to_json
+            req.body = {:test => 2}.to_json
           end
           res.status.should eq 404
         end
@@ -985,7 +985,7 @@ genghis_backends.each do |backend|
               :_id => Hash,
               :filename => 'foo.txt',
               :contentType => 'application/octet',
-              :metadata => { :expected => 'you know it' },
+              :metadata => {:expected => 'you know it'},
               :uploadDate => Hash,
               :length => Fixnum,
               :chunkSize => Fixnum,

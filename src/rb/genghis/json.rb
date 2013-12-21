@@ -47,7 +47,7 @@ module Genghis
       end
 
       def thunk(name, value)
-        {'$genghisType' => name, '$value' => value }
+        {'$genghisType' => name, '$value' => value}
       end
 
       def enc_re_flags(opt)

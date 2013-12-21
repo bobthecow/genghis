@@ -10,3 +10,7 @@ Documentation:
 
 HashSyntax:
   EnforcedStyle: hash_rockets
+
+SpaceInsideHashLiteralBraces:
+  EnforcedStyle:               no_space
+  EnforcedStyleForEmptyBraces: no_space
