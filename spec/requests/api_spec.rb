@@ -131,7 +131,7 @@ genghis_backends.each do |backend|
           res = @api.delete do |req|
             req.url '/servers/mongo.example.com'
             servers = CGI.escape('["mongodb:\/\/mongo.example.com"]')
-            req.headers['Cookie'] = 'genghis_servers=%s;genghis_rb_servers=%s' % [servers, servers]
+            req.headers['Cookie'] = "genghis_servers=#{servers};genghis_rb_servers=#{servers}"
           end
           res.status.should eq 200
         end
