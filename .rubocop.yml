@@ -1,0 +1,9 @@
+AllCops:
+  Excludes:
+    - assets/vendor/**
+    - genghis.rb
+    - tmp/**
+    - vendor/**
+
+Documentation:
+  Enabled: false

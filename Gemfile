@@ -5,6 +5,7 @@ gemspec
 gem 'bson_ext', :require => false
 
 group :development do
+  gem 'rubocop', :github => 'bbatsov/rubocop'
   gem 'guard'
   gem 'guard-rake'
   gem 'guard-rspec'
