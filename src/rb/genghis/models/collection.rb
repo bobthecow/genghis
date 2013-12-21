@@ -55,11 +55,11 @@ module Genghis
         document
       end
 
-      def explain(query={})
+      def explain(query = {})
         @collection.find(query).explain
       end
 
-      def documents(query={}, page=1)
+      def documents(query = {}, page = 1)
         Query.new(@collection, query, page)
       end
 

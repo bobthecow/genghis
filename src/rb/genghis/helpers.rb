@@ -128,7 +128,7 @@ module Genghis
       @default_servers ||= init_servers((ENV['GENGHIS_SERVERS'] || '').split(';'), :default => true)
     end
 
-    def init_servers(dsn_list, opts={})
+    def init_servers(dsn_list, opts = {})
       Hash[dsn_list.map { |dsn|
         server = Genghis::Models::Server.new(dsn)
         server.default = opts[:default] || false

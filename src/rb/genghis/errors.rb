@@ -7,7 +7,7 @@ module Genghis
   class MalformedDocument < Exception
     def http_status; 400 end
 
-    def initialize(msg=nil)
+    def initialize(msg = nil)
       @msg = msg
     end
 

@@ -3,7 +3,7 @@ module Genghis
     class Query
       PAGE_LIMIT = 50
 
-      def initialize(collection, query={}, page=1)
+      def initialize(collection, query = {}, page = 1)
         @collection = collection
         @page       = page
         @query      = query
