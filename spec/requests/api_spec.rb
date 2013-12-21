@@ -1,6 +1,5 @@
 #encoding: utf-8
 
-
 require 'spec_helper'
 require 'faraday'
 require 'mongo'
@@ -80,7 +79,6 @@ genghis_backends.each do |backend|
               %r{^(mongodb://)?mongo.example.com(:27017)?$}
             ]
         end
-
 
         it 'returns 400 if the DSN is empty' do
           res = @api.post do |req|

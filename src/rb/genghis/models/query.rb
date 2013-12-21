@@ -37,7 +37,6 @@ module Genghis
       def documents
         @documents ||= @collection.find(@query, :limit => PAGE_LIMIT, :skip => offset)
       end
-
     end
   end
 end

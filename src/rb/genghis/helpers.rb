@@ -5,13 +5,11 @@ module Genghis
   module Helpers
     PAGE_LIMIT = 50
 
-
     ### Genghis JSON responses ###
 
     def genghis_json(doc, *args)
       json(::Genghis::JSON.as_json(doc), *args)
     end
-
 
     ### Misc request parsing helpers ###
 
@@ -38,7 +36,6 @@ module Genghis
     def thunk_mongo_id(id)
       id =~ /^[a-f0-9]{24}$/i ? BSON::ObjectId(id) : id
     end
-
 
     ### Seemed like a good place to put this ###
 
@@ -117,7 +114,6 @@ module Genghis
       alerts
     end
 
-
     ### Server management ###
 
     def servers
@@ -176,6 +172,5 @@ module Genghis
     def check_bson_ext?
       !ENV['GENGHIS_NO_BSON_CHECK'] && is_ruby? && !defined?(::BSON::BSON_C)
     end
-
   end
 end

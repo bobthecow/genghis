@@ -27,7 +27,6 @@ module Genghis
       Genghis::VERSION
     end
 
-
     ### Error handling ###
 
     helpers do
@@ -53,7 +52,6 @@ module Genghis
       error_response(404, env['sinatra.error'].message.sub(/^Sinatra::NotFound$/, 'Not Found'))
     end
 
-
     ### Asset routes ###
 
     get '/assets/style.css' do
@@ -65,7 +63,6 @@ module Genghis
       content_type 'text/javascript'
       self.class.templates['script.js'.intern].first
     end
-
 
     ### GridFS handling ###
 
@@ -87,7 +84,6 @@ module Genghis
     #   json :success => true
     # end
 
-
     ### Default route ###
 
     get '*' do
@@ -97,7 +93,6 @@ module Genghis
       @base_url = request.env['SCRIPT_NAME']
       mustache 'index.html'.intern
     end
-
 
     ### Genghis API ###
 

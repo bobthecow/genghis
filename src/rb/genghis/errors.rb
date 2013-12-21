@@ -70,7 +70,6 @@ module Genghis
     end
   end
 
-
   class CollectionNotFound < NotFound
     def initialize(database, name)
       @database = database
