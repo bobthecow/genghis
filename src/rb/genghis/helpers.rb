@@ -129,11 +129,11 @@ module Genghis
     end
 
     def init_servers(dsn_list, opts = {})
-      Hash[dsn_list.map { |dsn|
+      Hash[dsn_list.map do |dsn|
         server = Genghis::Models::Server.new(dsn)
         server.default = opts[:default] || false
         [server.name, server]
-      }]
+      end]
     end
 
     def add_server(dsn)
