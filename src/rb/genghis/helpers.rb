@@ -58,8 +58,8 @@ module Genghis
         if check_bson_ext?
           Gem.refresh
 
-          installed = Gem::Specification.find_all { |s| s.name == 'mongo' }.map { |s| s.version }.sort.last
-          if Gem::Specification.find_all { |s| s.name == 'bson_ext' && s.version == installed }.empty?
+          installed = Gem::Specification.select { |s| s.name == 'mongo' }.map { |s| s.version }.sort.last
+          if Gem::Specification.select { |s| s.name == 'bson_ext' && s.version == installed }.empty?
             msg = <<-MSG.strip.gsub(/\s+/, " ")
               <h4>MongoDB driver C extension not found.</h4>
               Install this extension for better performance: <code>gem install bson_ext -v #{installed}</code>
@@ -81,7 +81,7 @@ module Genghis
           Gem.refresh
 
           latest    = nil
-          installed = Gem::Specification.find_all { |s| s.name == 'genghisapp' }.map { |s| s.version }.sort.last
+          installed = Gem::Specification.select { |s| s.name == 'genghisapp' }.map { |s| s.version }.sort.last
           running   = Gem::Version.new(Genghis::VERSION.gsub(/[\+_-]/, '.'))
 
           begin
@@ -152,7 +152,7 @@ module Genghis
     end
 
     def save_servers
-      dsn_list = servers.collect { |name, server| server.dsn unless server.default }.compact
+      dsn_list = servers.map { |name, server| server.dsn unless server.default }.compact
       response.set_cookie(
         :genghis_rb_servers,
         :path    => '/',

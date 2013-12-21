@@ -58,7 +58,7 @@ module Genghis
       def info
         @info ||= begin
           name = database.name
-          database.connection['admin'].command({:listDatabases => true})['databases'].detect do |db|
+          database.connection['admin'].command({:listDatabases => true})['databases'].find do |db|
             db['name'] == name
           end
         end
