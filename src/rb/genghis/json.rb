@@ -26,11 +26,11 @@ module Genghis
         when Array then o.map { |e| enc(e) }
         when Hash then enc_hash(o.clone)
         when Time then thunk('ISODate', enc_time(o))
-        when Regexp then thunk('RegExp', {'$pattern' => o.source, '$flags' => enc_re_flags(o.options)})
+        when Regexp then thunk('RegExp', '$pattern' => o.source, '$flags' => enc_re_flags(o.options))
         when BSON::ObjectId then thunk('ObjectId', o.to_s)
         when BSON::DBRef then db_ref(o)
-        when BSON::Binary then thunk('BinData', {'$subtype' => o.subtype, '$binary' => enc_bin_data(o)})
-        when BSON::Timestamp then thunk('Timestamp', {'$t' => o.seconds, '$i' => o.increment})
+        when BSON::Binary then thunk('BinData', '$subtype' => o.subtype, '$binary' => enc_bin_data(o))
+        when BSON::Timestamp then thunk('Timestamp', '$t' => o.seconds, '$i' => o.increment)
         when Float then o.nan? ? {'$genghisType' => 'NaN'} : o
         else o
         end

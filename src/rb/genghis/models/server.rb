@@ -65,23 +65,23 @@ module Genghis
         }
 
         if @error
-          json.merge!({:error => @error})
+          json.merge!(:error => @error)
         else
           begin
             client
             info
           rescue Mongo::AuthenticationError => e
-            json.merge!({:error => "Authentication error: #{e.message}"})
+            json.merge!(:error => "Authentication error: #{e.message}")
           rescue Mongo::ConnectionFailure => e
-            json.merge!({:error => "Connection error: #{e.message}"})
+            json.merge!(:error => "Connection error: #{e.message}")
           rescue Mongo::OperationFailure => e
-            json.merge!({:error => "Connection error: #{e.result['errmsg']}"})
+            json.merge!(:error => "Connection error: #{e.result['errmsg']}")
           else
-            json.merge!({
+            json.merge!(
               :size      => info['totalSize'].to_i,
               :count     => info['databases'].count,
               :databases => info['databases'].map { |db| db['name'] },
-            })
+            )
           end
         end
 
@@ -141,7 +141,7 @@ module Genghis
       def info
         @info ||= begin
           if @db.nil?
-            client['admin'].command({:listDatabases => true})
+            client['admin'].command(:listDatabases => true)
           else
             stats = client[@db].command(:dbStats => true)
             {

@@ -60,14 +60,14 @@ module Genghis
       def info
         @info ||= begin
           name = database.name
-          database.connection['admin'].command({:listDatabases => true})['databases'].find do |db|
+          database.connection['admin'].command(:listDatabases => true)['databases'].find do |db|
             db['name'] == name
           end
         end
       end
 
       def stats
-        @stats ||= database.command({:dbStats => true})
+        @stats ||= database.command(:dbStats => true)
       end
 
       def system_collection?(coll)

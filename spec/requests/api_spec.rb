@@ -15,9 +15,9 @@ genghis_backends.each do |backend|
     it 'boots up' do
       res = @api.get '/check-status'
       res.status.should eq 200
-      res.body.should match_json_expression({
+      res.body.should match_json_expression(
         alerts: Array
-      })
+      )
     end
 
     it 'returns 404 when an unknown URL is requested' do
@@ -687,8 +687,8 @@ genghis_backends.each do |backend|
 
       describe 'DELETE /servers/:server/databases/:db/collections/:coll/documents' do
         before do
-          @coll.insert({foo: 1, bar: 'a'})
-          @coll.insert({foo: 2, bar: 'b'})
+          @coll.insert(foo: 1, bar: 'a')
+          @coll.insert(foo: 2, bar: 'b')
           @coll.drop_indexes
         end
 
@@ -705,7 +705,7 @@ genghis_backends.each do |backend|
         end
 
         it 'maintains indices' do
-          @coll.ensure_index({foo: -1})
+          @coll.ensure_index(foo: -1)
           @coll.ensure_index({bar: 1}, {unique: true})
           @coll.ensure_index({baz: 1}, {name: 'baz_rocks', sparse: true, expireAfterSeconds: 6000})
 
@@ -727,7 +727,7 @@ genghis_backends.each do |backend|
 
       describe 'GET /servers/:server/databases/:db/collections/:coll/documents/:id' do
         it 'returns a document' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
 
           res.status.should eq 200
@@ -738,7 +738,7 @@ genghis_backends.each do |backend|
 
         it 'can deal with non-objectid _id properties' do
           id = 'test'
-          @coll.insert({_id: id})
+          @coll.insert(_id: id)
           id_str = "~#{Base64.encode64('"test"')}"
           res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id_str
 
@@ -748,7 +748,7 @@ genghis_backends.each do |backend|
         end
 
         it 'handles NaN values' do
-          id  = @coll.insert({foo: Float::NAN})
+          id  = @coll.insert(foo: Float::NAN)
           res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
 
           res.status.should eq 200
@@ -760,7 +760,7 @@ genghis_backends.each do |backend|
         end
 
         it 'supports BSON Timestamps' do
-          id  = @coll.insert({foo: BSON::Timestamp.new(123, 456)})
+          id  = @coll.insert(foo: BSON::Timestamp.new(123, 456))
           res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
 
           res.status.should eq 200
@@ -781,13 +781,13 @@ genghis_backends.each do |backend|
         end
 
         it 'returns 404 if the collection is not found' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/fake_docs/documents/' + id.to_s
           res.status.should eq 404
         end
 
         it 'returns 404 if the database is not found' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.get '/servers/localhost/databases/__genghis_spec_fake_db__/collections/spec_docs/documents/' + id.to_s
           res.status.should eq 404
         end
@@ -795,7 +795,7 @@ genghis_backends.each do |backend|
 
       describe 'PUT /servers/:server/databases/:db/collections/:coll/documents/:id' do
         it 'updates the document' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
@@ -809,7 +809,7 @@ genghis_backends.each do |backend|
         end
 
         it 'handles NaN values' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
@@ -825,7 +825,7 @@ genghis_backends.each do |backend|
         end
 
         it 'supports BSON Timestamps' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
@@ -846,7 +846,7 @@ genghis_backends.each do |backend|
 
         it 'can deal with non-objectid _id properties' do
           id = 'testier'
-          @coll.insert({_id: id})
+          @coll.insert(_id: id)
           id_str = "~#{Base64.encode64('"testier"')}"
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id_str
@@ -861,7 +861,7 @@ genghis_backends.each do |backend|
         end
 
         it 'handles NaN values' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
@@ -877,7 +877,7 @@ genghis_backends.each do |backend|
         end
 
         it 'returns 400 if a document id is updated' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
@@ -888,7 +888,7 @@ genghis_backends.each do |backend|
         end
 
         it 'returns 400 if the document is invalid' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
@@ -907,7 +907,7 @@ genghis_backends.each do |backend|
         end
 
         it 'returns 404 if the collection is not found' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_test__/collections/fake_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
@@ -917,7 +917,7 @@ genghis_backends.each do |backend|
         end
 
         it 'returns 404 if the database is not found' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.put do |req|
             req.url '/servers/localhost/databases/__genghis_spec_fake_db__/collections/spec_docs/documents/' + id.to_s
             req.headers['Content-Type'] = 'application/json'
@@ -929,7 +929,7 @@ genghis_backends.each do |backend|
 
       describe 'DELETE /servers/:server/databases/:db/collections/:coll/documents/:id' do
         it 'deletes the document' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           @coll.find(_id: id).count.should eq 1
 
           res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id.to_s
@@ -939,21 +939,21 @@ genghis_backends.each do |backend|
         end
 
         it 'returns 404 if the document is not found' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/123'
           res.status.should eq 404
           @coll.find(_id: id).count.should eq 1
         end
 
         it 'returns 404 if the collection is not found' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.delete '/servers/localhost/databases/__genghis_spec_test__/collections/fake_docs/documents/' + id.to_s
           res.status.should eq 404
           @coll.find(_id: id).count.should eq 1
         end
 
         it 'returns 404 if the database is not found' do
-          id  = @coll.insert({test: 1})
+          id  = @coll.insert(test: 1)
           res = @api.delete '/servers/localhost/databases/__genghis_spec_fake_db__/collections/spec_docs/documents/' + id.to_s
           res.status.should eq 404
           @coll.find(_id: id).count.should eq 1
