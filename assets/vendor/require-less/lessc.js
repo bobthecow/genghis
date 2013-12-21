@@ -1,41 +1,35 @@
-/*
- * LESS - Leaner CSS v1.4.2
- * http://lesscss.org
- *
- * Copyright (c) 2009-2013, Alexis Sellier
- * Licensed under the Apache 2.0 License.
- *
- * @licence
- */
-(function (window, undefined) {
-//
+/*! 
+ * LESS - Leaner CSS v1.5.0 
+ * http://lesscss.org 
+ * 
+ * Copyright (c) 2009-2013, Alexis Sellier <self@cloudhead.net> 
+ * Licensed under the Apache v2 License. 
+ * 
+ * @licence 
+ */ 
+
+
+
+(function (window, undefined) {//
 // Stub out `require` in the browser
 //
 function require(arg) {
-    return less[arg.split('/')[1]];
+    return window.less[arg.split('/')[1]];
 };
 
-var less, tree, charset;
 
-if (typeof environment === "object" && ({}).toString.call(environment) === "[object Environment]") {
-    // Rhino
-    // Details on how to detect Rhino: https://github.com/ringo/ringojs/issues/88
-    if (typeof(window) === 'undefined') { less = {} }
-    else                                { less = window.less = {} }
-    tree = less.tree = {};
-    less.mode = 'rhino';
-} else if (typeof(window) === 'undefined') {
-    // Node.js
-    less = exports = {},
-    less.tree = tree = {};
+if (typeof(window.less) === 'undefined' || typeof(window.less.nodeType) !== 'undefined') { window.less = {}; }
+less = window.less;
+tree = window.less.tree = {};
+less.mode = 'browser';
+
+var less, tree;
+
+// Node.js does not have a header file added which defines less
+if (less === undefined) {
+    less = exports;
+    tree = require('./tree');
     less.mode = 'node';
-    less.env = 'production';
-} else {
-    // Browser
-    if (typeof(window.less) === 'undefined') { window.less = {} }
-    less = window.less,
-    tree = window.less.tree = {};
-    less.mode = 'browser';
 }
 //
 // less.js - parser
@@ -79,9 +73,8 @@ less.Parser = function Parser(env) {
         furthest,    // furthest index the parser has gone to
         chunks,      // chunkified input
         current,     // index of current chunk, in `input`
-        parser;
-
-    var that = this;
+        parser,
+        rootFilename = env && env.filename;
 
     // Top parser on an import tree must be sure there is one "env"
     // which will then be passed around by reference.
@@ -96,24 +89,47 @@ less.Parser = function Parser(env) {
         contents: env.contents,  // Holds the imported file contents
         mime:  env.mime,         // MIME type of .less files
         error: null,             // Error in parsing/evaluating an import
-        push: function (path, currentFileInfo, callback) {
-            var parserImporter = this;
+        push: function (path, currentFileInfo, importOptions, callback) {
+            var parserImports = this;
             this.queue.push(path);
 
-            //
-            // Import a file asynchronously
-            //
-            less.Parser.importer(path, currentFileInfo, function (e, root, fullPath) {
-                parserImporter.queue.splice(parserImporter.queue.indexOf(path), 1); // Remove the path from the queue
+            var fileParsedFunc = function (e, root, fullPath) {
+                parserImports.queue.splice(parserImports.queue.indexOf(path), 1); // Remove the path from the queue
 
-                var imported = fullPath in parserImporter.files;
+                var importedPreviously = fullPath in parserImports.files || fullPath === rootFilename;
 
-                parserImporter.files[fullPath] = root;                        // Store the root
+                parserImports.files[fullPath] = root;                        // Store the root
 
-                if (e && !parserImporter.error) { parserImporter.error = e; }
-                
-                callback(e, root, imported);
-            }, env);
+                if (e && !parserImports.error) { parserImports.error = e; }
+
+                callback(e, root, importedPreviously, fullPath);
+            };
+
+            if (less.Parser.importer) {
+                less.Parser.importer(path, currentFileInfo, fileParsedFunc, env);
+            } else {
+                less.Parser.fileLoader(path, currentFileInfo, function(e, contents, fullPath, newFileInfo) {
+                    if (e) {fileParsedFunc(e); return;}
+
+                    var newEnv = new tree.parseEnv(env);
+
+                    newEnv.currentFileInfo = newFileInfo;
+                    newEnv.processImports = false;
+                    newEnv.contents[fullPath] = contents;
+
+                    if (currentFileInfo.reference || importOptions.reference) {
+                        newFileInfo.reference = true;
+                    }
+
+                    if (importOptions.inline) {
+                        fileParsedFunc(null, contents, fullPath);
+                    } else {
+                        new(less.Parser)(newEnv).parse(contents, function (e, root) {
+                            fileParsedFunc(e, root, fullPath);
+                        });
+                    }
+                }, env);
+            }
         }
     };
 
@@ -135,7 +151,7 @@ less.Parser = function Parser(env) {
     // Parse from a token, regexp or string, and move forward if match
     //
     function $(tok) {
-        var match, args, length, index, k;
+        var match, length;
 
         //
         // Non-terminal
@@ -184,13 +200,13 @@ less.Parser = function Parser(env) {
             mem = i += length;
 
         while (i < endIndex) {
-            if (! isWhitespace(input.charAt(i))) { break }
+            if (! isWhitespace(input.charAt(i))) { break; }
             i++;
         }
         chunks[j] = chunks[j].slice(length + (i - mem));
         current = i;
 
-        if (chunks[j].length === 0 && j < chunks.length - 1) { j++ }
+        if (chunks[j].length === 0 && j < chunks.length - 1) { j++; }
 
         return oldi !== i || oldj !== j;
     }
@@ -218,11 +234,7 @@ less.Parser = function Parser(env) {
         if (typeof(tok) === 'string') {
             return input.charAt(i) === tok;
         } else {
-            if (tok.test(chunks[j])) {
-                return true;
-            } else {
-                return false;
-            }
+            return tok.test(chunks[j]);
         }
     }
 
@@ -234,13 +246,23 @@ less.Parser = function Parser(env) {
         }
     }
 
-    function getLocation(index, input) {
-        for (var n = index, column = -1;
-                 n >= 0 && input.charAt(n) !== '\n';
-                 n--) { column++ }
+    function getLocation(index, inputStream) {
+        var n = index + 1,
+            line = null,
+            column = -1;
 
-        return { line:   typeof(index) === 'number' ? (input.slice(0, index).match(/\n/g) || "").length : null,
-                 column: column };
+        while (--n >= 0 && inputStream.charAt(n) !== '\n') {
+            column++;
+        }
+
+        if (typeof index === 'number') {
+            line = (inputStream.slice(0, index).match(/\n/g) || "").length;
+        }
+
+        return {
+            line: line,
+            column: column
+        };
     }
 
     function getDebugInfo(index, inputStream, env) {
@@ -260,6 +282,7 @@ less.Parser = function Parser(env) {
             loc = getLocation(e.index, input),
             line = loc.line,
             col  = loc.column,
+            callLine = e.call && getLocation(e.call, input).line,
             lines = input.split('\n');
 
         this.type = e.type || 'Syntax';
@@ -267,8 +290,8 @@ less.Parser = function Parser(env) {
         this.filename = e.filename || env.currentFileInfo.filename;
         this.index = e.index;
         this.line = typeof(line) === 'number' ? line + 1 : null;
-        this.callLine = e.call && (getLocation(e.call, input).line + 1);
-        this.callExtract = lines[getLocation(e.call, input).line];
+        this.callLine = callLine + 1;
+        this.callExtract = lines[callLine];
         this.stack = e.stack;
         this.column = col;
         this.extract = [
@@ -300,13 +323,15 @@ less.Parser = function Parser(env) {
         // call `callback` when done.
         //
         parse: function (str, callback) {
-            var root, start, end, zone, line, lines, buff = [], c, error = null;
+            var root, line, lines, error = null;
 
             i = j = current = furthest = 0;
             input = str.replace(/\r\n/g, '\n');
 
             // Remove potential UTF Byte Order Mark
             input = input.replace(/^\uFEFF/, '');
+
+            parser.imports.contents[env.currentFileInfo.filename] = input;
 
             // Split the input into chunks.
             chunks = (function (chunks) {
@@ -352,16 +377,42 @@ less.Parser = function Parser(env) {
                     }
                     
                     switch (c) {
-                        case '{': if (! inParam) { level ++;        chunk.push(c);                           break }
-                        case '}': if (! inParam) { level --;        chunk.push(c); chunks[++j] = chunk = []; break }
-                        case '(': if (! inParam) { inParam = true;  chunk.push(c);                           break }
-                        case ')': if (  inParam) { inParam = false; chunk.push(c);                           break }
-                        default:                                    chunk.push(c);
+                        case '{':
+                            if (!inParam) {
+                                level++;
+                                chunk.push(c);
+                                break;
+                            }
+                            /* falls through */
+                        case '}':
+                            if (!inParam) {
+                                level--;
+                                chunk.push(c);
+                                chunks[++j] = chunk = [];
+                                break;
+                            }
+                            /* falls through */
+                        case '(':
+                            if (!inParam) {
+                                inParam = true;
+                                chunk.push(c);
+                                break;
+                            }
+                            /* falls through */
+                        case ')':
+                            if (inParam) {
+                                inParam = false;
+                                chunk.push(c);
+                                break;
+                            }
+                            /* falls through */
+                        default:
+                            chunk.push(c);
                     }
                     
                     i++;
                 }
-                if (level != 0) {
+                if (level !== 0) {
                     error = new(LessError)({
                         index: i-1,
                         type: 'Parse',
@@ -370,7 +421,7 @@ less.Parser = function Parser(env) {
                     }, env);
                 }
 
-                return chunks.map(function (c) { return c.join('') });;
+                return chunks.map(function (c) { return c.join(''); });
             })([[]]);
 
             if (error) {
@@ -390,11 +441,10 @@ less.Parser = function Parser(env) {
             }
 
             root.toCSS = (function (evaluate) {
-                var line, lines, column;
-
                 return function (options, variables) {
                     options = options || {};
-                    var importError,
+                    var evaldRoot,
+                        css,
                         evalEnv = new tree.evalEnv(options);
                         
                     //
@@ -420,13 +470,13 @@ less.Parser = function Parser(env) {
                                 }
                                 value = new(tree.Value)([value]);
                             }
-                            return new(tree.Rule)('@' + k, value, false, 0);
+                            return new(tree.Rule)('@' + k, value, false, null, 0);
                         });
                         evalEnv.frames = [new(tree.Ruleset)(null, variables)];
                     }
 
                     try {
-                        var evaldRoot = evaluate.call(this, evalEnv);
+                        evaldRoot = evaluate.call(this, evalEnv);
 
                         new(tree.joinSelectorVisitor)()
                             .run(evaldRoot);
@@ -434,7 +484,25 @@ less.Parser = function Parser(env) {
                         new(tree.processExtendsVisitor)()
                             .run(evaldRoot);
 
-                        var css = evaldRoot.toCSS({
+                        new(tree.toCSSVisitor)({compress: Boolean(options.compress)})
+                            .run(evaldRoot);
+
+                        if (options.sourceMap) {
+                            evaldRoot = new tree.sourceMapOutput(
+                                {
+                                    writeSourceMap: options.writeSourceMap,
+                                    rootNode: evaldRoot,
+                                    contentsMap: parser.imports.contents,
+                                    sourceMapFilename: options.sourceMapFilename,
+                                    outputFilename: options.sourceMapOutputFilename,
+                                    sourceMapBasepath: options.sourceMapBasepath,
+                                    sourceMapRootpath: options.sourceMapRootpath,
+                                    outputSourceFiles: options.outputSourceFiles,
+                                    sourceMapGenerator: options.sourceMapGenerator
+                                });
+                        }
+
+                        css = evaldRoot.toCSS({
                                 compress: Boolean(options.compress),
                                 dumpLineNumbers: env.dumpLineNumbers,
                                 strictUnits: Boolean(options.strictUnits)});
@@ -442,10 +510,10 @@ less.Parser = function Parser(env) {
                         throw new(LessError)(e, env);
                     }
 
-                    if (options.yuicompress && less.mode === 'node') {
-                        return require('ycssmin').cssmin(css, options.maxLineLen);
+                    if (options.cleancss && less.mode === 'node') {
+                        return require('clean-css').process(css);
                     } else if (options.compress) {
-                        return css.replace(/(\s)+/g, "$1");
+                        return css.replace(/(^(\s)+)|((\s)+$)/g, "");
                     } else {
                         return css;
                     }
@@ -462,10 +530,9 @@ less.Parser = function Parser(env) {
             // and the part which didn't), so we can color them differently.
             if (i < input.length - 1) {
                 i = furthest;
+                var loc = getLocation(i, input);
                 lines = input.split('\n');
-                line = (input.slice(0, i).match(/\n/g) || "").length + 1;
-
-                for (var n = i, column = -1; n >= 0 && input.charAt(n) !== '\n'; n--) { column++ }
+                line = loc.line + 1;
 
                 error = {
                     type: "Parse",
@@ -473,7 +540,7 @@ less.Parser = function Parser(env) {
                     index: i,
                     filename: env.currentFileInfo.filename,
                     line: line,
-                    column: column,
+                    column: loc.column,
                     extract: [
                         lines[line - 2],
                         lines[line - 1],
@@ -490,10 +557,10 @@ less.Parser = function Parser(env) {
                         e = new(LessError)(e, env);
                     }
 
-                    callback(e);
+                    return callback(e);
                 }
                 else {
-                    callback(null, root);
+                    return callback(null, root);
                 }
             };
 
@@ -501,7 +568,7 @@ less.Parser = function Parser(env) {
                 new tree.importVisitor(this.imports, finish)
                     .run(root);
             } else {
-                finish();
+                return finish();
             }
         },
 
@@ -567,13 +634,23 @@ less.Parser = function Parser(env) {
             comment: function () {
                 var comment;
 
-                if (input.charAt(i) !== '/') return;
+                if (input.charAt(i) !== '/') { return; }
 
                 if (input.charAt(i + 1) === '/') {
-                    return new(tree.Comment)($(/^\/\/.*/), true);
+                    return new(tree.Comment)($(/^\/\/.*/), true, i, env.currentFileInfo);
                 } else if (comment = $(/^\/\*(?:[^*]|\*+[^\/*])*\*+\/\n?/)) {
-                    return new(tree.Comment)(comment);
+                    return new(tree.Comment)(comment, false, i, env.currentFileInfo);
                 }
+            },
+
+            comments: function () {
+                var comment, comments = [];
+
+                while(comment = $(this.comment)) {
+                    comments.push(comment);
+                }
+
+                return comments;
             },
 
             //
@@ -588,8 +665,8 @@ less.Parser = function Parser(env) {
                 quoted: function () {
                     var str, j = i, e, index = i;
 
-                    if (input.charAt(j) === '~') { j++, e = true } // Escaped strings
-                    if (input.charAt(j) !== '"' && input.charAt(j) !== "'") return;
+                    if (input.charAt(j) === '~') { j++, e = true; } // Escaped strings
+                    if (input.charAt(j) !== '"' && input.charAt(j) !== "'") { return; }
 
                     e && $('~');
 
@@ -607,12 +684,11 @@ less.Parser = function Parser(env) {
                     var k;
 
                     if (k = $(/^[_A-Za-z-][_A-Za-z0-9-]*/)) {
-                        if (tree.colors.hasOwnProperty(k)) {
-                            // detect named color
-                            return new(tree.Color)(tree.colors[k].slice(1));
-                        } else {
-                            return new(tree.Keyword)(k);
+                        var color = tree.Color.fromKeyword(k);
+                        if (color) {
+                            return color;
                         }
+                        return new(tree.Keyword)(k);
                     }
                 },
 
@@ -629,13 +705,13 @@ less.Parser = function Parser(env) {
                 call: function () {
                     var name, nameLC, args, alpha_ret, index = i;
 
-                    if (! (name = /^([\w-]+|%|progid:[\w\.]+)\(/.exec(chunks[j]))) return;
+                    if (! (name = /^([\w-]+|%|progid:[\w\.]+)\(/.exec(chunks[j]))) { return; }
 
                     name = name[1];
                     nameLC = name.toLowerCase();
 
-                    if (nameLC === 'url') { return null }
-                    else                  { i += name.length }
+                    if (nameLC === 'url') { return null; }
+                    else                  { i += name.length; }
 
                     if (nameLC === 'alpha') {
                         alpha_ret = $(this.alpha);
@@ -659,7 +735,9 @@ less.Parser = function Parser(env) {
 
                     while (arg = $(this.entities.assignment) || $(this.expression)) {
                         args.push(arg);
-                        if (! $(',')) { break }
+                        if (! $(',')) {
+                            break;
+                        }
                     }
                     return args;
                 },
@@ -693,12 +771,16 @@ less.Parser = function Parser(env) {
                 url: function () {
                     var value;
 
-                    if (input.charAt(i) !== 'u' || !$(/^url\(/)) return;
+                    if (input.charAt(i) !== 'u' || !$(/^url\(/)) {
+                        return;
+                    }
+
                     value = $(this.entities.quoted)  || $(this.entities.variable) ||
                             $(/^(?:(?:\\[\(\)'"])|[^\(\)'"])+/) || "";
 
                     expect(')');
 
+                    /*jshint eqnull:true */
                     return new(tree.URL)((value.value != null || value instanceof tree.Variable)
                                         ? value : new(tree.Anonymous)(value), env.currentFileInfo);
                 },
@@ -721,7 +803,7 @@ less.Parser = function Parser(env) {
 
                 // A variable entity useing the protective {} e.g. @{var}
                 variableCurly: function () {
-                    var name, curly, index = i;
+                    var curly, index = i;
 
                     if (input.charAt(i) === '@' && (curly = $(/^@\{([\w-]+)\}/))) {
                         return new(tree.Variable)("@" + curly[1], index, env.currentFileInfo);
@@ -751,7 +833,9 @@ less.Parser = function Parser(env) {
                 dimension: function () {
                     var value, c = input.charCodeAt(i);
                     //Is the first char of the dimension 0-9, '.', '+' or '-'
-                    if ((c > 57 || c < 43) || c === 47 || c == 44) return;
+                    if ((c > 57 || c < 43) || c === 47 || c == 44) {
+                        return;
+                    }
 
                     if (value = $(/^([+-]?\d*\.?\d+)(%|[a-z]+)?/)) {
                         return new(tree.Dimension)(value[1], value[2]);
@@ -779,10 +863,13 @@ less.Parser = function Parser(env) {
                 javascript: function () {
                     var str, j = i, e;
 
-                    if (input.charAt(j) === '~') { j++, e = true } // Escaped strings
-                    if (input.charAt(j) !== '`') { return }
+                    if (input.charAt(j) === '~') { j++; e = true; } // Escaped strings
+                    if (input.charAt(j) !== '`') { return; }
+                    if (env.javascriptEnabled !== undefined && !env.javascriptEnabled) {
+                        error("You are using JavaScript, which has been disabled.");
+                    }
 
-                    e && $('~');
+                    if (e) { $('~'); }
 
                     if (str = $(/^`([^`]*)`/)) {
                         return new(tree.JavaScript)(str[1], i, e);
@@ -798,7 +885,7 @@ less.Parser = function Parser(env) {
             variable: function () {
                 var name;
 
-                if (input.charAt(i) === '@' && (name = $(/^(@[\w-]+)\s*:/))) { return name[1] }
+                if (input.charAt(i) === '@' && (name = $(/^(@[\w-]+)\s*:/))) { return name[1]; }
             },
 
             //
@@ -824,7 +911,7 @@ less.Parser = function Parser(env) {
 
                     extendList.push(new(tree.Extend)(new(tree.Selector)(elements), option, index));
 
-                } while($(","))
+                } while($(","));
                 
                 expect(/^\)/);
 
@@ -858,14 +945,14 @@ less.Parser = function Parser(env) {
                 // selector for now.
                 //
                 call: function () {
-                    var elements = [], e, c, args, delim, arg, index = i, s = input.charAt(i), important = false;
+                    var elements = [], e, c, args, index = i, s = input.charAt(i), important = false;
 
-                    if (s !== '.' && s !== '#') { return }
+                    if (s !== '.' && s !== '#') { return; }
 
                     save(); // stop us absorbing part of an invalid selector
 
                     while (e = $(/^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/)) {
-                        elements.push(new(tree.Element)(c, e, i));
+                        elements.push(new(tree.Element)(c, e, i, env.currentFileInfo));
                         c = $('>');
                     }
                     if ($('(')) {
@@ -892,7 +979,7 @@ less.Parser = function Parser(env) {
                         if (isCall) {
                             arg = $(this.expression);
                         } else {
-                            $(this.comment);
+                            $(this.comments);
                             if (input.charAt(i) === '.' && $(/^\.{3}/)) {
                                 returner.variadic = true;
                                 if ($(";") && !isSemiColonSeperated) {
@@ -920,7 +1007,7 @@ less.Parser = function Parser(env) {
                         if (isCall) {
                             // Variable
                             if (arg.value.length == 1) {
-                                var val = arg.value[0];
+                                val = arg.value[0];
                             }
                         } else {
                             val = arg;
@@ -969,7 +1056,7 @@ less.Parser = function Parser(env) {
                             isSemiColonSeperated = true;
 
                             if (expressions.length > 1) {
-                                value = new (tree.Value)(expressions);
+                                value = new(tree.Value)(expressions);
                             }
                             argsSemiColon.push({ name:name, value:value });
 
@@ -1002,9 +1089,11 @@ less.Parser = function Parser(env) {
                 // the `{...}` block.
                 //
                 definition: function () {
-                    var name, params = [], match, ruleset, param, value, cond, variadic = false;
+                    var name, params = [], match, ruleset, cond, variadic = false;
                     if ((input.charAt(i) !== '.' && input.charAt(i) !== '#') ||
-                        peek(/^[^{]*\}/)) return;
+                        peek(/^[^{]*\}/)) {
+                        return;
+                    }
 
                     save();
 
@@ -1022,7 +1111,7 @@ less.Parser = function Parser(env) {
                             restore();
                         }
                         
-                        $(this.comment);
+                        $(this.comments);
 
                         if ($(/^when/)) { // Guard
                             cond = expect(this.conditions, 'expected condition');
@@ -1066,7 +1155,7 @@ less.Parser = function Parser(env) {
             alpha: function () {
                 var value;
 
-                if (! $(/^\(opacity=/i)) return;
+                if (! $(/^\(opacity=/i)) { return; }
                 if (value = $(/^\d+/) || $(this.entities.variable)) {
                     expect(')');
                     return new(tree.Alpha)(value);
@@ -1086,7 +1175,7 @@ less.Parser = function Parser(env) {
             // and an element name, such as a tag a class, or `*`.
             //
             element: function () {
-                var e, t, c, v;
+                var e, c, v;
 
                 c = $(this.combinator);
 
@@ -1102,7 +1191,7 @@ less.Parser = function Parser(env) {
                     }
                 }
 
-                if (e) { return new(tree.Element)(c, e, i) }
+                if (e) { return new(tree.Element)(c, e, i, env.currentFileInfo); }
             },
 
             //
@@ -1119,7 +1208,7 @@ less.Parser = function Parser(env) {
 
                 if (c === '>' || c === '+' || c === '~' || c === '|') {
                     i++;
-                    while (input.charAt(i).match(/\s/)) { i++ }
+                    while (input.charAt(i).match(/\s/)) { i++; }
                     return new(tree.Combinator)(c);
                 } else if (input.charAt(i - 1).match(/\s/)) {
                     return new(tree.Combinator)(" ");
@@ -1127,7 +1216,13 @@ less.Parser = function Parser(env) {
                     return new(tree.Combinator)(null);
                 }
             },
-
+            //
+            // A CSS selector (see selector below)
+            // with less extensions e.g. the ability to extend and guard
+            //
+            lessSelector: function () {
+                return this.selector(true);
+            },
             //
             // A CSS Selector
             //
@@ -1136,37 +1231,43 @@ less.Parser = function Parser(env) {
             //
             // Selectors are made out of one or more Elements, see above.
             //
-            selector: function () {
-                var sel, e, elements = [], c, extend, extendList = [];
+            selector: function (isLess) {
+                var e, elements = [], c, extend, extendList = [], when, condition;
 
-                while ((extend = $(this.extend)) || (e = $(this.element))) {
-                    if (extend) {
+                while ((isLess && (extend = $(this.extend))) || (isLess && (when = $(/^when/))) || (e = $(this.element))) {
+                    if (when) {
+                        condition = expect(this.conditions, 'expected condition');
+                    } else if (condition) {
+                        error("CSS guard can only be used at the end of selector");
+                    } else if (extend) {
                         extendList.push.apply(extendList, extend);
                     } else {
                         if (extendList.length) {
                             error("Extend can only be used at the end of selector");
                         }
                         c = input.charAt(i);
-                        elements.push(e)
+                        elements.push(e);
                         e = null;
                     }
-                    if (c === '{' || c === '}' || c === ';' || c === ',' || c === ')') { break }
+                    if (c === '{' || c === '}' || c === ';' || c === ',' || c === ')') {
+                        break;
+                    }
                 }
 
-                if (elements.length > 0) { return new(tree.Selector)(elements, extendList); }
+                if (elements.length > 0) { return new(tree.Selector)(elements, extendList, condition, i, env.currentFileInfo); }
                 if (extendList.length) { error("Extend must be used to extend a selector, it cannot be used on its own"); }
             },
             attribute: function () {
-                var attr = '', key, val, op;
+                var key, val, op;
 
-                if (! $('[')) return;
+                if (! $('[')) { return; }
 
                 if (!(key = $(this.entities.variableCurly))) {
                     key = expect(/^(?:[_A-Za-z0-9-\*]*\|)?(?:[_A-Za-z0-9-]|\\.)+/);
                 }
 
                 if ((op = $(/^[|~*$^]?=/))) {
-                    val = $(this.entities.quoted) || $(/^[\w-]+/) || $(this.entities.variableCurly);
+                    val = $(this.entities.quoted) || $(/^[0-9]+%/) || $(/^[\w-]+/) || $(this.entities.variableCurly);
                 }
 
                 expect(']');
@@ -1193,20 +1294,25 @@ less.Parser = function Parser(env) {
                 
                 save();
 
-                if (env.dumpLineNumbers)
+                if (env.dumpLineNumbers) {
                     debugInfo = getDebugInfo(i, input, env);
+                }
 
-                while (s = $(this.selector)) {
+                while (s = $(this.lessSelector)) {
                     selectors.push(s);
-                    $(this.comment);
-                    if (! $(',')) { break }
-                    $(this.comment);
+                    $(this.comments);
+                    if (! $(',')) { break; }
+                    if (s.condition) {
+                        error("Guards are only currently allowed on a single selector.");
+                    }
+                    $(this.comments);
                 }
 
                 if (selectors.length > 0 && (rules = $(this.block))) {
                     var ruleset = new(tree.Ruleset)(selectors, rules, env.strictImports);
-                    if (env.dumpLineNumbers)
+                    if (env.dumpLineNumbers) {
                         ruleset.debugInfo = debugInfo;
+                    }
                     return ruleset;
                 } else {
                     // Backtrack
@@ -1215,22 +1321,27 @@ less.Parser = function Parser(env) {
                 }
             },
             rule: function (tryAnonymous) {
-                var name, value, c = input.charAt(i), important;
+                var name, value, c = input.charAt(i), important, merge = false;
                 save();
 
-                if (c === '.' || c === '#' || c === '&') { return }
+                if (c === '.' || c === '#' || c === '&') { return; }
 
-                if (name = $(this.variable) || $(this.property)) {
+                if (name = $(this.variable) || $(this.ruleProperty)) {
                     // prefer to try to parse first if its a variable or we are compressing
                     // but always fallback on the other one
                     value = !tryAnonymous && (env.compress || (name.charAt(0) === '@')) ?
                         ($(this.value) || $(this.anonymousValue)) :
                         ($(this.anonymousValue) || $(this.value));
 
+
                     important = $(this.important);
+                    if (name[name.length-1] === "+") {
+                        merge = true;
+                        name = name.substr(0, name.length - 1);
+                    }
 
                     if (value && $(this.end)) {
-                        return new(tree.Rule)(name, value, important, memo, env.currentFileInfo);
+                        return new (tree.Rule)(name, value, important, merge, memo, env.currentFileInfo);
                     } else {
                         furthest = i;
                         restore();
@@ -1298,7 +1409,7 @@ less.Parser = function Parser(env) {
                             break;
                         }
                         options[optionName] = value;
-                        if (! $(',')) { break }
+                        if (! $(',')) { break; }
                     }
                 } while (o);
                 expect(')');
@@ -1306,7 +1417,7 @@ less.Parser = function Parser(env) {
             },
 
             importOption: function() {
-                var opt = $(/^(less|css|multiple|once)/);
+                var opt = $(/^(less|css|multiple|once|inline|reference)/);
                 if (opt) {
                     return opt[1];
                 }
@@ -1316,20 +1427,20 @@ less.Parser = function Parser(env) {
                 var e, p, nodes = [];
 
                 do {
-                    if (e = $(this.entities.keyword)) {
+                    if (e = ($(this.entities.keyword) || $(this.entities.variable))) {
                         nodes.push(e);
                     } else if ($('(')) {
                         p = $(this.property);
                         e = $(this.value);
                         if ($(')')) {
                             if (p && e) {
-                                nodes.push(new(tree.Paren)(new(tree.Rule)(p, e, null, i, env.currentFileInfo, true)));
+                                nodes.push(new(tree.Paren)(new(tree.Rule)(p, e, null, null, i, env.currentFileInfo, true)));
                             } else if (e) {
                                 nodes.push(new(tree.Paren)(e));
                             } else {
                                 return null;
                             }
-                        } else { return null }
+                        } else { return null; }
                     }
                 } while (e);
 
@@ -1344,10 +1455,10 @@ less.Parser = function Parser(env) {
                 do {
                   if (e = $(this.mediaFeature)) {
                       features.push(e);
-                      if (! $(',')) { break }
+                      if (! $(',')) { break; }
                   } else if (e = $(this.entities.variable)) {
                       features.push(e);
-                      if (! $(',')) { break }
+                      if (! $(',')) { break; }
                   }
                 } while (e);
 
@@ -1357,16 +1468,18 @@ less.Parser = function Parser(env) {
             media: function () {
                 var features, rules, media, debugInfo;
 
-                if (env.dumpLineNumbers)
+                if (env.dumpLineNumbers) {
                     debugInfo = getDebugInfo(i, input, env);
+                }
 
                 if ($(/^@media/)) {
                     features = $(this.mediaFeatures);
 
                     if (rules = $(this.block)) {
-                        media = new(tree.Media)(rules, features);
-                        if(env.dumpLineNumbers)
+                        media = new(tree.Media)(rules, features, i, env.currentFileInfo);
+                        if (env.dumpLineNumbers) {
                             media.debugInfo = debugInfo;
+                        }
                         return media;
                     }
                 }
@@ -1378,10 +1491,10 @@ less.Parser = function Parser(env) {
             //     @charset "utf-8";
             //
             directive: function () {
-                var name, value, rules, identifier, e, nodes, nonVendorSpecificName,
-                    hasBlock, hasIdentifier, hasExpression;
+                var name, value, rules, nonVendorSpecificName,
+                    hasBlock, hasIdentifier, hasExpression, identifier;
 
-                if (input.charAt(i) !== '@') return;
+                if (input.charAt(i) !== '@') { return; }
 
                 if (value = $(this['import']) || $(this.media)) {
                     return value;
@@ -1391,7 +1504,7 @@ less.Parser = function Parser(env) {
 
                 name = $(/^@[a-z-]+/);
                 
-                if (!name) return;
+                if (!name) { return; }
 
                 nonVendorSpecificName = name;
                 if (name.charAt(1) == '-' && name.indexOf('-', 2) > 0) {
@@ -1421,6 +1534,7 @@ less.Parser = function Parser(env) {
                     case "@right-bottom":
                         hasBlock = true;
                         break;
+                    case "@host":
                     case "@page":
                     case "@document":
                     case "@supports":
@@ -1434,17 +1548,20 @@ less.Parser = function Parser(env) {
                 }
 
                 if (hasIdentifier) {
-                    name += " " + ($(/^[^{]+/) || '').trim();
+                    identifier = ($(/^[^{]+/) || '').trim();
+                    if (identifier) {
+                        name += " " + identifier;
+                    }
                 }
 
                 if (hasBlock)
                 {
                     if (rules = $(this.block)) {
-                        return new(tree.Directive)(name, rules);
+                        return new(tree.Directive)(name, rules, i, env.currentFileInfo);
                     }
                 } else {
                     if ((value = hasExpression ? $(this.expression) : $(this.entity)) && $(';')) {
-                        var directive = new(tree.Directive)(name, value);
+                        var directive = new(tree.Directive)(name, value, i, env.currentFileInfo);
                         if (env.dumpLineNumbers) {
                             directive.debugInfo = getDebugInfo(i, input, env);
                         }
@@ -1464,11 +1581,11 @@ less.Parser = function Parser(env) {
             // and before the `;`.
             //
             value: function () {
-                var e, expressions = [], important;
+                var e, expressions = [];
 
                 while (e = $(this.expression)) {
                     expressions.push(e);
-                    if (! $(',')) { break }
+                    if (! $(',')) { break; }
                 }
 
                 if (expressions.length > 0) {
@@ -1493,7 +1610,7 @@ less.Parser = function Parser(env) {
                 }
             },
             multiplication: function () {
-                var m, a, op, operation, isSpaced, expression = [];
+                var m, a, op, operation, isSpaced;
                 if (m = $(this.operand)) {
                     isSpaced = isWhitespace(input.charAt(i - 1));
                     while (!peek(/^\/[*\/]/) && (op = ($('/') || $('*')))) {
@@ -1527,7 +1644,7 @@ less.Parser = function Parser(env) {
                 var a, b, index = i, condition;
 
                 if (a = $(this.condition)) {
-                    while ($(',') && (b = $(this.condition))) {
+                    while (peek(/^,\s*(not\s*)?\(/) && $(',') && (b = $(this.condition))) {
                         condition = new(tree.Condition)('or', condition || a, b, index);
                     }
                     return condition || a;
@@ -1536,10 +1653,10 @@ less.Parser = function Parser(env) {
             condition: function () {
                 var a, b, c, op, index = i, negate = false;
 
-                if ($(/^not/)) { negate = true }
+                if ($(/^not/)) { negate = true; }
                 expect('(');
                 if (a = $(this.addition) || $(this.entities.keyword) || $(this.entities.quoted)) {
-                    if (op = $(/^(?:>=|=<|[<=>])/)) {
+                    if (op = $(/^(?:>=|<=|=<|[<=>])/)) {
                         if (b = $(this.addition) || $(this.entities.keyword) || $(this.entities.quoted)) {
                             c = new(tree.Condition)(op, a, b, index, negate);
                         } else {
@@ -1560,7 +1677,7 @@ less.Parser = function Parser(env) {
             operand: function () {
                 var negate, p = input.charAt(i + 1);
 
-                if (input.charAt(i) === '-' && (p === '@' || p === '(')) { negate = $('-') }
+                if (input.charAt(i) === '-' && (p === '@' || p === '(')) { negate = $('-'); }
                 var o = $(this.sub) || $(this.entities.dimension) ||
                         $(this.entities.color) || $(this.entities.variable) ||
                         $(this.entities.call);
@@ -1581,7 +1698,7 @@ less.Parser = function Parser(env) {
             //     @var * 2
             //
             expression: function () {
-                var e, delim, entities = [], d;
+                var e, delim, entities = [];
 
                 while (e = $(this.addition) || $(this.entity)) {
                     entities.push(e);
@@ -1600,32 +1717,18 @@ less.Parser = function Parser(env) {
                 if (name = $(/^(\*?-?[_a-zA-Z0-9-]+)\s*:/)) {
                     return name[1];
                 }
+            },
+            ruleProperty: function () {
+                var name;
+
+                if (name = $(/^(\*?-?[_a-zA-Z0-9-]+)\s*(\+?)\s*:/)) {
+                    return name[1] + (name[2] || "");
+                }
             }
         }
     };
 };
 
-if (less.mode === 'browser' || less.mode === 'rhino') {
-    //
-    // Used by `@import` directives
-    //
-    less.Parser.importer = function (path, currentFileInfo, callback, env) {
-        if (!/^([a-z-]+:)?\//.test(path) && currentFileInfo.currentDirectory) {
-            path = currentFileInfo.currentDirectory + path;
-        }
-        var sheetEnv = env.toSheet(path);
-        sheetEnv.processImports = false;
-        sheetEnv.currentFileInfo = currentFileInfo;
-
-        // We pass `true` as 3rd argument, to force the reload of the import.
-        // This is so we can get the syntax tree as opposed to just the CSS output,
-        // as we need this to evaluate the current stylesheet.
-        loadStyleSheet(sheetEnv,
-            function (e, root, data, sheet, _, path) {
-                callback.call(null, e, root, path);
-            }, true);
-    };
-}
 
 (function (tree) {
 
@@ -1642,6 +1745,14 @@ tree.functions = {
         return this.hsla(h, s, l, 1.0);
     },
     hsla: function (h, s, l, a) {
+        function hue(h) {
+            h = h < 0 ? h + 1 : (h > 1 ? h - 1 : h);
+            if      (h * 6 < 1) { return m1 + (m2 - m1) * h * 6; }
+            else if (h * 2 < 1) { return m2; }
+            else if (h * 3 < 2) { return m1 + (m2 - m1) * (2/3 - h) * 6; }
+            else                { return m1; }
+        }
+
         h = (number(h) % 360) / 360;
         s = clamp(number(s)); l = clamp(number(l)); a = clamp(number(a));
 
@@ -1652,14 +1763,6 @@ tree.functions = {
                          hue(h)       * 255,
                          hue(h - 1/3) * 255,
                          a);
-
-        function hue(h) {
-            h = h < 0 ? h + 1 : (h > 1 ? h - 1 : h);
-            if      (h * 6 < 1) return m1 + (m2 - m1) * h * 6;
-            else if (h * 2 < 1) return m2;
-            else if (h * 3 < 2) return m1 + (m2 - m1) * (2/3 - h) * 6;
-            else                return m1;
-        }
     },
 
     hsv: function(h, s, v) {
@@ -1725,6 +1828,11 @@ tree.functions = {
         return new(tree.Dimension)(Math.round(color.luma() * color.alpha * 100), '%');
     },
     saturate: function (color, amount) {
+        // filter: saturate(3.2);
+        // should be kept as is, so check for color
+        if (!color.rgb) {
+            return null;
+        }
         var hsl = color.toHSL();
 
         hsl.s += amount.value / 100;
@@ -1847,6 +1955,7 @@ tree.functions = {
             str = quoted.value;
 
         for (var i = 0; i < args.length; i++) {
+            /*jshint loopfunc:true */
             str = str.replace(/%[sda]/i, function(token) {
                 var value = token.match(/s/i) ? args[i].value : args[i].toCSS();
                 return token.match(/[A-Z]$/) ? encodeURIComponent(value) : value;
@@ -1856,6 +1965,9 @@ tree.functions = {
         return new(tree.Quoted)('"' + str + '"', str);
     },
     unit: function (val, unit) {
+        if(!(val instanceof tree.Dimension)) {
+            throw { type: "Argument", message: "the first argument to unit must be a number" + (val instanceof tree.Operation ? ". Have you forgotten parenthesis?" : "") };
+        }
         return new(tree.Dimension)(val.value, unit ? unit.toCSS() : "");
     },
     convert: function (val, unit) {
@@ -1883,12 +1995,56 @@ tree.functions = {
     },
     _math: function (fn, unit, n) {
         if (n instanceof tree.Dimension) {
+            /*jshint eqnull:true */
             return new(tree.Dimension)(fn(parseFloat(n.value)), unit == null ? n.unit : unit);
         } else if (typeof(n) === 'number') {
             return fn(n);
         } else {
             throw { type: "Argument", message: "argument must be a number" };
         }
+    },
+    _minmax: function (isMin, args) {
+        args = Array.prototype.slice.call(args);
+        switch(args.length) {
+        case 0: throw { type: "Argument", message: "one or more arguments required" };
+        case 1: return args[0];
+        }
+        var i, j, current, currentUnified, referenceUnified, unit,
+            order  = [], // elems only contains original argument values.
+            values = {}; // key is the unit.toString() for unified tree.Dimension values,
+                         // value is the index into the order array.
+        for (i = 0; i < args.length; i++) {
+            current = args[i];
+            if (!(current instanceof tree.Dimension)) {
+                order.push(current);
+                continue;
+            }
+            currentUnified = current.unify();
+            unit = currentUnified.unit.toString();
+            j = values[unit];
+            if (j === undefined) {
+                values[unit] = order.length;
+                order.push(current);
+                continue;
+            }
+            referenceUnified = order[j].unify();
+            if ( isMin && currentUnified.value < referenceUnified.value ||
+                !isMin && currentUnified.value > referenceUnified.value) {
+                order[j] = current;
+            }
+        }
+        if (order.length == 1) {
+            return order[0];
+        }
+        args = order.map(function (a) { return a.toCSS(this.env); })
+                    .join(this.env.compress ? "," : ", ");
+        return new(tree.Anonymous)((isMin ? "min" : "max") + "(" + args + ")");
+    },
+    min: function () {
+        return this._minmax(true, arguments);
+    },
+    max: function () {
+        return this._minmax(false, arguments);
     },
     argb: function (color) {
         return new(tree.Anonymous)(color.toARGB());
@@ -1899,7 +2055,16 @@ tree.functions = {
     },
     color: function (n) {
         if (n instanceof tree.Quoted) {
-            return new(tree.Color)(n.value.slice(1));
+            var colorCandidate = n.value,
+                returnColor;
+            returnColor = tree.Color.fromKeyword(colorCandidate);
+            if (returnColor) {
+                return returnColor;
+            }
+            if (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/.test(colorCandidate)) {
+                return new(tree.Color)(colorCandidate.slice(1));
+            }
+            throw { type: "Argument", message: "argument must be a color keyword or 3/6 digit hex e.g. #FFF" };
         } else {
             throw { type: "Argument", message: "argument must be a string" };
         }
@@ -1999,10 +2164,17 @@ tree.functions = {
     },
     shade: function(color, amount) {
         return this.mix(this.rgb(0, 0, 0), color, amount);
-    },
+    },   
     extract: function(values, index) {
-        index = index.value - 1; // (1-based index)
-        return values.value[index];
+        index = index.value - 1; // (1-based index)       
+        // handle non-array values as an array of length 1
+        // return 'undefined' if index is invalid
+        return Array.isArray(values.value) 
+            ? values.value[index] : Array(values)[index];
+    },
+    length: function(values) {
+        var n = Array.isArray(values.value) ? values.value.length : 1;
+        return new tree.Dimension(n);
     },
 
     "data-uri": function(mimetypeNode, filePathNode) {
@@ -2014,8 +2186,8 @@ tree.functions = {
         var mimetype = mimetypeNode.value;
         var filePath = (filePathNode && filePathNode.value);
 
-        var fs = nodeRequire("fs"),
-            path = nodeRequire("path"),
+        var fs = require("fs"),
+            path = require("path"),
             useBase64 = false;
 
         if (arguments.length < 2) {
@@ -2034,7 +2206,7 @@ tree.functions = {
         if (arguments.length < 2) {
             var mime;
             try {
-                mime = nodeRequire('mime');
+                mime = require('mime');
             } catch (ex) {
                 mime = tree._mime;
             }
@@ -2044,10 +2216,10 @@ tree.functions = {
             // use base 64 unless it's an ASCII or UTF-8 format
             var charset = mime.charsets.lookup(mimetype);
             useBase64 = ['US-ASCII', 'UTF-8'].indexOf(charset) < 0;
-            if (useBase64) mimetype += ';base64';
+            if (useBase64) { mimetype += ';base64'; }
         }
         else {
-            useBase64 = /;base64$/.test(mimetype)
+            useBase64 = /;base64$/.test(mimetype);
         }
 
         var buf = fs.readFileSync(filePath);
@@ -2064,9 +2236,6 @@ tree.functions = {
                 }
 
                 return new tree.URL(filePathNode || mimetypeNode, this.currentFileInfo).eval(this.env);
-            } else if (!this.env.silent) {
-                // if explicitly disabled (via --no-ie-compat on CLI, or env.ieCompat === false), merely warn
-                console.warn("WARNING: Embedding %s (%dKB) exceeds IE8's data-uri size limit of %dKB!", filePath, fileSizeInKB, DATA_URI_MAX_KB);
             }
         }
 
@@ -2075,6 +2244,83 @@ tree.functions = {
 
         var uri = "'data:" + mimetype + ',' + buf + "'";
         return new(tree.URL)(new(tree.Anonymous)(uri));
+    },
+
+    "svg-gradient": function(direction) {
+
+        function throwArgumentDescriptor() {
+            throw { type: "Argument", message: "svg-gradient expects direction, start_color [start_position], [color position,]..., end_color [end_position]" };
+        }
+
+        if (arguments.length < 3) {
+            throwArgumentDescriptor();
+        }
+        var stops = Array.prototype.slice.call(arguments, 1),
+            gradientDirectionSvg,
+            gradientType = "linear",
+            rectangleDimension = 'x="0" y="0" width="1" height="1"',
+            useBase64 = true,
+            renderEnv = {compress: false},
+            returner,
+            directionValue = direction.toCSS(renderEnv),
+            i, color, position, positionValue, alpha;
+
+        switch (directionValue) {
+            case "to bottom":
+                gradientDirectionSvg = 'x1="0%" y1="0%" x2="0%" y2="100%"';
+                break;
+            case "to right":
+                gradientDirectionSvg = 'x1="0%" y1="0%" x2="100%" y2="0%"';
+                break;
+            case "to bottom right":
+                gradientDirectionSvg = 'x1="0%" y1="0%" x2="100%" y2="100%"';
+                break;
+            case "to top right":
+                gradientDirectionSvg = 'x1="0%" y1="100%" x2="100%" y2="0%"';
+                break;
+            case "ellipse":
+            case "ellipse at center":
+                gradientType = "radial";
+                gradientDirectionSvg = 'cx="50%" cy="50%" r="75%"';
+                rectangleDimension = 'x="-50" y="-50" width="101" height="101"';
+                break;
+            default:
+                throw { type: "Argument", message: "svg-gradient direction must be 'to bottom', 'to right', 'to bottom right', 'to top right' or 'ellipse at center'" };
+        }
+        returner = '<?xml version="1.0" ?>' +
+            '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="none">' +
+            '<' + gradientType + 'Gradient id="gradient" gradientUnits="userSpaceOnUse" ' + gradientDirectionSvg + '>';
+
+        for (i = 0; i < stops.length; i+= 1) {
+            if (stops[i].value) {
+                color = stops[i].value[0];
+                position = stops[i].value[1];
+            } else {
+                color = stops[i];
+                position = undefined;
+            }
+
+            if (!(color instanceof tree.Color) || (!((i === 0 || i+1 === stops.length) && position === undefined) && !(position instanceof tree.Dimension))) {
+                throwArgumentDescriptor();
+            }
+            positionValue = position ? position.toCSS(renderEnv) : i === 0 ? "0%" : "100%";
+            alpha = color.alpha;
+            returner += '<stop offset="' + positionValue + '" stop-color="' + color.toRGB() + '"' + (alpha < 1 ? ' stop-opacity="' + alpha + '"' : '') + '/>';
+        }
+        returner += '</' + gradientType + 'Gradient>' +
+                    '<rect ' + rectangleDimension + ' fill="url(#gradient)" /></svg>';
+
+        if (useBase64) {
+            // only works in node, needs interface to what is supported in environment
+            try {
+                returner = new Buffer(returner).toString('base64');
+            } catch(e) {
+                useBase64 = false;
+            }
+        }
+
+        returner = "'data:image/svg+xml" + (useBase64 ? ";base64" : "") + "," + returner + "'";
+        return new(tree.URL)(new(tree.Anonymous)(returner));
     }
 };
 
@@ -2091,7 +2337,7 @@ tree._mime = {
         '.png' : 'image/png'
     },
     lookup: function (filepath) {
-        var ext = nodeRequire('path').extname(filepath),
+        var ext = require('path').extname(filepath),
             type = tree._mime._types[ext];
         if (type === undefined) {
             throw new Error('Optional dependency "mime" is required for ' + ext);
@@ -2111,6 +2357,7 @@ var mathFunctions = [{name:"ceil"}, {name:"floor"}, {name: "sqrt"}, {name:"abs"}
         {name:"atan", unit: "rad"}, {name:"asin", unit: "rad"}, {name:"acos", unit: "rad"}],
     createMathFunction = function(name, unit) {
         return function(n) {
+            /*jshint eqnull:true */
             if (unit != null) {
                 n = n.unify();
             }
@@ -2159,6 +2406,7 @@ tree.functionCall = function(env, currentFileInfo) {
 tree.functionCall.prototype = tree.functions;
 
 })(require('./tree'));
+
 (function (tree) {
     tree.colors = {
         'aliceblue':'#f0f8ff',
@@ -2301,7 +2549,6 @@ tree.functionCall.prototype = tree.functions;
         'teal':'#008080',
         'thistle':'#d8bfd8',
         'tomato':'#ff6347',
-        // 'transparent':'rgba(0,0,0,0)',
         'turquoise':'#40e0d0',
         'violet':'#ee82ee',
         'wheat':'#f5deb3',
@@ -2311,6 +2558,86 @@ tree.functionCall.prototype = tree.functions;
         'yellowgreen':'#9acd32'
     };
 })(require('./tree'));
+
+(function (tree) {
+
+tree.debugInfo = function(env, ctx, lineSeperator) {
+    var result="";
+    if (env.dumpLineNumbers && !env.compress) {
+        switch(env.dumpLineNumbers) {
+            case 'comments':
+                result = tree.debugInfo.asComment(ctx);
+                break;
+            case 'mediaquery':
+                result = tree.debugInfo.asMediaQuery(ctx);
+                break;
+            case 'all':
+                result = tree.debugInfo.asComment(ctx) + (lineSeperator || "") + tree.debugInfo.asMediaQuery(ctx);
+                break;
+        }
+    }
+    return result;
+};
+
+tree.debugInfo.asComment = function(ctx) {
+    return '/* line ' + ctx.debugInfo.lineNumber + ', ' + ctx.debugInfo.fileName + ' */\n';
+};
+
+tree.debugInfo.asMediaQuery = function(ctx) {
+    return '@media -sass-debug-info{filename{font-family:' +
+        ('file://' + ctx.debugInfo.fileName).replace(/([.:/\\])/g, function (a) {
+            if (a == '\\') {
+                a = '\/';
+            }
+            return '\\' + a;
+        }) +
+        '}line{font-family:\\00003' + ctx.debugInfo.lineNumber + '}}\n';
+};
+
+tree.find = function (obj, fun) {
+    for (var i = 0, r; i < obj.length; i++) {
+        if (r = fun.call(obj, obj[i])) { return r; }
+    }
+    return null;
+};
+
+tree.jsify = function (obj) {
+    if (Array.isArray(obj.value) && (obj.value.length > 1)) {
+        return '[' + obj.value.map(function (v) { return v.toCSS(false); }).join(', ') + ']';
+    } else {
+        return obj.toCSS(false);
+    }
+};
+
+tree.toCSS = function (env) {
+    var strs = [];
+    this.genCSS(env, {
+        add: function(chunk, fileInfo, index) {
+            strs.push(chunk);
+        },
+        isEmpty: function () {
+            return strs.length === 0;
+        }
+    });
+    return strs.join('');
+};
+
+tree.outputRuleset = function (env, output, rules) {
+    output.add((env.compress ? '{' : ' {\n'));
+    env.tabLevel = (env.tabLevel || 0) + 1;
+    var tabRuleStr = env.compress ? '' : Array(env.tabLevel + 1).join("  "),
+        tabSetStr = env.compress ? '' : Array(env.tabLevel).join("  ");
+    for(var i = 0; i < rules.length; i++) {
+        output.add(tabRuleStr);
+        rules[i].genCSS(env, output);
+        output.add(env.compress ? '' : '\n');
+    }
+    env.tabLevel--;
+    output.add(tabSetStr + "}");
+};
+
+})(require('./tree'));
+
 (function (tree) {
 
 tree.Alpha = function (val) {
@@ -2322,27 +2649,36 @@ tree.Alpha.prototype = {
         this.value = visitor.visit(this.value);
     },
     eval: function (env) {
-        if (this.value.eval) { this.value = this.value.eval(env) }
+        if (this.value.eval) { return new tree.Alpha(this.value.eval(env)); }
         return this;
     },
-    toCSS: function () {
-        return "alpha(opacity=" +
-               (this.value.toCSS ? this.value.toCSS() : this.value) + ")";
-    }
+    genCSS: function (env, output) {
+        output.add("alpha(opacity=");
+
+        if (this.value.genCSS) {
+            this.value.genCSS(env, output);
+        } else {
+            output.add(this.value);
+        }
+
+        output.add(")");
+    },
+    toCSS: tree.toCSS
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
-tree.Anonymous = function (string) {
+tree.Anonymous = function (string, index, currentFileInfo, mapLines) {
     this.value = string.value || string;
+    this.index = index;
+    this.mapLines = mapLines;
+    this.currentFileInfo = currentFileInfo;
 };
 tree.Anonymous.prototype = {
     type: "Anonymous",
-    toCSS: function () {
-        return this.value;
-    },
-    eval: function () { return this },
+    eval: function () { return this; },
     compare: function (x) {
         if (!x.toCSS) {
             return -1;
@@ -2356,10 +2692,15 @@ tree.Anonymous.prototype = {
         }
         
         return left < right ? -1 : 1;
-    }
+    },
+    genCSS: function (env, output) {
+        output.add(this.value, this.currentFileInfo, this.index, this.mapLines);
+    },
+    toCSS: tree.toCSS
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.Assignment = function (key, val) {
@@ -2371,18 +2712,26 @@ tree.Assignment.prototype = {
     accept: function (visitor) {
         this.value = visitor.visit(this.value);
     },
-    toCSS: function () {
-        return this.key + '=' + (this.value.toCSS ? this.value.toCSS() : this.value);
-    },
     eval: function (env) {
         if (this.value.eval) {
             return new(tree.Assignment)(this.key, this.value.eval(env));
         }
         return this;
-    }
+    },
+    genCSS: function (env, output) {
+        output.add(this.key + '=');
+        if (this.value.genCSS) {
+            this.value.genCSS(env, output);
+        } else {
+            output.add(this.value);
+        }
+    },
+    toCSS: tree.toCSS
 };
 
-})(require('../tree'));(function (tree) {
+})(require('../tree'));
+
+(function (tree) {
 
 //
 // A function call node.
@@ -2420,6 +2769,7 @@ tree.Call.prototype = {
             try {
                 func = new tree.functionCall(env, this.currentFileInfo);
                 result = func[nameLC].apply(func, args);
+                /*jshint eqnull:true */
                 if (result != null) {
                     return result;
                 }
@@ -2430,18 +2780,28 @@ tree.Call.prototype = {
                         index: this.index, filename: this.currentFileInfo.filename };
             }
         }
-        
-        // 2.
-        return new(tree.Anonymous)(this.name +
-            "(" + args.map(function (a) { return a.toCSS(env); }).join(', ') + ")");
+
+        return new tree.Call(this.name, args, this.index, this.currentFileInfo);
     },
 
-    toCSS: function (env) {
-        return this.eval(env).toCSS();
-    }
+    genCSS: function (env, output) {
+        output.add(this.name + "(", this.currentFileInfo, this.index);
+
+        for(var i = 0; i < this.args.length; i++) {
+            this.args[i].genCSS(env, output);
+            if (i + 1 < this.args.length) {
+                output.add(", ");
+            }
+        }
+
+        output.add(")");
+    },
+
+    toCSS: tree.toCSS
 };
 
 })(require('../tree'));
+
 (function (tree) {
 //
 // RGB Colors - #ff0014, #eee
@@ -2466,42 +2826,44 @@ tree.Color = function (rgb, a) {
     }
     this.alpha = typeof(a) === 'number' ? a : 1;
 };
+
+var transparentKeyword = "transparent";
+
 tree.Color.prototype = {
     type: "Color",
-    eval: function () { return this },
+    eval: function () { return this; },
     luma: function () { return (0.2126 * this.rgb[0] / 255) + (0.7152 * this.rgb[1] / 255) + (0.0722 * this.rgb[2] / 255); },
 
-    //
-    // If we have some transparency, the only way to represent it
-    // is via `rgba`. Otherwise, we use the hex representation,
-    // which has better compatibility with older browsers.
-    // Values are capped between `0` and `255`, rounded and zero-padded.
-    //
+    genCSS: function (env, output) {
+        output.add(this.toCSS(env));
+    },
     toCSS: function (env, doNotCompress) {
         var compress = env && env.compress && !doNotCompress;
+
+        // If we have some transparency, the only way to represent it
+        // is via `rgba`. Otherwise, we use the hex representation,
+        // which has better compatibility with older browsers.
+        // Values are capped between `0` and `255`, rounded and zero-padded.
         if (this.alpha < 1.0) {
+            if (this.alpha === 0 && this.isTransparentKeyword) {
+                return transparentKeyword;
+            }
             return "rgba(" + this.rgb.map(function (c) {
                 return Math.round(c);
             }).concat(this.alpha).join(',' + (compress ? '' : ' ')) + ")";
         } else {
-            var color = this.rgb.map(function (i) {
-                i = Math.round(i);
-                i = (i > 255 ? 255 : (i < 0 ? 0 : i)).toString(16);
-                return i.length === 1 ? '0' + i : i;
-            }).join('');
+            var color = this.toRGB();
 
             if (compress) {
-                color = color.split('');
+                var splitcolor = color.split('');
 
                 // Convert color to short format
-                if (color[0] == color[1] && color[2] == color[3] && color[4] == color[5]) {
-                    color = color[0] + color[2] + color[4];
-                } else {
-                    color = color.join('');
+                if (splitcolor[1] === splitcolor[2] && splitcolor[3] === splitcolor[4] && splitcolor[5] === splitcolor[6]) {
+                    color = '#' + splitcolor[1] + splitcolor[3] + splitcolor[5];
                 }
             }
 
-            return '#' + color;
+            return color;
         }
     },
 
@@ -2522,6 +2884,14 @@ tree.Color.prototype = {
             result[c] = tree.operate(env, op, this.rgb[c], other.rgb[c]);
         }
         return new(tree.Color)(result, this.alpha + other.alpha);
+    },
+
+    toRGB: function () {
+        return '#' + this.rgb.map(function (i) {
+            i = Math.round(i);
+            i = (i > 255 ? 255 : (i < 0 ? 0 : i)).toString(16);
+            return i.length === 1 ? '0' + i : i;
+        }).join('');
     },
 
     toHSL: function () {
@@ -2596,23 +2966,50 @@ tree.Color.prototype = {
     }
 };
 
+tree.Color.fromKeyword = function(keyword) {
+    if (tree.colors.hasOwnProperty(keyword)) {
+        // detect named color
+        return new(tree.Color)(tree.colors[keyword].slice(1));
+    }
+    if (keyword === transparentKeyword) {
+        var transparent = new(tree.Color)([0, 0, 0], 0);
+        transparent.isTransparentKeyword = true;
+        return transparent;
+    }
+};
+
 
 })(require('../tree'));
+
 (function (tree) {
 
-tree.Comment = function (value, silent) {
+tree.Comment = function (value, silent, index, currentFileInfo) {
     this.value = value;
     this.silent = !!silent;
+    this.currentFileInfo = currentFileInfo;
 };
 tree.Comment.prototype = {
     type: "Comment",
-    toCSS: function (env) {
-        return env.compress ? '' : this.value;
+    genCSS: function (env, output) {
+        if (this.debugInfo) {
+            output.add(tree.debugInfo(env, this), this.currentFileInfo, this.index);
+        }
+        output.add(this.value.trim()); //TODO shouldn't need to trim, we shouldn't grab the \n
     },
-    eval: function () { return this }
+    toCSS: tree.toCSS,
+    isSilent: function(env) {
+        var isReference = (this.currentFileInfo && this.currentFileInfo.reference && !this.isReferenced),
+            isCompressed = env.compress && !this.value.match(/^\/\*!/);
+        return this.silent || isReference || isCompressed;
+    },
+    eval: function () { return this; },
+    markReferenced: function () {
+        this.isReferenced = true;
+    }
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.Condition = function (op, l, r, i, negate) {
@@ -2634,7 +3031,7 @@ tree.Condition.prototype = {
 
         var i = this.index, result;
 
-        var result = (function (op) {
+        result = (function (op) {
             switch (op) {
                 case 'and':
                     return a && b;
@@ -2651,8 +3048,8 @@ tree.Condition.prototype = {
                                 index: i };
                     }
                     switch (result) {
-                        case -1: return op === '<' || op === '=<';
-                        case  0: return op === '=' || op === '>=' || op === '=<';
+                        case -1: return op === '<' || op === '=<' || op === '<=';
+                        case  0: return op === '=' || op === '>=' || op === '=<' || op === '<=';
                         case  1: return op === '>' || op === '>=';
                     }
             }
@@ -2662,6 +3059,7 @@ tree.Condition.prototype = {
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 //
@@ -2684,7 +3082,7 @@ tree.Dimension.prototype = {
     toColor: function () {
         return new(tree.Color)([this.value, this.value, this.value]);
     },
-    toCSS: function (env) {
+    genCSS: function (env, output) {
         if ((env && env.strictUnits) && !this.unit.isSingular()) {
             throw new Error("Multiple units in dimension. Correct the units or use the unit function. Bad unit: "+this.unit.toString());
         }
@@ -2699,8 +3097,9 @@ tree.Dimension.prototype = {
 
         if (env && env.compress) {
             // Zero values doesn't need a unit
-            if (value === 0 && !this.unit.isAngle()) {
-                return strValue;
+            if (value === 0 && this.unit.isLength()) {
+                output.add(strValue);
+                return;
             }
 
             // Float values doesn't need a leading zero
@@ -2709,13 +3108,16 @@ tree.Dimension.prototype = {
             }
         }
 
-        return strValue + this.unit.toCSS(env);
+        output.add(strValue);
+        this.unit.genCSS(env, output);
     },
+    toCSS: tree.toCSS,
 
     // In an operation between two Dimensions,
     // we default to the first Dimension's unit,
     // so `1px + 2` will yield `3px`.
     operate: function (env, op, other) {
+        /*jshint noempty:false */
         var value = tree.operate(env, op, this.value, other.value),
             unit = this.unit.clone();
 
@@ -2723,7 +3125,7 @@ tree.Dimension.prototype = {
             if (unit.numerator.length === 0 && unit.denominator.length === 0) {
                 unit.numerator = other.unit.numerator.slice(0);
                 unit.denominator = other.unit.denominator.slice(0);
-            } else if (other.unit.numerator.length == 0 && unit.denominator.length == 0) {
+            } else if (other.unit.numerator.length === 0 && unit.denominator.length === 0) {
                 // do nothing
             } else {
                 other = other.convertTo(this.unit.usedUnits());
@@ -2768,252 +3170,274 @@ tree.Dimension.prototype = {
     },
 
     unify: function () {
-      return this.convertTo({ length: 'm', duration: 's', angle: 'rad' });
+        return this.convertTo({ length: 'm', duration: 's', angle: 'rad' });
     },
 
     convertTo: function (conversions) {
-      var value = this.value, unit = this.unit.clone(),
-          i, groupName, group, conversion, targetUnit, derivedConversions = {};
+        var value = this.value, unit = this.unit.clone(),
+            i, groupName, group, targetUnit, derivedConversions = {}, applyUnit;
 
-      if (typeof conversions === 'string') {
-          for(i in tree.UnitConversions) {
-              if (tree.UnitConversions[i].hasOwnProperty(conversions)) {
-                  derivedConversions = {};
-                  derivedConversions[i] = conversions;
-              }
-          }
-          conversions = derivedConversions;
-      }
-
-      for (groupName in conversions) {
-        if (conversions.hasOwnProperty(groupName)) {
-          targetUnit = conversions[groupName];
-          group = tree.UnitConversions[groupName];
-
-          unit.map(function (atomicUnit, denominator) {
+        if (typeof conversions === 'string') {
+            for(i in tree.UnitConversions) {
+                if (tree.UnitConversions[i].hasOwnProperty(conversions)) {
+                    derivedConversions = {};
+                    derivedConversions[i] = conversions;
+                }
+            }
+            conversions = derivedConversions;
+        }
+        applyUnit = function (atomicUnit, denominator) {
+          /*jshint loopfunc:true */
             if (group.hasOwnProperty(atomicUnit)) {
-              if (denominator) {
-                value = value / (group[atomicUnit] / group[targetUnit]);
-              } else {
-                value = value * (group[atomicUnit] / group[targetUnit]);
-              }
+                if (denominator) {
+                    value = value / (group[atomicUnit] / group[targetUnit]);
+                } else {
+                    value = value * (group[atomicUnit] / group[targetUnit]);
+                }
 
-              return targetUnit;
+                return targetUnit;
             }
 
             return atomicUnit;
-          });
+        };
+
+        for (groupName in conversions) {
+            if (conversions.hasOwnProperty(groupName)) {
+                targetUnit = conversions[groupName];
+                group = tree.UnitConversions[groupName];
+
+                unit.map(applyUnit);
+            }
         }
-      }
 
-      unit.cancel();
+        unit.cancel();
 
-      return new(tree.Dimension)(value, unit);
+        return new(tree.Dimension)(value, unit);
     }
 };
 
 // http://www.w3.org/TR/css3-values/#absolute-lengths
 tree.UnitConversions = {
-  length: {
-     'm': 1,
-    'cm': 0.01,
-    'mm': 0.001,
-    'in': 0.0254,
-    'pt': 0.0254 / 72,
-    'pc': 0.0254 / 72 * 12
-  },
-  duration: {
-    's': 1,
-    'ms': 0.001
-  },
-  angle: {
-    'rad': 1/(2*Math.PI),
-    'deg': 1/360,
-    'grad': 1/400,
-    'turn': 1
-  }
+    length: {
+         'm': 1,
+        'cm': 0.01,
+        'mm': 0.001,
+        'in': 0.0254,
+        'pt': 0.0254 / 72,
+        'pc': 0.0254 / 72 * 12
+    },
+    duration: {
+        's': 1,
+        'ms': 0.001
+    },
+    angle: {
+        'rad': 1/(2*Math.PI),
+        'deg': 1/360,
+        'grad': 1/400,
+        'turn': 1
+    }
 };
 
 tree.Unit = function (numerator, denominator, backupUnit) {
-  this.numerator = numerator ? numerator.slice(0).sort() : [];
-  this.denominator = denominator ? denominator.slice(0).sort() : [];
-  this.backupUnit = backupUnit;
+    this.numerator = numerator ? numerator.slice(0).sort() : [];
+    this.denominator = denominator ? denominator.slice(0).sort() : [];
+    this.backupUnit = backupUnit;
 };
 
 tree.Unit.prototype = {
-  type: "Unit",
-  clone: function () {
-    return new tree.Unit(this.numerator.slice(0), this.denominator.slice(0), this.backupUnit);
-  },
+    type: "Unit",
+    clone: function () {
+        return new tree.Unit(this.numerator.slice(0), this.denominator.slice(0), this.backupUnit);
+    },
+    genCSS: function (env, output) {
+        if (this.numerator.length >= 1) {
+            output.add(this.numerator[0]);
+        } else
+        if (this.denominator.length >= 1) {
+            output.add(this.denominator[0]);
+        } else
+        if ((!env || !env.strictUnits) && this.backupUnit) {
+            output.add(this.backupUnit);
+        }
+    },
+    toCSS: tree.toCSS,
 
-  toCSS: function (env) {
-    if (this.numerator.length >= 1) {
-        return this.numerator[0];
-    }
-    if (this.denominator.length >= 1) {
-        return this.denominator[0];
-    }
-    if ((!env || !env.strictUnits) && this.backupUnit) {
-        return this.backupUnit;
-    }
-    return "";
-  },
-
-  toString: function () {
+    toString: function () {
       var i, returnStr = this.numerator.join("*");
       for (i = 0; i < this.denominator.length; i++) {
           returnStr += "/" + this.denominator[i];
       }
       return returnStr;
-  },
-  
-  compare: function (other) {
-    return this.is(other.toString()) ? 0 : -1;
-  },
+    },
 
-  is: function (unitString) {
-    return this.toString() === unitString;
-  },
+    compare: function (other) {
+        return this.is(other.toString()) ? 0 : -1;
+    },
 
-  isAngle: function () {
-    return tree.UnitConversions.angle.hasOwnProperty(this.toCSS());
-  },
+    is: function (unitString) {
+        return this.toString() === unitString;
+    },
 
-  isEmpty: function () {
-    return this.numerator.length == 0 && this.denominator.length == 0;
-  },
+    isLength: function () {
+        return Boolean(this.toCSS().match(/px|em|%|in|cm|mm|pc|pt|ex/));
+    },
 
-  isSingular: function() {
-      return this.numerator.length <= 1 && this.denominator.length == 0;
-  },
+    isEmpty: function () {
+        return this.numerator.length === 0 && this.denominator.length === 0;
+    },
 
-  map: function(callback) {
-    var i;
+    isSingular: function() {
+        return this.numerator.length <= 1 && this.denominator.length === 0;
+    },
 
-    for (i = 0; i < this.numerator.length; i++) {
-      this.numerator[i] = callback(this.numerator[i], false);
-    }
+    map: function(callback) {
+        var i;
 
-    for (i = 0; i < this.denominator.length; i++) {
-      this.denominator[i] = callback(this.denominator[i], true);
-    }
-  },
-
-  usedUnits: function() {
-    var group, groupName, result = {};
-
-    for (groupName in tree.UnitConversions) {
-      if (tree.UnitConversions.hasOwnProperty(groupName)) {
-        group = tree.UnitConversions[groupName];
-
-        this.map(function (atomicUnit) {
-          if (group.hasOwnProperty(atomicUnit) && !result[groupName]) {
-            result[groupName] = atomicUnit;
-          }
-
-          return atomicUnit;
-        });
-      }
-    }
-
-    return result;
-  },
-
-  cancel: function () {
-    var counter = {}, atomicUnit, i, backup;
-
-    for (i = 0; i < this.numerator.length; i++) {
-        atomicUnit = this.numerator[i];
-        if (!backup) {
-            backup = atomicUnit;
+        for (i = 0; i < this.numerator.length; i++) {
+            this.numerator[i] = callback(this.numerator[i], false);
         }
-        counter[atomicUnit] = (counter[atomicUnit] || 0) + 1;
-    }
 
-    for (i = 0; i < this.denominator.length; i++) {
-        atomicUnit = this.denominator[i];
-        if (!backup) {
-            backup = atomicUnit;
+        for (i = 0; i < this.denominator.length; i++) {
+            this.denominator[i] = callback(this.denominator[i], true);
         }
-        counter[atomicUnit] = (counter[atomicUnit] || 0) - 1;
-    }
+    },
 
-    this.numerator = [];
-    this.denominator = [];
+    usedUnits: function() {
+        var group, result = {}, mapUnit;
 
-    for (atomicUnit in counter) {
-      if (counter.hasOwnProperty(atomicUnit)) {
-        var count = counter[atomicUnit];
+        mapUnit = function (atomicUnit) {
+        /*jshint loopfunc:true */
+            if (group.hasOwnProperty(atomicUnit) && !result[groupName]) {
+                result[groupName] = atomicUnit;
+            }
 
-        if (count > 0) {
-          for (i = 0; i < count; i++) {
-            this.numerator.push(atomicUnit);
-          }
-        } else if (count < 0) {
-          for (i = 0; i < -count; i++) {
-            this.denominator.push(atomicUnit);
-          }
+            return atomicUnit;
+        };
+
+        for (var groupName in tree.UnitConversions) {
+            if (tree.UnitConversions.hasOwnProperty(groupName)) {
+                group = tree.UnitConversions[groupName];
+
+                this.map(mapUnit);
+            }
         }
-      }
-    }
 
-    if (this.numerator.length === 0 && this.denominator.length === 0 && backup) {
-        this.backupUnit = backup;
-    }
+        return result;
+    },
 
-    this.numerator.sort();
-    this.denominator.sort();
-  }
+    cancel: function () {
+        var counter = {}, atomicUnit, i, backup;
+
+        for (i = 0; i < this.numerator.length; i++) {
+            atomicUnit = this.numerator[i];
+            if (!backup) {
+                backup = atomicUnit;
+            }
+            counter[atomicUnit] = (counter[atomicUnit] || 0) + 1;
+        }
+
+        for (i = 0; i < this.denominator.length; i++) {
+            atomicUnit = this.denominator[i];
+            if (!backup) {
+                backup = atomicUnit;
+            }
+            counter[atomicUnit] = (counter[atomicUnit] || 0) - 1;
+        }
+
+        this.numerator = [];
+        this.denominator = [];
+
+        for (atomicUnit in counter) {
+            if (counter.hasOwnProperty(atomicUnit)) {
+                var count = counter[atomicUnit];
+
+                if (count > 0) {
+                    for (i = 0; i < count; i++) {
+                        this.numerator.push(atomicUnit);
+                    }
+                } else if (count < 0) {
+                    for (i = 0; i < -count; i++) {
+                        this.denominator.push(atomicUnit);
+                    }
+                }
+            }
+        }
+
+        if (this.numerator.length === 0 && this.denominator.length === 0 && backup) {
+            this.backupUnit = backup;
+        }
+
+        this.numerator.sort();
+        this.denominator.sort();
+    }
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
-tree.Directive = function (name, value) {
+tree.Directive = function (name, value, index, currentFileInfo) {
     this.name = name;
 
     if (Array.isArray(value)) {
-        this.ruleset = new(tree.Ruleset)([], value);
-        this.ruleset.allowImports = true;
+        this.rules = [new(tree.Ruleset)([], value)];
+        this.rules[0].allowImports = true;
     } else {
         this.value = value;
     }
+    this.currentFileInfo = currentFileInfo;
+
 };
 tree.Directive.prototype = {
     type: "Directive",
     accept: function (visitor) {
-        this.ruleset = visitor.visit(this.ruleset);
+        this.rules = visitor.visit(this.rules);
         this.value = visitor.visit(this.value);
     },
-    toCSS: function (env) {
-        if (this.ruleset) {
-            this.ruleset.root = true;
-            return this.name + (env.compress ? '{' : ' {\n  ') +
-                   this.ruleset.toCSS(env).trim().replace(/\n/g, '\n  ') +
-                               (env.compress ? '}': '\n}\n');
+    genCSS: function (env, output) {
+        output.add(this.name, this.currentFileInfo, this.index);
+        if (this.rules) {
+            tree.outputRuleset(env, output, this.rules);
         } else {
-            return this.name + ' ' + this.value.toCSS() + ';\n';
+            output.add(' ');
+            this.value.genCSS(env, output);
+            output.add(';');
         }
     },
+    toCSS: tree.toCSS,
     eval: function (env) {
         var evaldDirective = this;
-        if (this.ruleset) {
+        if (this.rules) {
             env.frames.unshift(this);
-            evaldDirective = new(tree.Directive)(this.name);
-            evaldDirective.ruleset = this.ruleset.eval(env);
+            evaldDirective = new(tree.Directive)(this.name, null, this.index, this.currentFileInfo);
+            evaldDirective.rules = [this.rules[0].eval(env)];
+            evaldDirective.rules[0].root = true;
             env.frames.shift();
         }
         return evaldDirective;
     },
-    variable: function (name) { return tree.Ruleset.prototype.variable.call(this.ruleset, name) },
-    find: function () { return tree.Ruleset.prototype.find.apply(this.ruleset, arguments) },
-    rulesets: function () { return tree.Ruleset.prototype.rulesets.apply(this.ruleset) }
+    variable: function (name) { return tree.Ruleset.prototype.variable.call(this.rules[0], name); },
+    find: function () { return tree.Ruleset.prototype.find.apply(this.rules[0], arguments); },
+    rulesets: function () { return tree.Ruleset.prototype.rulesets.apply(this.rules[0]); },
+    markReferenced: function () {
+        var i, rules;
+        this.isReferenced = true;
+        if (this.rules) {
+            rules = this.rules[0].rules;
+            for (i = 0; i < rules.length; i++) {
+                if (rules[i].markReferenced) {
+                    rules[i].markReferenced();
+                }
+            }
+        }
+    }
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
-tree.Element = function (combinator, value, index) {
+tree.Element = function (combinator, value, index, currentFileInfo) {
     this.combinator = combinator instanceof tree.Combinator ?
                       combinator : new(tree.Combinator)(combinator);
 
@@ -3025,6 +3449,7 @@ tree.Element = function (combinator, value, index) {
         this.value = "";
     }
     this.index = index;
+    this.currentFileInfo = currentFileInfo;
 };
 tree.Element.prototype = {
     type: "Element",
@@ -3035,11 +3460,15 @@ tree.Element.prototype = {
     eval: function (env) {
         return new(tree.Element)(this.combinator,
                                  this.value.eval ? this.value.eval(env) : this.value,
-                                 this.index);
+                                 this.index,
+                                 this.currentFileInfo);
+    },
+    genCSS: function (env, output) {
+        output.add(this.toCSS(env), this.currentFileInfo, this.index);
     },
     toCSS: function (env) {
         var value = (this.value.toCSS ? this.value.toCSS(env) : this.value);
-        if (value == '' && this.combinator.value.charAt(0) == '&') {
+        if (value === '' && this.combinator.value.charAt(0) === '&') {
             return '';
         } else {
             return this.combinator.toCSS(env || {}) + value;
@@ -3060,6 +3489,9 @@ tree.Attribute.prototype = {
     eval: function (env) {
         return new(tree.Attribute)(this.key.eval ? this.key.eval(env) : this.key,
             this.op, (this.value && this.value.eval) ? this.value.eval(env) : this.value);
+    },
+    genCSS: function (env, output) {
+        output.add(this.toCSS(env));
     },
     toCSS: function (env) {
         var value = this.key.toCSS ? this.key.toCSS(env) : this.key;
@@ -3082,20 +3514,32 @@ tree.Combinator = function (value) {
 };
 tree.Combinator.prototype = {
     type: "Combinator",
-    toCSS: function (env) {
-        return {
-            ''  : '',
-            ' ' : ' ',
-            ':' : ' :',
-            '+' : env.compress ? '+' : ' + ',
-            '~' : env.compress ? '~' : ' ~ ',
-            '>' : env.compress ? '>' : ' > ',
-            '|' : env.compress ? '|' : ' | '
-        }[this.value];
-    }
+    _outputMap: {
+        ''  : '',
+        ' ' : ' ',
+        ':' : ' :',
+        '+' : ' + ',
+        '~' : ' ~ ',
+        '>' : ' > ',
+        '|' : '|'
+    },
+    _outputMapCompressed: {
+        ''  : '',
+        ' ' : ' ',
+        ':' : ' :',
+        '+' : '+',
+        '~' : '~',
+        '>' : '>',
+        '|' : '|'
+    },
+    genCSS: function (env, output) {
+        output.add((env.compress ? this._outputMapCompressed : this._outputMap)[this.value]);
+    },
+    toCSS: tree.toCSS
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.Expression = function (value) { this.value = value; };
@@ -3131,11 +3575,15 @@ tree.Expression.prototype = {
         }
         return returnValue;
     },
-    toCSS: function (env) {
-        return this.value.map(function (e) {
-            return e.toCSS ? e.toCSS(env) : '';
-        }).join(' ');
+    genCSS: function (env, output) {
+        for(var i = 0; i < this.value.length; i++) {
+            this.value[i].genCSS(env, output);
+            if (i + 1 < this.value.length) {
+                output.add(" ");
+            }
+        }
     },
+    toCSS: tree.toCSS,
     throwAwayComments: function () {
         this.value = this.value.filter(function(v) {
             return !(v instanceof tree.Comment);
@@ -3144,6 +3592,7 @@ tree.Expression.prototype = {
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.Extend = function Extend(selector, option, index) {
@@ -3176,9 +3625,16 @@ tree.Extend.prototype = {
     },
     findSelfSelectors: function (selectors) {
         var selfElements = [],
-            i;
+            i,
+            selectorElements;
 
         for(i = 0; i < selectors.length; i++) {
+            selectorElements = selectors[i].elements;
+            // duplicate the logic in genCSS function inside the selector node.
+            // future TODO - move both logics into the selector joiner visitor
+            if (i > 0 && selectorElements.length && selectorElements[0].combinator.value === "") {
+                selectorElements[0].combinator.value = ' ';
+            }
             selfElements = selfElements.concat(selectors[i].elements);
         }
 
@@ -3187,6 +3643,7 @@ tree.Extend.prototype = {
 };
 
 })(require('../tree'));
+
 (function (tree) {
 //
 // CSS @import node
@@ -3201,16 +3658,14 @@ tree.Extend.prototype = {
 // the file has been fetched, and parsed.
 //
 tree.Import = function (path, features, options, index, currentFileInfo) {
-    var that = this;
-
     this.options = options;
     this.index = index;
     this.path = path;
     this.features = features;
     this.currentFileInfo = currentFileInfo;
 
-    if (this.options.less !== undefined) {
-        this.css = !this.options.less;
+    if (this.options.less !== undefined || this.options.inline) {
+        this.css = !this.options.less || this.options.inline;
     } else {
         var pathValue = this.getPath();
         if (pathValue && /css([\?;].*)?$/.test(pathValue)) {
@@ -3233,17 +3688,22 @@ tree.Import.prototype = {
     accept: function (visitor) {
         this.features = visitor.visit(this.features);
         this.path = visitor.visit(this.path);
-        this.root = visitor.visit(this.root);
-    },
-    toCSS: function (env) {
-        var features = this.features ? ' ' + this.features.toCSS(env) : '';
-
-        if (this.css) {
-            return "@import " + this.path.toCSS() + features + ';\n';
-        } else {
-            return "";
+        if (!this.options.inline) {
+            this.root = visitor.visit(this.root);
         }
     },
+    genCSS: function (env, output) {
+        if (this.css) {
+            output.add("@import ", this.currentFileInfo, this.index);
+            this.path.genCSS(env, output);
+            if (this.features) {
+                output.add(" ");
+                this.features.genCSS(env, output);
+            }
+            output.add(';');
+        }
+    },
+    toCSS: tree.toCSS,
     getPath: function () {
         if (this.path instanceof tree.Quoted) {
             var path = this.path.value;
@@ -3259,13 +3719,18 @@ tree.Import.prototype = {
     evalPath: function (env) {
         var path = this.path.eval(env);
         var rootpath = this.currentFileInfo && this.currentFileInfo.rootpath;
-        if (rootpath && !(path instanceof tree.URL)) {
-            var pathValue = path.value;
-            // Add the base path if the import is relative
-            if (pathValue && env.isPathRelative(pathValue)) {
-                path.value =  rootpath + pathValue;
+
+        if (!(path instanceof tree.URL)) {
+            if (rootpath) {
+                var pathValue = path.value;
+                // Add the base path if the import is relative
+                if (pathValue && env.isPathRelative(pathValue)) {
+                    path.value = rootpath + pathValue;
+                }
             }
+            path.value = env.normalizePath(path.value);
         }
+
         return path;
     },
     eval: function (env) {
@@ -3273,7 +3738,11 @@ tree.Import.prototype = {
 
         if (this.skip) { return []; }
 
-        if (this.css) {
+        if (this.options.inline) {
+            //todo needs to reference css file not import
+            var contents = new(tree.Anonymous)(this.root, 0, {filename: this.importedFilename}, true);
+            return this.features ? new(tree.Media)([contents], this.features.value) : [contents];
+        } else if (this.css) {
             var newImport = new(tree.Import)(this.evalPath(env), features, this.options, this.index);
             if (!newImport.css && this.error) {
                 throw this.error;
@@ -3290,6 +3759,7 @@ tree.Import.prototype = {
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.JavaScript = function (string, index, escaped) {
@@ -3311,11 +3781,12 @@ tree.JavaScript.prototype = {
         try {
             expression = new(Function)('return (' + expression + ')');
         } catch (e) {
-            throw { message: "JavaScript evaluation error: `" + expression + "`" ,
+            throw { message: "JavaScript evaluation error: " + e.message + " from `" + expression + "`" ,
                     index: this.index };
         }
 
         for (var k in env.frames[0].variables()) {
+            /*jshint loopfunc:true */
             context[k.slice(1)] = {
                 value: env.frames[0].variables()[k].value,
                 toJS: function () {
@@ -3342,13 +3813,17 @@ tree.JavaScript.prototype = {
 
 })(require('../tree'));
 
+
 (function (tree) {
 
-tree.Keyword = function (value) { this.value = value };
+tree.Keyword = function (value) { this.value = value; };
 tree.Keyword.prototype = {
     type: "Keyword",
     eval: function () { return this; },
-    toCSS: function () { return this.value; },
+    genCSS: function (env, output) {
+        output.add(this.value);
+    },
+    toCSS: tree.toCSS,
     compare: function (other) {
         if (other instanceof tree.Keyword) {
             return other.value === this.value ? 0 : 1;
@@ -3362,37 +3837,40 @@ tree.True = new(tree.Keyword)('true');
 tree.False = new(tree.Keyword)('false');
 
 })(require('../tree'));
+
 (function (tree) {
 
-tree.Media = function (value, features) {
+tree.Media = function (value, features, index, currentFileInfo) {
+    this.index = index;
+    this.currentFileInfo = currentFileInfo;
+
     var selectors = this.emptySelectors();
 
     this.features = new(tree.Value)(features);
-    this.ruleset = new(tree.Ruleset)(selectors, value);
-    this.ruleset.allowImports = true;
+    this.rules = [new(tree.Ruleset)(selectors, value)];
+    this.rules[0].allowImports = true;
 };
 tree.Media.prototype = {
     type: "Media",
     accept: function (visitor) {
         this.features = visitor.visit(this.features);
-        this.ruleset = visitor.visit(this.ruleset);
+        this.rules = visitor.visit(this.rules);
     },
-    toCSS: function (env) {
-        var features = this.features.toCSS(env);
-
-        return '@media ' + features + (env.compress ? '{' : ' {\n  ') +
-               this.ruleset.toCSS(env).trim().replace(/\n/g, '\n  ') +
-                           (env.compress ? '}': '\n}\n');
+    genCSS: function (env, output) {
+        output.add('@media ', this.currentFileInfo, this.index);
+        this.features.genCSS(env, output);
+        tree.outputRuleset(env, output, this.rules);
     },
+    toCSS: tree.toCSS,
     eval: function (env) {
         if (!env.mediaBlocks) {
             env.mediaBlocks = [];
             env.mediaPath = [];
         }
         
-        var media = new(tree.Media)([], []);
+        var media = new(tree.Media)([], [], this.index, this.currentFileInfo);
         if(this.debugInfo) {
-            this.ruleset.debugInfo = this.debugInfo;
+            this.rules[0].debugInfo = this.debugInfo;
             media.debugInfo = this.debugInfo;
         }
         var strictMathBypass = false;
@@ -3412,21 +3890,30 @@ tree.Media.prototype = {
         env.mediaPath.push(media);
         env.mediaBlocks.push(media);
         
-        env.frames.unshift(this.ruleset);
-        media.ruleset = this.ruleset.eval(env);
+        env.frames.unshift(this.rules[0]);
+        media.rules = [this.rules[0].eval(env)];
         env.frames.shift();
         
         env.mediaPath.pop();
 
         return env.mediaPath.length === 0 ? media.evalTop(env) :
-                    media.evalNested(env)
+                    media.evalNested(env);
     },
-    variable: function (name) { return tree.Ruleset.prototype.variable.call(this.ruleset, name) },
-    find: function () { return tree.Ruleset.prototype.find.apply(this.ruleset, arguments) },
-    rulesets: function () { return tree.Ruleset.prototype.rulesets.apply(this.ruleset) },
+    variable: function (name) { return tree.Ruleset.prototype.variable.call(this.rules[0], name); },
+    find: function () { return tree.Ruleset.prototype.find.apply(this.rules[0], arguments); },
+    rulesets: function () { return tree.Ruleset.prototype.rulesets.apply(this.rules[0]); },
     emptySelectors: function() { 
-        var el = new(tree.Element)('', '&', 0);
-        return [new(tree.Selector)([el])];
+        var el = new(tree.Element)('', '&', this.index, this.currentFileInfo);
+        return [new(tree.Selector)([el], null, null, this.index, this.currentFileInfo)];
+    },
+    markReferenced: function () {
+        var i, rules = this.rules[0].rules;
+        this.isReferenced = true;
+        for (i = 0; i < rules.length; i++) {
+            if (rules[i].markReferenced) {
+                rules[i].markReferenced();
+            }
+        }
     },
 
     evalTop: function (env) {
@@ -3494,11 +3981,12 @@ tree.Media.prototype = {
       }
     },
     bubbleSelectors: function (selectors) {
-      this.ruleset = new(tree.Ruleset)(selectors.slice(0), [this.ruleset]);
+      this.rules = [new(tree.Ruleset)(selectors.slice(0), [this.rules[0]])];
     }
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.mixin = {};
@@ -3516,7 +4004,7 @@ tree.mixin.Call.prototype = {
         this.arguments = visitor.visit(this.arguments);
     },
     eval: function (env) {
-        var mixins, mixin, args, rules = [], match = false, i, m, f, isRecursive, isOneFound;
+        var mixins, mixin, args, rules = [], match = false, i, m, f, isRecursive, isOneFound, rule;
 
         args = this.arguments && this.arguments.map(function (a) {
             return { name: a.name, value: a.value.eval(env) };
@@ -3540,8 +4028,19 @@ tree.mixin.Call.prototype = {
                     if (mixin.matchArgs(args, env)) {
                         if (!mixin.matchCondition || mixin.matchCondition(args, env)) {
                             try {
+                                if (!(mixin instanceof tree.mixin.Definition)) {
+                                    mixin = new tree.mixin.Definition("", [], mixin.rules, null, false);
+                                    mixin.originalRuleset = mixins[m].originalRuleset || mixins[m];
+                                }
+                                //if (this.important) {
+                                //    isImportant = env.isImportant;
+                                //    env.isImportant = true;
+                                //}
                                 Array.prototype.push.apply(
                                       rules, mixin.eval(env, args, this.important).rules);
+                                //if (this.important) {
+                                //    env.isImportant = isImportant;
+                                //}
                             } catch (e) {
                                 throw { message: e.message, index: this.index, filename: this.currentFileInfo.filename, stack: e.stack };
                             }
@@ -3550,6 +4049,14 @@ tree.mixin.Call.prototype = {
                     }
                 }
                 if (match) {
+                    if (!this.currentFileInfo || !this.currentFileInfo.reference) {
+                        for (i = 0; i < rules.length; i++) {
+                            rule = rules[i];
+                            if (rule.markReferenced) {
+                                rule.markReferenced();
+                            }
+                        }
+                    }
                     return rules;
                 }
             }
@@ -3581,7 +4088,7 @@ tree.mixin.Call.prototype = {
 
 tree.mixin.Definition = function (name, params, rules, condition, variadic) {
     this.name = name;
-    this.selectors = [new(tree.Selector)([new(tree.Element)(null, name)])];
+    this.selectors = [new(tree.Selector)([new(tree.Element)(null, name, this.index, this.currentFileInfo)])];
     this.params = params;
     this.condition = condition;
     this.variadic = variadic;
@@ -3589,8 +4096,8 @@ tree.mixin.Definition = function (name, params, rules, condition, variadic) {
     this.rules = rules;
     this._lookups = {};
     this.required = params.reduce(function (count, p) {
-        if (!p.name || (p.name && !p.value)) { return count + 1 }
-        else                                 { return count }
+        if (!p.name || (p.name && !p.value)) { return count + 1; }
+        else                                 { return count; }
     }, 0);
     this.parent = tree.Ruleset.prototype;
     this.frames = [];
@@ -3602,13 +4109,13 @@ tree.mixin.Definition.prototype = {
         this.rules = visitor.visit(this.rules);
         this.condition = visitor.visit(this.condition);
     },
-    toCSS:     function ()     { return ""; },
     variable:  function (name) { return this.parent.variable.call(this, name); },
     variables: function ()     { return this.parent.variables.call(this); },
     find:      function ()     { return this.parent.find.apply(this, arguments); },
     rulesets:  function ()     { return this.parent.rulesets.apply(this); },
 
     evalParams: function (env, mixinEnv, args, evaldArguments) {
+        /*jshint boss:true */
         var frame = new(tree.Ruleset)(null, []),
             varargs, arg,
             params = this.params.slice(0),
@@ -3644,7 +4151,7 @@ tree.mixin.Definition.prototype = {
         }
         argIndex = 0;
         for (i = 0; i < params.length; i++) {
-            if (evaldArguments[i]) continue;
+            if (evaldArguments[i]) { continue; }
             
             arg = args && args[argIndex];
 
@@ -3686,35 +4193,38 @@ tree.mixin.Definition.prototype = {
         var _arguments = [],
             mixinFrames = this.frames.concat(env.frames),
             frame = this.evalParams(env, new(tree.evalEnv)(env, mixinFrames), args, _arguments),
-            context, rules, start, ruleset;
+            rules, ruleset;
 
         frame.rules.unshift(new(tree.Rule)('@arguments', new(tree.Expression)(_arguments).eval(env)));
 
-        rules = important ?
-            this.parent.makeImportant.apply(this).rules : this.rules.slice(0);
+        rules = this.rules.slice(0);
 
-        ruleset = new(tree.Ruleset)(null, rules).eval(new(tree.evalEnv)(env,
-                                                    [this, frame].concat(mixinFrames)));
+        ruleset = new(tree.Ruleset)(null, rules);
         ruleset.originalRuleset = this;
+        ruleset = ruleset.eval(new(tree.evalEnv)(env, [this, frame].concat(mixinFrames)));
+        if (important) {
+            ruleset = this.parent.makeImportant.apply(ruleset);
+        }
         return ruleset;
     },
     matchCondition: function (args, env) {
-
         if (this.condition && !this.condition.eval(
             new(tree.evalEnv)(env,
-                [this.evalParams(env, new(tree.evalEnv)(env, this.frames.concat(env.frames)), args, [])]
-                    .concat(env.frames)))) {
+                [this.evalParams(env, new(tree.evalEnv)(env, this.frames.concat(env.frames)), args, [])] // the parameter variables
+                    .concat(this.frames) // the parent namespace/mixin frames
+                    .concat(env.frames)))) { // the current environment frames
             return false;
         }
         return true;
     },
     matchArgs: function (args, env) {
-        var argsLength = (args && args.length) || 0, len, frame;
+        var argsLength = (args && args.length) || 0, len;
 
         if (! this.variadic) {
-            if (argsLength < this.required)                               { return false }
-            if (argsLength > this.params.length)                          { return false }
-            if ((this.required > 0) && (argsLength > this.params.length)) { return false }
+            if (argsLength < this.required)                               { return false; }
+            if (argsLength > this.params.length)                          { return false; }
+        } else {
+            if (argsLength < (this.required - 1))                         { return false; }
         }
 
         len = Math.min(argsLength, this.arity);
@@ -3731,6 +4241,7 @@ tree.mixin.Definition.prototype = {
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.Negative = function (node) {
@@ -3741,9 +4252,11 @@ tree.Negative.prototype = {
     accept: function (visitor) {
         this.value = visitor.visit(this.value);
     },
-    toCSS: function (env) {
-        return '-' + this.value.toCSS(env);
+    genCSS: function (env, output) {
+        output.add('-');
+        this.value.genCSS(env, output);
     },
+    toCSS: tree.toCSS,
     eval: function (env) {
         if (env.isMathOn()) {
             return (new(tree.Operation)('*', [new(tree.Dimension)(-1), this.value])).eval(env);
@@ -3753,6 +4266,7 @@ tree.Negative.prototype = {
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.Operation = function (op, operands, isSpaced) {
@@ -3789,10 +4303,18 @@ tree.Operation.prototype = {
             return new(tree.Operation)(this.op, [a, b], this.isSpaced);
         }
     },
-    toCSS: function (env) {
-        var separator = this.isSpaced ? " " : "";
-        return this.operands[0].toCSS() + separator + this.op + separator + this.operands[1].toCSS();
-    }
+    genCSS: function (env, output) {
+        this.operands[0].genCSS(env, output);
+        if (this.isSpaced) {
+            output.add(" ");
+        }
+        output.add(this.op);
+        if (this.isSpaced) {
+            output.add(" ");
+        }
+        this.operands[1].genCSS(env, output);
+    },
+    toCSS: tree.toCSS
 };
 
 tree.operate = function (env, op, a, b) {
@@ -3806,6 +4328,7 @@ tree.operate = function (env, op, a, b) {
 
 })(require('../tree'));
 
+
 (function (tree) {
 
 tree.Paren = function (node) {
@@ -3816,15 +4339,19 @@ tree.Paren.prototype = {
     accept: function (visitor) {
         this.value = visitor.visit(this.value);
     },
-    toCSS: function (env) {
-        return '(' + this.value.toCSS(env).trim() + ')';
+    genCSS: function (env, output) {
+        output.add('(');
+        this.value.genCSS(env, output);
+        output.add(')');
     },
+    toCSS: tree.toCSS,
     eval: function (env) {
         return new(tree.Paren)(this.value.eval(env));
     }
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.Quoted = function (str, content, escaped, index, currentFileInfo) {
@@ -3836,13 +4363,16 @@ tree.Quoted = function (str, content, escaped, index, currentFileInfo) {
 };
 tree.Quoted.prototype = {
     type: "Quoted",
-    toCSS: function () {
-        if (this.escaped) {
-            return this.value;
-        } else {
-            return this.quote + this.value + this.quote;
+    genCSS: function (env, output) {
+        if (!this.escaped) {
+            output.add(this.quote, this.currentFileInfo, this.index);
+        }
+        output.add(this.value);
+        if (!this.escaped) {
+            output.add(this.quote);
         }
     },
+    toCSS: tree.toCSS,
     eval: function (env) {
         var that = this;
         var value = this.value.replace(/`([^`]+)`/g, function (_, exp) {
@@ -3851,7 +4381,7 @@ tree.Quoted.prototype = {
             var v = new(tree.Variable)('@' + name, that.index, that.currentFileInfo).eval(env, true);
             return (v instanceof tree.Quoted) ? v.value : v.toCSS();
         });
-        return new(tree.Quoted)(this.quote + value + this.quote, value, this.escaped, this.index);
+        return new(tree.Quoted)(this.quote + value + this.quote, value, this.escaped, this.index, this.currentFileInfo);
     },
     compare: function (x) {
         if (!x.toCSS) {
@@ -3870,19 +4400,18 @@ tree.Quoted.prototype = {
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
-tree.Rule = function (name, value, important, index, currentFileInfo, inline) {
+tree.Rule = function (name, value, important, merge, index, currentFileInfo, inline) {
     this.name = name;
     this.value = (value instanceof tree.Value) ? value : new(tree.Value)([value]);
     this.important = important ? ' ' + important.trim() : '';
+    this.merge = merge;
     this.index = index;
     this.currentFileInfo = currentFileInfo;
     this.inline = inline || false;
-
-    if (name.charAt(0) === '@') {
-        this.variable = true;
-    } else { this.variable = false }
+    this.variable = (name.charAt(0) === '@');
 };
 
 tree.Rule.prototype = {
@@ -3890,21 +4419,19 @@ tree.Rule.prototype = {
     accept: function (visitor) {
         this.value = visitor.visit(this.value);
     },
-    toCSS: function (env) {
-        if (this.variable) { return "" }
-        else {
-            try {
-                return this.name + (env.compress ? ':' : ': ') +
-                   this.value.toCSS(env) +
-                   this.important + (this.inline ? "" : ";");
-            }
-            catch(e) {
-                e.index = this.index;
-                e.filename = this.currentFileInfo.filename;
-                throw e;
-            }
+    genCSS: function (env, output) {
+        output.add(this.name + (env.compress ? ':' : ': '), this.currentFileInfo, this.index);
+        try {
+            this.value.genCSS(env, output);
         }
+        catch(e) {
+            e.index = this.index;
+            e.filename = this.currentFileInfo.filename;
+            throw e;
+        }
+        output.add(this.important + ((this.inline || (env.lastRule && env.compress)) ? "" : ";"), this.currentFileInfo, this.index);
     },
+    toCSS: tree.toCSS,
     eval: function (env) {
         var strictMathBypass = false;
         if (this.name === "font" && !env.strictMath) {
@@ -3915,6 +4442,7 @@ tree.Rule.prototype = {
             return new(tree.Rule)(this.name,
                               this.value.eval(env),
                               this.important,
+                              this.merge,
                               this.index, this.currentFileInfo, this.inline);
         }
         finally {
@@ -3927,11 +4455,13 @@ tree.Rule.prototype = {
         return new(tree.Rule)(this.name,
                               this.value,
                               "!important",
+                              this.merge,
                               this.index, this.currentFileInfo, this.inline);
     }
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.Ruleset = function (selectors, rules, strictImports) {
@@ -3943,13 +4473,21 @@ tree.Ruleset = function (selectors, rules, strictImports) {
 tree.Ruleset.prototype = {
     type: "Ruleset",
     accept: function (visitor) {
-        this.selectors = visitor.visit(this.selectors);
+        if (this.paths) {
+            for(var i = 0; i < this.paths.length; i++) {
+                this.paths[i] = visitor.visit(this.paths[i]);
+            }
+        } else {
+            this.selectors = visitor.visit(this.selectors);
+        }
         this.rules = visitor.visit(this.rules);
     },
     eval: function (env) {
-        var selectors = this.selectors && this.selectors.map(function (s) { return s.eval(env) });
+        var selectors = this.selectors && this.selectors.map(function (s) { return s.eval(env); });
         var ruleset = new(tree.Ruleset)(selectors, this.rules.slice(0), this.strictImports);
         var rules;
+        var rule;
+        var i;
         
         ruleset.originalRuleset = this;
         ruleset.root = this.root;
@@ -3976,7 +4514,7 @@ tree.Ruleset.prototype = {
 
         // Store the frames around mixin definitions,
         // so they can be evaluated like closures when the time comes.
-        for (var i = 0; i < ruleset.rules.length; i++) {
+        for (i = 0; i < ruleset.rules.length; i++) {
             if (ruleset.rules[i] instanceof tree.mixin.Definition) {
                 ruleset.rules[i].frames = env.frames.slice(0);
             }
@@ -3985,8 +4523,9 @@ tree.Ruleset.prototype = {
         var mediaBlockCount = (env.mediaBlocks && env.mediaBlocks.length) || 0;
 
         // Evaluate mixin calls.
-        for (var i = 0; i < ruleset.rules.length; i++) {
+        for (i = 0; i < ruleset.rules.length; i++) {
             if (ruleset.rules[i] instanceof tree.mixin.Call) {
+                /*jshint loopfunc:true */
                 rules = ruleset.rules[i].eval(env).filter(function(r) {
                     if ((r instanceof tree.Rule) && r.variable) {
                         // do not pollute the scope if the variable is
@@ -4003,7 +4542,7 @@ tree.Ruleset.prototype = {
         }
         
         // Evaluate everything else
-        for (var i = 0, rule; i < ruleset.rules.length; i++) {
+        for (i = 0; i < ruleset.rules.length; i++) {
             rule = ruleset.rules[i];
 
             if (! (rule instanceof tree.mixin.Definition)) {
@@ -4016,7 +4555,7 @@ tree.Ruleset.prototype = {
         env.selectors.shift();
         
         if (env.mediaBlocks) {
-            for(var i = mediaBlockCount; i < env.mediaBlocks.length; i++) {
+            for (i = mediaBlockCount; i < env.mediaBlocks.length; i++) {
                 env.mediaBlocks[i].bubbleSelectors(selectors);
             }
         }
@@ -4050,13 +4589,23 @@ tree.Ruleset.prototype = {
     matchArgs: function (args) {
         return !args || args.length === 0;
     },
+    matchCondition: function (args, env) {
+        var lastSelector = this.selectors[this.selectors.length-1];
+        if (lastSelector.condition &&
+            !lastSelector.condition.eval(
+                new(tree.evalEnv)(env,
+                    env.frames))) {
+            return false;
+        }
+        return true;
+    },
     resetCache: function () {
         this._rulesets = null;
         this._variables = null;
         this._lookups = {};
     },
     variables: function () {
-        if (this._variables) { return this._variables }
+        if (this._variables) { return this._variables; }
         else {
             return this._variables = this.rules.reduce(function (hash, r) {
                 if (r instanceof tree.Rule && r.variable === true) {
@@ -4076,10 +4625,10 @@ tree.Ruleset.prototype = {
     },
     find: function (selector, self) {
         self = self || this;
-        var rules = [], rule, match,
+        var rules = [], match,
             key = selector.toCSS();
 
-        if (key in this._lookups) { return this._lookups[key] }
+        if (key in this._lookups) { return this._lookups[key]; }
 
         this.rulesets().forEach(function (rule) {
             if (rule !== self) {
@@ -4098,106 +4647,108 @@ tree.Ruleset.prototype = {
         });
         return this._lookups[key] = rules;
     },
-    //
-    // Entry point for code generation
-    //
-    //     `context` holds an array of arrays.
-    //
-    toCSS: function (env) {
-        var css = [],      // The CSS output
-            rules = [],    // node.Rule instances
-           _rules = [],    //
-            rulesets = [], // node.Ruleset instances
-            selector,      // The fully rendered selector
+    genCSS: function (env, output) {
+        var i, j,
+            ruleNodes = [],
+            rulesetNodes = [],
             debugInfo,     // Line number debugging
-            rule;
+            rule,
+            firstRuleset = true,
+            path;
 
-        // Compile rules and rulesets
-        for (var i = 0; i < this.rules.length; i++) {
-            rule = this.rules[i];
+        env.tabLevel = (env.tabLevel || 0);
 
-            if (rule.rules || (rule instanceof tree.Media)) {
-                rulesets.push(rule.toCSS(env));
-            } else if (rule instanceof tree.Directive) {
-                var cssValue = rule.toCSS(env);
-                // Output only the first @charset definition as such - convert the others
-                // to comments in case debug is enabled
-                if (rule.name === "@charset") {
-                    // Only output the debug info together with subsequent @charset definitions
-                    // a comment (or @media statement) before the actual @charset directive would
-                    // be considered illegal css as it has to be on the first line
-                    if (env.charset) {
-                        if (rule.debugInfo) {
-                            rulesets.push(tree.debugInfo(env, rule));
-                            rulesets.push(new tree.Comment("/* "+cssValue.replace(/\n/g, "")+" */\n").toCSS(env));
-                        }
-                        continue;
-                    }
-                    env.charset = true;
-                }
-                rulesets.push(cssValue);
-            } else if (rule instanceof tree.Comment) {
-                if (!rule.silent) {
-                    if (this.root) {
-                        rulesets.push(rule.toCSS(env));
-                    } else {
-                        rules.push(rule.toCSS(env));
-                    }
-                }
-            } else {
-                if (rule.toCSS && !rule.variable) {
-                    if (this.firstRoot && rule instanceof tree.Rule) {
-                        throw { message: "properties must be inside selector blocks, they cannot be in the root.",
-                            index: rule.index, filename: rule.currentFileInfo ? rule.currentFileInfo.filename : null};
-                    }
-                    rules.push(rule.toCSS(env));
-                } else if (rule.value && !rule.variable) {
-                    rules.push(rule.value.toString());
-                }
-            }
-        } 
-
-        // Remove last semicolon
-        if (env.compress && rules.length) {
-            rule = rules[rules.length - 1];
-            if (rule.charAt(rule.length - 1) === ';') {
-                rules[rules.length - 1] = rule.substring(0, rule.length - 1);
-            }
+        if (!this.root) {
+            env.tabLevel++;
         }
 
-        rulesets = rulesets.join('');
+        var tabRuleStr = env.compress ? '' : Array(env.tabLevel + 1).join("  "),
+            tabSetStr = env.compress ? '' : Array(env.tabLevel).join("  ");
+
+        for (i = 0; i < this.rules.length; i++) {
+            rule = this.rules[i];
+            if (rule.rules || (rule instanceof tree.Media) || rule instanceof tree.Directive || (this.root && rule instanceof tree.Comment)) {
+                rulesetNodes.push(rule);
+            } else {
+                ruleNodes.push(rule);
+            }
+        }
 
         // If this is the root node, we don't render
         // a selector, or {}.
-        // Otherwise, only output if this ruleset has rules.
-        if (this.root) {
-            css.push(rules.join(env.compress ? '' : '\n'));
-        } else {
-            if (rules.length > 0) {
-                debugInfo = tree.debugInfo(env, this);
-                selector = this.paths.map(function (p) {
-                    return p.map(function (s) {
-                        return s.toCSS(env);
-                    }).join('').trim();
-                }).join(env.compress ? ',' : ',\n');
+        if (!this.root) {
+            debugInfo = tree.debugInfo(env, this, tabSetStr);
 
-                // Remove duplicates
-                for (var i = rules.length - 1; i >= 0; i--) {
-                    if (rules[i].slice(0, 2) === "/*" ||  _rules.indexOf(rules[i]) === -1) {
-                        _rules.unshift(rules[i]);
-                    }
+            if (debugInfo) {
+                output.add(debugInfo);
+                output.add(tabSetStr);
+            }
+
+            for(i = 0; i < this.paths.length; i++) {
+                path = this.paths[i];
+                env.firstSelector = true;
+                for(j = 0; j < path.length; j++) {
+                    path[j].genCSS(env, output);
+                    env.firstSelector = false;
                 }
-                rules = _rules;
+                if (i + 1 < this.paths.length) {
+                    output.add(env.compress ? ',' : (',\n' + tabSetStr));
+                }
+            }
 
-                css.push(debugInfo + selector + 
-                        (env.compress ? '{' : ' {\n  ') +
-                        rules.join(env.compress ? '' : '\n  ') +
-                        (env.compress ? '}' : '\n}\n'));
+            output.add((env.compress ? '{' : ' {\n') + tabRuleStr);
+        }
+
+        // Compile rules and rulesets
+        for (i = 0; i < ruleNodes.length; i++) {
+            rule = ruleNodes[i];
+
+            // @page{ directive ends up with root elements inside it, a mix of rules and rulesets
+            // In this instance we do not know whether it is the last property
+            if (i + 1 === ruleNodes.length && (!this.root || rulesetNodes.length === 0 || this.firstRoot)) {
+                env.lastRule = true;
+            }
+
+            if (rule.genCSS) {
+                rule.genCSS(env, output);
+            } else if (rule.value) {
+                output.add(rule.value.toString());
+            }
+
+            if (!env.lastRule) {
+                output.add(env.compress ? '' : ('\n' + tabRuleStr));
+            } else {
+                env.lastRule = false;
             }
         }
-        css.push(rulesets);
 
-        return css.join('')  + (env.compress ? '\n' : '');
+        if (!this.root) {
+            output.add((env.compress ? '}' : '\n' + tabSetStr + '}'));
+            env.tabLevel--;
+        }
+
+        for (i = 0; i < rulesetNodes.length; i++) {
+            if (ruleNodes.length && firstRuleset) {
+                output.add((env.compress ? "" : "\n") + (this.root ? tabRuleStr : tabSetStr));
+            }
+            if (!firstRuleset) {
+                output.add((env.compress ? "" : "\n") + (this.root ? tabRuleStr : tabSetStr));
+            }
+            firstRuleset = false;
+            rulesetNodes[i].genCSS(env, output);
+        }
+
+        if (!output.isEmpty() && !env.compress && this.firstRoot) {
+            output.add('\n');
+        }
+    },
+
+    toCSS: tree.toCSS,
+
+    markReferenced: function () {
+        for (var s = 0; s < this.selectors.length; s++) {
+            this.selectors[s].markReferenced();
+        }
     },
 
     joinSelectors: function (paths, context, selectors) {
@@ -4223,7 +4774,7 @@ tree.Ruleset.prototype = {
     
         if (!hasParentSelector) {
             if (context.length > 0) {
-                for(i = 0; i < context.length; i++) {
+                for (i = 0; i < context.length; i++) {
                     paths.push(context[i].concat(selector));
                 }
             }
@@ -4267,22 +4818,22 @@ tree.Ruleset.prototype = {
                 }
 
                 // loop through our current selectors
-                for(j = 0; j < newSelectors.length; j++) {
+                for (j = 0; j < newSelectors.length; j++) {
                     sel = newSelectors[j];
                     // if we don't have any parent paths, the & might be in a mixin so that it can be used
                     // whether there are parents or not
-                    if (context.length == 0) {
+                    if (context.length === 0) {
                         // the combinator used on el should now be applied to the next element instead so that
                         // it is not lost
                         if (sel.length > 0) {
                             sel[0].elements = sel[0].elements.slice(0);
-                            sel[0].elements.push(new(tree.Element)(el.combinator, '', 0)); //new Element(el.Combinator,  ""));
+                            sel[0].elements.push(new(tree.Element)(el.combinator, '', 0, el.index, el.currentFileInfo));
                         }
                         selectorsMultiplied.push(sel);
                     }
                     else {
                         // and the parent selectors
-                        for(k = 0; k < context.length; k++) {
+                        for (k = 0; k < context.length; k++) {
                             parentSel = context[k];
                             // We need to put the current selectors
                             // then join the last selector's elements on to the parents selectors
@@ -4298,11 +4849,11 @@ tree.Ruleset.prototype = {
                             if (sel.length > 0) {
                                 newSelectorPath = sel.slice(0);
                                 lastSelector = newSelectorPath.pop();
-                                newJoinedSelector = new(tree.Selector)(lastSelector.elements.slice(0), selector.extendList);
+                                newJoinedSelector = selector.createDerived(lastSelector.elements.slice(0));
                                 newJoinedSelectorEmpty = false;
                             }
                             else {
-                                newJoinedSelector = new(tree.Selector)([], selector.extendList);
+                                newJoinedSelector = selector.createDerived([]);
                             }
 
                             //put together the parent selectors after the join
@@ -4314,7 +4865,7 @@ tree.Ruleset.prototype = {
                                 newJoinedSelectorEmpty = false;
 
                                 // join the elements so far with the first part of the parent
-                                newJoinedSelector.elements.push(new(tree.Element)(el.combinator, parentSel[0].elements[0].value, 0));
+                                newJoinedSelector.elements.push(new(tree.Element)(el.combinator, parentSel[0].elements[0].value, el.index, el.currentFileInfo));
                                 newJoinedSelector.elements = newJoinedSelector.elements.concat(parentSel[0].elements.slice(1));
                             }
 
@@ -4344,7 +4895,7 @@ tree.Ruleset.prototype = {
             this.mergeElementsOnToSelectors(currentElements, newSelectors);
         }
 
-        for(i = 0; i < newSelectors.length; i++) {
+        for (i = 0; i < newSelectors.length; i++) {
             if (newSelectors[i].length > 0) {
                 paths.push(newSelectors[i]);
             }
@@ -4352,19 +4903,19 @@ tree.Ruleset.prototype = {
     },
     
     mergeElementsOnToSelectors: function(elements, selectors) {
-        var i, sel, extendList;
+        var i, sel;
 
-        if (selectors.length == 0) {
+        if (selectors.length === 0) {
             selectors.push([ new(tree.Selector)(elements) ]);
             return;
         }
 
-        for(i = 0; i < selectors.length; i++) {
+        for (i = 0; i < selectors.length; i++) {
             sel = selectors[i];
 
             // if the previous thing in sel is a parent this needs to join on to it
             if (sel.length > 0) {
-                sel[sel.length - 1] = new(tree.Selector)(sel[sel.length - 1].elements.concat(elements), sel[sel.length - 1].extendList);
+                sel[sel.length - 1] = sel[sel.length - 1].createDerived(sel[sel.length - 1].elements.concat(elements));
             }
             else {
                 sel.push(new(tree.Selector)(elements));
@@ -4373,17 +4924,32 @@ tree.Ruleset.prototype = {
     }
 };
 })(require('../tree'));
+
 (function (tree) {
 
-tree.Selector = function (elements, extendList) {
+tree.Selector = function (elements, extendList, condition, index, currentFileInfo, isReferenced) {
     this.elements = elements;
     this.extendList = extendList || [];
+    this.condition = condition;
+    this.currentFileInfo = currentFileInfo || {};
+    this.isReferenced = isReferenced;
+    if (!condition) {
+        this.evaldCondition = true;
+    }
 };
 tree.Selector.prototype = {
     type: "Selector",
     accept: function (visitor) {
         this.elements = visitor.visit(this.elements);
-        this.extendList = visitor.visit(this.extendList)
+        this.extendList = visitor.visit(this.extendList);
+        this.condition = visitor.visit(this.condition);
+    },
+    createDerived: function(elements, extendList, evaldCondition) {
+        /*jshint eqnull:true */
+        evaldCondition = evaldCondition != null ? evaldCondition : this.evaldCondition;
+        var newSelector = new(tree.Selector)(elements, extendList || this.extendList, this.condition, this.index, this.currentFileInfo, this.isReferenced);
+        newSelector.evaldCondition = evaldCondition;
+        return newSelector;
     },
     match: function (other) {
         var elements = this.elements,
@@ -4407,34 +4973,41 @@ tree.Selector.prototype = {
         return true;
     },
     eval: function (env) {
-        return new(tree.Selector)(this.elements.map(function (e) {
+        var evaldCondition = this.condition && this.condition.eval(env);
+
+        return this.createDerived(this.elements.map(function (e) {
             return e.eval(env);
         }), this.extendList.map(function(extend) {
             return extend.eval(env);
-        }));
+        }), evaldCondition);
     },
-    toCSS: function (env) {
-        if (this._css) { return this._css }
-
-        if (this.elements[0].combinator.value === "") {
-            this._css = ' ';
-        } else {
-            this._css = '';
+    genCSS: function (env, output) {
+        var i, element;
+        if ((!env || !env.firstSelector) && this.elements[0].combinator.value === "") {
+            output.add(' ', this.currentFileInfo, this.index);
         }
-
-        this._css += this.elements.map(function (e) {
-            if (typeof(e) === 'string') {
-                return ' ' + e.trim();
-            } else {
-                return e.toCSS(env);
+        if (!this._css) {
+            //TODO caching? speed comparison?
+            for(i = 0; i < this.elements.length; i++) {
+                element = this.elements[i];
+                element.genCSS(env, output);
             }
-        }).join('');
-
-        return this._css;
+        }
+    },
+    toCSS: tree.toCSS,
+    markReferenced: function () {
+        this.isReferenced = true;
+    },
+    getIsReferenced: function() {
+        return !this.currentFileInfo.reference || this.isReferenced;
+    },
+    getIsOutput: function() {
+        return this.evaldCondition;
     }
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.UnicodeDescriptor = function (value) {
@@ -4442,13 +5015,15 @@ tree.UnicodeDescriptor = function (value) {
 };
 tree.UnicodeDescriptor.prototype = {
     type: "UnicodeDescriptor",
-    toCSS: function (env) {
-        return this.value;
+    genCSS: function (env, output) {
+        output.add(this.value);
     },
-    eval: function () { return this }
+    toCSS: tree.toCSS,
+    eval: function () { return this; }
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.URL = function (val, currentFileInfo) {
@@ -4460,9 +5035,12 @@ tree.URL.prototype = {
     accept: function (visitor) {
         this.value = visitor.visit(this.value);
     },
-    toCSS: function () {
-        return "url(" + this.value.toCSS() + ")";
+    genCSS: function (env, output) {
+        output.add("url(");
+        this.value.genCSS(env, output);
+        output.add(")");
     },
+    toCSS: tree.toCSS,
     eval: function (ctx) {
         var val = this.value.eval(ctx), rootpath;
 
@@ -4475,11 +5053,14 @@ tree.URL.prototype = {
             val.value = rootpath + val.value;
         }
 
+        val.value = ctx.normalizePath(val.value);
+
         return new(tree.URL)(val, null);
     }
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
 tree.Value = function (value) {
@@ -4499,23 +5080,33 @@ tree.Value.prototype = {
             }));
         }
     },
-    toCSS: function (env) {
-        return this.value.map(function (e) {
-            return e.toCSS(env);
-        }).join(env.compress ? ',' : ', ');
-    }
+    genCSS: function (env, output) {
+        var i;
+        for(i = 0; i < this.value.length; i++) {
+            this.value[i].genCSS(env, output);
+            if (i+1 < this.value.length) {
+                output.add((env && env.compress) ? ',' : ', ');
+            }
+        }
+    },
+    toCSS: tree.toCSS
 };
 
 })(require('../tree'));
+
 (function (tree) {
 
-tree.Variable = function (name, index, currentFileInfo) { this.name = name, this.index = index, this.currentFileInfo = currentFileInfo };
+tree.Variable = function (name, index, currentFileInfo) {
+    this.name = name;
+    this.index = index;
+    this.currentFileInfo = currentFileInfo;
+};
 tree.Variable.prototype = {
     type: "Variable",
     eval: function (env) {
         var variable, v, name = this.name;
 
-        if (name.indexOf('@@') == 0) {
+        if (name.indexOf('@@') === 0) {
             name = '@' + new(tree.Variable)(name.slice(1)).eval(env).value;
         }
         
@@ -4546,51 +5137,7 @@ tree.Variable.prototype = {
 };
 
 })(require('../tree'));
-(function (tree) {
 
-tree.debugInfo = function(env, ctx) {
-    var result="";
-    if (env.dumpLineNumbers && !env.compress) {
-        switch(env.dumpLineNumbers) {
-            case 'comments':
-                result = tree.debugInfo.asComment(ctx);
-                break;
-            case 'mediaquery':
-                result = tree.debugInfo.asMediaQuery(ctx);
-                break;
-            case 'all':
-                result = tree.debugInfo.asComment(ctx)+tree.debugInfo.asMediaQuery(ctx);
-                break;
-        }
-    }
-    return result;
-};
-
-tree.debugInfo.asComment = function(ctx) {
-    return '/* line ' + ctx.debugInfo.lineNumber + ', ' + ctx.debugInfo.fileName + ' */\n';
-};
-
-tree.debugInfo.asMediaQuery = function(ctx) {
-    return '@media -sass-debug-info{filename{font-family:' +
-        ('file://' + ctx.debugInfo.fileName).replace(/([.:/\\])/g, function(a){if(a=='\\') a = '\/'; return '\\' + a}) +
-        '}line{font-family:\\00003' + ctx.debugInfo.lineNumber + '}}\n';
-};
-
-tree.find = function (obj, fun) {
-    for (var i = 0, r; i < obj.length; i++) {
-        if (r = fun.call(obj, obj[i])) { return r }
-    }
-    return null;
-};
-tree.jsify = function (obj) {
-    if (Array.isArray(obj.value) && (obj.value.length > 1)) {
-        return '[' + obj.value.map(function (v) { return v.toCSS(false) }).join(', ') + ']';
-    } else {
-        return obj.toCSS(false);
-    }
-};
-
-})(require('./tree'));
 (function (tree) {
 
     var parseCopyProperties = [
@@ -4599,12 +5146,16 @@ tree.jsify = function (obj) {
         'files',            // list of files that have been imported, used for import-once
         'contents',         // browser-only, contents of all the files
         'relativeUrls',     // option - whether to adjust URL's to be relative
+        'rootpath',         // option - rootpath to append to URL's
         'strictImports',    // option -
+        'insecure',         // option - whether to allow imports from insecure ssl hosts
         'dumpLineNumbers',  // option - whether to dump line numbers
         'compress',         // option - whether to compress
         'processImports',   // option - whether to process imports. if false then imports will not be imported
         'syncImport',       // option - whether to import synchronously
+        'javascriptEnabled',// option - whether JavaScript is enabled. if undefined, defaults to true
         'mime',             // browser only - mime type for sheet import
+        'useFileCache',     // browser only - whether to use the per file session cache
         'currentFileInfo'   // information about the current file - for error reporting and importing and making urls relative etc.
     ];
 
@@ -4614,7 +5165,8 @@ tree.jsify = function (obj) {
     //  'rootpath' - path to append to normal URLs for this node
     //  'currentDirectory' - path to the current file, absolute
     //  'rootFilename' - filename of the base file
-    //  'entryPath' = absolute path to the entry file
+    //  'entryPath' - absolute path to the entry file
+    //  'reference' - whether the file should not be output and only output parts that are referenced
 
     tree.parseEnv = function(options) {
         copyFromOriginal(options, this, parseCopyProperties);
@@ -4639,14 +5191,6 @@ tree.jsify = function (obj) {
         }
     };
 
-    tree.parseEnv.prototype.toSheet = function (path) {
-        var env = new tree.parseEnv(this);
-        env.href = path;
-        //env.title = path;
-        env.type = this.mime;
-        return env;
-    };
-
     var evalCopyProperties = [
         'silent',      // whether to swallow errors and warnings
         'verbose',     // whether to log more activity
@@ -4654,7 +5198,10 @@ tree.jsify = function (obj) {
         'yuicompress', // whether to compress with the outside tool yui compressor
         'ieCompat',    // whether to enforce IE compatibility (IE8 data-uri)
         'strictMath',  // whether math has to be within parenthesis
-        'strictUnits'  // whether units need to evaluate correctly
+        'strictUnits', // whether units need to evaluate correctly
+        'cleancss',    // whether to compress with clean-css
+        'sourceMap',   // whether to output a source map
+        'importMultiple'// whether we are currently importing multiple copies
         ];
 
     tree.evalEnv = function(options, frames) {
@@ -4682,6 +5229,33 @@ tree.jsify = function (obj) {
         return !/^(?:[a-z-]+:|\/)/.test(path);
     };
 
+    tree.evalEnv.prototype.normalizePath = function( path ) {
+        var
+          segments = path.split("/").reverse(),
+          segment;
+
+        path = [];
+        while (segments.length !== 0 ) {
+            segment = segments.pop();
+            switch( segment ) {
+                case ".":
+                    break;
+                case "..":
+                    if ((path.length === 0) || (path[path.length - 1] === "..")) {
+                        path.push( segment );
+                    } else {
+                        path.pop();
+                    }
+                    break;
+                default:
+                    path.push( segment );
+                    break;
+            }
+        }
+
+        return path.join("/");
+    };
+
     //todo - do the same for the toCSS env
     //tree.toCSSEnv = function (options) {
     //};
@@ -4694,8 +5268,11 @@ tree.jsify = function (obj) {
                 destination[propertiesToCopy[i]] = original[propertiesToCopy[i]];
             }
         }
-    }
-})(require('./tree'));(function (tree) {
+    };
+
+})(require('./tree'));
+
+(function (tree) {
 
     tree.visitor = function(implementation) {
         this._implementation = implementation;
@@ -4736,6 +5313,7 @@ tree.jsify = function (obj) {
             for(i = 0; i < nodes.length; i++) {
                 var evald = this.visit(nodes[i]);
                 if (evald instanceof Array) {
+                    evald = this.flatten(evald);
                     newNodes = newNodes.concat(evald);
                 } else {
                     newNodes.push(evald);
@@ -4745,10 +5323,25 @@ tree.jsify = function (obj) {
                 return newNodes;
             }
             return nodes;
+        },
+        doAccept: function (node) {
+            node.accept(this);
+        },
+        flatten: function(arr, master) {
+            return arr.reduce(this.flattenReduce.bind(this), master || []);
+        },
+        flattenReduce: function(sum, element) {
+            if (element instanceof Array) {
+                sum = this.flatten(element, sum);
+            } else {
+                sum.push(element);
+            }
+            return sum;
         }
     };
 
-})(require('./tree'));(function (tree) {
+})(require('./tree'));
+(function (tree) {
     tree.importVisitor = function(importer, finish, evalEnv) {
         this._visitor = new tree.visitor(this);
         this._importer = importer;
@@ -4777,9 +5370,10 @@ tree.jsify = function (obj) {
         },
         visitImport: function (importNode, visitArgs) {
             var importVisitor = this,
-                evaldImportNode;
+                evaldImportNode,
+                inlineCSS = importNode.options.inline;
 
-            if (!importNode.css) {
+            if (!importNode.css || inlineCSS) {
 
                 try {
                     evaldImportNode = importNode.evalForImport(this.env);
@@ -4791,13 +5385,19 @@ tree.jsify = function (obj) {
                     importNode.error = e;
                 }
 
-                if (evaldImportNode && !evaldImportNode.css) {
+                if (evaldImportNode && (!evaldImportNode.css || inlineCSS)) {
                     importNode = evaldImportNode;
                     this.importCount++;
                     var env = new tree.evalEnv(this.env, this.env.frames.slice(0));
-                    this._importer.push(importNode.getPath(), importNode.currentFileInfo, function (e, root, imported) {
+
+                    if (importNode.options.multiple) {
+                        env.importMultiple = true;
+                    }
+
+                    this._importer.push(importNode.getPath(), importNode.currentFileInfo, importNode.options, function (e, root, imported, fullPath) {
                         if (e && !e.filename) { e.index = importNode.index; e.filename = importNode.currentFileInfo.filename; }
-                        if (imported && !importNode.options.multiple) { importNode.skip = imported; }
+
+                        if (imported && !env.importMultiple) { importNode.skip = imported; }
 
                         var subFinish = function(e) {
                             importVisitor.importCount--;
@@ -4809,11 +5409,15 @@ tree.jsify = function (obj) {
 
                         if (root) {
                             importNode.root = root;
-                            new(tree.importVisitor)(importVisitor._importer, subFinish, env)
-                                .run(root);
-                        } else {
-                            subFinish();
+                            importNode.importedFilename = fullPath;
+                            if (!inlineCSS && !importNode.skip) {
+                                new(tree.importVisitor)(importVisitor._importer, subFinish, env)
+                                    .run(root);
+                                return;
+                            }
                         }
+
+                        subFinish();
                     });
                 }
             }
@@ -4854,7 +5458,8 @@ tree.jsify = function (obj) {
         }
     };
 
-})(require('./tree'));(function (tree) {
+})(require('./tree'));
+(function (tree) {
     tree.joinSelectorVisitor = function() {
         this.contexts = [[]];
         this._visitor = new tree.visitor(this);
@@ -4877,6 +5482,10 @@ tree.jsify = function (obj) {
             this.contexts.push(paths);
 
             if (! rulesetNode.root) {
+                rulesetNode.selectors = rulesetNode.selectors.filter(function(selector) { return selector.getIsOutput(); });
+                if (rulesetNode.selectors.length === 0) {
+                    rulesetNode.rules.length = 0;
+                }
                 rulesetNode.joinSelectors(paths, context, rulesetNode.selectors);
                 rulesetNode.paths = paths;
             }
@@ -4886,11 +5495,213 @@ tree.jsify = function (obj) {
         },
         visitMedia: function (mediaNode, visitArgs) {
             var context = this.contexts[this.contexts.length - 1];
-            mediaNode.ruleset.root = (context.length === 0 || context[0].multiMedia);
+            mediaNode.rules[0].root = (context.length === 0 || context[0].multiMedia);
         }
     };
 
-})(require('./tree'));(function (tree) {
+})(require('./tree'));
+(function (tree) {
+    tree.toCSSVisitor = function(env) {
+        this._visitor = new tree.visitor(this);
+        this._env = env;
+    };
+
+    tree.toCSSVisitor.prototype = {
+        isReplacing: true,
+        run: function (root) {
+            return this._visitor.visit(root);
+        },
+
+        visitRule: function (ruleNode, visitArgs) {
+            if (ruleNode.variable) {
+                return [];
+            }
+            return ruleNode;
+        },
+
+        visitMixinDefinition: function (mixinNode, visitArgs) {
+            return [];
+        },
+
+        visitExtend: function (extendNode, visitArgs) {
+            return [];
+        },
+
+        visitComment: function (commentNode, visitArgs) {
+            if (commentNode.isSilent(this._env)) {
+                return [];
+            }
+            return commentNode;
+        },
+
+        visitMedia: function(mediaNode, visitArgs) {
+            mediaNode.accept(this._visitor);
+            visitArgs.visitDeeper = false;
+
+            if (!mediaNode.rules.length) {
+                return [];
+            }
+            return mediaNode;
+        },
+
+        visitDirective: function(directiveNode, visitArgs) {
+            if (directiveNode.currentFileInfo.reference && !directiveNode.isReferenced) {
+                return [];
+            }
+            if (directiveNode.name === "@charset") {
+                // Only output the debug info together with subsequent @charset definitions
+                // a comment (or @media statement) before the actual @charset directive would
+                // be considered illegal css as it has to be on the first line
+                if (this.charset) {
+                    if (directiveNode.debugInfo) {
+                        var comment = new tree.Comment("/* " + directiveNode.toCSS(this._env).replace(/\n/g, "")+" */\n");
+                        comment.debugInfo = directiveNode.debugInfo;
+                        return this._visitor.visit(comment);
+                    }
+                    return [];
+                }
+                this.charset = true;
+            }
+            return directiveNode;
+        },
+
+        checkPropertiesInRoot: function(rules) {
+            var ruleNode;
+            for(var i = 0; i < rules.length; i++) {
+                ruleNode = rules[i];
+                if (ruleNode instanceof tree.Rule && !ruleNode.variable) {
+                    throw { message: "properties must be inside selector blocks, they cannot be in the root.",
+                        index: ruleNode.index, filename: ruleNode.currentFileInfo ? ruleNode.currentFileInfo.filename : null};
+                }
+            }
+        },
+
+        visitRuleset: function (rulesetNode, visitArgs) {
+            var rule, rulesets = [];
+            if (rulesetNode.firstRoot) {
+                this.checkPropertiesInRoot(rulesetNode.rules);
+            }
+            if (! rulesetNode.root) {
+
+                rulesetNode.paths = rulesetNode.paths
+                    .filter(function(p) {
+                        var i;
+                        if (p[0].elements[0].combinator.value === ' ') {
+                            p[0].elements[0].combinator = new(tree.Combinator)('');
+                        }
+                        for(i = 0; i < p.length; i++) {
+                            if (p[i].getIsReferenced() && p[i].getIsOutput()) {
+                                return true;
+                            }
+                            return false;
+                        }
+                    });
+
+                // Compile rules and rulesets
+                for (var i = 0; i < rulesetNode.rules.length; i++) {
+                    rule = rulesetNode.rules[i];
+
+                    if (rule.rules) {
+                        // visit because we are moving them out from being a child
+                        rulesets.push(this._visitor.visit(rule));
+                        rulesetNode.rules.splice(i, 1);
+                        i--;
+                        continue;
+                    }
+                }
+                // accept the visitor to remove rules and refactor itself
+                // then we can decide now whether we want it or not
+                if (rulesetNode.rules.length > 0) {
+                    rulesetNode.accept(this._visitor);
+                }
+                visitArgs.visitDeeper = false;
+
+                this._mergeRules(rulesetNode.rules);
+                this._removeDuplicateRules(rulesetNode.rules);
+
+                // now decide whether we keep the ruleset
+                if (rulesetNode.rules.length > 0 && rulesetNode.paths.length > 0) {
+                    rulesets.splice(0, 0, rulesetNode);
+                }
+            } else {
+                rulesetNode.accept(this._visitor);
+                visitArgs.visitDeeper = false;
+                if (rulesetNode.firstRoot || rulesetNode.rules.length > 0) {
+                    rulesets.splice(0, 0, rulesetNode);
+                }
+            }
+            if (rulesets.length === 1) {
+                return rulesets[0];
+            }
+            return rulesets;
+        },
+
+        _removeDuplicateRules: function(rules) {
+            // remove duplicates
+            var ruleCache = {},
+                ruleList, rule, i;
+            for(i = rules.length - 1; i >= 0 ; i--) {
+                rule = rules[i];
+                if (rule instanceof tree.Rule) {
+                    if (!ruleCache[rule.name]) {
+                        ruleCache[rule.name] = rule;
+                    } else {
+                        ruleList = ruleCache[rule.name];
+                        if (ruleList instanceof tree.Rule) {
+                            ruleList = ruleCache[rule.name] = [ruleCache[rule.name].toCSS(this._env)];
+                        }
+                        var ruleCSS = rule.toCSS(this._env);
+                        if (ruleList.indexOf(ruleCSS) !== -1) {
+                            rules.splice(i, 1);
+                        } else {
+                            ruleList.push(ruleCSS);
+                        }
+                    }
+                }
+            }
+        },
+
+        _mergeRules: function (rules) {
+            var groups = {},
+                parts,
+                rule,
+                key;
+
+            for (var i = 0; i < rules.length; i++) {
+                rule = rules[i];
+
+                if ((rule instanceof tree.Rule) && rule.merge) {
+                    key = [rule.name,
+                        rule.important ? "!" : ""].join(",");
+
+                    if (!groups[key]) {
+                        parts = groups[key] = [];
+                    } else {
+                        rules.splice(i--, 1);
+                    }
+
+                    parts.push(rule);
+                }
+            }
+
+            Object.keys(groups).map(function (k) {
+                parts = groups[k];
+
+                if (parts.length > 1) {
+                    rule = parts[0];
+
+                    rule.value = new (tree.Value)(parts.map(function (p) {
+                        return p.value;
+                    }));
+                }
+            });
+        }
+    };
+
+})(require('./tree'));
+(function (tree) {
+    /*jshint loopfunc:true */
+
     tree.extendFinderVisitor = function() {
         this._visitor = new tree.visitor(this);
         this.contexts = [];
@@ -4921,6 +5732,7 @@ tree.jsify = function (obj) {
             for(i = 0; i < rulesetNode.rules.length; i++) {
                 if (rulesetNode.rules[i] instanceof tree.Extend) {
                     allSelectorsExtendList.push(rulesetNode.rules[i]);
+                    rulesetNode.extendOnEveryPath = true;
                 }
             }
 
@@ -5104,7 +5916,7 @@ tree.jsify = function (obj) {
                     selectorPath = rulesetNode.paths[pathIndex];
 
                     // extending extends happens initially, before the main pass
-                    if (selectorPath[selectorPath.length-1].extendList.length) { continue; }
+                    if (rulesetNode.extendOnEveryPath || selectorPath[selectorPath.length-1].extendList.length) { continue; }
 
                     matches = this.findMatch(allExtends[extendIndex], selectorPath);
 
@@ -5138,7 +5950,7 @@ tree.jsify = function (obj) {
                     haystackElement = hackstackSelector.elements[hackstackElementIndex];
 
                     // if we allow elements before our match we can add a potential match every time. otherwise only at the first element.
-                    if (extend.allowBefore || (haystackSelectorIndex == 0 && hackstackElementIndex == 0)) {
+                    if (extend.allowBefore || (haystackSelectorIndex === 0 && hackstackElementIndex === 0)) {
                         potentialMatches.push({pathIndex: haystackSelectorIndex, index: hackstackElementIndex, matched: 0, initialCombinator: haystackElement.combinator});
                     }
 
@@ -5149,7 +5961,7 @@ tree.jsify = function (obj) {
                         // then each selector in haystackSelectorPath has a space before it added in the toCSS phase. so we need to work out
                         // what the resulting combinator will be
                         targetCombinator = haystackElement.combinator.value;
-                        if (targetCombinator == '' && hackstackElementIndex === 0) {
+                        if (targetCombinator === '' && hackstackElementIndex === 0) {
                             targetCombinator = ' ';
                         }
 
@@ -5205,6 +6017,24 @@ tree.jsify = function (obj) {
                 elementValue2 = elementValue2.value.value || elementValue2.value;
                 return elementValue1 === elementValue2;
             }
+            elementValue1 = elementValue1.value;
+            elementValue2 = elementValue2.value;
+            if (elementValue1 instanceof tree.Selector) {
+                if (!(elementValue2 instanceof tree.Selector) || elementValue1.elements.length !== elementValue2.elements.length) {
+                    return false;
+                }
+                for(var i = 0; i <elementValue1.elements.length; i++) {
+                    if (elementValue1.elements[i].combinator.value !== elementValue2.elements[i].combinator.value) {
+                        if (i !== 0 || (elementValue1.elements[i].combinator.value || ' ') !== (elementValue2.elements[i].combinator.value || ' ')) {
+                            return false;
+                        }
+                    }
+                    if (!this.isElementValuesEqual(elementValue1.elements[i].value, elementValue2.elements[i].value)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
             return false;
         },
         extendSelector:function (matches, selectorPath, replacementSelector) {
@@ -5217,7 +6047,8 @@ tree.jsify = function (obj) {
                 matchIndex,
                 selector,
                 firstElement,
-                match;
+                match,
+                newElements;
 
             for (matchIndex = 0; matchIndex < matches.length; matchIndex++) {
                 match = matches[matchIndex];
@@ -5225,7 +6056,8 @@ tree.jsify = function (obj) {
                 firstElement = new tree.Element(
                     match.initialCombinator,
                     replacementSelector.elements[0].value,
-                    replacementSelector.elements[0].index
+                    replacementSelector.elements[0].index,
+                    replacementSelector.elements[0].currentFileInfo
                 );
 
                 if (match.pathIndex > currentSelectorPathIndex && currentSelectorPathElementIndex > 0) {
@@ -5234,17 +6066,24 @@ tree.jsify = function (obj) {
                     currentSelectorPathIndex++;
                 }
 
-                path = path.concat(selectorPath.slice(currentSelectorPathIndex, match.pathIndex));
+                newElements = selector.elements
+                    .slice(currentSelectorPathElementIndex, match.index)
+                    .concat([firstElement])
+                    .concat(replacementSelector.elements.slice(1));
 
-                path.push(new tree.Selector(
-                    selector.elements
-                        .slice(currentSelectorPathElementIndex, match.index)
-                        .concat([firstElement])
-                        .concat(replacementSelector.elements.slice(1))
-                ));
+                if (currentSelectorPathIndex === match.pathIndex && matchIndex > 0) {
+                    path[path.length - 1].elements =
+                        path[path.length - 1].elements.concat(newElements);
+                } else {
+                    path = path.concat(selectorPath.slice(currentSelectorPathIndex, match.pathIndex));
+
+                    path.push(new tree.Selector(
+                        newElements
+                    ));
+                }
                 currentSelectorPathIndex = match.endPathIndex;
                 currentSelectorPathElementIndex = match.endPathElementIndex;
-                if (currentSelectorPathElementIndex >= selector.elements.length) {
+                if (currentSelectorPathElementIndex >= selectorPath[currentSelectorPathIndex].elements.length) {
                     currentSelectorPathElementIndex = 0;
                     currentSelectorPathIndex++;
                 }
@@ -5252,7 +6091,6 @@ tree.jsify = function (obj) {
 
             if (currentSelectorPathIndex < selectorPath.length && currentSelectorPathElementIndex > 0) {
                 path[path.length - 1].elements = path[path.length - 1].elements.concat(selectorPath[currentSelectorPathIndex].elements.slice(currentSelectorPathElementIndex));
-                currentSelectorPathElementIndex = 0;
                 currentSelectorPathIndex++;
             }
 
@@ -5280,561 +6118,797 @@ tree.jsify = function (obj) {
         }
     };
 
-})(require('./tree'));//
-if (typeof window != 'undefined') {
-    // browser.js - client-side engine
-    //
+})(require('./tree'));
 
-    var isFileProtocol = /^(file|chrome(-extension)?|resource|qrc|app):/.test(location.protocol);
+(function (tree) {
 
-    less.env = less.env || (location.hostname == '127.0.0.1' ||
-                            location.hostname == '0.0.0.0'   ||
-                            location.hostname == 'localhost' ||
-                            location.port.length > 0         ||
-                            isFileProtocol                   ? 'development'
-                                                             : 'production');
+    tree.sourceMapOutput = function (options) {
+        this._css = [];
+        this._rootNode = options.rootNode;
+        this._writeSourceMap = options.writeSourceMap;
+        this._contentsMap = options.contentsMap;
+        this._sourceMapFilename = options.sourceMapFilename;
+        this._outputFilename = options.outputFilename;
+        this._sourceMapBasepath = options.sourceMapBasepath;
+        this._sourceMapRootpath = options.sourceMapRootpath;
+        this._outputSourceFiles = options.outputSourceFiles;
+        this._sourceMapGeneratorConstructor = options.sourceMapGenerator || require("source-map").SourceMapGenerator;
 
-    // Load styles asynchronously (default: false)
-    //
-    // This is set to `false` by default, so that the body
-    // doesn't start loading before the stylesheets are parsed.
-    // Setting this to `true` can result in flickering.
-    //
-    less.async = less.async || false;
-    less.fileAsync = less.fileAsync || false;
-
-    // Interval between watch polls
-    less.poll = less.poll || (isFileProtocol ? 1000 : 1500);
-
-    //Setup user functions
-    if (less.functions) {
-        for(var func in less.functions) {
-            less.tree.functions[func] = less.functions[func];
-       }
-    }
-
-    var dumpLineNumbers = /!dumpLineNumbers:(comments|mediaquery|all)/.exec(location.hash);
-    if (dumpLineNumbers) {
-        less.dumpLineNumbers = dumpLineNumbers[1];
-    }
-
-    //
-    // Watch mode
-    //
-    less.watch   = function () {
-        if (!less.watchMode ){
-            less.env = 'development';
-             initRunningMode();
+        if (this._sourceMapRootpath && this._sourceMapRootpath.charAt(this._sourceMapRootpath.length-1) !== '/') {
+            this._sourceMapRootpath += '/';
         }
-        return this.watchMode = true 
+
+        this._lineNumber = 0;
+        this._column = 0;
     };
 
-    less.unwatch = function () {clearInterval(less.watchTimer); return this.watchMode = false; };
+    tree.sourceMapOutput.prototype.normalizeFilename = function(filename) {
+        if (this._sourceMapBasepath && filename.indexOf(this._sourceMapBasepath) === 0) {
+             filename = filename.substring(this._sourceMapBasepath.length);
+             if (filename.charAt(0) === '\\' || filename.charAt(0) === '/') {
+                filename = filename.substring(1);
+             }
+        }
+        return (this._sourceMapRootpath || "") + filename.replace(/\\/g, '/');
+    };
 
-    function initRunningMode(){
-        if (less.env === 'development') {
-            less.optimization = 0;
-            less.watchTimer = setInterval(function () {
-                if (less.watchMode) {
-                    loadStyleSheets(function (e, root, _, sheet, env) {
-                        if (e) {
-                            error(e, sheet.href);
-                        } else if (root) {
-                            createCSS(root.toCSS(less), sheet, env.lastModified);
-                        }
-                    });
+    tree.sourceMapOutput.prototype.add = function(chunk, fileInfo, index, mapLines) {
+
+        //ignore adding empty strings
+        if (!chunk) {
+            return;
+        }
+
+        var lines,
+            sourceLines,
+            columns,
+            sourceColumns,
+            i;
+
+        if (fileInfo) {
+            var inputSource = this._contentsMap[fileInfo.filename].substring(0, index);
+            sourceLines = inputSource.split("\n");
+            sourceColumns = sourceLines[sourceLines.length-1];
+        }
+
+        lines = chunk.split("\n");
+        columns = lines[lines.length-1];
+
+        if (fileInfo) {
+            if (!mapLines) {
+                this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + 1, column: this._column},
+                    original: { line: sourceLines.length, column: sourceColumns.length},
+                    source: this.normalizeFilename(fileInfo.filename)});
+            } else {
+                for(i = 0; i < lines.length; i++) {
+                    this._sourceMapGenerator.addMapping({ generated: { line: this._lineNumber + i + 1, column: i === 0 ? this._column : 0},
+                        original: { line: sourceLines.length + i, column: i === 0 ? sourceColumns.length : 0},
+                        source: this.normalizeFilename(fileInfo.filename)});
                 }
-            }, less.poll);
+            }
+        }
+
+        if (lines.length === 1) {
+            this._column += columns.length;
         } else {
-            less.optimization = 3;
+            this._lineNumber += lines.length - 1;
+            this._column = columns.length;
         }
+
+        this._css.push(chunk);
+    };
+
+    tree.sourceMapOutput.prototype.isEmpty = function() {
+        return this._css.length === 0;
+    };
+
+    tree.sourceMapOutput.prototype.toCSS = function(env) {
+        this._sourceMapGenerator = new this._sourceMapGeneratorConstructor({ file: this._outputFilename, sourceRoot: null });
+
+        if (this._outputSourceFiles) {
+            for(var filename in this._contentsMap) {
+                this._sourceMapGenerator.setSourceContent(this.normalizeFilename(filename), this._contentsMap[filename]);
+            }
+        }
+
+        this._rootNode.genCSS(env, this);
+
+        if (this._css.length > 0) {
+            var sourceMapFilename,
+                sourceMapContent = JSON.stringify(this._sourceMapGenerator.toJSON());
+
+            if (this._sourceMapFilename) {
+                sourceMapFilename = this.normalizeFilename(this._sourceMapFilename);
+            }
+
+            if (this._writeSourceMap) {
+                this._writeSourceMap(sourceMapContent);
+            } else {
+                sourceMapFilename = "data:application/json," + encodeURIComponent(sourceMapContent);
+            }
+
+            if (sourceMapFilename) {
+                this._css.push("/*# sourceMappingURL=" + sourceMapFilename + " */");
+            }
+        }
+
+        return this._css.join('');
+    };
+
+})(require('./tree'));
+
+//
+// browser.js - client-side engine
+//
+/*global less, window, document, XMLHttpRequest, location */
+
+var isFileProtocol = /^(file|chrome(-extension)?|resource|qrc|app):/.test(location.protocol);
+
+less.env = less.env || (location.hostname == '127.0.0.1' ||
+                        location.hostname == '0.0.0.0'   ||
+                        location.hostname == 'localhost' ||
+                        location.port.length > 0         ||
+                        isFileProtocol                   ? 'development'
+                                                         : 'production');
+
+var logLevel = {
+    info: 2,
+    errors: 1,
+    none: 0
+};
+
+// The amount of logging in the javascript console.
+// 2 - Information and errors
+// 1 - Errors
+// 0 - None
+// Defaults to 2
+less.logLevel = typeof(less.logLevel) != 'undefined' ? less.logLevel : logLevel.info;
+
+// Load styles asynchronously (default: false)
+//
+// This is set to `false` by default, so that the body
+// doesn't start loading before the stylesheets are parsed.
+// Setting this to `true` can result in flickering.
+//
+less.async = less.async || false;
+less.fileAsync = less.fileAsync || false;
+
+// Interval between watch polls
+less.poll = less.poll || (isFileProtocol ? 1000 : 1500);
+
+//Setup user functions
+if (less.functions) {
+    for(var func in less.functions) {
+        less.tree.functions[func] = less.functions[func];
+   }
+}
+
+var dumpLineNumbers = /!dumpLineNumbers:(comments|mediaquery|all)/.exec(location.hash);
+if (dumpLineNumbers) {
+    less.dumpLineNumbers = dumpLineNumbers[1];
+}
+
+var typePattern = /^text\/(x-)?less$/;
+var cache = null;
+var fileCache = {};
+
+function log(str, level) {
+    if (less.env == 'development' && typeof(console) !== 'undefined' && less.logLevel >= level) {
+        console.log('less: ' + str);
     }
+}
 
-    if (/!watch/.test(location.hash)) {
-        less.watch();
+function extractId(href) {
+    return href.replace(/^[a-z-]+:\/+?[^\/]+/, '' )  // Remove protocol & domain
+        .replace(/^\//,                 '' )  // Remove root /
+        .replace(/\.[a-zA-Z]+$/,        '' )  // Remove simple extension
+        .replace(/[^\.\w-]+/g,          '-')  // Replace illegal characters
+        .replace(/\./g,                 ':'); // Replace dots with colons(for valid id)
+}
+
+function errorConsole(e, rootHref) {
+    var template = '{line} {content}';
+    var filename = e.filename || rootHref;
+    var errors = [];
+    var content = (e.type || "Syntax") + "Error: " + (e.message || 'There is an error in your .less file') +
+        " in " + filename + " ";
+
+    var errorline = function (e, i, classname) {
+        if (e.extract[i] !== undefined) {
+            errors.push(template.replace(/\{line\}/, (parseInt(e.line, 10) || 0) + (i - 1))
+                .replace(/\{class\}/, classname)
+                .replace(/\{content\}/, e.extract[i]));
+        }
+    };
+
+    if (e.extract) {
+        errorline(e, 0, '');
+        errorline(e, 1, 'line');
+        errorline(e, 2, '');
+        content += 'on line ' + e.line + ', column ' + (e.column + 1) + ':\n' +
+            errors.join('\n');
+    } else if (e.stack) {
+        content += e.stack;
     }
+    log(content, logLevel.errors);
+}
 
-    var cache = null;
+function createCSS(styles, sheet, lastModified) {
+    // Strip the query-string
+    var href = sheet.href || '';
 
-    if (less.env != 'development') {
+    // If there is no title set, use the filename, minus the extension
+    var id = 'less:' + (sheet.title || extractId(href));
+
+    // If this has already been inserted into the DOM, we may need to replace it
+    var oldCss = document.getElementById(id);
+    var keepOldCss = false;
+
+    // Create a new stylesheet node for insertion or (if necessary) replacement
+    var css = document.createElement('style');
+    css.setAttribute('type', 'text/css');
+    if (sheet.media) {
+        css.setAttribute('media', sheet.media);
+    }
+    css.id = id;
+
+    if (css.styleSheet) { // IE
         try {
-            cache = (typeof(window.localStorage) === 'undefined') ? null : window.localStorage;
-        } catch (_) {}
+            css.styleSheet.cssText = styles;
+        } catch (e) {
+            throw new(Error)("Couldn't reassign styleSheet.cssText.");
+        }
+    } else {
+        css.appendChild(document.createTextNode(styles));
+
+        // If new contents match contents of oldCss, don't replace oldCss
+        keepOldCss = (oldCss !== null && oldCss.childNodes.length > 0 && css.childNodes.length > 0 &&
+            oldCss.firstChild.nodeValue === css.firstChild.nodeValue);
     }
 
-    //
-    // Get all <link> tags with the 'rel' attribute set to "stylesheet/less"
-    //
-    var links = document.getElementsByTagName('link');
-    var typePattern = /^text\/(x-)?less$/;
+    var head = document.getElementsByTagName('head')[0];
 
-    less.sheets = [];
-
-    for (var i = 0; i < links.length; i++) {
-        if (links[i].rel === 'stylesheet/less' || (links[i].rel.match(/stylesheet/) &&
-           (links[i].type.match(typePattern)))) {
-            less.sheets.push(links[i]);
+    // If there is no oldCss, just append; otherwise, only append if we need
+    // to replace oldCss with an updated stylesheet
+    if (oldCss === null || keepOldCss === false) {
+        var nextEl = sheet && sheet.nextSibling || null;
+        if (nextEl) {
+            nextEl.parentNode.insertBefore(css, nextEl);
+        } else {
+            head.appendChild(css);
         }
     }
+    if (oldCss && keepOldCss === false) {
+        oldCss.parentNode.removeChild(oldCss);
+    }
 
-    //
-    // With this function, it's possible to alter variables and re-render
-    // CSS without reloading less-files
-    //
-    var session_cache = '';
-    less.modifyVars = function(record) {
-        var str = session_cache;
-        for (var name in record) {
-            str += ((name.slice(0,1) === '@')? '' : '@') + name +': '+ 
-                    ((record[name].slice(-1) === ';')? record[name] : record[name] +';');
+    // Don't update the local store if the file wasn't modified
+    if (lastModified && cache) {
+        log('saving ' + href + ' to cache.', logLevel.info);
+        try {
+            cache.setItem(href, styles);
+            cache.setItem(href + ':timestamp', lastModified);
+        } catch(e) {
+            //TODO - could do with adding more robust error handling
+            log('failed to save', logLevel.errors);
         }
-        new(less.Parser)(new less.tree.parseEnv(less)).parse(str, function (e, root) {
-            if (e) {
-                error(e, "session_cache");
-            } else {
-                createCSS(root.toCSS(less), less.sheets[less.sheets.length - 1]);
-            }
-        });
+    }
+}
+
+function errorHTML(e, rootHref) {
+    var id = 'less-error-message:' + extractId(rootHref || "");
+    var template = '<li><label>{line}</label><pre class="{class}">{content}</pre></li>';
+    var elem = document.createElement('div'), timer, content, errors = [];
+    var filename = e.filename || rootHref;
+    var filenameNoPath = filename.match(/([^\/]+(\?.*)?)$/)[1];
+
+    elem.id        = id;
+    elem.className = "less-error-message";
+
+    content = '<h3>'  + (e.type || "Syntax") + "Error: " + (e.message || 'There is an error in your .less file') +
+        '</h3>' + '<p>in <a href="' + filename   + '">' + filenameNoPath + "</a> ";
+
+    var errorline = function (e, i, classname) {
+        if (e.extract[i] !== undefined) {
+            errors.push(template.replace(/\{line\}/, (parseInt(e.line, 10) || 0) + (i - 1))
+                .replace(/\{class\}/, classname)
+                .replace(/\{content\}/, e.extract[i]));
+        }
     };
 
-    less.refresh = function (reload) {
-        var startTime, endTime;
-        startTime = endTime = new(Date);
+    if (e.extract) {
+        errorline(e, 0, '');
+        errorline(e, 1, 'line');
+        errorline(e, 2, '');
+        content += 'on line ' + e.line + ', column ' + (e.column + 1) + ':</p>' +
+            '<ul>' + errors.join('') + '</ul>';
+    } else if (e.stack) {
+        content += '<br/>' + e.stack.split('\n').slice(1).join('<br/>');
+    }
+    elem.innerHTML = content;
 
-        loadStyleSheets(function (e, root, _, sheet, env) {
-            if (e) {
-                return error(e, sheet.href);
+    // CSS for error messages
+    createCSS([
+        '.less-error-message ul, .less-error-message li {',
+        'list-style-type: none;',
+        'margin-right: 15px;',
+        'padding: 4px 0;',
+        'margin: 0;',
+        '}',
+        '.less-error-message label {',
+        'font-size: 12px;',
+        'margin-right: 15px;',
+        'padding: 4px 0;',
+        'color: #cc7777;',
+        '}',
+        '.less-error-message pre {',
+        'color: #dd6666;',
+        'padding: 4px 0;',
+        'margin: 0;',
+        'display: inline-block;',
+        '}',
+        '.less-error-message pre.line {',
+        'color: #ff0000;',
+        '}',
+        '.less-error-message h3 {',
+        'font-size: 20px;',
+        'font-weight: bold;',
+        'padding: 15px 0 5px 0;',
+        'margin: 0;',
+        '}',
+        '.less-error-message a {',
+        'color: #10a',
+        '}',
+        '.less-error-message .error {',
+        'color: red;',
+        'font-weight: bold;',
+        'padding-bottom: 2px;',
+        'border-bottom: 1px dashed red;',
+        '}'
+    ].join('\n'), { title: 'error-message' });
+
+    elem.style.cssText = [
+        "font-family: Arial, sans-serif",
+        "border: 1px solid #e00",
+        "background-color: #eee",
+        "border-radius: 5px",
+        "-webkit-border-radius: 5px",
+        "-moz-border-radius: 5px",
+        "color: #e00",
+        "padding: 15px",
+        "margin-bottom: 15px"
+    ].join(';');
+
+    if (less.env == 'development') {
+        timer = setInterval(function () {
+            if (document.body) {
+                if (document.getElementById(id)) {
+                    document.body.replaceChild(elem, document.getElementById(id));
+                } else {
+                    document.body.insertBefore(elem, document.body.firstChild);
+                }
+                clearInterval(timer);
             }
-            if (env.local) {
-                log("loading " + sheet.href + " from cache.");
-            } else {
-                log("parsed " + sheet.href + " successfully.");
-                createCSS(root.toCSS(less), sheet, env.lastModified);
+        }, 10);
+    }
+}
+
+function error(e, rootHref) {
+    if (!less.errorReporting || less.errorReporting === "html") {
+        errorHTML(e, rootHref);
+    } else if (less.errorReporting === "console") {
+        errorConsole(e, rootHref);
+    } else if (typeof less.errorReporting === 'function') {
+        less.errorReporting("add", e, rootHref);
+    }
+}
+
+function removeErrorHTML(path) {
+    var node = document.getElementById('less-error-message:' + extractId(path));
+    if (node) {
+        node.parentNode.removeChild(node);
+    }
+}
+
+function removeErrorConsole(path) {
+    //no action
+}
+
+function removeError(path) {
+    if (!less.errorReporting || less.errorReporting === "html") {
+        removeErrorHTML(path);
+    } else if (less.errorReporting === "console") {
+        removeErrorConsole(path);
+    } else if (typeof less.errorReporting === 'function') {
+        less.errorReporting("remove", path);
+    }
+}
+
+function loadStyles(newVars) {
+    var styles = document.getElementsByTagName('style'),
+        style;
+    for (var i = 0; i < styles.length; i++) {
+        style = styles[i];
+        if (style.type.match(typePattern)) {
+            var env = new less.tree.parseEnv(less),
+                lessText = style.innerHTML || '';
+            env.filename = document.location.href.replace(/#.*$/, '');
+            if (newVars) {
+                env.useFileCache = true;
+                lessText += "\n" + newVars;
             }
-            log("css for " + sheet.href + " generated in " + (new(Date) - endTime) + 'ms');
-            (env.remaining === 0) && log("css generated in " + (new(Date) - startTime) + 'ms');
-            endTime = new(Date);
-        }, reload);
 
-        loadStyles();
-    };
-    less.refreshStyles = loadStyles;
-
-    less.refresh(less.env === 'development');
-
-    function loadStyles() {
-        var styles = document.getElementsByTagName('style');
-        for (var i = 0; i < styles.length; i++) {
-            if (styles[i].type.match(typePattern)) {
-                var env = new less.tree.parseEnv(less);
-                env.filename = document.location.href.replace(/#.*$/, '');
-
-                new(less.Parser)(env).parse(styles[i].innerHTML || '', function (e, cssAST) {
+            /*jshint loopfunc:true */
+            // use closure to store current value of i
+            var callback = (function(style) {
+                return function (e, cssAST) {
                     if (e) {
                         return error(e, "inline");
                     }
                     var css = cssAST.toCSS(less);
-                    var style = styles[i];
                     style.type = 'text/css';
                     if (style.styleSheet) {
                         style.styleSheet.cssText = css;
                     } else {
                         style.innerHTML = css;
                     }
-                });
-            }
-        }
-    }
-
-    function loadStyleSheets(callback, reload) {
-        for (var i = 0; i < less.sheets.length; i++) {
-            loadStyleSheet(less.sheets[i], callback, reload, less.sheets.length - (i + 1));
-        }
-    }
-
-    function pathDiff(url, baseUrl) {
-        // diff between two paths to create a relative path
-
-        var urlParts = extractUrlParts(url),
-            baseUrlParts = extractUrlParts(baseUrl),
-            i, max, urlDirectories, baseUrlDirectories, diff = "";
-        if (urlParts.hostPart !== baseUrlParts.hostPart) {
-            return "";
-        }
-        max = Math.max(baseUrlParts.directories.length, urlParts.directories.length);
-        for(i = 0; i < max; i++) {
-            if (baseUrlParts.directories[i] !== urlParts.directories[i]) { break; }
-        }
-        baseUrlDirectories = baseUrlParts.directories.slice(i);
-        urlDirectories = urlParts.directories.slice(i);
-        for(i = 0; i < baseUrlDirectories.length-1; i++) {
-            diff += "../";
-        }
-        for(i = 0; i < urlDirectories.length-1; i++) {
-            diff += urlDirectories[i] + "/";
-        }
-        return diff;
-    }
-
-    function extractUrlParts(url, baseUrl) {
-        // urlParts[1] = protocol&hostname || /
-        // urlParts[2] = / if path relative to host base
-        // urlParts[3] = directories
-        // urlParts[4] = filename
-        // urlParts[5] = parameters
-
-        var urlPartsRegex = /^((?:[a-z-]+:)?\/+?(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/i,
-            urlParts = url.match(urlPartsRegex),
-            returner = {}, directories = [], i, baseUrlParts;
-
-        if (!urlParts) {
-            throw new Error("Could not parse sheet href - '"+url+"'");
-        }
-
-        // Stylesheets in IE don't always return the full path    
-        if (!urlParts[1] || urlParts[2]) {
-            baseUrlParts = baseUrl.match(urlPartsRegex);
-            if (!baseUrlParts) {
-                throw new Error("Could not parse page url - '"+baseUrl+"'");
-            }
-            urlParts[1] = urlParts[1] || baseUrlParts[1] || "";
-            if (!urlParts[2]) {
-                urlParts[3] = baseUrlParts[3] + urlParts[3];
-            }
-        }
-        
-        if (urlParts[3]) {
-            directories = urlParts[3].replace(/\\/g, "/").split("/");
-
-            // extract out . before .. so .. doesn't absorb a non-directory
-            for(i = 0; i < directories.length; i++) {
-                if (directories[i] === ".") {
-                    directories.splice(i, 1);
-                    i -= 1;
-                }
-            }
-
-            for(i = 0; i < directories.length; i++) {
-                if (directories[i] === ".." && i > 0) {
-                    directories.splice(i-1, 2);
-                    i -= 2;
-                }
-            }
-        }
-
-        returner.hostPart = urlParts[1];
-        returner.directories = directories;
-        returner.path = urlParts[1] + directories.join("/");
-        returner.fileUrl = returner.path + (urlParts[4] || "");
-        returner.url = returner.fileUrl + (urlParts[5] || "");
-        return returner;
-    }
-
-    function loadStyleSheet(sheet, callback, reload, remaining) {
-
-        // sheet may be set to the stylesheet for the initial load or a collection of properties including
-        // some env variables for imports
-        var hrefParts = extractUrlParts(sheet.href, window.location.href);
-        var href      = hrefParts.url;
-        var css       = cache && cache.getItem(href);
-        var timestamp = cache && cache.getItem(href + ':timestamp');
-        var styles    = { css: css, timestamp: timestamp };
-        var env;
-        var newFileInfo = {
-                relativeUrls: less.relativeUrls,
-                currentDirectory: hrefParts.path,
-                filename: href
-            };
-
-        if (sheet instanceof less.tree.parseEnv) {
-            env = new less.tree.parseEnv(sheet);
-            newFileInfo.entryPath = env.currentFileInfo.entryPath;
-            newFileInfo.rootpath = env.currentFileInfo.rootpath;
-            newFileInfo.rootFilename = env.currentFileInfo.rootFilename;
-        } else {
-            env = new less.tree.parseEnv(less);
-            env.mime = sheet.type;
-            newFileInfo.entryPath = hrefParts.path;
-            newFileInfo.rootpath = less.rootpath || hrefParts.path;
-            newFileInfo.rootFilename = href;
-        }
-
-        if (env.relativeUrls) {
-            //todo - this relies on option being set on less object rather than being passed in as an option
-            //     - need an originalRootpath
-            if (less.rootpath) {
-                newFileInfo.rootpath = extractUrlParts(less.rootpath + pathDiff(hrefParts.path, newFileInfo.entryPath)).path;
-            } else {
-                newFileInfo.rootpath = hrefParts.path;
-            }
-        }
-
-        xhr(href, sheet.type, function (data, lastModified) {
-            // Store data this session
-            session_cache += data.replace(/@import .+?;/ig, '');
-
-            if (!reload && styles && lastModified &&
-               (new(Date)(lastModified).valueOf() ===
-                new(Date)(styles.timestamp).valueOf())) {
-                // Use local copy
-                createCSS(styles.css, sheet);
-                callback(null, null, data, sheet, { local: true, remaining: remaining }, href);
-            } else {
-                // Use remote copy (re-parse)
-                try {
-                    env.contents[href] = data;  // Updating content cache
-                    env.paths = [hrefParts.path];
-                    env.currentFileInfo = newFileInfo;
-
-                    new(less.Parser)(env).parse(data, function (e, root) {
-                        if (e) { return callback(e, null, null, sheet); }
-                        try {
-                            callback(e, root, data, sheet, { local: false, lastModified: lastModified, remaining: remaining }, href);
-                            //TODO - there must be a better way? A generic less-to-css function that can both call error
-                            //and removeNode where appropriate
-                            //should also add tests
-                            if (env.currentFileInfo.rootFilename === href) {
-                                removeNode(document.getElementById('less-error-message:' + extractId(href)));
-                            }
-                        } catch (e) {
-                            callback(e, null, null, sheet);
-                        }
-                    });
-                } catch (e) {
-                    callback(e, null, null, sheet);
-                }
-            }
-        }, function (status, url) {
-            callback({ type: 'File', message: "'" + url + "' wasn't found (" + status + ")" }, null, null, sheet);
-        });
-    }
-
-    function extractId(href) {
-        return href.replace(/^[a-z-]+:\/+?[^\/]+/, '' )  // Remove protocol & domain
-                   .replace(/^\//,                 '' )  // Remove root /
-                   .replace(/\.[a-zA-Z]+$/,        '' )  // Remove simple extension
-                   .replace(/[^\.\w-]+/g,          '-')  // Replace illegal characters
-                   .replace(/\./g,                 ':'); // Replace dots with colons(for valid id)
-    }
-
-    function createCSS(styles, sheet, lastModified) {
-        // Strip the query-string
-        var href = sheet.href || '';
-
-        // If there is no title set, use the filename, minus the extension
-        var id = 'less:' + (sheet.title || extractId(href));
-
-        // If this has already been inserted into the DOM, we may need to replace it
-        var oldCss = document.getElementById(id);
-        var keepOldCss = false;
-
-        // Create a new stylesheet node for insertion or (if necessary) replacement
-        var css = document.createElement('style');
-        css.setAttribute('type', 'text/css');
-        if (sheet.media) {
-            css.setAttribute('media', sheet.media);
-        }
-        css.id = id;
-
-        if (css.styleSheet) { // IE
-            try {
-                css.styleSheet.cssText = styles;
-            } catch (e) {
-                throw new(Error)("Couldn't reassign styleSheet.cssText.");
-            }
-        } else {
-            css.appendChild(document.createTextNode(styles));
-
-            // If new contents match contents of oldCss, don't replace oldCss
-            keepOldCss = (oldCss !== null && oldCss.childNodes.length > 0 && css.childNodes.length > 0 &&
-                oldCss.firstChild.nodeValue === css.firstChild.nodeValue);
-        }
-
-        var head = document.getElementsByTagName('head')[0];
-
-        // If there is no oldCss, just append; otherwise, only append if we need
-        // to replace oldCss with an updated stylesheet
-        if (oldCss == null || keepOldCss === false) {
-            var nextEl = sheet && sheet.nextSibling || null;
-            (nextEl || document.getElementsByTagName('head')[0]).parentNode.insertBefore(css, nextEl);
-        }
-        if (oldCss && keepOldCss === false) {
-            head.removeChild(oldCss);
-        }
-
-        // Don't update the local store if the file wasn't modified
-        if (lastModified && cache) {
-            log('saving ' + href + ' to cache.');
-            try {
-                cache.setItem(href, styles);
-                cache.setItem(href + ':timestamp', lastModified);
-            } catch(e) {
-                //TODO - could do with adding more robust error handling
-                log('failed to save');
-            }
-        }
-    }
-
-    function xhr(url, type, callback, errback) {
-        var xhr = getXMLHttpRequest();
-        var async = isFileProtocol ? less.fileAsync : less.async;
-
-        if (typeof(xhr.overrideMimeType) === 'function') {
-            xhr.overrideMimeType('text/css');
-        }
-        xhr.open('GET', url, async);
-        xhr.setRequestHeader('Accept', type || 'text/x-less, text/css; q=0.9, */*; q=0.5');
-        xhr.send(null);
-
-        if (isFileProtocol && !less.fileAsync) {
-            if (xhr.status === 0 || (xhr.status >= 200 && xhr.status < 300)) {
-                callback(xhr.responseText);
-            } else {
-                errback(xhr.status, url);
-            }
-        } else if (async) {
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4) {
-                    handleResponse(xhr, callback, errback);
-                }
-            };
-        } else {
-            handleResponse(xhr, callback, errback);
-        }
-
-        function handleResponse(xhr, callback, errback) {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                callback(xhr.responseText,
-                         xhr.getResponseHeader("Last-Modified"));
-            } else if (typeof(errback) === 'function') {
-                errback(xhr.status, url);
-            }
-        }
-    }
-
-    function getXMLHttpRequest() {
-        if (window.XMLHttpRequest) {
-            return new(XMLHttpRequest);
-        } else {
-            try {
-                return new(ActiveXObject)("MSXML2.XMLHTTP.3.0");
-            } catch (e) {
-                log("browser doesn't support AJAX.");
-                return null;
-            }
-        }
-    }
-
-    function removeNode(node) {
-        return node && node.parentNode.removeChild(node);
-    }
-
-    function log(str) {
-        if (less.env == 'development' && typeof(console) !== "undefined") { console.log('less: ' + str) }
-    }
-
-    function error(e, rootHref) {
-        var id = 'less-error-message:' + extractId(rootHref || "");
-        var template = '<li><label>{line}</label><pre class="{class}">{content}</pre></li>';
-        var elem = document.createElement('div'), timer, content, error = [];
-        var filename = e.filename || rootHref;
-        var filenameNoPath = filename.match(/([^\/]+(\?.*)?)$/)[1];
-
-        elem.id        = id;
-        elem.className = "less-error-message";
-
-        content = '<h3>'  + (e.type || "Syntax") + "Error: " + (e.message || 'There is an error in your .less file') +
-                  '</h3>' + '<p>in <a href="' + filename   + '">' + filenameNoPath + "</a> ";
-
-        var errorline = function (e, i, classname) {
-            if (e.extract[i] != undefined) {
-                error.push(template.replace(/\{line\}/, (parseInt(e.line) || 0) + (i - 1))
-                                   .replace(/\{class\}/, classname)
-                                   .replace(/\{content\}/, e.extract[i]));
-            }
-        };
-
-        if (e.extract) {
-            errorline(e, 0, '');
-            errorline(e, 1, 'line');
-            errorline(e, 2, '');
-            content += 'on line ' + e.line + ', column ' + (e.column + 1) + ':</p>' +
-                        '<ul>' + error.join('') + '</ul>';
-        } else if (e.stack) {
-            content += '<br/>' + e.stack.split('\n').slice(1).join('<br/>');
-        }
-        elem.innerHTML = content;
-
-        // CSS for error messages
-        createCSS([
-            '.less-error-message ul, .less-error-message li {',
-                'list-style-type: none;',
-                'margin-right: 15px;',
-                'padding: 4px 0;',
-                'margin: 0;',
-            '}',
-            '.less-error-message label {',
-                'font-size: 12px;',
-                'margin-right: 15px;',
-                'padding: 4px 0;',
-                'color: #cc7777;',
-            '}',
-            '.less-error-message pre {',
-                'color: #dd6666;',
-                'padding: 4px 0;',
-                'margin: 0;',
-                'display: inline-block;',
-            '}',
-            '.less-error-message pre.line {',
-                'color: #ff0000;',
-            '}',
-            '.less-error-message h3 {',
-                'font-size: 20px;',
-                'font-weight: bold;',
-                'padding: 15px 0 5px 0;',
-                'margin: 0;',
-            '}',
-            '.less-error-message a {',
-                'color: #10a',
-            '}',
-            '.less-error-message .error {',
-                'color: red;',
-                'font-weight: bold;',
-                'padding-bottom: 2px;',
-                'border-bottom: 1px dashed red;',
-            '}'
-        ].join('\n'), { title: 'error-message' });
-
-        elem.style.cssText = [
-            "font-family: Arial, sans-serif",
-            "border: 1px solid #e00",
-            "background-color: #eee",
-            "border-radius: 5px",
-            "-webkit-border-radius: 5px",
-            "-moz-border-radius: 5px",
-            "color: #e00",
-            "padding: 15px",
-            "margin-bottom: 15px"
-        ].join(';');
-
-        if (less.env == 'development') {
-            timer = setInterval(function () {
-                if (document.body) {
-                    if (document.getElementById(id)) {
-                        document.body.replaceChild(elem, document.getElementById(id));
-                    } else {
-                        document.body.insertBefore(elem, document.body.firstChild);
-                    }
-                    clearInterval(timer);
-                }
-            }, 10);
+                };
+            })(style);
+            new(less.Parser)(env).parse(lessText, callback);
         }
     }
 }
+
+function extractUrlParts(url, baseUrl) {
+    // urlParts[1] = protocol&hostname || /
+    // urlParts[2] = / if path relative to host base
+    // urlParts[3] = directories
+    // urlParts[4] = filename
+    // urlParts[5] = parameters
+
+    var urlPartsRegex = /^((?:[a-z-]+:)?\/+?(?:[^\/\?#]*\/)|([\/\\]))?((?:[^\/\\\?#]*[\/\\])*)([^\/\\\?#]*)([#\?].*)?$/i,
+        urlParts = url.match(urlPartsRegex),
+        returner = {}, directories = [], i, baseUrlParts;
+
+    if (!urlParts) {
+        throw new Error("Could not parse sheet href - '"+url+"'");
+    }
+
+    // Stylesheets in IE don't always return the full path
+    if (!urlParts[1] || urlParts[2]) {
+        baseUrlParts = baseUrl.match(urlPartsRegex);
+        if (!baseUrlParts) {
+            throw new Error("Could not parse page url - '"+baseUrl+"'");
+        }
+        urlParts[1] = urlParts[1] || baseUrlParts[1] || "";
+        if (!urlParts[2]) {
+            urlParts[3] = baseUrlParts[3] + urlParts[3];
+        }
+    }
+
+    if (urlParts[3]) {
+        directories = urlParts[3].replace(/\\/g, "/").split("/");
+
+        // extract out . before .. so .. doesn't absorb a non-directory
+        for(i = 0; i < directories.length; i++) {
+            if (directories[i] === ".") {
+                directories.splice(i, 1);
+                i -= 1;
+            }
+        }
+
+        for(i = 0; i < directories.length; i++) {
+            if (directories[i] === ".." && i > 0) {
+                directories.splice(i-1, 2);
+                i -= 2;
+            }
+        }
+    }
+
+    returner.hostPart = urlParts[1];
+    returner.directories = directories;
+    returner.path = urlParts[1] + directories.join("/");
+    returner.fileUrl = returner.path + (urlParts[4] || "");
+    returner.url = returner.fileUrl + (urlParts[5] || "");
+    return returner;
+}
+
+function pathDiff(url, baseUrl) {
+    // diff between two paths to create a relative path
+
+    var urlParts = extractUrlParts(url),
+        baseUrlParts = extractUrlParts(baseUrl),
+        i, max, urlDirectories, baseUrlDirectories, diff = "";
+    if (urlParts.hostPart !== baseUrlParts.hostPart) {
+        return "";
+    }
+    max = Math.max(baseUrlParts.directories.length, urlParts.directories.length);
+    for(i = 0; i < max; i++) {
+        if (baseUrlParts.directories[i] !== urlParts.directories[i]) { break; }
+    }
+    baseUrlDirectories = baseUrlParts.directories.slice(i);
+    urlDirectories = urlParts.directories.slice(i);
+    for(i = 0; i < baseUrlDirectories.length-1; i++) {
+        diff += "../";
+    }
+    for(i = 0; i < urlDirectories.length-1; i++) {
+        diff += urlDirectories[i] + "/";
+    }
+    return diff;
+}
+
+function getXMLHttpRequest() {
+    if (window.XMLHttpRequest) {
+        return new XMLHttpRequest();
+    } else {
+        try {
+            /*global ActiveXObject */
+            return new ActiveXObject("MSXML2.XMLHTTP.3.0");
+        } catch (e) {
+            log("browser doesn't support AJAX.", logLevel.errors);
+            return null;
+        }
+    }
+}
+
+function doXHR(url, type, callback, errback) {
+    var xhr = getXMLHttpRequest();
+    var async = isFileProtocol ? less.fileAsync : less.async;
+
+    if (typeof(xhr.overrideMimeType) === 'function') {
+        xhr.overrideMimeType('text/css');
+    }
+    log("XHR: Getting '" + url + "'", logLevel.info);
+    xhr.open('GET', url, async);
+    xhr.setRequestHeader('Accept', type || 'text/x-less, text/css; q=0.9, */*; q=0.5');
+    xhr.send(null);
+
+    function handleResponse(xhr, callback, errback) {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            callback(xhr.responseText,
+                xhr.getResponseHeader("Last-Modified"));
+        } else if (typeof(errback) === 'function') {
+            errback(xhr.status, url);
+        }
+    }
+
+    if (isFileProtocol && !less.fileAsync) {
+        if (xhr.status === 0 || (xhr.status >= 200 && xhr.status < 300)) {
+            callback(xhr.responseText);
+        } else {
+            errback(xhr.status, url);
+        }
+    } else if (async) {
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                handleResponse(xhr, callback, errback);
+            }
+        };
+    } else {
+        handleResponse(xhr, callback, errback);
+    }
+}
+
+function loadFile(originalHref, currentFileInfo, callback, env, newVars) {
+
+    if (currentFileInfo && currentFileInfo.currentDirectory && !/^([a-z-]+:)?\//.test(originalHref)) {
+        originalHref = currentFileInfo.currentDirectory + originalHref;
+    }
+
+    // sheet may be set to the stylesheet for the initial load or a collection of properties including
+    // some env variables for imports
+    var hrefParts = extractUrlParts(originalHref, window.location.href);
+    var href      = hrefParts.url;
+    var newFileInfo = {
+        currentDirectory: hrefParts.path,
+        filename: href
+    };
+
+    if (currentFileInfo) {
+        newFileInfo.entryPath = currentFileInfo.entryPath;
+        newFileInfo.rootpath = currentFileInfo.rootpath;
+        newFileInfo.rootFilename = currentFileInfo.rootFilename;
+        newFileInfo.relativeUrls = currentFileInfo.relativeUrls;
+    } else {
+        newFileInfo.entryPath = hrefParts.path;
+        newFileInfo.rootpath = less.rootpath || hrefParts.path;
+        newFileInfo.rootFilename = href;
+        newFileInfo.relativeUrls = env.relativeUrls;
+    }
+
+    if (newFileInfo.relativeUrls) {
+        if (env.rootpath) {
+            newFileInfo.rootpath = extractUrlParts(env.rootpath + pathDiff(hrefParts.path, newFileInfo.entryPath)).path;
+        } else {
+            newFileInfo.rootpath = hrefParts.path;
+        }
+    }
+
+    if (env.useFileCache && fileCache[href]) {
+        try {
+            var lessText = fileCache[href];
+            if (newVars) {
+                lessText += "\n" + newVars;
+            }
+            callback(null, lessText, href, newFileInfo, { lastModified: new Date() });
+        } catch (e) {
+            callback(e, null, href);
+        }
+        return;
+    }
+
+    doXHR(href, env.mime, function (data, lastModified) {
+        // per file cache
+        fileCache[href] = data;
+
+        // Use remote copy (re-parse)
+        try {
+            callback(null, data, href, newFileInfo, { lastModified: lastModified });
+        } catch (e) {
+            callback(e, null, href);
+        }
+    }, function (status, url) {
+        callback({ type: 'File', message: "'" + url + "' wasn't found (" + status + ")" }, null, href);
+    });
+}
+
+function loadStyleSheet(sheet, callback, reload, remaining, newVars) {
+
+    var env = new less.tree.parseEnv(less);
+    env.mime = sheet.type;
+
+    if (newVars) {
+        env.useFileCache = true;
+    }
+
+    loadFile(sheet.href, null, function(e, data, path, newFileInfo, webInfo) {
+
+        if (webInfo) {
+            webInfo.remaining = remaining;
+
+            var css       = cache && cache.getItem(path),
+                timestamp = cache && cache.getItem(path + ':timestamp');
+
+            if (!reload && timestamp && webInfo.lastModified &&
+                (new(Date)(webInfo.lastModified).valueOf() ===
+                    new(Date)(timestamp).valueOf())) {
+                // Use local copy
+                createCSS(css, sheet);
+                webInfo.local = true;
+                callback(null, null, data, sheet, webInfo, path);
+                return;
+            }
+        }
+
+        //TODO add tests around how this behaves when reloading
+        removeError(path);
+
+        if (data) {
+            env.currentFileInfo = newFileInfo;
+            new(less.Parser)(env).parse(data, function (e, root) {
+                if (e) { return callback(e, null, null, sheet); }
+                try {
+                    callback(e, root, data, sheet, webInfo, path);
+                } catch (e) {
+                    callback(e, null, null, sheet);
+                }
+            });
+        } else {
+            callback(e, null, null, sheet, webInfo, path);
+        }
+    }, env, newVars);
+}
+
+function loadStyleSheets(callback, reload, newVars) {
+    for (var i = 0; i < less.sheets.length; i++) {
+        loadStyleSheet(less.sheets[i], callback, reload, less.sheets.length - (i + 1), newVars);
+    }
+}
+
+function initRunningMode(){
+    if (less.env === 'development') {
+        less.optimization = 0;
+        less.watchTimer = setInterval(function () {
+            if (less.watchMode) {
+                loadStyleSheets(function (e, root, _, sheet, env) {
+                    if (e) {
+                        error(e, sheet.href);
+                    } else if (root) {
+                        createCSS(root.toCSS(less), sheet, env.lastModified);
+                    }
+                });
+            }
+        }, less.poll);
+    } else {
+        less.optimization = 3;
+    }
+}
+
+//
+// Watch mode
+//
+less.watch   = function () {
+    if (!less.watchMode ){
+        less.env = 'development';
+         initRunningMode();
+    }
+    return this.watchMode = true;
+};
+
+less.unwatch = function () {clearInterval(less.watchTimer); return this.watchMode = false; };
+
+if (/!watch/.test(location.hash)) {
+    less.watch();
+}
+
+if (less.env != 'development') {
+    try {
+        cache = (typeof(window.localStorage) === 'undefined') ? null : window.localStorage;
+    } catch (_) {}
+}
+
+//
+// Get all <link> tags with the 'rel' attribute set to "stylesheet/less"
+//
+var links = document.getElementsByTagName('link');
+
+less.sheets = [];
+
+for (var i = 0; i < links.length; i++) {
+    if (links[i].rel === 'stylesheet/less' || (links[i].rel.match(/stylesheet/) &&
+       (links[i].type.match(typePattern)))) {
+        less.sheets.push(links[i]);
+    }
+}
+
+//
+// With this function, it's possible to alter variables and re-render
+// CSS without reloading less-files
+//
+less.modifyVars = function(record) {
+    var newVars = "";
+    for (var name in record) {
+        newVars += ((name.slice(0,1) === '@')? '' : '@') + name +': '+
+                ((record[name].slice(-1) === ';')? record[name] : record[name] +';');
+    }
+    less.refresh(false, newVars);
+};
+
+less.refresh = function (reload, newVars) {
+    var startTime, endTime;
+    startTime = endTime = new Date();
+
+    loadStyleSheets(function (e, root, _, sheet, env) {
+        if (e) {
+            return error(e, sheet.href);
+        }
+        if (env.local) {
+            log("loading " + sheet.href + " from cache.", logLevel.info);
+        } else {
+            log("parsed " + sheet.href + " successfully.", logLevel.info);
+            createCSS(root.toCSS(less), sheet, env.lastModified);
+        }
+        log("css for " + sheet.href + " generated in " + (new Date() - endTime) + 'ms', logLevel.info);
+        if (env.remaining === 0) {
+            log("css generated in " + (new Date() - startTime) + 'ms', logLevel.info);
+        }
+        endTime = new Date();
+    }, reload, newVars);
+
+    loadStyles(newVars);
+};
+
+less.refreshStyles = loadStyles;
+
+less.Parser.fileLoader = loadFile;
+
+less.refresh(less.env === 'development');
+
 // amd.js
 //
 // Define Less as an AMD module.
 if (typeof define === "function" && define.amd) {
     define(function () { return less; } );
 }
-})(typeof window != 'undefined' ? window : undefined);
+
+})(window);

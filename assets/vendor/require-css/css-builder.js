@@ -1,12 +1,4 @@
 define(['require', './normalize'], function(req, normalize) {
-  var nodePrint = function() {};
-  if (requirejs.tools)
-    requirejs.tools.useLib(function(req) {
-      req(['node/print'], function(_nodePrint) {
-        nodePrint = _nodePrint;
-      }, function(){});
-    });
-  
   var cssAPI = {};
   
   function compress(css) {
@@ -15,15 +7,15 @@ define(['require', './normalize'], function(req, normalize) {
         var csso = require.nodeRequire('csso');
         var csslen = css.length;
         css = csso.justDoIt(css);
-        nodePrint('Compressed CSS output to ' + Math.round(css.length / csslen * 100) + '%.');
+        console.log('Compressed CSS output to ' + Math.round(css.length / csslen * 100) + '%.');
         return css;
       }
       catch(e) {
-        nodePrint('Compression module not installed. Use "npm install csso -g" to enable.');
+        console.log('Compression module not installed. Use "npm install csso -g" to enable.');
         return css;
       }
     }
-    nodePrint('Compression not supported outside of nodejs environments.');
+    console.log('Compression not supported outside of nodejs environments.');
     return css;
   }
   
@@ -91,97 +83,38 @@ define(['require', './normalize'], function(req, normalize) {
 
   // NB add @media query support for media imports
   var importRegEx = /@import\s*(url)?\s*(('([^']*)'|"([^"]*)")|\(('([^']*)'|"([^"]*)"|([^\)]*))\))\s*;?/g;
+  var absUrlRegEx = /^([^\:\/]+:\/)?\//;
 
-  var loadCSSFile = function(fileUrl) {
-    var css = loadFile(fileUrl);
 
-    // normalize the css (except import statements)
-    css = normalize(css, fileUrl, baseUrl, cssBase);
+  var siteRoot;
 
-    // detect all import statements in the css and normalize
-    var importUrls = [];
-    var importIndex = [];
-    var importLength = [];
-    var match;
-    while (match = importRegEx.exec(css)) {
-      var importUrl = match[4] || match[5] || match[7] || match[8] || match[9];
-
-      // normalize import url
-      if (importUrl.substr(importUrl.length - 5, 5) != '.less' && importUrl.substr(importUrl.length - 4, 4) != '.css')
-        importUrl += '.css';
-
-      // contains a protocol
-      if (importUrl.match(/:\/\//))
-        continue;
-
-      // relative to css base
-      if (importUrl.substr(0, 1) == '/' && cssBase)
-        importUrl = cssBase + importUrl;
-      else
-        importUrl = baseUrl + importUrl;
-
-      importUrls.push(importUrl);
-      importIndex.push(importRegEx.lastIndex - match[0].length);
-      importLength.push(match[0].length);
-    }
-
-    // load the import stylesheets and substitute into the css
-    for (var i = 0; i < importUrls.length; i++)
-      (function(i) {
-        var importCSS = loadCSSFile(importUrls[i]);
-        css = css.substr(0, importIndex[i]) + importCSS + css.substr(importIndex[i] + importLength[i]);
-        var lenDiff = importCSS.length - importLength[i];
-        for (var j = i + 1; j < importUrls.length; j++)
-          importIndex[j] += lenDiff;
-      })(i);
-
-    return css;
-  }
+  var baseParts = req.toUrl('base_url').split('/');
+  baseParts[baseParts.length - 1] = '';
+  var baseUrl = baseParts.join('/');
   
+  var curModule = 0;
+  var config;
 
-  var baseUrl;  
-  var cssBase;
-  var curModule;
-  cssAPI.load = function(name, req, load, config, parse) {
-    if (!baseUrl)
-      baseUrl = config.baseUrl;
-    
-    if (!cssBase)
-      cssBase = config.cssBase;
+  var layerBuffer = [];
+  var cssBuffer = {};
 
-    if (config.modules) {
-      //run through the module list - the first one without a layer set is the current layer we are in
-      //allows to track the current layer number for layer-specific config
-      for (var i = 0; i < config.modules.length; i++)
-        if (config.modules[i].layer === undefined) {
-          curModule = i;
-          break;
-        }
-    }
-    
+  cssAPI.load = function(name, req, load, _config) {
+
     //store config
-    cssAPI.config = cssAPI.config || config;
+    config = config || _config;
 
-    name += !parse ? '.css' : '.less';
-
-    var fileUrl = req.toUrl(name);
+    siteRoot = siteRoot || path.resolve(config.dir || path.dirname(config.out), config.siteRoot || '.') + '/';
 
     //external URLS don't get added (just like JS requires)
-    if (cssAPI.isRemote(fileUrl))
+    if (name.match(absUrlRegEx))
       return load();
 
-    //add to the buffer
-    _cssBuffer[name] = loadCSSFile(fileUrl);
+    var fileUrl = req.toUrl(name + '.css');
 
-    // parse if necessary
-    if (parse)
-      _cssBuffer[name] = parse(_cssBuffer[name]);
+    //add to the buffer
+    cssBuffer[name] = normalize(loadFile(fileUrl), fileUrl, siteRoot);
 
     load();
-  }
-
-  cssAPI.isRemote=function(url){
-    return (url.substr(0, 7) == 'http://' || url.substr(0, 8) == 'https://' || url.substr(0, 2) == '//')
   }
   
   cssAPI.normalize = function(name, normalize) {
@@ -190,65 +123,39 @@ define(['require', './normalize'], function(req, normalize) {
     return normalize(name);
   }
   
-  //list of cssIds included in this layer
-  var _layerBuffer = [];
-  var _cssBuffer = [];
   cssAPI.write = function(pluginName, moduleName, write, parse) {
     //external URLS don't get added (just like JS requires)
-    if (cssAPI.isRemote(moduleName))
+    if (moduleName.match(absUrlRegEx))
       return;
-    
-    var resourceName = moduleName + (!parse ? '.css' : '.less');
-    _layerBuffer.push(_cssBuffer[resourceName]);
 
-    var separateCSS = false;
-    if (cssAPI.config.separateCSS)
-      separateCSS = true;
-    if (typeof curModule == 'number' && cssAPI.config.modules[curModule].separateCSS !== undefined)
-      separateCSS = cssAPI.config.modules[curModule].separateCSS;
-    if (separateCSS)
-      write.asModule(pluginName + '!' + moduleName, 'define(function(){})');
-    else
-      write("requirejs.s.contexts._.nextTick = function(f){f()}; require(['css'], function(css) { css.addBuffer('" + resourceName + "'); }); requirejs.s.contexts._.nextTick = requirejs.nextTick;");
+    layerBuffer.push(cssBuffer[moduleName]);
+    
+    if (config.buildCSS != false)
+    write.asModule(pluginName + '!' + moduleName, 'define(function(){})');
   }
   
-  cssAPI.onLayerEnd = function(write, data, parser) {
-    firstWrite = true;
-    //separateCSS parameter set either globally or as a layer setting
-    var separateCSS = false;
-    if (cssAPI.config.separateCSS)
-      separateCSS = true;
-    if (typeof curModule == 'number' && cssAPI.config.modules[curModule].separateCSS !== undefined)
-      separateCSS = cssAPI.config.modules[curModule].separateCSS;
-    curModule = null;
-    
+  cssAPI.onLayerEnd = function(write, data) {
     //calculate layer css
-    var css = _layerBuffer.join('');
+    var css = layerBuffer.join('');
     
-    if (separateCSS) {
-      nodePrint('Writing CSS! file: ' + data.name + '\n');
+    if (config.separateCSS) {
+      console.log('Writing CSS! file: ' + data.name + '\n');
+
+      var outPath = config.appDir ? config.baseUrl + data.name + '.css' : config.out.replace(/(\.js)?$/, '.css');
       
-      //calculate the css output path for this layer
-      var path = this.config.appDir ? this.config.baseUrl + data.name + '.css' : cssAPI.config.out.replace(/\.js$/, '.css');
-      
-      //renormalize the css to the output path
-      var output = compress(normalize(css, baseUrl, path));
-      
-      saveFile(path, output);
+      saveFile(outPath, compress(css));
     }
-    else {
+    else if (config.buildCSS != false) {
       if (css == '')
         return;
-      //write the injection and layer index into the layer
-      //prepare the css
-      css = escape(compress(css));
-      
-      //the code below overrides async require functionality to ensure instant buffer injection
-      write("requirejs.s.contexts._.nextTick = function(f){f()}; require(['css'], function(css) { css.setBuffer('" + css + (parser ? "', true" : "'") + "); }); requirejs.s.contexts._.nextTick = requirejs.nextTick; ");
+      write(
+        "(function(c){var d=document,a='appendChild',i='styleSheet',s=d.createElement('style');s.type='text/css';d.getElementsByTagName('head')[0][a](s);s[i]?s[i].cssText=c:s[a](d.createTextNode(c));})\n"
+        + "('" + escape(compress(css)) + "');\n"
+      );
     }
     
     //clear layer buffer for next layer
-    _layerBuffer = [];
+    layerBuffer = [];
   }
   
   return cssAPI;

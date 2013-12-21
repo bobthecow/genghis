@@ -1,16 +1,15 @@
-define(['css', 'require'], function(css, require) {
+define(['require'], function(require) {
   
-  var less = {};
+  var lessAPI = {};
   
-  less.pluginBuilder = './less-builder';
+  lessAPI.pluginBuilder = './less-builder';
   
   if (typeof window == 'undefined') {
-    less.load = function(n, r, load) { load(); }
+    lessAPI.load = function(n, r, load) { load(); }
     return less;
   }
   
-  //copy api methods from the css plugin
-  less.normalize = function(name, normalize) {
+  lessAPI.normalize = function(name, normalize) {
     if (name.substr(name.length - 5, 5) == '.less')
       name = name.substr(0, name.length - 5);
 
@@ -18,33 +17,52 @@ define(['css', 'require'], function(css, require) {
 
     return name;
   }
+  
+  var head = document.getElementsByTagName('head')[0];
 
-  less.parse = function(less, callback) {
-    // set initial configuration
-    window.less = window.less || {
-      env: 'development'
-    };
-    require(['./lessc'], function(lessc) {
-      var css;
-      var parser = new lessc.Parser();
-      parser.parse(less, function(err, tree) {
+  var pagePath = window.location.href.split('#')[0].split('/');
+  pagePath[pagePath.length - 1] = '';
+  pagePath = pagePath.join('/');
+
+  // set initial default configuration
+  window.less = window.less || {
+    env: 'development'
+  };
+
+  var styleCnt = 0;
+  var curStyle;
+  lessAPI.inject = function(css) {
+    if (styleCnt < 31) {
+      curStyle = document.createElement('style');
+      curStyle.type = 'text/css';
+      head.appendChild(curStyle);
+      styleCnt++;
+    }
+    if (curStyle.styleSheet)
+      curStyle.styleSheet.cssText += css;
+    else
+      curStyle.appendChild(document.createTextNode(css));
+  }
+
+  lessAPI.load = function(lessId, req, load, config) {
+    require(['./lessc', './normalize'], function(lessc, normalize) {
+
+      var fileUrl = req.toUrl(lessId + '.less');
+      fileUrl = normalize.absoluteURI(fileUrl, pagePath);
+
+      var parser = new lessc.Parser(window.less);
+
+      parser.parse('@import (multiple) "' + fileUrl + '";', function(err, tree) {
         if (err)
-          throw err;
-        try {
-          css = tree.toCSS();
-        }
-        catch(e) {
-          throw new Error("LESS parse error: " + e.type + ", " + e.message);
-        }
-        //instant callback luckily for builds
-        callback(css);
+          return load.error(err);
+
+        lessAPI.inject(normalize(tree.toCSS(), fileUrl, pagePath));
+
+        setTimeout(load, 7);
       });
+
     });
   }
   
-  less.load = function(lessId, req, load, config) {
-    css.load(lessId, req, load, config, less.parse);
-  }
-  
-  return less;
+  return lessAPI;
 });

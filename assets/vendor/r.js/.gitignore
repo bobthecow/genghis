@@ -22,6 +22,7 @@ build/tests/lib/cssRemoveCombined/www-built
 build/tests/lib/depsConfig/main-built.js
 build/tests/lib/dormant213/main-built.js
 build/tests/lib/dotpackage/built
+build/tests/lib/dualLayerOverride/built
 build/tests/lib/empty/built
 build/tests/lib/hasOwnProperty/built.js
 build/tests/lib/iife/main-built.js
@@ -38,6 +39,7 @@ build/tests/lib/nameInsertion/built.js
 build/tests/lib/nameInsertion/nested/built.js
 build/tests/lib/namespace/foo.js
 build/tests/lib/namespaceConfig/foo.js
+build/tests/lib/namespaceMinified/foo.js
 build/tests/lib/nested/main-built.js
 build/tests/lib/nested/main-builtWithCE.js
 build/tests/lib/nestedHas/main-built.js
@@ -51,6 +53,7 @@ build/tests/lib/nonStrict/main-built.js
 build/tests/lib/onBuildAllDir/js-built
 build/tests/lib/onBuildRead/main-built.js
 build/tests/lib/onBuildWrite/main-built.js
+build/tests/lib/override/wrap/built
 build/tests/lib/packages/main-built.js
 build/tests/lib/pathsNoCopy/js-built
 build/tests/lib/pluginBuilder/main-built.js
@@ -66,10 +69,14 @@ build/tests/lib/rawText/built.js
 build/tests/lib/rawTextNameTarget/a-built.js
 build/tests/lib/removeCombined/app-built
 build/tests/lib/removeCombined/baseUrl-built
+build/tests/lib/removeCombinedPaths/testcase/project/build/build_output
 build/tests/lib/requireHoist/perLayer/built
 build/tests/lib/rhino-186/built
+build/tests/lib/semicolonInsert/a-built.js
 build/tests/lib/shimFakeDefine/main-built.js
 build/tests/lib/sourcemap/www-built
+build/tests/lib/sourcemap/onejs/built.js
+build/tests/lib/sourcemap/onejs/built.js.map
 build/tests/lib/stubModules/create/foobar-built.js
 build/tests/lib/stubModules/main-built.js
 build/tests/lib/stubModules/perModule/built

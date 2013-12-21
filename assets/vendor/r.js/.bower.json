@@ -1,12 +1,12 @@
 {
   "name": "r.js",
   "homepage": "https://github.com/jrburke/r.js",
-  "version": "2.1.8",
-  "_release": "2.1.8",
+  "version": "2.1.9",
+  "_release": "2.1.9",
   "_resolution": {
     "type": "version",
-    "tag": "2.1.8",
-    "commit": "5637fd8f0b6b4e314d60e03e886d280bb8d2e419"
+    "tag": "2.1.9",
+    "commit": "2a4e422485563258e345012670fb03997a9a5c59"
   },
   "_source": "git://github.com/jrburke/r.js.git",
   "_target": "*",

@@ -1,16 +1,16 @@
 {
   "name": "require-less",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "ignore": [
     "example",
     ".gitignore"
   ],
   "homepage": "https://github.com/guybedford/require-less",
-  "_release": "0.0.8",
+  "_release": "0.1.0",
   "_resolution": {
     "type": "version",
-    "tag": "0.0.8",
-    "commit": "9e35661ee4c1d31ab9a5c1cd0440b9d7eb9d17af"
+    "tag": "0.1.0",
+    "commit": "30f01d7087886c02d7f118c35c4c302f89b058d7"
   },
   "_source": "git://github.com/guybedford/require-less.git",
   "_target": "*",

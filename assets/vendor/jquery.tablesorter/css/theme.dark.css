@@ -45,6 +45,7 @@
 }
 .tablesorter-dark thead .sorter-false {
 	background-image: none;
+	cursor: default;
 	padding: 4px;
 }
 
@@ -114,7 +115,7 @@
 
 /* caption */
 caption {
-	background: #fff;
+	background: #202020;
 }
 
 /* filter widget */

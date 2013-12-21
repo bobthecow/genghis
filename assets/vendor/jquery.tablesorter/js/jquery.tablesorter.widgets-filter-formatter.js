@@ -1,12 +1,12 @@
-/*! Filter widget formatter functions - updated 6/4/2013
+/*! Filter widget formatter functions - updated 11/9/2013 (v2.13.3)
  * requires: tableSorter 2.7.7+ and jQuery 1.4.3+
  *
  * uiSpinner (jQuery UI spinner)
  * uiSlider (jQuery UI slider)
  * uiRange (jQuery UI range slider)
- * uiDateCompare (jQuery UI datepicker; 1 input)
+ * uiDateCompare (jQuery UI datepicker+compare selector; 1 input)
  * uiDatepicker (jQuery UI datepicker; 2 inputs, filter range)
- * html5Number (spinner)
+ * html5Number (spinner+compare selector)
  * html5Range (slider)
  * html5Color (color)
  */
@@ -92,7 +92,7 @@ $.tablesorter.filterFormatter = {
 			.val(o.value)
 			.appendTo($cell)
 			.spinner(o)
-			.bind('change keyup', function(e){
+			.bind('change keyup', function(){
 				updateSpinner();
 			});
 
@@ -113,7 +113,7 @@ $.tablesorter.filterFormatter = {
 				.val(o.value)
 				.appendTo($shcell)
 				.spinner(o)
-				.bind('change keyup', function(e){
+				.bind('change keyup', function(){
 					$cell.find('.spinner').val( this.value );
 					updateSpinner();
 				});
@@ -228,7 +228,7 @@ $.tablesorter.filterFormatter = {
 			.val(o.value)
 			.appendTo($shcell)
 			.slider(o)
-			.bind('change keyup', function(e){
+			.bind('change keyup', function(){
 				$cell.find('.slider').val( this.value );
 				updateSlider();
 			});
@@ -337,7 +337,7 @@ $.tablesorter.filterFormatter = {
 			.val(o.value)
 			.appendTo($shcell)
 			.slider(o)
-			.bind('change keyup', function(e){
+			.bind('change keyup', function(){
 				$cell.find('.range').val( this.value );
 				updateUiRange();
 			});
@@ -358,7 +358,8 @@ $.tablesorter.filterFormatter = {
 			changeMonth : true,
 			changeYear : true,
 			numberOfMonths : 1,
-			compare : ''
+			compare : '',
+			compareOptions : false
 		}, defDate),
 		$hdr = $cell.closest('thead').find('th[data-column=' + indx + ']'),
 		// Add a hidden input to hold the range values
@@ -371,13 +372,48 @@ $.tablesorter.filterFormatter = {
 					o.onClose(v);
 				}
 			}),
-		t, $shcell = [],
-		c = $cell.closest('table')[0].config;
+		t, l, $shcell = [],
+		c = $cell.closest('table')[0].config,
+
+		// this function updates the hidden input
+		updateCompare = function(v) {
+			var date = new Date($cell.find('.date').datepicker('getDate')).getTime();
+
+			$cell.find('.compare').val(v);
+			$cell.find('.dateCompare')
+			// add equal to the beginning, so we filter exact numbers
+				.val(v + date)
+				.trigger('search', o.delayed).end();
+			// update sticky header cell
+			if ($shcell.length) {
+				$shcell.find('.compare').val(v);
+			}
+		};
 
 		// make sure we're using parsed dates in the search
 		$hdr.addClass('filter-parsed');
+
 		// Add date range picker
-		t = '<label>' + o.cellText + '</label><input type="text" class="date date' + indx + 
+		if (o.compareOptions) {
+			l = '<select class="compare">';
+			for(var myOption in o.compareOptions) {
+				l += '<option value="' + myOption + '"';
+				if (myOption === o.compare)
+					l += ' selected="selected"';
+				l += '>' + myOption + '</option>';
+			}
+			l += '</select>';
+			$cell.append(l)
+				.find('.compare')
+				.bind('change', function(){
+					updateCompare($(this).val());
+				});
+		} else if (o.cellText) {
+			l = '<label>' + o.cellText + '</label>';
+			$cell.append(l);
+		}
+
+		t = '<input type="text" class="date date' + indx + 
 			'" placeholder="' + ($hdr.data('placeholder') || $hdr.attr('data-placeholder') || '') + '" />';
 		$(t).appendTo($cell);
 
@@ -385,10 +421,11 @@ $.tablesorter.filterFormatter = {
 		o.oldonClose = o.onClose;
 
 		o.onClose = function( selectedDate, ui ) {
-			var date = new Date(selectedDate + ( o.compare.match('<') ? ' 23:59:59' : '' )).getTime() || '';
+			var date = new Date($cell.find('.date').datepicker('getDate')).getTime() || '';
+			var compare = ( $cell.find('.compare').val() || o.compare);
 			$cell
 				// update hidden input
-				.find('.dateCompare').val( o.compare + date )
+				.find('.dateCompare').val( compare + date )
 				.trigger('search').end()
 				.find('.date')
 				.datepicker('setDate', selectedDate);
@@ -417,6 +454,16 @@ $.tablesorter.filterFormatter = {
 		// has sticky headers?
 		c.$table.bind('stickyHeadersInit', function(){
 			$shcell = c.widgetOptions.$sticky.find('.tablesorter-filter-row').children().eq(indx).empty();
+			if (o.compareOptions) {
+				$shcell.append(l)
+					.find('.compare')
+					.bind('change', function(){
+						updateCompare($(this).val());
+					});
+			} else if (o.cellText) {
+				$shcell.append(l);
+			}
+
 			// add a jQuery datepicker!
 			$shcell
 				.append(t)
@@ -441,7 +488,7 @@ $.tablesorter.filterFormatter = {
 			changeYear : true,
 			numberOfMonths : 1
 		}, defDate),
-		t, closeFrom, $shcell = [],
+		t, closeTo, closeFrom, $shcell = [],
 		// Add a hidden input to hold the range values
 		$input = $('<input class="dateRange" type="hidden">')
 			.appendTo($cell)
@@ -455,7 +502,7 @@ $.tablesorter.filterFormatter = {
 				} else if (v.match('>=')) {
 					closeFrom( v.replace('>=', '') );
 				} else if (v.match('<=')) {
-					o.onClose( v.replace('<=', '') );
+					closeTo( v.replace('<=', '') );
 				}
 			}),
 		c = $cell.closest('table')[0].config;
@@ -469,18 +516,18 @@ $.tablesorter.filterFormatter = {
 		// add callbacks; preserve added callbacks
 		o.oldonClose = o.onClose;
 
-		o.defaultDate = o.from || o.defaultDate;
+		var localfrom = o.defaultDate = o.from || o.defaultDate;
 
 		closeFrom = o.onClose = function( selectedDate, ui ) {
-			var from = ( (new Date(selectedDate)).getTime() || ''),
-				to = (new Date($cell.find('.dateTo').val() + ' 23:59:59').getTime() || ''),
+			var from = new Date( $cell.find('.dateFrom').datepicker('getDate') ).getTime() || '',
+				to = new Date( $cell.find('.dateTo').datepicker('getDate') ).getTime() || '',
 				range = from ? ( to ? from + ' - ' + to : '>=' + from ) : (to ? '<=' + to : '');
 			$cell
-				.find('.dateTo').datepicker('option', 'minDate', selectedDate ).end()
-				.find('.dateFrom').val(selectedDate).end()
-				// update hidden input
 				.find('.dateRange').val(range)
-				.trigger('search');
+				.trigger('search').end()
+				.find('.dateTo').datepicker('option', 'minDate', selectedDate ).end()
+				.find('.dateFrom').val(selectedDate);
+
 			// update sticky header cell
 			if ($shcell.length) {
 				$shcell
@@ -491,16 +538,18 @@ $.tablesorter.filterFormatter = {
 		};
 
 		$cell.find('.dateFrom').datepicker(o);
+
 		o.defaultDate = o.to || '+7d'; // set to date +7 days from today (if not defined)
-		o.onClose = function( selectedDate, ui ) {
-			var from = new Date( $cell.find('.dateFrom').val() ).getTime() || '',
-				to = new Date( selectedDate + ' 23:59:59' ).getTime() || '',
+		closeTo = o.onClose = function( selectedDate, ui ) {
+			var from = new Date( $cell.find('.dateFrom').datepicker('getDate') ).getTime() || '',
+				to = new Date( $cell.find('.dateTo').datepicker('getDate') ).getTime() || '',
 				range = from ? ( to ? from + ' - ' + to : '>=' + from ) : (to ? '<=' + to : '');
 			$cell
-				.find('.dateFrom').datepicker('option', 'maxDate', selectedDate ).end()
-				.find('.dateTo').val(selectedDate).end()
 				.find('.dateRange').val(range)
-				.trigger('search');
+				.trigger('search').end()
+				.find('.dateFrom').datepicker('option', 'maxDate', selectedDate ).end()
+				.find('.dateTo').val(selectedDate);
+
 			// update sticky header cell
 			if ($shcell.length) {
 				$shcell
@@ -514,24 +563,27 @@ $.tablesorter.filterFormatter = {
 		// has sticky headers?
 		c.$table.bind('stickyHeadersInit', function(){
 			$shcell = c.widgetOptions.$sticky.find('.tablesorter-filter-row').children().eq(indx).empty();
+			$shcell.append(t);
+
 			// add a jQuery datepicker!
-			$shcell.append(t).find('.dateTo').datepicker(o);
-			o.defaultDate = o.from || o.defaultDate || new Date();
+			o.onClose = closeTo;
+			$shcell.find('.dateTo').datepicker(o);
+
+			o.defaultDate = localfrom;
 			o.onClose = closeFrom;
 			$shcell.find('.dateFrom').datepicker(o);
 		});
 
 		// on reset
 		$cell.closest('table').bind('filterReset', function(){
-			$cell.find('.dateFrom, .dateTo').val('');
+			$cell.find('.dateFrom, .dateTo').val('').datepicker('option', 'currentText', '' );
 			if ($shcell.length) {
-				$shcell.find('.dateFrom, .dateTo').val('');
+				$shcell.find('.dateFrom, .dateTo').val('').datepicker('option', 'currentText', '' );
 			}
 		});
 
 		// return the hidden input so the filter widget has a reference to it
-		t = o.from ? ( o.to ? o.from + ' - ' + o.to : '>=' + o.from ) : (o.to ? '<=' + o.to : '');
-		return $input.val( t );
+		return $input.val( o.from ? ( o.to ? o.from + ' - ' + o.to : '>=' + o.from ) : (o.to ? '<=' + o.to : '') );
 	},
 
 	/**********************\
@@ -548,6 +600,7 @@ $.tablesorter.filterFormatter = {
 			addToggle : true,
 			exactMatch : true,
 			compare : '',
+			compareOptions : false,
 			skipTest: false
 		}, def5Num),
 
@@ -555,14 +608,29 @@ $.tablesorter.filterFormatter = {
 		$number = $('<input type="number" style="visibility:hidden;" value="test">').appendTo($cell),
 		// test if HTML5 number is supported - from Modernizr
 		numberSupported = o.skipTest || $number.attr('type') === 'number' && $number.val() !== 'test',
-		$shcell = [],
+		l, $shcell = [],
 		c = $cell.closest('table')[0].config,
+
+		updateCompare = function(v) {
+			var number = $cell.find('.number').val();
+
+			$cell.find('.compare').val(v);
+			$cell.find('input[type=hidden]')
+				// add equal to the beginning, so we filter exact numbers
+				.val(v + number)
+				.trigger('search', o.delayed).end();
+			// update sticky header cell
+			if ($shcell.length) {
+				$shcell.find('.compare').val(v);
+			}
+		},
 
 		updateNumber = function(v, delayed){
 			var chkd = o.addToggle ? $cell.find('.toggle').is(':checked') : true;
+			var compare = ( $cell.find('.compare').val() || o.compare);
 			$cell.find('input[type=hidden]')
 				// add equal to the beginning, so we filter exact numbers
-				.val( !o.addToggle || chkd ? (o.compare ? o.compare : o.exactMatch ? '=' : '') + v : '' )
+				.val( !o.addToggle || chkd ? (compare ? compare : o.exactMatch ? '=' : '') + v : '' )
 				.trigger('search', delayed ? delayed : o.delayed).end()
 				.find('.number').val(v);
 			if ($cell.find('.number').length) {
@@ -579,12 +647,34 @@ $.tablesorter.filterFormatter = {
 		$number.remove();
 
 		if (numberSupported) {
-			t = o.addToggle ? '<div class="button"><input id="html5button' + indx + '" type="checkbox" class="toggle" /><label for="html5button' + indx + '"></label></div>' : '';
-			t += '<input class="number" type="number" min="' + o.min + '" max="' + o.max + '" value="' +
+			l = o.addToggle ? '<div class="button"><input id="html5button' + indx + '" type="checkbox" class="toggle" /><label for="html5button' + indx + '"></label></div>' : '';
+		}
+
+		if (o.compareOptions) {
+			l = '<select class="compare">';
+			for(var myOption in o.compareOptions) {
+				l += '<option value="' + myOption + '"';
+				if (myOption === o.compare)
+					l += ' selected="selected"';
+				l += '>' + myOption + '</option>';
+			}
+			l += '</select>';
+			$cell.append(l)
+				.find('.compare')
+				.bind('change', function(){
+					updateCompare($(this).val());
+				});
+		} else {
+			if (l)
+				$cell.append(l);
+		}
+
+		if (numberSupported) {
+			t = '<input class="number" type="number" min="' + o.min + '" max="' + o.max + '" value="' +
 				o.value + '" step="' + o.step + '" />';
 			// add HTML5 number (spinner)
 			$cell
-				.html(t + '<input type="hidden" />')
+				.append(t + '<input type="hidden" />')
 				.find('.toggle, .number').bind('change', function(){
 					updateNumber( $cell.find('.number').val() );
 				})
@@ -603,15 +693,27 @@ $.tablesorter.filterFormatter = {
 				});
 
 			// hidden filter update (.tsfilter) namespace trigger by filter widget
-			$cell.find('input[type=hidden]').bind('change.tsfilter', function(){
-				updateNumber( this.value );
-			});
+			// FIXME TheSin, Not sure why but this breaks updates
+			// Commenting out till it's fixed.
+			//$cell.find('input[type=hidden]').bind('change.tsfilter', function(){
+			//	updateNumber( this.value );
+			//});
 
 			// has sticky headers?
 			c.$table.bind('stickyHeadersInit', function(){
 				$shcell = c.widgetOptions.$sticky.find('.tablesorter-filter-row').children().eq(indx).empty();
+				if (o.compareOptions) {
+					$shcell.append(l)
+						.find('.compare')
+						.bind('change', function(){
+							updateCompare($(this).val());
+						});
+				} else {
+					$shcell.append(l);
+				}
+
 				$shcell
-					.html(t)
+					.append(t)
 					.find('.toggle, .number').bind('change', function(){
 						updateNumber( $shcell.find('.number').val() );
 					});
@@ -629,7 +731,7 @@ $.tablesorter.filterFormatter = {
 	HTML5 range slider
 	\**********************/
 	html5Range : function($cell, indx, def5Range) {
-		var t, o = $.extend({
+		var o = $.extend({
 			value : 0,
 			min : 0,
 			max : 100,
