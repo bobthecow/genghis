@@ -39,11 +39,11 @@ module Genghis
       end
 
       def create_database(db_name)
-        raise Genghis::DatabaseAlreadyExists.new(self, db_name) if db_exists? db_name
+        fail Genghis::DatabaseAlreadyExists.new(self, db_name) if db_exists? db_name
         begin
           client[db_name]['__genghis_tmp_collection__'].drop
         rescue Mongo::InvalidNSName
-          raise Genghis::MalformedDocument.new('Invalid database name')
+          raise Genghis::MalformedDocument, 'Invalid database name'
         end
         Database.new(client, db_name)
       end
@@ -53,7 +53,7 @@ module Genghis
       end
 
       def [](db_name)
-        raise Genghis::DatabaseNotFound.new(self, db_name) unless db_exists? db_name
+        fail Genghis::DatabaseNotFound.new(self, db_name) unless db_exists? db_name
         Database.new(client, db_name)
       end
 
@@ -114,16 +114,16 @@ module Genghis
             keep[opt] = value
           when 'connectTimeoutMS'
             unless value =~ /^\d+$/
-              raise Mongo::MongoArgumentError.new("Unexpected #{opt} option value: #{value}")
+              fail Mongo::MongoArgumentError, "Unexpected #{opt} option value: #{value}"
             end
             @opts[:connect_timeout] = (value.to_f / 1000)
           when 'ssl'
             unless value == 'true'
-              raise Mongo::MongoArgumentError.new("Unexpected #{opt} option value: #{value}")
+              fail Mongo::MongoArgumentError, "Unexpected #{opt} option value: #{value}"
             end
             @opts[opt.to_sym] = true
           else
-            raise Mongo::MongoArgumentError.new("Unknown option #{opt}")
+            fail Mongo::MongoArgumentError, "Unknown option #{opt}"
           end
         end
         opts = Rack::Utils.build_query keep
@@ -133,9 +133,9 @@ module Genghis
       def client
         @client ||= Mongo::MongoClient.from_uri(@dsn, {:connect_timeout => 1, :w => 1}.merge(@opts))
       rescue OpenSSL::SSL::SSLError
-        raise Mongo::ConnectionFailure.new('SSL connection error')
+        raise Mongo::ConnectionFailure, 'SSL connection error'
       rescue StandardError => e
-        raise Mongo::ConnectionFailure.new(e.message)
+        fail Mongo::ConnectionFailure, e.message
       end
 
       def info

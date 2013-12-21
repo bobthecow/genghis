@@ -109,7 +109,7 @@ module Genghis
     end
 
     get '/servers/:server' do |server|
-      raise Genghis::ServerNotFound.new(server) if servers[server].nil?
+      fail Genghis::ServerNotFound.new(server) if servers[server].nil?
       json servers[server]
     end
 

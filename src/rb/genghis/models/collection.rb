@@ -28,7 +28,7 @@ module Genghis
           id = @collection.insert data
         rescue Mongo::OperationFailure => e
           # going out on a limb here and assuming all of these are malformed...
-          raise Genghis::MalformedDocument.new(e.result['errmsg'])
+          raise Genghis::MalformedDocument, e.result['errmsg']
         end
 
         @collection.find_one('_id' => id)
@@ -36,7 +36,7 @@ module Genghis
 
       def remove(doc_id)
         query = {'_id' => thunk_mongo_id(doc_id)}
-        raise Genghis::DocumentNotFound.new(self, doc_id) unless @collection.find_one(query)
+        fail Genghis::DocumentNotFound.new(self, doc_id) unless @collection.find_one(query)
         @collection.remove query
       end
 
@@ -48,10 +48,10 @@ module Genghis
             :new    => true
         rescue Mongo::OperationFailure => e
           # going out on a limb here and assuming all of these are malformed...
-          raise Genghis::MalformedDocument.new(e.result['errmsg'])
+          raise Genghis::MalformedDocument, e.result['errmsg']
         end
 
-        raise Genghis::DocumentNotFound.new(self, doc_id) unless document
+        fail Genghis::DocumentNotFound.new(self, doc_id) unless document
         document
       end
 
@@ -65,12 +65,14 @@ module Genghis
 
       def [](doc_id)
         doc = @collection.find_one('_id' => thunk_mongo_id(doc_id))
-        raise Genghis::DocumentNotFound.new(self, doc_id) unless doc
+        fail Genghis::DocumentNotFound.new(self, doc_id) unless doc
         doc
       end
 
       def put_file(data)
-        file = data.delete('file') or raise Genghis::MalformedDocument.new 'Missing file.'
+        unless (file = data.delete('file'))
+          fail Genghis::MalformedDocument, 'Missing file.'
+        end
 
         opts = {}
         data.each do |k, v|
@@ -84,7 +86,7 @@ module Genghis
           when 'contentType'
             opts[:content_type] = v
           else
-            raise Genghis::MalformedDocument.new "Unexpected property: '#{k}'"
+            fail Genghis::MalformedDocument, "Unexpected property: '#{k}'"
           end
         end
 
@@ -99,8 +101,8 @@ module Genghis
           raise Genghis::GridFileNotFound.new(self, doc_id)
         end
 
-        raise Genghis::DocumentNotFound.new(self, doc_id) unless doc
-        raise Genghis::GridFileNotFound.new(self, doc_id) unless is_grid_file?(doc)
+        fail Genghis::DocumentNotFound.new(self, doc_id) unless doc
+        fail Genghis::GridFileNotFound.new(self, doc_id) unless is_grid_file?(doc)
 
         doc
       end
@@ -114,7 +116,7 @@ module Genghis
 
         res = grid.delete(thunk_mongo_id(doc_id))
 
-        raise Genghis::Exception.new res['err'] unless res['ok']
+        fail Genghis::Exception, res['err'] unless res['ok']
       end
 
       def as_json(*)
@@ -159,12 +161,12 @@ module Genghis
 
       def decode_file(data)
         unless data =~ /^data:[^;]+;base64,/
-          raise Genghis::MalformedDocument.new 'File must be a base64 encoded data: URI'
+          fail Genghis::MalformedDocument, 'File must be a base64 encoded data: URI'
         end
 
         Base64.strict_decode64(data.sub(/^data:[^;]+;base64,/, '').strip)
       rescue ArgumentError
-        raise Genghis::MalformedDocument.new 'File must be a base64 encoded data: URI'
+        raise Genghis::MalformedDocument, 'File must be a base64 encoded data: URI'
       end
     end
   end

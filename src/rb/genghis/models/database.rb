@@ -15,11 +15,11 @@ module Genghis
       end
 
       def create_collection(coll_name)
-        raise Genghis::CollectionAlreadyExists.new(self, coll_name) if database.collection_names.include? coll_name
+        fail Genghis::CollectionAlreadyExists.new(self, coll_name) if database.collection_names.include? coll_name
         database.create_collection coll_name
         Collection.new(database[coll_name])
       rescue
-        raise Genghis::MalformedDocument.new('Invalid collection name')
+        raise Genghis::MalformedDocument, 'Invalid collection name'
       end
 
       def collections
@@ -27,7 +27,7 @@ module Genghis
       end
 
       def [](coll_name)
-        raise Genghis::CollectionNotFound.new(self, coll_name) unless database.collection_names.include? coll_name
+        fail Genghis::CollectionNotFound.new(self, coll_name) unless database.collection_names.include? coll_name
         Collection.new(database[coll_name])
       end
 
