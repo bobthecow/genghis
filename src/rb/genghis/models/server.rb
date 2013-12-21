@@ -99,7 +99,7 @@ module Genghis
       rescue Mongo::MongoArgumentError => e
         raise e unless e.message.include? 'MongoDB URI must include username'
         # We'll try one more time...
-        dsn = dsn.sub(%r{/?$}, '/admin')
+        dsn = dsn.sub(/\/?$/, '/admin')
         [dsn, ::Mongo::URIParser.new(dsn)]
       end
 
