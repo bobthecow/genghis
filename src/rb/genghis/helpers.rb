@@ -157,7 +157,7 @@ module Genghis
         :genghis_rb_servers,
         :path    => '/',
         :value   => dsn_list.to_json,
-        :expires => Time.now + 60*60*24*365
+        :expires => Time.now + 60 * 60 * 24 * 365
       )
     end
 

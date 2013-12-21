@@ -9,7 +9,7 @@ module Genghis
       @default = false
 
       def initialize(dsn)
-        dsn = 'mongodb://'+dsn unless dsn.include? '://'
+        dsn = 'mongodb://' + dsn unless dsn.include? '://'
 
         begin
           dsn, uri = get_dsn_and_uri(extract_extra_options(dsn))
