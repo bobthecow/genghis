@@ -130,7 +130,7 @@ genghis_backends.each do |backend|
         it 'deletes a server if it exists' do
           res = @api.delete do |req|
             req.url '/servers/mongo.example.com'
-            servers = CGI::escape('["mongodb:\/\/mongo.example.com"]')
+            servers = CGI.escape('["mongodb:\/\/mongo.example.com"]')
             req.headers['Cookie'] = 'genghis_servers=%s;genghis_rb_servers=%s' % [servers, servers]
           end
           res.status.should eq 200
@@ -517,7 +517,7 @@ genghis_backends.each do |backend|
 
       describe 'GET /servers/:server/databases/:db/collections/:coll/explain?q=' do
 
-        let(:res)  { @api.get "/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/explain?q=#{URI::encode('{}')}" }
+        let(:res)  { @api.get "/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/explain?q=#{URI.encode('{}')}" }
         let(:body) { res.body }
 
         it 'returns 200 status' do
