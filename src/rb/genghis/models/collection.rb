@@ -154,7 +154,7 @@ module Genghis
       end
 
       def is_grid_file?(doc)
-        !! doc['chunkSize']
+        !!doc['chunkSize']
       end
 
       def decode_file(data)
