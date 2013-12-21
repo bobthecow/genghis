@@ -185,7 +185,7 @@ module Genghis
     end
 
     delete '/servers/:server/databases/:database/collections/:collection/documents/:document' do |server, database, collection, document|
-      collection = servers[server][database][collection].remove document
+      servers[server][database][collection].remove document
       json :success => true
     end
 

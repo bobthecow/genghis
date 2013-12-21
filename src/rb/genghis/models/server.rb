@@ -132,7 +132,7 @@ module Genghis
 
       def client
         @client ||= Mongo::MongoClient.from_uri(@dsn, {:connect_timeout => 1, :w => 1}.merge(@opts))
-      rescue OpenSSL::SSL::SSLError => e
+      rescue OpenSSL::SSL::SSLError
         raise Mongo::ConnectionFailure.new('SSL connection error')
       rescue StandardError => e
         raise Mongo::ConnectionFailure.new(e.message)

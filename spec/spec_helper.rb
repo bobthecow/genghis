@@ -58,7 +58,7 @@ RSpec.configure do |config|
   def api_started?(api)
     api.get '/'
     true
-  rescue Faraday::Error::ConnectionFailed => e
+  rescue Faraday::Error::ConnectionFailed
     false
   end
 
