@@ -5,7 +5,9 @@ module Genghis
   end
 
   class MalformedDocument < Exception
-    def http_status; 400 end
+    def http_status
+      400
+    end
 
     def initialize(msg = nil)
       @msg = msg
@@ -17,7 +19,9 @@ module Genghis
   end
 
   class NotFound < Exception
-    def http_status; 404 end
+    def http_status
+      404
+    end
 
     def message
       'Not found'
@@ -25,7 +29,9 @@ module Genghis
   end
 
   class AlreadyExists < Exception
-    def http_status; 400 end
+    def http_status
+      400
+    end
   end
 
   class ServerNotFound < NotFound
