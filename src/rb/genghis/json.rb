@@ -20,7 +20,7 @@ module Genghis
 
       def enc(o, *a)
         o = o.to_s if o.is_a? Symbol
-        fail "invalid: #{o.inspect}" unless a.empty? or a.include? o.class
+        fail "invalid: #{o.inspect}" unless a.empty? || a.include?(o.class)
         case o
         when Genghis::Models::Query then enc(o.as_json)
         when Array then o.map { |e| enc(e) }
