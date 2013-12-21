@@ -28,7 +28,7 @@ RSpec.configure do |config|
     case backend
     when :php, :php_dev
       @genghis_pid = spawn 'php', '-S', "localhost:#{@genghis_port}", php_backend_filename(backend), :out => '/dev/null'
-      api = Faraday.new url: "http://localhost:#{@genghis_port}"
+      api = Faraday.new :url => "http://localhost:#{@genghis_port}"
       0.upto(20) do |i|
         break if api_started?(api)
         sleep 0.1
