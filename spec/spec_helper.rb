@@ -63,7 +63,7 @@ RSpec.configure do |config|
   end
 
   def encode_upload(file)
-    "data:text/plain;base64," + Base64.strict_encode64(file)
+    'data:text/plain;base64,' + Base64.strict_encode64(file)
   end
 
   config.after :all do

@@ -737,14 +737,14 @@ genghis_backends.each do |backend|
         end
 
         it 'can deal with non-objectid _id properties' do
-          id = "test"
+          id = 'test'
           @coll.insert({_id: id})
           id_str = "~#{Base64.encode64('"test"')}"
           res = @api.get '/servers/localhost/databases/__genghis_spec_test__/collections/spec_docs/documents/' + id_str
 
           res.status.should eq 200
           res.body.should match_json_expression \
-            _id:  "test"
+            _id:  'test'
         end
 
         it 'handles NaN values' do
@@ -845,7 +845,7 @@ genghis_backends.each do |backend|
         end
 
         it 'can deal with non-objectid _id properties' do
-          id = "testier"
+          id = 'testier'
           @coll.insert({_id: id})
           id_str = "~#{Base64.encode64('"testier"')}"
           res = @api.put do |req|
@@ -856,7 +856,7 @@ genghis_backends.each do |backend|
 
           res.status.should eq 200
           res.body.should match_json_expression \
-            _id: "testier",
+            _id: 'testier',
             test: 1
         end
 

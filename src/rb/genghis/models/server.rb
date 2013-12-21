@@ -97,7 +97,7 @@ module Genghis
       def get_dsn_and_uri(dsn)
         [dsn, ::Mongo::URIParser.new(dsn)]
       rescue Mongo::MongoArgumentError => e
-        raise e unless e.message.include? "MongoDB URI must include username"
+        raise e unless e.message.include? 'MongoDB URI must include username'
         # We'll try one more time...
         dsn = dsn.sub(%r{/?$}, '/admin')
         [dsn, ::Mongo::URIParser.new(dsn)]
