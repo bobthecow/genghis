@@ -51,7 +51,15 @@ module Genghis
       end
 
       def enc_re_flags(opt)
-        ((opt & Regexp::MULTILINE != 0) ? 'm' : '') + ((opt & Regexp::IGNORECASE != 0) ? 'i' : '')
+        (re_multi?(opt) ? 'm' : '') + (re_icase?(opt) ? 'i' : '')
+      end
+
+      def re_multi?(opt)
+        opt & Regexp::MULTILINE != 0
+      end
+
+      def re_icase?(opt)
+        opt & Regexp::IGNORECASE != 0
       end
 
       def enc_bin_data(o)
