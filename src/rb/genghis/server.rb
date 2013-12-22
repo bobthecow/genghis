@@ -69,7 +69,7 @@ module Genghis
     get '/servers/:server/databases/:database/collections/:collection/files/:document' do |server, database, collection, document|
       file = servers[server][database][collection].get_file document
 
-      content_type file['contentType'] || 'application/octet-stream'
+      content_type file['contentType'] || 'binary/octet-stream'
       attachment   file['filename'] || document
 
       stream do |out|

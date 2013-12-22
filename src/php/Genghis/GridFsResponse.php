@@ -4,7 +4,7 @@ class Genghis_GridFsResponse extends Genghis_Response
 {
     public function renderHeaders()
     {
-        $this->headers['Content-type']        = 'application/octet-stream';
+        $this->headers['Content-Type']        = 'binary/octet-stream';
         $this->headers['Content-Disposition'] = 'attachment';
 
         if ($filename = $this->data->getFilename()) {

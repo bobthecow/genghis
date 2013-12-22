@@ -80,3 +80,13 @@ RSpec::Matchers.define :be_a_json_response do
       actual.headers['content-type'].start_with?('application/json')
   end
 end
+
+RSpec::Matchers.define :be_a_download_response do
+  match do |actual|
+    actual.headers &&
+      actual.headers['content-type'] &&
+      actual.headers['content-type'].start_with?('binary/octet-stream') &&
+      actual.headers['content-disposition'] &&
+      actual.headers['content-disposition'].start_with?('attachment') # TODO: include filename= for all backends
+  end
+end

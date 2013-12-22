@@ -1183,7 +1183,7 @@ genghis_backends.each do |backend|
             {
               :file => file,
               :filename => 'foo.txt',
-              :contentType => 'application/octet',
+              :contentType => 'binary/octet-stream',
               :metadata => {:expected => 'you know it'}
             }
           end
@@ -1202,7 +1202,7 @@ genghis_backends.each do |backend|
             expect(res.body).to match_json_expression \
               :_id => Hash,
               :filename => 'foo.txt',
-              :contentType => 'application/octet',
+              :contentType => 'binary/octet-stream',
               :metadata => {:expected => 'you know it'},
               :uploadDate => Hash,
               :length => Fixnum,
@@ -1298,8 +1298,7 @@ genghis_backends.each do |backend|
 
           it 'returns a document' do
             expect(res.status).to eq 200
-            expect(res).to be_a_json_response
-            expect(res.headers['Content-Disposition']).to start_with 'attachment'
+            expect(res).to be_a_download_response
             expect(res.body).to eq 'foo'
           end
 
