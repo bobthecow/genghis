@@ -16,6 +16,7 @@ end
 
 group :test do
   gem 'rspec'
+  gem 'fuubar'
   gem 'json_expressions'
   gem 'faraday'
 end
