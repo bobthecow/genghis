@@ -166,7 +166,6 @@ class Genghis_Api extends Genghis_App
         }
 
         // TODO: more sanity checks?
-
         return compact('alerts');
     }
 

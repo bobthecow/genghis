@@ -13,7 +13,7 @@ class Genghis_Json
      *         '$value': '503f1a53910b4b7863341428'
      *     }
      *
-     * @param   mixed $object Object or associative array
+     * @param mixed $object Object or associative array
      *
      * @return string
      */
