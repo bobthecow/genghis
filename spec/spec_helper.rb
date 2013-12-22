@@ -72,3 +72,11 @@ RSpec.configure do |config|
     @genghis_pid = nil
   end
 end
+
+RSpec::Matchers.define :be_a_json_response do
+  match do |actual|
+    actual.headers &&
+      actual.headers['content-type'] &&
+      actual.headers['content-type'].start_with?('application/json')
+  end
+end

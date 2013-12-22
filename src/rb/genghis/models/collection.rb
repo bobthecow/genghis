@@ -71,7 +71,7 @@ module Genghis
 
       def put_file(data)
         unless (file = data.delete('file'))
-          fail Genghis::MalformedDocument, 'Missing file.'
+          fail Genghis::MalformedDocument, 'Missing file'
         end
 
         opts = {}
