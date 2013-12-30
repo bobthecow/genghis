@@ -6,5 +6,10 @@ Current version expects the 4 asset files (style.css, script.js, error/index.htm
 
 Uses Flask as lightweight HTTPD.
 
-Further dependencies to be provided. 
+TODO:
+
+- Further dependencies to be provided. 
+- Cleanup to_json/as_json functions
+- Review overuse of @property
+- Merge into https://github.com/bobthecow/genghis/tree/feature/three-dot-oh-my
 

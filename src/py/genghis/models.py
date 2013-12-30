@@ -160,7 +160,7 @@ class Server(object):
         if self.db is None:
             return db_name in self.client.database_names()
         else:
-            self.db = db_name
+            return self.db == db_name
 
 class Query(object):
     PAGE_LIMIT = 50
