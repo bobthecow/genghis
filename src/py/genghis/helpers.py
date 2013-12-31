@@ -29,10 +29,9 @@ def request_context():  # could make is nicer
 
 def jsonify(obj=None, **kwargs):
     obj = obj or kwargs or obj
-    return make_response(encode(obj), mimetype='application/json')
-
-def genghis_json(doc):
-    return json.dumps(as_json(doc))
+    response = make_response(encode(obj))
+    response.mimetype = 'application/json'
+    return response
 
 ### Misc request parsing helpers ###
 
@@ -44,19 +43,12 @@ def page_param():
 
 def request_json():
     try:
-        return request.get_json(force=True)
-    except BadRequest:
-        raise MalformedDocument()
-
-
-def request_genghis_json():
-    try:
         return decode(request.data)
     except:
         raise MalformedDocument
 
-def thunk_mongo_id(id):
-    return bson.objectid.ObjectId(id) if re.match("^[a-f0-9]{24}$", id, re.IGNORECASE) else id
+def thunk_mongo_id(id_):
+    return bson.objectid.ObjectId(id_) if re.match("^[a-f0-9]{24}$", id_, re.IGNORECASE) else id_
 
 
 ### Seemed like a good place to put this ###

@@ -93,6 +93,7 @@ class Server(object):
                 )
             # except AuthenticationF TODO
             except ConnectionFailure, e:
+                # NOTE: e.message might contain non UTF-8 encoding on non US platforms
                 json["error"] = "Authentication error: {e.message}".format(e=e)
             except OperationFailure, e:
                 json["error"] = "Authentication error: {e.message}".format(e=e)

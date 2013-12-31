@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from genghis.helpers import server_status_alerts, servers, add_server,\
-    remove_server, query_param, request_genghis_json, page_param, jsonify,\
+    remove_server, query_param, request_json, page_param, jsonify,\
     get_asset
 from flask import Flask, request
 from genghis.errors import ServerNotFound, GenghisException
@@ -42,11 +42,15 @@ def handle_api_errors(error):
 
 @app.route("/assets/style.css")
 def asset_stylecss():
-    return make_response(get_asset("style.css"), mimetype='text/css') 
+    response = make_response(get_asset("style.css"))
+    response.mimetype = 'text/css'
+    return response 
 
 @app.route("/assets/script.js")
 def asset_scriptjs():
-    return make_response(get_asset("script.js"), mimetype='text/javascript')
+    response = make_response(get_asset("script.js"), )
+    response.mimetype = 'text/javascript'
+    return response
 
 ### Default route ###
 
@@ -117,14 +121,14 @@ def collection(server, database, collection):
 def documents(server, database, collection):    
     if request.method == "GET":
         return jsonify(servers()[server][database][collection].documents(query_param(), page_param()))
-    return jsonify(servers()[server][database][collection].insert(request_genghis_json()))
+    return jsonify(servers()[server][database][collection].insert(request_json()))
 
 @app.route('/servers/<server>/databases/<database>/collections/<collection>/documents/<document>', methods=["GET", "PUT", "DELETE"])
 def document(server, database, collection, document):    
     if request.method == "GET":
         return jsonify(servers()[server][database][collection][document])
     elif request.method == "PUT":
-        return jsonify(servers()[server][database][collection].update(document, request_genghis_json()))
+        return jsonify(servers()[server][database][collection].update(document, request_json()))
     servers()[server][database][collection].remove(document)
     return jsonify(success=True)
 
@@ -132,7 +136,7 @@ def document(server, database, collection, document):
 
 @app.route('/servers/<server>/databases/<database>/collections/<collection>/files', methods=["POST"])
 def files(server, database, collection):
-    return jsonify(servers()[server][database][collection].put_file(request_genghis_json()))
+    return jsonify(servers()[server][database][collection].put_file(request_json()))
 
 @app.route('/servers/<server>/databases/<database>/collections/<collection>/files/<document>', methods=["GET", "DELETE"])
 def file_document(server, database, collection, document):
