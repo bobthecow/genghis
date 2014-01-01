@@ -1,5 +1,7 @@
-define(['genghis'], function(Genghis) {
-    return Genghis.Util = {
+define(function(require) {
+    'use strict';
+
+    return {
         route: function(url) {
             return url.replace(app.baseUrl, '').replace(/^\//, '');
         },

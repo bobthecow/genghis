@@ -1,9 +1,17 @@
-define([
-    'jquery', 'underscore', 'backbone-stack', 'genghis/views', 'genghis/views/new_document', 'genghis/models/document',
-    'genghis/util', 'genghis/json', 'hgn!genghis/templates/new_grid_file', 'bootstrap.modal'
-], function($, _, Backbone, Views, NewDocument, Document, Util, GenghisJSON, template, _1) {
+define(function(require) {
+    'use strict';
 
-    return Views.NewGridFile = NewDocument.extend({
+    var $           = require('jquery');
+    var _           = require('underscore');
+    var NewDocument = require('genghis/views/new_document');
+    var Document    = require('genghis/models/document');
+    var Util        = require('genghis/util');
+    var GenghisJSON = require('genghis/json');
+    var template    = require('hgn!genghis/templates/new_grid_file');
+
+    require('bootstrap.modal');
+
+    return NewDocument.extend({
         el:       '#new-grid-file',
         template: template,
 

@@ -1,8 +1,11 @@
-define([
-    'genghis/views', 'genghis/views/row', 'genghis/views/confirm', 'hgn!genghis/templates/collection_row'
-], function(Views, Row, Confirm, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.CollectionRow = Row.extend({
+    var Row      = require('genghis/views/row');
+    var Confirm  = require('genghis/views/confirm');
+    var template = require('hgn!genghis/templates/collection_row');
+
+    return Row.extend({
         template:   template,
         isParanoid: true,
 

@@ -1,10 +1,18 @@
-define([
-    'jquery', 'underscore', 'backbone-stack', 'modernizr-detects', 'genghis/views/view',
-    'genghis/views', 'genghis/views/documents_header', 'genghis/views/pagination', 'genghis/views/document',
-    'genghis/views/new_document', 'genghis/views/new_grid_file', 'hgn!genghis/templates/documents'
-], function($, _, Backbone, Modernizr, View, Views, DocumentsHeader, Pagination, DocumentView, NewDocument, NewGridFile, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.Documents = View.extend({
+    var $               = require('jquery');
+    var _               = require('underscore');
+    var Modernizr       = require('modernizr-detects');
+    var View            = require('genghis/views/view');
+    var DocumentsHeader = require('genghis/views/documents_header');
+    var Pagination      = require('genghis/views/pagination');
+    var DocumentView    = require('genghis/views/document');
+    var NewDocument     = require('genghis/views/new_document');
+    var NewGridFile     = require('genghis/views/new_grid_file');
+    var template        = require('hgn!genghis/templates/documents');
+
+    return View.extend({
         el:       'section#documents',
         template: template,
 

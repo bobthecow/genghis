@@ -1,5 +1,10 @@
-define(['genghis/collections', 'genghis/collections/base_collection', 'genghis/models/collection'], function(Collections, BaseCollection, Collection) {
-  return Collections.Collections = BaseCollection.extend({
-    model: Collection
-  });
+define(function(require) {
+    'use strict';
+
+    var BaseCollection = require('genghis/collections/base_collection');
+    var Collection     = require('genghis/models/collection');
+
+    return BaseCollection.extend({
+        model: Collection
+    });
 });

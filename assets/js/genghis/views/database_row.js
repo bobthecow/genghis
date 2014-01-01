@@ -1,8 +1,11 @@
-define(['genghis/views', 'genghis/views/row', 'hgn!genghis/templates/database_row'], function(Views, Row, template) {
+define(function(require) {
+    'use strict';
 
-  return Views.DatabaseRow = Row.extend({
-      template:   template,
-      isParanoid: true
-  });
+    var Row      = require('genghis/views/row');
+    var template = require('hgn!genghis/templates/database_row');
 
+    return Row.extend({
+        template:   template,
+        isParanoid: true
+    });
 });

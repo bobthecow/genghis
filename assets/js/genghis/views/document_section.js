@@ -1,9 +1,13 @@
-define([
-    'jquery', 'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'genghis/views/document',
-    'hgn!genghis/templates/document_section'
-], function($, _, Backbone, View, Views, DocumentView, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.DocumentSection = View.extend({
+    var $            = require('jquery');
+    var _            = require('underscore');
+    var View         = require('genghis/views/view');
+    var DocumentView = require('genghis/views/document');
+    var template     = require('hgn!genghis/templates/document_section');
+
+    return View.extend({
         el:       'section#document',
         template: template,
 

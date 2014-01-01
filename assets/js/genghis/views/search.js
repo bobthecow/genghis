@@ -1,7 +1,13 @@
-define([
-    'jquery', 'underscore', 'backbone-stack', 'genghis/util', 'genghis/json', 'genghis/defaults', 'genghis/views/view',
-    'genghis/views', 'hgn!genghis/templates/search'
-], function($, _, Backbone, Util, GenghisJSON, defaults, View, Views, template) {
+define(function(require) {
+    'use strict';
+
+    var $           = require('jquery');
+    var _           = require('underscore');
+    var Util        = require('genghis/util');
+    var GenghisJSON = require('genghis/json');
+    var defaults    = require('genghis/defaults');
+    var View        = require('genghis/views/view');
+    var template    = require('hgn!genghis/templates/search');
 
     var PLACEHOLDERS = [
         '{name: /genghis(app)?/i}',
@@ -10,7 +16,7 @@ define([
         '{neverGonna: ["give you up", "let you down", "run around", "desert you"]}'
     ];
 
-    return Views.Search = View.extend({
+    return View.extend({
         tagName:   'form',
         className: 'navbar-search navbar-form navbar-left',
         template:  template,

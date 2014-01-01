@@ -1,17 +1,26 @@
-define([
-    'jquery', 'underscore', 'backbone.giraffe', 'genghis/views', 'genghis/models/selection',
-    'genghis/collections/alerts', 'genghis/router', 'genghis/views/title', 'genghis/views/navbar',
-    'genghis/views/alerts', 'genghis/views/keyboard_shortcuts', 'genghis/views/servers',
-    'genghis/views/databases', 'genghis/views/collections', 'genghis/views/documents',
-    'genghis/views/explain', 'genghis/views/document_section', 'genghis/views/masthead',
-    'hgn!genghis/templates/welcome'
-], function(
-    $, _, Giraffe, Views, Selection, Alerts, Router, TitleView, NavbarView, AlertsView,
-    KeyboardShortcutsView, ServersView, DatabasesView, CollectionsView, DocumentsView,
-    ExplainView, DocumentSectionView, MastheadView, welcomeTemplate
-) {
+define(function(require) {
+    'use strict';
 
-    return Views.App = Giraffe.App.extend({
+    var $                     = require('jquery');
+    var _                     = require('underscore');
+    var Giraffe               = require('backbone.giraffe');
+    var Selection             = require('genghis/models/selection');
+    var Alerts                = require('genghis/collections/alerts');
+    var Router                = require('genghis/router');
+    var TitleView             = require('genghis/views/title');
+    var NavbarView            = require('genghis/views/navbar');
+    var AlertsView            = require('genghis/views/alerts');
+    var KeyboardShortcutsView = require('genghis/views/keyboard_shortcuts');
+    var ServersView           = require('genghis/views/servers');
+    var DatabasesView         = require('genghis/views/databases');
+    var CollectionsView       = require('genghis/views/collections');
+    var DocumentsView         = require('genghis/views/documents');
+    var ExplainView           = require('genghis/views/explain');
+    var DocumentSectionView   = require('genghis/views/document_section');
+    var MastheadView          = require('genghis/views/masthead');
+    var welcomeTemplate       = require('hgn!genghis/templates/welcome');
+
+    return Giraffe.App.extend({
         el: 'section#genghis',
 
         initialize: function() {

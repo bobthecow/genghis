@@ -1,6 +1,10 @@
-define(['underscore', 'backbone.giraffe', 'genghis/models'], function(_, Giraffe, Models) {
+define(function(require) {
+    'use strict';
 
-    return Models.Pagination = Giraffe.Model.extend({
+    var _       = require('underscore');
+    var Giraffe = require('backbone.giraffe');
+
+    return Giraffe.Model.extend({
 
         defaults: {
             page:  1,

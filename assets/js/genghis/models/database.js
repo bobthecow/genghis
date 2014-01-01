@@ -1,6 +1,11 @@
-define(['underscore', 'genghis/models', 'genghis/models/base_model', 'genghis/util'], function(_, Models, BaseModel, Util) {
+define(function(require) {
+    'use strict';
 
-    return Models.Database = BaseModel.extend({
+    var _         = require('underscore');
+    var BaseModel = require('genghis/models/base_model');
+    var Util      = require('genghis/util');
+
+    return BaseModel.extend({
 
         firstChildren: function() {
             return _.first((this.get('collections') || []), 15);

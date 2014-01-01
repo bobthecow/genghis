@@ -1,6 +1,9 @@
-define(['backbone.giraffe', 'genghis/models'], function(Giraffe, Models) {
+define(function(require) {
+    'use strict';
 
-    return Models.Alert = Giraffe.Model.extend({
+    var Giraffe = require('backbone.giraffe');
+
+    return Giraffe.Model.extend({
         defaults: {
             level: 'warning',
             block: false

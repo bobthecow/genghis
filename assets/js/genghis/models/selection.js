@@ -1,9 +1,19 @@
-define([
-    'underscore', 'backbone.giraffe', 'genghis/models', 'genghis/models/pagination', 'genghis/collections/servers',
-    'genghis/models/server', 'genghis/collections/databases', 'genghis/models/database',
-    'genghis/collections/collections', 'genghis/models/collection', 'genghis/collections/documents',
-    'genghis/models/document', 'genghis/util', 'genghis/json'
-], function(_, Giraffe, Models, Pagination, Servers, Server, Databases, Database, Collections, Collection, Documents, Document, Util, GenghisJSON) {
+define(function(require) {
+    'use strict';
+
+    var _           = require('underscore');
+    var Giraffe     = require('backbone.giraffe');
+    var Pagination  = require('genghis/models/pagination');
+    var Servers     = require('genghis/collections/servers');
+    var Server      = require('genghis/models/server');
+    var Databases   = require('genghis/collections/databases');
+    var Database    = require('genghis/models/database');
+    var Collections = require('genghis/collections/collections');
+    var Collection  = require('genghis/models/collection');
+    var Documents   = require('genghis/collections/documents');
+    var Document    = require('genghis/models/document');
+    var Util        = require('genghis/util');
+    var GenghisJSON = require('genghis/json');
 
     var SERVER_PARAMS     = ['server'];
     var DATABASE_PARAMS   = ['server', 'database'];
@@ -11,7 +21,7 @@ define([
     var DOCUMENTS_PARAMS  = ['server', 'database', 'collection', 'query', 'page', 'explain'];
     var DOCUMENT_PARAMS   = ['server', 'database', 'collection', 'document'];
 
-    return Models.Selection = Giraffe.Model.extend({
+    return Giraffe.Model.extend({
 
         defaults: {
             server:     null,

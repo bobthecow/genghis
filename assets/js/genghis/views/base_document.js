@@ -1,11 +1,15 @@
-define([
-    'underscore', 'genghis/views/view', 'genghis/views', 'genghis/json',
-    'genghis/views/alert', 'genghis/models/alert'
-], function(_, View, Views, GenghisJSON, AlertView, Alert) {
+define(function(require) {
+    'use strict';
+
+    var _           = require('underscore');
+    var View        = require('genghis/views/view');
+    var GenghisJSON = require('genghis/json');
+    var AlertView   = require('genghis/views/alert');
+    var Alert       = require('genghis/models/alert');
 
     // TODO: this shouldn't be BaseDocument, it should be a DocumentEditor view
     // that's used by both Document and NewDocument views to edit document JSON.
-    return Views.BaseDocument = View.extend({
+    return View.extend({
         errorLines: [],
 
         clearErrors: function() {

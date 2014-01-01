@@ -1,14 +1,17 @@
-define([
-  'genghis/views', 'genghis/views/section', 'genghis/views/database_row', 'hgn!genghis/templates/databases'
-], function(Views, Section, DatabaseRow, template) {
+define(function(require) {
+    'use strict';
 
-  return Views.Databases = Section.extend({
-      el:       'section#databases',
-      template: template,
-      rowView:  DatabaseRow,
+    var Section     = require('genghis/views/section');
+    var DatabaseRow = require('genghis/views/database_row');
+    var template    = require('hgn!genghis/templates/databases');
 
-      formatTitle: function(model) {
-          return model.id ? (model.id + ' Databases') : 'Databases';
-      }
-  });
+    return Section.extend({
+        el:       'section#databases',
+        template: template,
+        rowView:  DatabaseRow,
+
+        formatTitle: function(model) {
+            return model.id ? (model.id + ' Databases') : 'Databases';
+        }
+    });
 });

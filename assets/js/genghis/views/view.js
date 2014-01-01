@@ -1,7 +1,10 @@
-define(['genghis/views', 'backbone.giraffe'], function(Views, Giraffe) {
+define(function(require) {
+    'use strict';
+
+    var Giraffe = require('backbone.giraffe');
 
     // Let's use a base class!
-    return Views.View = Giraffe.View.extend({
+    return Giraffe.View.extend({
 
         // Really, Hogan, but it looks a lot like JST:
         templateStrategy: 'jst',

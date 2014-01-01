@@ -1,9 +1,17 @@
-define([
-    'jquery', 'underscore', 'genghis/views/view', 'genghis/views', 'genghis/util', 'genghis/views/confirm',
-    'jquery.hoverintent', 'bootstrap.tooltip', 'bootstrap.popover'
-], function($, _, View, Views, Util, Confirm, _1, _2) {
+define(function(require) {
+    'use strict';
 
-    return Views.Row = View.extend({
+    var $       = require('jquery');
+    var _       = require('underscore');
+    var View    = require('genghis/views/view');
+    var Util    = require('genghis/util');
+    var Confirm = require('genghis/views/confirm');
+
+    require('jquery.hoverintent');
+    require('bootstrap.tooltip');
+    require('bootstrap.popover');
+
+    return View.extend({
         tagName: 'tr',
 
         events: {

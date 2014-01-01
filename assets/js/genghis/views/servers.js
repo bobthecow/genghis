@@ -1,8 +1,14 @@
-define([
-    'jquery', 'genghis/views', 'genghis/views/section', 'genghis/views/server_row', 'hgn!genghis/templates/servers', 'bootstrap.tooltip'
-], function($, Views, Section, ServerRow, template, _1) {
+define(function(require) {
+    'use strict';
 
-    return Views.Servers = Section.extend({
+    var $         = require('jquery');
+    var Section   = require('genghis/views/section');
+    var ServerRow = require('genghis/views/server_row');
+    var template  = require('hgn!genghis/templates/servers');
+
+    require('bootstrap.tooltip');
+
+    return Section.extend({
         el:       'section#servers',
         template: template,
         rowView:  ServerRow,

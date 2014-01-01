@@ -1,9 +1,15 @@
-define([
-    'underscore', 'genghis/views', 'genghis/views/section', 'genghis/views/collection_row',
-    'hgn!genghis/templates/collections', 'bootstrap.dropdown', 'backbone.mousetrap'
-], function(_, Views, Section, CollectionRow, template, _1, _2) {
+define(function(require) {
+    'use strict';
 
-    return Views.Collections = Section.extend({
+    var _             = require('underscore');
+    var Section       = require('genghis/views/section');
+    var CollectionRow = require('genghis/views/collection_row');
+    var template      = require('hgn!genghis/templates/collections');
+
+    require('bootstrap.dropdown');
+    require('backbone.mousetrap');
+
+    return Section.extend({
         el:       'section#collections',
         template: template,
         rowView:  CollectionRow,

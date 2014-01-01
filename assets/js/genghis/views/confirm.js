@@ -1,8 +1,14 @@
-define([
-    'jquery', 'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/confirm', 'bootstrap.modal'
-], function($, _, Backbone, View, Views, template, _1) {
+define(function(require) {
+    'use strict';
 
-    return Views.Confirm = View.extend({
+    var $        = require('jquery');
+    var _        = require('underscore');
+    var View     = require('genghis/views/view');
+    var template = require('hgn!genghis/templates/confirm');
+
+    require('bootstrap.modal');
+
+    return View.extend({
         className: 'modal confirm-modal',
         template: template,
 

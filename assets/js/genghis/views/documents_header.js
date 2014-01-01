@@ -1,8 +1,10 @@
-define([
-    'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/documents_header'
-], function(_, Backbone, View, Views, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.DocumentsHeader = View.extend({
+    var View     = require('genghis/views/view');
+    var template = require('hgn!genghis/templates/documents_header');
+
+    return View.extend({
         template: template,
 
         modelEvents: {

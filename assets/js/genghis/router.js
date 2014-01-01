@@ -1,18 +1,23 @@
-define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
+define(function(require) {
+    'use strict';
+
+    var Backbone = require('backbone-stack');
+    var Util     = require('genghis/util');
+
     var e = encodeURIComponent;
     var NOT_FOUND = "<p>If you think you've reached this message in error, please press <strong>0</strong> to speak with an operator. Otherwise, hang up and try again.</p>";
 
     function getParams() {
         if (!document.location.search) return {};
 
-        return Genghis.Util.parseQuery(window.location.search.substr(1));
+        return Util.parseQuery(window.location.search.substr(1));
     }
 
     function getQuery() {
         return getParams().q
     }
 
-    return Genghis.Router = Backbone.Router.extend({
+    return Backbone.Router.extend({
         initialize: function(options) {
             this.app = options.app;
         },
@@ -96,7 +101,7 @@ define(['backbone-stack', 'genghis'], function(Backbone, Genghis) {
 
         collectionQueryRoute: function(server, db, coll, query) {
             return ['servers', e(server), 'databases', e(db), 'collections', e(coll), 'documents'].join('/')
-                 + '?' + Genghis.Util.buildQuery({q: e(query)});
+                 + '?' + Util.buildQuery({q: e(query)});
         },
 
         redirectToCollectionQuery: function(server, db, coll, query) {

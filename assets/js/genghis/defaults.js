@@ -1,5 +1,7 @@
-define(['genghis'], function(Genghis) {
-    return Genghis.defaults = {
+define(function(require) {
+    'use strict';
+
+    return {
         codeMirror: {
             mode:          'application/json',
             lineNumbers:   true,

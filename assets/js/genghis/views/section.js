@@ -1,9 +1,14 @@
-define([
-    'jquery', 'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'jquery.tablesorter',
-    'tablesorter-size-parser'
-], function($, _, Backbone, View, Views, _1, _2) {
+define(function(require) {
+    'use strict';
 
-    return Views.Section = View.extend({
+    var $    = require('jquery');
+    var _    = require('underscore');
+    var View = require('genghis/views/view');
+
+    require('jquery.tablesorter');
+    require('tablesorter-size-parser');
+
+    return View.extend({
 
         ui: {
             '$title':         '> header h2',

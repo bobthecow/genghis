@@ -1,6 +1,9 @@
-define(['backbone.giraffe', 'genghis/collections'], function(Giraffe, Collections) {
+define(function(require) {
+    'use strict';
 
-    return Collections.BaseCollection = Giraffe.Collection.extend({
+    var Giraffe = require('backbone.giraffe');
+
+    return Giraffe.Collection.extend({
         firstChildren: function() {
             return this.collection.toArray().slice(0, 10);
         },

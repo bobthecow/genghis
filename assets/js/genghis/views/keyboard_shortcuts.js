@@ -1,8 +1,14 @@
-define([
-    'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/keyboard_shortcuts', 'bootstrap.modal', 'backbone.mousetrap'
-], function(_, Backbone, View, Views, template, _1, _2) {
+define(function(require) {
+    'use strict';
 
-    return Views.KeyboardShortcuts = View.extend({
+    var _        = require('underscore');
+    var View     = require('genghis/views/view');
+    var template = require('hgn!genghis/templates/keyboard_shortcuts');
+
+    require('bootstrap.modal');
+    require('backbone.mousetrap');
+
+    return View.extend({
         tagName:   'div',
         id:        'keyboard-shortcuts',
         className: 'modal',

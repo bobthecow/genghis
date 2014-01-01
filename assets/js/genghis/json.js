@@ -1,5 +1,10 @@
-define(['underscore', 'genghis', 'esprima'], function(_, Genghis, esprima) {
-    return Genghis.JSON = {
+define(function(require) {
+    'use strict';
+
+    var _       = require('underscore');
+    var esprima = require('esprima');
+
+    var GenghisJSON = {
         parse: function(src) {
             if (typeof src !== 'string') {
                 src = String(src);
@@ -646,7 +651,9 @@ define(['underscore', 'genghis', 'esprima'], function(_, Genghis, esprima) {
         },
 
         normalize: function(value, pretty) {
-            return Genghis.JSON.stringify(Genghis.JSON.parse(value), pretty);
+            return GenghisJSON.stringify(GenghisJSON.parse(value), pretty);
         }
     };
+
+    return GenghisJSON;
 });

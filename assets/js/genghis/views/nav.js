@@ -1,9 +1,14 @@
-define([
-    'jquery', 'underscore', 'backbone-stack', 'genghis/util', 'genghis/views/view', 'genghis/views',
-    'genghis/views/nav_section', 'hgn!genghis/templates/nav'
-], function($, _, Backbone, Util, View, Views, NavSection, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.Nav = View.extend({
+    var $          = require('jquery');
+    var _          = require('underscore');
+    var Util       = require('genghis/util');
+    var View       = require('genghis/views/view');
+    var NavSection = require('genghis/views/nav_section');
+    var template   = require('hgn!genghis/templates/nav');
+
+    return View.extend({
         tagName:   'ul',
         className: 'nav navbar-nav',
         template:  template,

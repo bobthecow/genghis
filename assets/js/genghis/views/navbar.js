@@ -1,8 +1,12 @@
-define([
-    'backbone-stack', 'genghis/views/view', 'genghis/views', 'genghis/views/nav', 'genghis/views/search', 'hgn!genghis/templates/navbar'
-], function(Backbone, View, Views, Nav, Search, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.Navbar = View.extend({
+    var View     = require('genghis/views/view');
+    var Nav      = require('genghis/views/nav');
+    var Search   = require('genghis/views/search');
+    var template = require('hgn!genghis/templates/navbar');
+
+    return View.extend({
         el:       '.navbar',
         template: template,
 

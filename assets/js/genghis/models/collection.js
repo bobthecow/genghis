@@ -1,8 +1,12 @@
-define([
-    'underscore', 'backbone-stack', 'genghis/models', 'genghis/models/base_model', 'genghis/json', 'genghis/util'
-], function(_, Backbone, Models, BaseModel, GenghisJSON, Util) {
+define(function(require) {
+    'use strict';
 
-    return Models.Collection = BaseModel.extend({
+    var _           = require('underscore');
+    var BaseModel   = require('genghis/models/base_model');
+    var GenghisJSON = require('genghis/json');
+    var Util        = require('genghis/util');
+
+    return BaseModel.extend({
 
         indexesIsPlural: function() {
             return this.indexCount() !== 1;

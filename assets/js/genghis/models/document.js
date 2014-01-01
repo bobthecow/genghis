@@ -1,6 +1,12 @@
-define(['underscore', 'backbone.giraffe', 'genghis/models', 'genghis/util', 'genghis/json'], function(_, Giraffe, Models, Util, GenghisJSON) {
+define(function(require) {
+    'use strict';
 
-    return Models.Document = Giraffe.Model.extend({
+    var _           = require('underscore');
+    var Giraffe     = require('backbone.giraffe');
+    var Util        = require('genghis/util');
+    var GenghisJSON = require('genghis/json');
+
+    return Giraffe.Model.extend({
 
         idAttribute: null,
 

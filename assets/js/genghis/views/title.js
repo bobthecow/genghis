@@ -1,8 +1,10 @@
-define([
-    'underscore', 'genghis', 'genghis/views/view', 'genghis/views'
-], function(_, Genghis, View, Views, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.Title = View.extend({
+    var Util = require('genghis');
+    var View = require('genghis/views/view');
+
+    return View.extend({
         modelEvents: {
             'all': 'setTitle'
         },
@@ -19,7 +21,7 @@ define([
                     break;
 
                 case 'route:document':
-                    args.push(Genghis.Util.decodeDocumentId(args.pop()));
+                    args.push(Util.decodeDocumentId(args.pop()));
                     break;
 
                 case 'route:collectionQuery':

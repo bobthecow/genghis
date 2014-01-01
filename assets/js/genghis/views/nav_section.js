@@ -1,9 +1,14 @@
-define([
-    'jquery', 'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/nav_section',
-    'hgn!genghis/templates/nav_section_menu', 'jquery.hoverintent'
-], function($, _, Backbone, View, Views, template, menuTemplate, _1) {
+define(function(require) {
+    'use strict';
 
-    return Views.NavSection = View.extend({
+    var $            = require('jquery');
+    var View         = require('genghis/views/view');
+    var template     = require('hgn!genghis/templates/nav_section');
+    var menuTemplate = require('hgn!genghis/templates/nav_section_menu');
+
+    require('jquery.hoverintent');
+
+    return View.extend({
         tagName:      'li',
         template:     template,
         menuTemplate: menuTemplate,

@@ -1,8 +1,10 @@
-define([
-    'underscore', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/alert'
-], function(_, View, Views, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.Alert = View.extend({
+    var View     = require('genghis/views/view');
+    var template = require('hgn!genghis/templates/alert');
+
+    return View.extend({
 
         tagName:  'div',
         template: template,

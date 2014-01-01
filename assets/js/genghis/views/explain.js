@@ -1,8 +1,11 @@
-define([
-    'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'genghis/util', 'hgn!genghis/templates/explain'
-], function(_, Backbone, View, Views, Util, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.Explain = View.extend({
+    var View     = require('genghis/views/view');
+    var Util     = require('genghis/util');
+    var template = require('hgn!genghis/templates/explain');
+
+    return View.extend({
         el:       'section#explain',
         template: template,
 

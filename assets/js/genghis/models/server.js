@@ -1,6 +1,10 @@
-define(['underscore', 'genghis/models', 'genghis/models/base_model'], function(_, Models, BaseModel) {
+define(function(require) {
+    'use strict';
 
-    return Models.Server = BaseModel.extend({
+    var _         = require('underscore');
+    var BaseModel = require('genghis/models/base_model');
+
+    return BaseModel.extend({
 
       editable: function() {
           return !!this.get('editable');

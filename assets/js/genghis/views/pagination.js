@@ -1,9 +1,13 @@
-define([
-    'jquery', 'underscore', 'backbone-stack', 'genghis/views/view', 'genghis/views', 'genghis/util',
-    'hgn!genghis/templates/pagination'
-], function($, _, Backbone, View, Views, Util, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.Pagination = View.extend({
+    var $        = require('jquery');
+    var _        = require('underscore');
+    var View     = require('genghis/views/view');
+    var Util     = require('genghis/util');
+    var template = require('hgn!genghis/templates/pagination');
+
+    return View.extend({
         template: template,
 
         ui: {

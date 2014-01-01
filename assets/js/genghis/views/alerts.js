@@ -1,8 +1,10 @@
-define([
-    'underscore', 'genghis/views/view', 'genghis/views', 'genghis/views/alert'
-], function(_, View, Views, Alert) {
+define(function(require) {
+    'use strict';
 
-    return Views.Alerts = View.extend({
+    var View  = require('genghis/views/view');
+    var Alert = require('genghis/views/alert');
+
+    return View.extend({
         el: 'aside#alerts',
 
         collectionEvents: {

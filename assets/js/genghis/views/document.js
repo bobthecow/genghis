@@ -1,10 +1,20 @@
-define([
-    'jquery', 'underscore', 'codemirror', 'genghis/views', 'genghis/views/base_document', 'genghis/util',
-    'genghis/views/alert', 'genghis/models/alert', 'genghis/views/confirm', 'hgn!genghis/templates/document',
-    'codemirror.matchbrackets', 'codemirror.javascript'
-], function($, _, CodeMirror, Views, BaseDocument, Util, AlertView, Alert, Confirm, template, _1, _2) {
+define(function(require) {
+    'use strict';
 
-    return Views.Document = BaseDocument.extend({
+    var $            = require('jquery');
+    var _            = require('underscore');
+    var CodeMirror   = require('codemirror');
+    var BaseDocument = require('genghis/views/base_document');
+    var Util         = require('genghis/util');
+    var AlertView    = require('genghis/views/alert');
+    var Alert        = require('genghis/models/alert');
+    var Confirm      = require('genghis/views/confirm');
+    var template     = require('hgn!genghis/templates/document');
+
+    require('codemirror.matchbrackets');
+    require('codemirror.javascript');
+
+    return BaseDocument.extend({
         tagName:  'article',
         template: template,
 

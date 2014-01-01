@@ -1,11 +1,21 @@
-define([
-    'jquery', 'underscore', 'genghis/views', 'genghis/views/base_document', 'codemirror',
-    'genghis/util', 'genghis/views/alert', 'genghis/models/alert', 'genghis/defaults',
-    'hgn!genghis/templates/new_document', 'bootstrap.modal', 'codemirror.matchbrackets',
-    'codemirror.javascript'
-], function($, _, Views, BaseDocument, CodeMirror, Util, AlertView, Alert, defaults, template, _1, _2, _3, _4) {
+define(function(require) {
+    'use strict';
 
-    return Views.NewDocument = BaseDocument.extend({
+    var $            = require('jquery');
+    var _            = require('underscore');
+    var BaseDocument = require('genghis/views/base_document');
+    var CodeMirror   = require('codemirror');
+    var Util         = require('genghis/util');
+    var AlertView    = require('genghis/views/alert');
+    var Alert        = require('genghis/models/alert');
+    var defaults     = require('genghis/defaults');
+    var template     = require('hgn!genghis/templates/new_document');
+
+    require('bootstrap.modal');
+    require('codemirror.matchbrackets');
+    require('codemirror.javascript');
+
+    return BaseDocument.extend({
         el:       '#new-document',
         template: template,
 

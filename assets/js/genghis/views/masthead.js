@@ -1,6 +1,10 @@
-define(['backbone-stack', 'genghis/views/view', 'genghis/views', 'hgn!genghis/templates/masthead'], function(Backbone, View, Views, template) {
+define(function(require) {
+    'use strict';
 
-    return Views.Masthead = View.extend({
+    var View     = require('genghis/views/view');
+    var template = require('hgn!genghis/templates/masthead');
+
+    return View.extend({
         tagName: 'header',
         attributes: {
             'class': 'masthead'
