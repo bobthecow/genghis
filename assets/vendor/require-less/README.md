@@ -43,15 +43,23 @@ Then add the following package configuration in RequireJS:
 ```javascript
 map: {
   '*': {
-    'css': 'require-less/less' // path to less
+    'less': 'require-less/less' // path to less
   }
-{
+}
 ```
 
 Package configuration can also be used here alternatively.
 
 Builds
 ------
+
+Before running a build, install the LESS NodeJS module and csso for compression:
+
+```javascript
+  npm install less csso
+```
+
+NOTE: If you are running the optimizer globally, use `npm install less csso -g`.
 
 The RequireCSS build system is used to build LESS. The exact same options thus apply.
 
@@ -60,10 +68,10 @@ Example build configuration:
 ```javascript
 {
   modules: [
-  {
-    include: ['mymodule'], // where mymodule is dependent on a less! include
-    exclude: ['require-css/normalize'],
-  }
+    {
+      include: ['mymodule'], // where mymodule is dependent on a less! include
+      exclude: ['require-css/normalize'],
+    }
   ]
 }
 ```
@@ -75,17 +83,33 @@ To build into a separate CSS file:
 ```javascript
   separateCSS: true,
   modules: [
-  {
-    include: ['mymodule'], // where mymodule is dependent on a less! include
-    exclude: ['require-css/normalize'],
-  }
+    {
+      include: ['mymodule'], // where mymodule is dependent on a less! include
+      exclude: ['require-css/normalize'],
+    }
   ]
 ```
 
-The `separateCSS` build option can then be used to create this CSS layer as a separate file. See the [RequireCSS documentation](https://github.com/) for more information.
+The `separateCSS` build option can then be used to create this CSS layer as a separate file. See the [RequireCSS documentation](https://github.com/guybedford/require-css) for more information.
+
+Compilation Options
+---
+
+Compilation options can be set with the `less` configuration option in the RequireJS config:
+
+```javascript
+  less: {
+    // ... custom LESS compiler options ...
+    // for example: relativeUrls: true
+  }
+```
 
 License
 ---
 
 MIT
+
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/guybedford/require-less/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 

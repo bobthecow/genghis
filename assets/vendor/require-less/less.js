@@ -6,7 +6,7 @@ define(['require'], function(require) {
   
   if (typeof window == 'undefined') {
     lessAPI.load = function(n, r, load) { load(); }
-    return less;
+    return lessAPI;
   }
   
   lessAPI.normalize = function(name, normalize) {
@@ -20,7 +20,9 @@ define(['require'], function(require) {
   
   var head = document.getElementsByTagName('head')[0];
 
-  var pagePath = window.location.href.split('#')[0].split('/');
+  var base = document.getElementsByTagName('base');
+  base = base && base[0] && base[0] && base[0].href;
+  var pagePath = (base || window.location.href.split('#')[0].split('?')[0]).split('/');
   pagePath[pagePath.length - 1] = '';
   pagePath = pagePath.join('/');
 
@@ -56,7 +58,7 @@ define(['require'], function(require) {
         if (err)
           return load.error(err);
 
-        lessAPI.inject(normalize(tree.toCSS(), fileUrl, pagePath));
+        lessAPI.inject(normalize(tree.toCSS(config.less), fileUrl, pagePath));
 
         setTimeout(load, 7);
       });

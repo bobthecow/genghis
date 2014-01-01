@@ -1,5 +1,7 @@
 define(['require', './normalize'], function(req, normalize) {
   var lessAPI = {};
+
+  var isWindows = !!process.platform.match(/^win/);
   
   var baseParts = req.toUrl('base_url').split('/');
   baseParts[baseParts.length - 1] = '';
@@ -21,6 +23,24 @@ define(['require', './normalize'], function(req, normalize) {
     }
     console.log('Compression not supported outside of nodejs environments.');
     return css;
+  }
+  function saveFile(path, data) {
+    if (typeof process !== "undefined" && process.versions && !!process.versions.node && require.nodeRequire) {
+      var fs = require.nodeRequire('fs');
+      fs.writeFileSync(path, data, 'utf8');
+    }
+    else {
+      var content = new java.lang.String(data);
+      var output = new java.io.BufferedWriter(new java.io.OutputStreamWriter(new java.io.FileOutputStream(path), 'utf-8'));
+  
+      try {
+        output.write(content, 0, content.length());
+        output.flush();
+      }
+      finally {
+        output.close();
+      }
+    }
   }
 
   function escape(content) {
@@ -52,8 +72,12 @@ define(['require', './normalize'], function(req, normalize) {
   lessAPI.load = function(name, req, load, _config) {
     //store config
     config = config || _config;
-    
-    siteRoot = siteRoot || path.resolve(config.dir || path.dirname(config.out), config.siteRoot || '.') + '/';
+
+    if (!siteRoot) {
+      siteRoot = path.resolve(config.dir || path.dirname(config.out), config.siteRoot || '.') + '/';
+      if (isWindows)
+        siteRoot = siteRoot.replace(/\\/g, '/');
+    }
 
     if (name.match(absUrlRegEx))
       return load();
@@ -69,13 +93,14 @@ define(['require', './normalize'], function(req, normalize) {
     });
     parser.parse('@import (multiple) "' + path.relative(baseUrl, fileUrl) + '";', function(err, tree) {
       if (err) {
+        console.log(err + ' at ' + path.relative(baseUrl, err.filename) + ', line ' + err.line);
         return load.error(err);
       }
 
-      var css = tree.toCSS();
+      var css = tree.toCSS(config.less);
 
       // normalize all imports relative to the siteRoot, itself relative to the output file / output dir
-      lessBuffer[name] = normalize(css, fileUrl, siteRoot);
+      lessBuffer[name] = normalize(css, isWindows ? fileUrl.replace(/\\/g, '/') : fileUrl, siteRoot);
 
       load();
     });
