@@ -69,7 +69,7 @@
     'backbone.declarative': ['backbone'],
 
     'backbone.giraffe': {
-      deps:    ['backbone'],
+      deps:    ['backbone-stack'],
       exports: 'Giraffe'
     },
 
