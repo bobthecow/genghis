@@ -1,6 +1,7 @@
 tmp/*
 pkg/*
 Gemfile.lock
+.bundle/*
 
 # Ignore some giant vendor directories
 assets/vendor/**/build/
