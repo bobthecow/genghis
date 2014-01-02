@@ -22,12 +22,13 @@ define(function(require) {
             'change:collection': 'onChangeCollection'
         },
 
-        initialize: function() {
-            this.router = this.options.router;
+        initialize: function(options) {
+            this.router  = options.router;
+            this.baseUrl = options.baseUrl;
 
             this.navView = new Nav({
                 model:   this.model,
-                baseUrl: this.options.baseUrl
+                baseUrl: this.baseUrl
             });
 
             this.searchView = new Search({
@@ -38,7 +39,7 @@ define(function(require) {
         },
 
         serialize: function() {
-            return {baseUrl: this.options.baseUrl};
+            return {baseUrl: this.baseUrl};
         },
 
         afterRender: function() {

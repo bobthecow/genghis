@@ -11,12 +11,12 @@ define(function(require) {
         },
         template: template,
 
-        initialize: function() {
-            this.heading = this.options.heading;
-            this.content = this.options.content || '';
-            this.error   = this.options.error   || false;
-            this.epic    = this.options.epic    || false;
-            this.sticky  = this.options.sticky  || false;
+        initialize: function(options) {
+            this.heading = options.heading;
+            this.content = options.content || '';
+            this.error   = options.error   || false;
+            this.epic    = options.epic    || false;
+            this.sticky  = options.sticky  || false;
 
             this.render();
         },

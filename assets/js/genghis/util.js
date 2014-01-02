@@ -1,7 +1,7 @@
 define(function(require) {
     'use strict';
 
-    return {
+    var Util = {
         route: function(url) {
             return url.replace(app.baseUrl, '').replace(/^\//, '');
         },
@@ -31,7 +31,7 @@ define(function(require) {
             var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
 
             var size = (i === 0) ? (bytes / Math.pow(1024, i)) : (bytes / Math.pow(1024, i)).toFixed(1);
-            size = Genghis.Util.round(size, 2).toString().replace(/\.0+/, '');
+            size = Util.round(size, 2).toString().replace(/\.0+/, '');
 
             return size + ' ' + sizes[i];
         },
@@ -109,7 +109,7 @@ define(function(require) {
 
                         if ($s && $s.length) {
                             prop = $s.siblings('var').text();
-                            summary = (prop ? prop + ': ' : '') + Genghis.Util.escape($s.text());
+                            summary = (prop ? prop + ': ' : '') + Util.escape($s.text());
                         }
                     }
 
@@ -236,5 +236,7 @@ define(function(require) {
             };
         })()
     };
+
+    return Util;
 });
 

@@ -23,11 +23,11 @@ define(function(require) {
     return Giraffe.App.extend({
         el: 'section#genghis',
 
-        initialize: function() {
+        initialize: function(options) {
             _.bindAll(this, 'showMasthead', 'removeMasthead', 'showSection');
 
             // let's save this for later
-            var baseUrl = this.baseUrl = this.options.baseUrl;
+            var baseUrl = this.baseUrl = options.baseUrl;
 
             // for current selection
             var selection = this.selection = new Selection();

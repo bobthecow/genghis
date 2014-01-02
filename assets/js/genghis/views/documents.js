@@ -42,13 +42,13 @@ define(function(require) {
             'sync':    'onSync'
         },
 
-        initialize: function() {
+        initialize: function(options) {
             _.bindAll(
                 this, 'render', 'addAll', 'addDocument', 'createDocument', 'dragGridFile', 'dragLeave', 'dropGridFile',
                 'onRequest', 'onSync'
             );
 
-            this.pagination = this.options.pagination;
+            this.pagination = options.pagination;
             this.render();
         },
 

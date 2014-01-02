@@ -169,7 +169,10 @@ define(function(require) {
             }
 
             function showErrorMessage(model, response) {
+                response = response || {};
                 if (response.status !== 404) {
+                    var data;
+
                     try {
                         data = JSON.parse(response.responseText);
                     } catch (e) {

@@ -26,12 +26,12 @@ define(function(require) {
             'u': 'navigateUp'
         },
 
-        initialize: function() {
+        initialize: function(options) {
             _.bindAll(
                 this, 'render', 'navigate', 'navigateToServers', 'navigateUp', 'updateSubnav'
             );
 
-            this.baseUrl = this.options.baseUrl;
+            this.baseUrl = options.baseUrl;
 
             // TODO: clean this up somehow
             $('body').bind('click', function(e) {

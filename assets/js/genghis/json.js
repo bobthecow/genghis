@@ -3,6 +3,7 @@ define(function(require) {
 
     var _       = require('underscore');
     var esprima = require('esprima');
+    var Util    = require('genghis/util');
 
     var GenghisJSON = {
         parse: function(src) {
@@ -579,7 +580,7 @@ define(function(require) {
                                         p = span(spanClass);
 
                                         if (isDbRef && k == '$id') {
-                                            p.setAttribute('data-document-id', Genghis.Util.encodeDocumentId(value[k]));
+                                            p.setAttribute('data-document-id', Util.encodeDocumentId(value[k]));
                                         }
 
                                         if (v.collapsible) {
@@ -642,9 +643,7 @@ define(function(require) {
                 // Return the result of stringifying the value.
                 gap = '';
 
-                v   = createView('_', {'_': value}).innerHTML;
-
-                return v;
+                return createView('_', {'_': value}).innerHTML;
             }
 
             return JsonView(value);

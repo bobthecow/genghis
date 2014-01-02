@@ -29,24 +29,23 @@ define(function(require) {
             dismissText: 'Cancel'
         },
 
-        initialize: function() {
+        initialize: function(options) {
             _.bindAll(this, 'render', 'confirm', 'validateInput', 'dismiss', 'remove');
 
-            this.onConfirm = this.options.confirm || function() {};
+            this.onConfirm = options.confirm || $.noop;
 
-            this.confirmInput = this.options.confirmInput;
-            this.modalOptions = _.pick(this.options, 'backdrop', 'keyboard');
+            this.confirmInput = options.confirmInput;
+            this.modalOptions = _.pick(options, 'backdrop', 'keyboard');
 
-            if (this.options.show !== false) {
+            this.options = _.pick(options, 'header', 'body', 'confirmText', 'confirmInput', 'dismissText');
+
+            if (options.show !== false) {
                 this.render();
             }
         },
 
         serialize: function() {
-            return _.defaults(
-                _.pick(this.options, 'header', 'body', 'confirmText', 'confirmInput', 'dismissText'),
-                this.defaults
-            );
+            return _.defaults(this.options, this.defaults);
         },
 
         afterRender: function() {
