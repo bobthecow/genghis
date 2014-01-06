@@ -1,9 +1,0 @@
-[submodule "assets/vendor/keyscss"]
-	path = assets/vendor/keyscss
-	url = https://github.com/michaelhue/keyscss.git
-[submodule "assets/vendor/backbone.mousetrap"]
-	path = assets/vendor/backbone.mousetrap
-	url = https://github.com/elasticsales/backbone.mousetrap.git
-[submodule "assets/vendor/backbone.declarative"]
-	path = assets/vendor/backbone.declarative
-	url = https://github.com/Codecademy/backbone.declarative.git
