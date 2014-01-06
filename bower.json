@@ -3,6 +3,7 @@
 	"dependencies": {
 		"almond":                 "*",
 		"backbone":               "*",
+		"backbone.giraffe":       "*",
 		"bootstrap":              "*",
 		"codemirror":             "*",
 		"esprima":                "*",
