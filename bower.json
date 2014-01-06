@@ -3,7 +3,9 @@
 	"dependencies": {
 		"almond":                 "*",
 		"backbone":               "*",
+		"backbone.declarative":   "Codecademy/backbone.declarative",
 		"backbone.giraffe":       "*",
+		"backbone.mousetrap":     "elasticsales/backbone.mousetrap",
 		"bootstrap":              "*",
 		"codemirror":             "*",
 		"esprima":                "*",
@@ -11,6 +13,7 @@
 		"jquery-hoverIntent":     "*",
 		"jquery.cookie":          "*",
 		"jquery.tablesorter":     "*",
+		"keyscss":                "michaelhue/keyscss",
 		"mousetrap":              "*",
 		"r.js":                   "*",
 		"require-css":            "*",
