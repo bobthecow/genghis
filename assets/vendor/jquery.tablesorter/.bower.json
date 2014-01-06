@@ -12,6 +12,6 @@
     "commit": "d1a9f2ee22de5a25794c2df2c9bcaf2fcf346f6d"
   },
   "_source": "git://github.com/Mottie/tablesorter.git",
-  "_target": "*",
+  "_target": "~2.14.5",
   "_originalSource": "jquery.tablesorter"
 }

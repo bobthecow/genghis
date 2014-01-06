@@ -9,6 +9,6 @@
     "commit": "06559d1b0688de19474841ebef560f36204d69de"
   },
   "_source": "git://github.com/jrburke/requirejs.git",
-  "_target": "*",
+  "_target": "~2.1.9",
   "_originalSource": "requirejs"
 }

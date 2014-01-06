@@ -13,6 +13,6 @@
     "commit": "5a145aacecb340e07a5f26a42c8e5017014fe6ad"
   },
   "_source": "git://github.com/guybedford/require-less.git",
-  "_target": "*",
+  "_target": "~0.1.1",
   "_originalSource": "require-less"
 }

@@ -9,6 +9,6 @@
     "commit": "981da420b2a91315299634fb83f916d8c804e2a3"
   },
   "_source": "git://github.com/barc/backbone.giraffe.git",
-  "_target": "*",
+  "_target": "~0.1.5",
   "_originalSource": "backbone.giraffe"
 }

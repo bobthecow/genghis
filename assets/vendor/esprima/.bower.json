@@ -33,6 +33,6 @@
     "commit": "092c44c696f78479f82388602f051189ff9cdec8"
   },
   "_source": "git://github.com/ariya/esprima.git",
-  "_target": "*",
+  "_target": "~1.0.4",
   "_originalSource": "esprima"
 }
