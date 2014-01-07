@@ -1,5 +1,4 @@
 'use strict';
 
-var App = require('./views/app.coffee');
-
-debugger;
+// Load the library
+window.Genghis = require('./genghis.coffee');

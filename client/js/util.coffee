@@ -1,7 +1,7 @@
 {$, _} = require './vendors'
 
-_e = encodeUriComponent
-_d = decodeUriComponent
+_e = encodeURIComponent
+_d = decodeURIComponent
 
 Util =
   route: (url) ->

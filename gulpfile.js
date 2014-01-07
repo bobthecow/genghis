@@ -25,17 +25,17 @@ var server = lr();
 var VERSION = '3.0.0-dev';
 
 var COFFEELINT_OPTS = {
-  max_line_length: {
-    name: "max_line_length",
-    value: 120,
-    level: "error",
-    limitComments: true
-  }
+  max_line_length: {value: 120}
 };
 
 var JSHINT_OPTS = {
   browser: true, // window, document, atob, etc.
   node:    true  // since we're rockin' the node-style with browserify, we don't need to worry about this.
+};
+
+var HEADER_OPTS = {
+  file:    'server/templates/banner.mustache',
+  version: VERSION
 };
 
 
@@ -49,13 +49,18 @@ gulp.task('scripts', function() {
   gulp.src('client/js/script.js')
     // Normal
     .pipe(browserify({
-      transform: ['browserify-hogan', 'coffeeify', 'debowerify', 'brfs']
+      transform: ['browserify-hogan', 'coffeeify', 'debowerify', 'brfs'],
+      debug: true
     }))
+    .pipe(header(HEADER_OPTS))
     .pipe(gulp.dest('public/js'))
     .pipe(refresh(server))
 
     // Minified
-    .pipe(uglify())
+    .pipe(uglify({
+      output: {ascii_only: true}
+    }))
+    .pipe(header(HEADER_OPTS))
     .pipe(gulp.dest('tmp'));
 });
 
@@ -80,10 +85,7 @@ gulp.task('styles', function() {
   stream.concat(vendors, backgrounds, genghis)
     // Normal
     .pipe(concat('style.css'))
-    .pipe(header({
-      file:    'server/templates/banner.mustache',
-      version: VERSION
-    }))
+    .pipe(header(HEADER_OPTS))
     .pipe(gulp.dest('public/css'))
     .pipe(refresh(server))
 
@@ -91,10 +93,7 @@ gulp.task('styles', function() {
     .pipe(cssmin({
       keepSpecialComments: 0
     }))
-    .pipe(header({
-      file:    'server/templates/banner.mustache',
-      version: VERSION
-    }))
+    .pipe(header(HEADER_OPTS))
     .pipe(gulp.dest('tmp'));
 });
 
