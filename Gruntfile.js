@@ -4,7 +4,7 @@ module.exports = function(grunt) {
   'use strict';
 
   var VERSION = grunt.file.read('VERSION.txt');
-  var BANNER  = grunt.template.process(grunt.file.read('src/templates/banner.txt'), {data: {version: VERSION}});
+  var BANNER  = grunt.template.process(grunt.file.read('server/templates/banner.txt'), {data: {version: VERSION}});
 
   grunt.initConfig({
     clean: ['tmp/'],
@@ -91,8 +91,8 @@ module.exports = function(grunt) {
           removeEmptyAttributes:     true
         },
         files: {
-          'tmp/index.html.mustache.tpl': 'src/templates/index.html.mustache.tpl',
-          'tmp/error.html.mustache.tpl': 'src/templates/error.html.mustache.tpl'
+          'tmp/index.html.mustache.tpl': 'server/templates/index.html.mustache.tpl',
+          'tmp/error.html.mustache.tpl': 'server/templates/error.html.mustache.tpl'
         }
       }
     },
@@ -130,11 +130,11 @@ module.exports = function(grunt) {
 
       'lib-rb': {
         src: [
-          'src/rb/genghis/json.rb',
-          'src/rb/genghis/errors.rb',
-          'src/rb/genghis/models/**/*',
-          'src/rb/genghis/helpers.rb',
-          'src/rb/genghis/server.rb'
+          'server/rb/genghis/json.rb',
+          'server/rb/genghis/errors.rb',
+          'server/rb/genghis/models/**/*',
+          'server/rb/genghis/helpers.rb',
+          'server/rb/genghis/server.rb'
         ],
         dest: 'tmp/lib.rb'
       },
@@ -146,8 +146,8 @@ module.exports = function(grunt) {
           }
         },
         src: [
-          'src/php/**/*.php',
-          '!src/php/Genghis/AssetLoader/Dev.php'
+          'server/php/**/*.php',
+          '!server/php/Genghis/AssetLoader/Dev.php'
         ],
         dest: 'tmp/lib.php'
       }
@@ -170,7 +170,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build:assets',    ['build:script', 'build:style', 'build:templates', 'concat:assets']);
 
   grunt.registerTask('build:php', '...', function() {
-    var src = grunt.file.read('src/templates/genghis.php.tpl')
+    var src = grunt.file.read('server/templates/genghis.php.tpl')
       .replace(/<%= version %>/g,  VERSION)
       .replace('<%= includes %>', grunt.file.read('tmp/lib.php').replace(/^<?php\n\s*/, ''))
       .replace('<%= assets %>',   grunt.file.read('tmp/assets.txt'));
@@ -179,7 +179,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build:rb', '...', function() {
-    var src = grunt.file.read('src/templates/genghis.rb.tpl')
+    var src = grunt.file.read('server/templates/genghis.rb.tpl')
       .replace(/<%= version %>/g, VERSION)
       .replace('<%= includes %>', grunt.file.read('tmp/lib.rb'))
       .replace('<%= assets %>',   grunt.file.read('tmp/assets.txt'));

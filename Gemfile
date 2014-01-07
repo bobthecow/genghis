@@ -6,12 +6,6 @@ gem 'bson_ext', :require => false
 
 group :development do
   gem 'rubocop', :github => 'bbatsov/rubocop'
-  gem 'guard'
-  gem 'guard-rake'
-  gem 'guard-rspec'
-  gem 'rb-inotify', :require => false
-  gem 'rb-fsevent', :require => false
-  gem 'rb-fchange', :require => false
 end
 
 group :test do

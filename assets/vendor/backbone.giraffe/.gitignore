@@ -1,5 +1,0 @@
-.DS_Store
-node_modules
-!.gitignore
-_gh-pages
-libpeerconnection.log

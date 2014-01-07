@@ -1,4 +1,4 @@
-require File.expand_path('../src/rb/genghis/version', __FILE__)
+require File.expand_path('../server/rb/genghis/version', __FILE__)
 
 Gem::Specification.new do |spec|
   spec.name        = 'genghisapp'
@@ -14,15 +14,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'sinatra-contrib',  '>= 1.3.1', '< 1.5.0'
   spec.add_dependency 'sinatra-mustache', '>= 0.0.4', '< 0.4.0'
   spec.add_dependency 'vegas',            '~> 0.1.8'
-
-  spec.add_development_dependency 'active_support'
-  spec.add_development_dependency 'bundler'
-  spec.add_development_dependency 'html_compressor'
-  spec.add_development_dependency 'less'
-  spec.add_development_dependency 'rainpress'
-  spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'therubyracer'
-  spec.add_development_dependency 'uglifier'
 
   spec.files        = Dir['LICENSE.txt', 'README.md', 'CHANGELOG.md', 'genghis.rb', 'bin/**/*']
   spec.test_files   = Dir['spec/**/*']

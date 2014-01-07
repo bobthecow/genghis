@@ -11,7 +11,7 @@
  */
 define('GENGHIS_VERSION', file_get_contents(dirname(__FILE__).'/VERSION.txt'));
 
-require dirname(__FILE__).'/src/php/Genghis/Autoloader.php';
+require dirname(__FILE__).'/server/php/Genghis/Autoloader.php';
 
 Genghis_Autoloader::register();
 

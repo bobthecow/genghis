@@ -1,8 +1,0 @@
-*.md text eol=lf
-*.html text eol=lf
-*.less text eol=lf
-*.css text eol=lf
-*.js text eol=lf
-*.map text eol=lf
-
-*.gitattributes text

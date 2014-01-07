@@ -1,18 +1,18 @@
-tmp/*
-pkg/*
+tmp/
+pkg/
 Gemfile.lock
-.bundle/*
-node_modules
+.bundle/
+node_modules/
 
 # Ignore some giant vendor directories
-assets/vendor/**/build/
-assets/vendor/**/docs/
-assets/vendor/**/test/
-assets/vendor/**/tests/
+client/vendor/**/build/
+client/vendor/**/docs/
+client/vendor/**/test/
+client/vendor/**/tests/
 
-assets/vendor/bootstrap/_includes/
-assets/vendor/bootstrap/_layouts/
-assets/vendor/bootstrap/assets/
-assets/vendor/bootstrap/dist/
-assets/vendor/bootstrap/examples/
-assets/vendor/bootstrap/fonts/
+client/vendor/bootstrap/_includes/
+client/vendor/bootstrap/_layouts/
+client/vendor/bootstrap/assets/
+client/vendor/bootstrap/dist/
+client/vendor/bootstrap/examples/
+client/vendor/bootstrap/fonts/

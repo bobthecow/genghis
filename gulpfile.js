@@ -1,3 +1,4 @@
+'use strict';
 
 var gulp       = require('gulp');
 var stream     = require('event-stream');
@@ -20,55 +21,54 @@ var browserify = require('gulp-browserify');
 
 var VERSION = '3.0.0-dev';
 
-var rename = function(newName) {
-  return map(function(file, cb) {
-    if (typeof newName === 'function') {
-      newName = newName(file.path.replace(file.base, ''), file);
-    }
-    file.path = path.join(file.base, newName);
-    cb(null, file);
-  });
+var COFFEELINT_OPTS = {
+  max_line_length: {
+    name: "max_line_length",
+    value: 120,
+    level: "error",
+    limitComments: true
+  }
 };
 
-var addMinExt = rename(function(fileName) {
-  return fileName.replace(/\.([^\.]+)$/, '.min.$1');
-});
+var JSHINT_OPTS = {
+  browser: true, // window, document, atob, etc.
+  node:    true  // since we're rockin' the node-style with browserify, we don't need to worry about this.
+};
+
 
 gulp.task('clean', function() {
-  gulp.src(['public'])
+  gulp.src(['public', 'tmp'])
     .pipe(clean());
 });
 
 
-gulp.task('script', function() {
-  gulp.src('assets/js/genghis/util.js')
+gulp.task('scripts', function() {
+  gulp.src('client/js/script.js')
     // Normal
     .pipe(browserify({
-      transform: ['debowerify', 'coffeeify', 'brfs'],
-      debug: true
+      transform: ['coffeeify', 'debowerify', 'brfs']
     }))
     .pipe(gulp.dest('public/js'))
 
     // Minified
-    .pipe(addMinExt)
-      .pipe(uglify())
-      .pipe(gulp.dest('public/js'));
+    .pipe(uglify())
+    .pipe(gulp.dest('tmp'));
 });
 
 
-gulp.task('style', function() {
+gulp.task('styles', function() {
 
   // vendor styles
   var vendors = gulp.src([
-      'assets/vendor/codemirror/lib/codemirror.css',
-      'assets/vendor/keyscss/keys.css'
+      'client/vendor/codemirror/lib/codemirror.css',
+      'client/vendor/keyscss/keys.css'
     ]);
 
   // background images (coming soon: with data uris!)
-  var backgrounds = gulp.src('assets/css/backgrounds.css');
+  var backgrounds = gulp.src('client/css/backgrounds.css');
 
   // genghis styles
-  var genghis = gulp.src('assets/css/style.less')
+  var genghis = gulp.src('client/css/style.less')
     .pipe(less({
       paths: [path.join(__dirname, 'assets', 'css')]
     }));
@@ -76,28 +76,27 @@ gulp.task('style', function() {
   stream.concat(vendors, backgrounds, genghis)
     // Normal
     .pipe(concat('style.css'))
-      .pipe(header({
-        file:    'src/templates/banner.mustache',
-        version: VERSION
-      }))
-      .pipe(gulp.dest('public'))
+    .pipe(header({
+      file:    'src/templates/banner.mustache',
+      version: VERSION
+    }))
+    .pipe(gulp.dest('public/css'))
 
     // Minified
-    .pipe(addMinExt)
-      .pipe(cssmin({
-        keepSpecialComments: 0
-      }))
-      .pipe(header({
-        file:    'src/templates/banner.mustache',
-        version: VERSION
-      }))
-      .pipe(gulp.dest('public'));
+    .pipe(cssmin({
+      keepSpecialComments: 0
+    }))
+    .pipe(header({
+      file:    'src/templates/banner.mustache',
+      version: VERSION
+    }))
+    .pipe(gulp.dest('tmp'));
 });
 
 
 gulp.task('lint', function() {
-  gulp.src(['assets/js/**/*.coffee'])
-    .pipe(coffeelint())
+  gulp.src(['client/js/**/*.coffee'])
+    .pipe(coffeelint(COFFEELINT_OPTS))
     .pipe(map(function (file, cb) {
       if (!file.coffeelint.success) {
         var filename = file.path.replace(file.cwd + '/', '');
@@ -110,8 +109,8 @@ gulp.task('lint', function() {
       cb(null, file);
     }));
 
-  gulp.src(['gulpfile.js', 'assets/js/**/*.js'])
-    .pipe(jshint())
+  gulp.src(['gulpfile.js', 'client/js/**/*.js', '!client/js/modernizr.js'])
+    .pipe(jshint(JSHINT_OPTS))
     .pipe(map(function (file, cb) {
       if (!file.jshint.success) {
         var filename = file.path.replace(file.cwd + '/', '');
@@ -127,4 +126,16 @@ gulp.task('lint', function() {
     }));
 });
 
-gulp.task('default', ['clean', 'style', 'script']);
+gulp.task('build', ['styles', 'scripts']);
+
+gulp.task('default', function() {
+  gulp.run(['clean', 'build']);
+
+  gulp.watch('client/css/**/*.{less,css}', function() {
+    gulp.run('styles');
+  });
+
+  gulp.watch('client/js/**/*.{js,coffee}', function() {
+    gulp.run(['lint', 'scripts']);
+  });
+});

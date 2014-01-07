@@ -1,0 +1,23 @@
+{
+  "name": "backbone.giraffe",
+  "version": "0.1.5",
+  "homepage": "https://github.com/barc/backbone.giraffe",
+  "authors": [
+    "Ryan Atkinson <ryanatkn@gmail.com>",
+    "Mario Gutierrez <mario@mgutz.com>",
+    "Ryan Lynch <lynch.r.j@gmail.com>"
+  ],
+  "description": "A lightweight library that extends Backbone.js to new heights.",
+  "main": "dist/backbone.giraffe.js",
+  "keywords": [
+    "backbone",
+    "giraffe"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "_gh-pages"
+  ]
+}
