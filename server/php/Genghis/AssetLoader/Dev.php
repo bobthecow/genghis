@@ -40,19 +40,4 @@ class Genghis_AssetLoader_Dev implements Genghis_AssetLoader
 
         return $fileName;
     }
-
-    private function initAssets()
-    {
-        if (empty($this->assets)) {
-            $data = file_get_contents($this->file, false, null, $this->offset);
-            foreach (preg_split("/^@@(?=[\w\d\.]+( [\w\d\.]+)?$)/m", $data, -1) as $asset) {
-                if (trim($asset)) {
-                    list($line, $content)    = explode("\n", $asset, 2);
-                    list($name, $etag)       = explode(' ',  $line,  2);
-                    $this->assets[$name]     = trim($content);
-                    $this->assetEtags[$name] = $etag;
-                }
-            }
-        }
-    }
 }
