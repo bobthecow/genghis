@@ -1,19 +1,19 @@
 require 'bundler'
 
-namespace :grunt do
+namespace :gulp do
   task :clean do
-    puts `grunt clean`
+    puts `gulp clean`
   end
 
   task :build do
-    puts `grunt build`
+    puts `gulp build`
   end
 end
 
 desc 'Compile Genghis'
-task :clean   => ['grunt:clean']
-task :clobber => ['grunt:clean']
-task :build   => ['grunt:clean', 'grunt:build']
+task :clean   => ['gulp:clean']
+task :clobber => ['gulp:clean']
+task :build   => ['gulp:clean', 'gulp:build']
 task :default => [:build]
 
 Bundler::GemHelper.install_tasks
