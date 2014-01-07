@@ -18,10 +18,10 @@
   "devDependencies": {
     "browserify":      "~2.36.1",
     "browserify-shim": "~3.0.0",
-    "debowerify":      "latest",
+    "brfs":            "latest",
     "coffeeify":       "latest",
     "deamdify":        "latest",
-    "brfs":            "latest",
+    "debowerify":      "latest",
 
     "gulp":            "~3.2.4",
     "gulp-clean":      "~0.1.3",
