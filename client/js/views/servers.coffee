@@ -1,9 +1,7 @@
-$         = require 'jquery'
+{$}       = require '../vendors'
 Section   = require './section.coffee'
 ServerRow = require './server_row.coffee'
-template  = require 'hgn!genghis/templates/servers'
-
-require 'bootstrap.tooltip'
+template  = require '../../templates/servers.mustache'
 
 class Servers extends Section
   el:       'section#servers'

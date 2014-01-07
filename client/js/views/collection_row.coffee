@@ -1,6 +1,6 @@
 Row      = require './row.coffee'
 Confirm  = require './confirm.coffee'
-template = require 'hgn!genghis/templates/collection_row'
+template = require '../../templates/collection_row.mustache'
 
 class CollectionRow extends Row
   template:   template

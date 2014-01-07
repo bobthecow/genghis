@@ -1,9 +1,8 @@
-$          = require 'jquery'
-_          = require 'underscore'
+{$, _}     = require '../vendors'
 Util       = require '../util.coffee'
 View       = require './view.coffee'
 NavSection = require './nav_section.coffee'
-template   = require 'hgn!genghis/templates/nav'
+template   = require '../../templates/nav.mustache'
 
 class Nav extends View
   tagName:   'ul'

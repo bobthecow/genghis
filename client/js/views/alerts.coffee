@@ -1,5 +1,5 @@
 View      = require './view.coffee'
-AlertView = require './alert'
+AlertView = require './alert.coffee'
 
 class Alerts extends View
   el: 'aside#alerts'

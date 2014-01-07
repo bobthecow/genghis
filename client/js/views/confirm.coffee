@@ -1,9 +1,6 @@
-$        = require 'jquery'
-_        = require 'underscore'
+{$, _}   = require '../vendors'
 View     = require './view.coffee'
-template = require 'hgn!genghis/templates/confirm'
-
-require 'bootstrap.modal'
+template = require '../../templates/confirm.mustache'
 
 class Confirm extends View
   className: 'modal confirm-modal'

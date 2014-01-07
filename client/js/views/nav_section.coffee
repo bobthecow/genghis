@@ -1,9 +1,7 @@
-$            = require 'jquery'
+{$}          = require '../vendors'
 View         = require './view.coffee'
-template     = require 'hgn!genghis/templates/nav_section'
-menuTemplate = require 'hgn!genghis/templates/nav_section_menu'
-
-require 'jquery.hoverintent'
+template     = require '../../templates/nav_section.mustache'
+menuTemplate = require '../../templates/nav_section_menu.mustache'
 
 class NavSection extends View
   tagName:      'li'

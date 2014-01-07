@@ -1,4 +1,4 @@
-_           = require 'underscore'
+{_}         = require '../vendors'
 View        = require './view.coffee'
 GenghisJSON = require '../json'
 AlertView   = require './alert.coffee'

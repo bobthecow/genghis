@@ -1,5 +1,4 @@
-_       = require 'underscore'
-Giraffe = require '../shims/giraffe'
+{_, Giraffe} = require '../vendors'
 
 class Pagination extends Giraffe.Model
   defaults:

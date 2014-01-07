@@ -1,10 +1,9 @@
-$           = require 'jquery'
-_           = require 'underscore'
+{$, _}      = require '../vendors'
 Util        = require '../util.coffee'
 GenghisJSON = require '../json'
 defaults    = require '../defaults.coffee'
 View        = require './view.coffee'
-template    = require 'hgn!genghis/templates/search'
+template    = require '../../templates/search.mustache'
 
 PLACEHOLDERS = [
   '{name: /genghis(app)?/i}'

@@ -1,5 +1,5 @@
-Giraffe = require '../shims/giraffe'
-Alert   = require '../models/alert.coffee'
+{Giraffe} = require '../vendors'
+Alert     = require '../models/alert.coffee'
 
 isBlock = (msg) ->
   not msg.search(/<(p|ul|ol|div)[ >]/)

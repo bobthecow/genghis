@@ -1,4 +1,4 @@
-_     = require 'underscore'
+{_}   = require '../vendors'
 Model = require './model.coffee'
 
 class Server extends Model

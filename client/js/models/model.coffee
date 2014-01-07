@@ -1,5 +1,5 @@
-Giraffe = require '../shims/giraffe'
-Util    = require '../util.coffee'
+{Giraffe} = require '../vendors'
+Util      = require '../util.coffee'
 
 class Model extends Giraffe.Model
   name:  -> @get 'name'

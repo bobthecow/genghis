@@ -1,5 +1,5 @@
 View     = require './view.coffee'
-template = require 'hgn!genghis/templates/alert'
+template = require '../../templates/alert.mustache'
 
 class Alert extends View
   tagName:  'div'

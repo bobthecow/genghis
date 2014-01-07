@@ -1,5 +1,4 @@
-_           = require 'underscore'
-Giraffe     = require '../shims/giraffe'
+{_, Giraffe} = require '../vendors'
 
 Pagination  = require './pagination.coffee'
 Servers     = require '../collections/servers.coffee'

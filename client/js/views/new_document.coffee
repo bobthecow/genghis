@@ -1,16 +1,12 @@
-$            = require 'jquery'
-_            = require 'underscore'
+{$, _}       = require '../vendors'
+CodeMirror   = require '../shims/codemirror'
+
 BaseDocument = require './base_document.coffee'
-CodeMirror   = require 'codemirror'
 Util         = require '../util.coffee'
 AlertView    = require './alert.coffee'
 Alert        = require '../models/alert.coffee'
 defaults     = require '../defaults.coffee'
-template     = require 'hgn!genghis/templates/new_document'
-
-require 'bootstrap.modal'
-require 'codemirror.matchbrackets'
-require 'codemirror.javascript'
+template     = require '../../templates/new_document.mustache'
 
 class NewDocument extends BaseDocument
   el:       '#new-document'

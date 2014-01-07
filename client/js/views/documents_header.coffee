@@ -1,5 +1,5 @@
 View     = require './view.coffee'
-template = require 'hgn!genghis/templates/documents_header'
+template = require '../../templates/documents_header.mustache'
 
 class DocumentsHeader extends View
   template: template

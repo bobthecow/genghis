@@ -16,32 +16,35 @@
   },
 
   "devDependencies": {
-    "browserify":      "~2.36.1",
-    "browserify-shim": "~3.0.0",
-    "brfs":            "latest",
-    "coffeeify":       "latest",
-    "deamdify":        "latest",
-    "debowerify":      "latest",
+    "browserify":       "~3.19.1",
+    "brfs":             "latest",
+    "browserify-hogan": "~0.0.2",
+    "browserify-shim":  "~3.1.4",
+    "coffeeify":        "latest",
+    "deamdify":         "latest",
+    "debowerify":       "latest",
+    "hogan.js":         "latest",
 
     "gulp":            "~3.2.4",
-    "gulp-clean":      "~0.1.3",
+    "gulp-browserify": "latest",
+    "gulp-clean":      "~0.2.0",
+    "gulp-coffeelint": "~0.0.2",
     "gulp-concat":     "~2.1.7",
     "gulp-exec":       "~1.0.3",
     "gulp-header":     "~0.4.0",
     "gulp-htmlmin":    "~0.1.0",
     "gulp-jshint":     "~1.3.4",
     "gulp-less":       "~1.1.1",
+    "gulp-livereload": "latest",
     "gulp-minify-css": "~0.1.0",
     "gulp-spawn":      "~0.2.1",
     "gulp-uglify":     "latest",
-    "gulp-coffeelint": "~0.0.2",
-    "gulp-browserify": "latest",
-    "gulpify":         "latest",
 
+    "chalk":           "latest",
     "datauri":         "latest",
     "event-stream":    "latest",
     "map-stream":      "latest",
-    "chalk":           "latest"
+    "tiny-lr":         "latest"
   },
 
   "peerDependencies": {

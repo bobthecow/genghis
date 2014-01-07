@@ -1,9 +1,5 @@
-$    = require 'jquery'
-_    = require 'underscore'
-View = require './view.coffee'
-
-require 'jquery.tablesorter'
-require 'tablesorter-size-parser'
+{$, _} = require '../vendors'
+View   = require './view.coffee'
 
 class Section extends View
   ui:

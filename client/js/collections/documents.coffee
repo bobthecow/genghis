@@ -1,6 +1,5 @@
-_        = require 'underscore'
-Giraffe  = require '../shims/giraffe'
-Document = require '../models/document.coffee'
+{_, Giraffe} = require '../vendors'
+Document     = require '../models/document.coffee'
 
 isGuessable = (d) ->
   id = d._id or null

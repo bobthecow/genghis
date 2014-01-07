@@ -1,7 +1,6 @@
-_           = require 'underscore'
-Giraffe     = require '../shims/giraffe'
-Util        = require '../util.coffee'
-GenghisJSON = require '../json'
+{_, Giraffe} = require '../vendors'
+Util         = require '../util.coffee'
+GenghisJSON  = require '../json'
 
 e = encodeURIComponent
 

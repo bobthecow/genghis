@@ -1,15 +1,11 @@
-$            = require 'jquery'
-_            = require 'underscore'
-CodeMirror   = require 'codemirror'
+{$, _}       = require '../vendors'
+CodeMirror   = require '../shims/codemirror'
 Util         = require '../util.coffee'
 Alert        = require '../models/alert.coffee'
 BaseDocument = require './base_document.coffee'
 AlertView    = require './alert.coffee'
 Confirm      = require './confirm.coffee'
-template     = require 'hgn!genghis/templates/document'
-
-require 'codemirror.matchbrackets'
-require 'codemirror.javascript'
+template     = require '../../templates/document.mustache'
 
 class Document extends BaseDocument
   tagName:  'article'

@@ -1,6 +1,6 @@
 Section     = require './section.coffee'
 DatabaseRow = require './database_row.coffee'
-template    = require 'hgn!genghis/templates/databases'
+template    = require '../../templates/databases.mustache'
 
 class Databases extends Section
   el:       'section#databases'

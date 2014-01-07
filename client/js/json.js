@@ -1,8 +1,9 @@
 'use strict';
 /* jslint evil:true */
 
-var $       = require('jquery');
-var _       = require('underscore');
+var vendors = require('./vendors');
+var $       = vendors.$;
+var _       = vendors._;
 var esprima = require('esprima');
 var Util    = require('./util.coffee');
 

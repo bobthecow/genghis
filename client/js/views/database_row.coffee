@@ -1,5 +1,5 @@
 Row      = require './row.coffee'
-template = require 'hgn!genghis/templates/database_row'
+template = require '../../templates/database_row.mustache'
 
 class DatabaseRow
   template:   template

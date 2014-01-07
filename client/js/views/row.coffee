@@ -1,12 +1,7 @@
-$       = require 'jquery'
-_       = require 'underscore'
+{$, _}  = require '../vendors'
 View    = require './view.coffee'
 Util    = require '../util.coffee'
 Confirm = require './confirm.coffee'
-
-require 'jquery.hoverintent'
-require 'bootstrap.tooltip'
-require 'bootstrap.popover'
 
 class Row extends View
   tagName: 'tr'

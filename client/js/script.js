@@ -1,5 +1,5 @@
 'use strict';
 
-var Giraffe = require('backbone.giraffe');
+var App = require('./views/app.coffee');
 
 debugger;

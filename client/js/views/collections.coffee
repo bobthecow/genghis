@@ -1,10 +1,7 @@
-_             = require 'underscore'
+{_}           = require '../vendors'
 Section       = require './section.coffee'
 CollectionRow = require './collection_row.coffee'
-template      = require 'hgn!genghis/templates/collections'
-
-require 'bootstrap.dropdown'
-require 'backbone.mousetrap'
+template      = require '../../templates/collections.mustache'
 
 class Collections extends Section
   el:       'section#collections'

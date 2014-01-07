@@ -1,4 +1,4 @@
-_           = require 'underscore'
+{_}         = require '../vendors'
 Model       = require './model.coffee'
 GenghisJSON = require '../json'
 Util        = require '../util.coffee'

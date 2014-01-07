@@ -1,8 +1,7 @@
-$        = require 'jquery'
-_        = require 'underscore'
+{$, _}   = require '../vendors'
 View     = require './view.coffee'
 Util     = require '../util.coffee'
-template = require 'hgn!genghis/templates/pagination'
+template = require '../../templates/pagination.mustache'
 
 class Pagination extends View
   template: template

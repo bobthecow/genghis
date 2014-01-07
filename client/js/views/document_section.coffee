@@ -1,8 +1,7 @@
-$            = require 'jquery'
-_            = require 'underscore'
+{$, _}       = require '../vendors'
 View         = require './view.coffee'
 DocumentView = require './document.coffee'
-template     = require 'hgn!genghis/templates/document_section'
+template     = require '../../templates/document_section.mustache'
 
 class DocumentSection extends View
   el:       'section#document'

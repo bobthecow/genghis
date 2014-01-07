@@ -1,5 +1,5 @@
 Row      = require './row.coffee'
-template = require 'hgn!genghis/templates/server_row'
+template = require '../../templates/server_row.mustache'
 
 class ServerRow extends Row
   template: template

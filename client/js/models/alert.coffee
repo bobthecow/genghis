@@ -1,4 +1,4 @@
-Giraffe = require '../shims/giraffe'
+{Giraffe} = require '../vendors'
 
 class Alert extends Giraffe.Model
   defaults:

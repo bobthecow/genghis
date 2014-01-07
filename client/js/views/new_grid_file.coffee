@@ -1,12 +1,9 @@
-$           = require 'jquery'
-_           = require 'underscore'
+{$, _}      = require '../vendors'
 NewDocument = require './new_document.coffee'
 Document    = require '../models/document.coffee'
 Util        = require '../util.coffee'
 GenghisJSON = require '../json'
-template    = require 'hgn!genghis/templates/new_grid_file'
-
-require 'bootstrap.modal'
+template    = require '../../templates/new_grid_file.mustache'
 
 class NewGridFile extends NewDocument
   el:       '#new-grid-file'

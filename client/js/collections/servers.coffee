@@ -1,6 +1,5 @@
-_       = require 'underscore'
-Giraffe = require '../shims/giraffe'
-Server  = require '../models/document.coffee'
+{_, Giraffe} = require '../vendors'
+Server       = require '../models/server.coffee'
 
 class Servers extends Giraffe.Collection
   model: Server

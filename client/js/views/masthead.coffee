@@ -1,5 +1,5 @@
 View     = require './view.coffee'
-template = require 'hgn!genghis/templates/masthead'
+template = require '../../templates/masthead.mustache'
 
 class Masthead extends View
   tagName:   'header'

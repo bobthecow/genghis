@@ -1,4 +1,4 @@
-Giraffe = require('../shims/giraffe')
+{Giraffe} = require('../vendors')
 
 # Let's use a base class!
 class View extends Giraffe.View

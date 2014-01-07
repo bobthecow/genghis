@@ -46,7 +46,7 @@ gulp.task('scripts', function() {
   gulp.src('client/js/script.js')
     // Normal
     .pipe(browserify({
-      transform: ['coffeeify', 'debowerify', 'brfs']
+      transform: ['browserify-hogan', 'coffeeify', 'debowerify', 'brfs']
     }))
     .pipe(gulp.dest('public/js'))
 
@@ -77,7 +77,7 @@ gulp.task('styles', function() {
     // Normal
     .pipe(concat('style.css'))
     .pipe(header({
-      file:    'src/templates/banner.mustache',
+      file:    'server/templates/banner.mustache',
       version: VERSION
     }))
     .pipe(gulp.dest('public/css'))
@@ -87,7 +87,7 @@ gulp.task('styles', function() {
       keepSpecialComments: 0
     }))
     .pipe(header({
-      file:    'src/templates/banner.mustache',
+      file:    'server/templates/banner.mustache',
       version: VERSION
     }))
     .pipe(gulp.dest('tmp'));

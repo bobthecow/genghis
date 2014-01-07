@@ -1,6 +1,5 @@
-$               = require 'jquery'
-_               = require 'underscore'
-Modernizr       = require 'modernizr-detects'
+{$, _}          = require '../vendors'
+Modernizr       = require '../shims/modernizr'
 
 View            = require './view.coffee'
 DocumentsHeader = require './documents_header.coffee'
@@ -9,10 +8,10 @@ DocumentView    = require './document.coffee'
 NewDocument     = require './new_document.coffee'
 NewGridFile     = require './new_grid_file.coffee'
 
-template        = require 'hgn!genghis/templates/documents'
+template        = require '../../templates/documents.mustache'
 
-FILE_API_MSG    = "<h2>Unable to upload file.</h2> Your browser does not support
-                   the File API. Please use a modern browser."
+FILE_API_MSG    = "<h2>Unable to upload file.</h2> Your browser does not
+                  support the File API. Please use a modern browser."
 
 class Documents extends View
   el:       'section#documents'

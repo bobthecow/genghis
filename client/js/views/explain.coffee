@@ -1,7 +1,7 @@
-$        = require 'jquery'
+{$}      = require '../vendors'
 View     = require './view.coffee'
 Util     = require '../util.coffee'
-template = require 'hgn!genghis/templates/explain'
+template = require '../../templates/explain.mustache'
 
 class Explain extends View
   el:       'section#explain'

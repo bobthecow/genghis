@@ -1,7 +1,7 @@
 View     = require './view.coffee'
 Nav      = require './nav.coffee'
 Search   = require './search.coffee'
-template = require 'hgn!genghis/templates/navbar'
+template = require '../../templates/navbar.mustache'
 
 class Navbar extends View
   el:       '.navbar'

@@ -1,10 +1,6 @@
-$        = require 'jquery'
-_        = require 'underscore'
+{$, _}   = require '../vendors'
 View     = require './view.coffee'
-template = require 'hgn!genghis/templates/keyboard_shortcuts'
-
-require 'bootstrap.modal'
-require 'backbone.mousetrap'
+template = require '../../templates/keyboard_shortcuts.mustache'
 
 class KeyboardShortcuts extends View
   tagName:   'div'

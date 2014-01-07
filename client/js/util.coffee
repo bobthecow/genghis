@@ -1,4 +1,4 @@
-{$, _} = require './vendor'
+{$, _} = require './vendors'
 
 _e = encodeUriComponent
 _d = decodeUriComponent
