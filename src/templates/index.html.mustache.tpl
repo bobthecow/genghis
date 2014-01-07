@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8" />
+        <meta charset="utf-8">
         <title>Genghis</title>
         <link rel="shortcut icon" type="image/png" href="<%= favicon_uri %>">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,18 +21,18 @@
 
         <section id="genghis" class="container fluid">
             <aside id="alerts"></aside>
-            <section id="servers"     class="app-section"></section>
-            <section id="databases"   class="app-section"></section>
+            <section id="servers" class="app-section"></section>
+            <section id="databases" class="app-section"></section>
             <section id="collections" class="app-section"></section>
-            <section id="documents"   class="app-section"></section>
-            <section id="explain"     class="app-section"></section>
-            <section id="document"    class="app-section"><header></header></section>
-            <section id="error"       class="app-section"></section>
+            <section id="documents" class="app-section"></section>
+            <section id="explain" class="app-section"></section>
+            <section id="document" class="app-section"><header></header></section>
+            <section id="error" class="app-section"></section>
         </section>
 
         <footer id="footer" class="container">
             <p><a href="http://genghisapp.com">Genghis</a>, by <a href="http://justinhileman.info">Justin Hileman</a>.</p>
-            <p><a style="display: none;" class="keyboard-shortcuts" href="#">Keyboard shortcuts available <img src="<%= keyboard_uri %>"></a></p>
+            <p><a style="display: none" class="keyboard-shortcuts" href="#">Keyboard shortcuts available <img src="<%= keyboard_uri %>"></a></p>
         </footer>
     </body>
 </html>

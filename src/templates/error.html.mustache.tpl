@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8" />
+        <meta charset="utf-8">
         <title>Genghis &mdash; {{ status }}: {{ message }}</title>
         <link rel="shortcut icon" type="image/png" href="<%= favicon_uri %>">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">

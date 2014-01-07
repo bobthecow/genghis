@@ -1,25 +1,4 @@
-({
-
-  baseUrl: 'assets/js',
-  name:    'almond',
-  include: ['genghis/boot', 'modernizr-detects'],
-  out:     'tmp/genghis.js',
-
-  optimize:                'uglify2',
-  inlineText:              true,
-  preserveLicenseComments: false,
-
-  stubModules: ['text', 'hgn', 'css', 'less'],
-
-  pragmasOnSave: {
-    excludeHogan:      true,
-    excludeAfterBuild: true
-  },
-
-  uglify2: {
-    output: {ascii_only: true}
-  },
-
+require.config({
   paths: {
     'almond':                   '../vendor/almond/almond',
     'backbone':                 '../vendor/backbone/backbone',
@@ -92,4 +71,4 @@
     'modernizr': {exports: 'Modernizr'}
   },
 
-})
+});

@@ -1,0 +1,36 @@
+{
+  "name": "genghis",
+  "description": "The single-file MongoDB admin app",
+  "version": "3.0.0-dev",
+  "homepage": "http://genghisapp.com",
+  "author": {
+    "name": "Justin Hileman",
+    "url": "http://justinhileman.info"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:bobthecow/genghis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bobthecow/genghis/issues"
+  },
+  "devDependencies": {
+    "datauri":                 "latest",
+    "grunt":                   "~0.4.1",
+    "grunt-contrib-clean":     "~0.5.0",
+    "grunt-contrib-concat":    "latest",
+    "grunt-contrib-cssmin":    "~0.6.1",
+    "grunt-contrib-htmlmin":   "latest",
+    "grunt-contrib-jshint":    "~0.3.0",
+    "grunt-contrib-less":      "~0.6.4",
+    "grunt-contrib-requirejs": "~0.4.0",
+    "grunt-contrib-uglify":    "~0.2.7",
+    "grunt-data-uri":          "latest",
+    "grunt-shell":             "latest",
+    "uglify-js":               "~2.2.5"
+  },
+  "peerDependencies": {
+    "bower": "*",
+    "grunt-cli": "*"
+  }
+}

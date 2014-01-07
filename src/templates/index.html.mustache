@@ -15,7 +15,7 @@
                     'backbone.declarative':     '../vendor/backbone.declarative/backbone.declarative',
                     'backbone.giraffe':         '../vendor/backbone.giraffe/dist/backbone.giraffe',
                     'backbone.mousetrap':       '../vendor/backbone.mousetrap/backbone.mousetrap',
-                    'backgrounds-dev':          '../css/backgrounds-dev',
+                    'backgrounds':              '../css/backgrounds',
                     'bootstrap.dropdown':       '../vendor/bootstrap/js/dropdown',
                     'bootstrap.modal':          '../vendor/bootstrap/js/modal',
                     'bootstrap.popover':        '../vendor/bootstrap/js/popover',
@@ -80,7 +80,7 @@
                 }
             });
 
-            require(['genghis/boot', 'modernizr-detects', 'css!backgrounds-dev', 'css!codemirror', 'css!keyscss', 'less!style'], function(boot) {
+            require(['genghis/boot', 'modernizr-detects', 'css!backgrounds', 'css!codemirror', 'css!keyscss', 'less!style'], function(boot) {
                 boot('{{ base_url }}');
             });
         </script>
