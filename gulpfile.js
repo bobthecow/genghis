@@ -1,23 +1,26 @@
 'use strict';
 
 var gulp       = require('gulp');
-var stream     = require('event-stream');
-var path       = require('path');
-var map        = require('map-stream');
 var chalk      = require('chalk');
+var lr         = require('tiny-lr');
+var map        = require('map-stream');
+var path       = require('path');
+var stream     = require('event-stream');
 
+var browserify = require('gulp-browserify');
 var clean      = require('gulp-clean');
+var coffeelint = require('gulp-coffeelint');
 var concat     = require('gulp-concat');
 var cssmin     = require('gulp-minify-css');
 var header     = require('gulp-header');
 var htmlmin    = require('gulp-htmlmin');
 var jshint     = require('gulp-jshint');
-var coffeelint = require('gulp-coffeelint');
 var less       = require('gulp-less');
+var refresh    = require('gulp-livereload');
 var spawn      = require('gulp-spawn');
 var uglify     = require('gulp-uglify');
-var browserify = require('gulp-browserify');
 
+var server = lr();
 
 var VERSION = '3.0.0-dev';
 
@@ -49,6 +52,7 @@ gulp.task('scripts', function() {
       transform: ['browserify-hogan', 'coffeeify', 'debowerify', 'brfs']
     }))
     .pipe(gulp.dest('public/js'))
+    .pipe(refresh(server))
 
     // Minified
     .pipe(uglify())
@@ -81,6 +85,7 @@ gulp.task('styles', function() {
       version: VERSION
     }))
     .pipe(gulp.dest('public/css'))
+    .pipe(refresh(server))
 
     // Minified
     .pipe(cssmin({
@@ -126,10 +131,19 @@ gulp.task('lint', function() {
     }));
 });
 
+
+gulp.task('lr-server', function() {
+  server.listen(35729, function(err) {
+    if(err) return console.log(err);
+  });
+});
+
+
 gulp.task('build', ['styles', 'scripts']);
 
+
 gulp.task('default', function() {
-  gulp.run(['clean', 'build']);
+  gulp.run('lr-server', 'clean', 'build');
 
   gulp.watch('client/css/**/*.{less,css}', function() {
     gulp.run('styles');
