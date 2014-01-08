@@ -138,7 +138,8 @@ gulp.task('templates', function() {
 // Copy static assets over to public directory
 gulp.task('copy', function() {
   return gulp.src('client/img/**')
-    .pipe(gulp.dest('public/img'));
+    .pipe(gulp.dest('public/img'))
+    .pipe(t.livereload(server));
 });
 
 
