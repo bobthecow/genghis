@@ -1,9 +1,10 @@
 AllCops:
   Excludes:
-    - assets/vendor/**
+    - client/vendor/**
     - genghis.rb
+    - node_modules/**
+    - public/**
     - tmp/**
-    - vendor/**
 
 Documentation:
   Enabled: false

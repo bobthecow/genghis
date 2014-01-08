@@ -45,7 +45,7 @@ module Genghis
       alerts = []
 
       if check_json_ext?
-        msg = <<-MSG.strip.gsub(/\s+/, " ")
+        msg = <<-MSG.strip.gsub(/\s+/, ' ')
           <h4>JSON C extension not found.</h4>
           Falling back to the pure Ruby variant. <code>gem install json</code> for better performance.
         MSG
@@ -60,13 +60,13 @@ module Genghis
 
           installed = Gem::Specification.select { |s| s.name == 'mongo' }.map { |s| s.version }.sort.last
           if Gem::Specification.select { |s| s.name == 'bson_ext' && s.version == installed }.empty?
-            msg = <<-MSG.strip.gsub(/\s+/, " ")
+            msg = <<-MSG.strip.gsub(/\s+/, ' ')
               <h4>MongoDB driver C extension not found.</h4>
               Install this extension for better performance: <code>gem install bson_ext -v #{installed}</code>
             MSG
             alerts << {:level => 'warning', :msg => msg}
           else
-            msg = <<-MSG.strip.gsub(/\s+/, " ")
+            msg = <<-MSG.strip.gsub(/\s+/, ' ')
               <h4>Restart required</h4>
               You have recently installed the <tt>bson_ext</tt> extension.
               Run <code>genghisapp&nbsp;--kill</code> then restart <code>genghisapp</code> to use it.
@@ -93,14 +93,14 @@ module Genghis
           end
 
           if latest && (installed || running) < latest
-            msg = <<-MSG.strip.gsub(/\s+/, " ")
+            msg = <<-MSG.strip.gsub(/\s+/, ' ')
               <h4>A Genghis update is available</h4>
               You are running Genghis version <tt>#{Genghis::VERSION}</tt>. The current version is <tt>#{latest}</tt>.
               Visit <a href="http://genghisapp.com">genghisapp.com</a> for more information.
             MSG
             alerts << {:level => 'warning', :msg => msg}
           elsif installed && running < installed
-            msg = <<-MSG.strip.gsub(/\s+/, " ")
+            msg = <<-MSG.strip.gsub(/\s+/, ' ')
               <h4>Restart required</h4>
               You have installed Genghis version <tt>#{installed}</tt> but are still running <tt>#{Genghis::VERSION}</tt>.
               Run <code>genghisapp&nbsp;--kill</code> then restart <code>genghisapp</code>.
@@ -161,16 +161,16 @@ module Genghis
       )
     end
 
-    def is_ruby?
+    def ruby?
       (defined?(RUBY_ENGINE) && RUBY_ENGINE == 'ruby') || !(RUBY_PLATFORM =~ /java/)
     end
 
     def check_json_ext?
-      !ENV['GENGHIS_NO_JSON_CHECK'] && is_ruby? && !defined?(::JSON::Ext)
+      !ENV['GENGHIS_NO_JSON_CHECK'] && ruby? && !defined?(::JSON::Ext)
     end
 
     def check_bson_ext?
-      !ENV['GENGHIS_NO_BSON_CHECK'] && is_ruby? && !defined?(::BSON::BSON_C)
+      !ENV['GENGHIS_NO_BSON_CHECK'] && ruby? && !defined?(::BSON::BSON_C)
     end
   end
 end

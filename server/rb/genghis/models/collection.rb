@@ -102,7 +102,7 @@ module Genghis
         end
 
         fail Genghis::DocumentNotFound.new(self, doc_id) unless doc
-        fail Genghis::GridFileNotFound.new(self, doc_id) unless is_grid_file?(doc)
+        fail Genghis::GridFileNotFound.new(self, doc_id) unless grid_file?(doc)
 
         doc
       end
@@ -146,16 +146,16 @@ module Genghis
         end
       end
 
-      def is_grid_collection?
+      def grid_collection?
         name.end_with? '.files'
       end
 
       def grid
-        Genghis::GridFSNotFound.new(@collection.db, name) unless is_grid_collection?
+        Genghis::GridFSNotFound.new(@collection.db, name) unless grid_collection?
         @grid ||= Mongo::Grid.new(@collection.db, name.sub(/\.files$/, ''))
       end
 
-      def is_grid_file?(doc)
+      def grid_file?(doc)
         !!doc['chunkSize']
       end
 
