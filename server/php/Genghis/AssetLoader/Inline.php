@@ -43,11 +43,15 @@ class Genghis_AssetLoader_Inline implements Genghis_AssetLoader
     {
         if (empty($this->assets)) {
             $data = file_get_contents($this->file, false, null, $this->offset);
-            foreach (preg_split("/^@@(?=[\w\d\.]+( [\w\d\.]+)?$)/m", $data, -1) as $asset) {
+            foreach (preg_split("/^@@ (?=[\/\w\d\.]+$)/m", $data, -1) as $asset) {
                 if (trim($asset)) {
-                    list($line, $content)    = explode("\n", $asset, 2);
-                    list($name, $etag)       = explode(' ',  $line,  2);
-                    $this->assets[$name]     = trim($content);
+                    list($line, $content) = explode("\n", $asset, 2);
+
+                    $name    = trim($line);
+                    $content = trim($content);
+                    $etag    = md5($content);
+
+                    $this->assets[$name]     = $content;
                     $this->assetEtags[$name] = $etag;
                 }
             }

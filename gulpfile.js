@@ -1,5 +1,7 @@
 'use strict';
 
+var _       = require('lodash');
+var fs      = require('fs');
 var gulp    = require('gulp');
 var t       = require('gulp-load-tasks')();
 var chalk   = require('chalk');
@@ -9,12 +11,14 @@ var path    = require('path');
 var stream  = require('event-stream');
 var datauri = require('datauri');
 
-// TODO: switch back to the original once my PR is released.
-var hoganify   = require('./tasks/browserify-hogan');
+// TODO: switch back to the originals once my PRs are released.
+var hoganify = require('./tasks/browserify-hogan');
+var header   = require('./tasks/header');
 
 var server = lr();
 
-var VERSION = '3.0.0-dev';
+
+var VERSION = fs.readFileSync('VERSION.txt');
 
 var COFFEELINT_OPTS = {
   max_line_length: {value: 120}
@@ -22,7 +26,7 @@ var COFFEELINT_OPTS = {
 
 var JSHINT_OPTS = {
   browser: true, // window, document, atob, etc.
-  node:    true  // since we're rockin' the node-style with browserify, we don't need to worry about this.
+  node:    true  // we're rockin' node-style with browserify.
 };
 
 var HEADER_OPTS = {
@@ -41,14 +45,14 @@ var HTMLMIN_OPTS = {
 
 // Remove all compiled assets.
 gulp.task('clean', function() {
-  gulp.src(['public'])
+  return gulp.src(['public', 'tmp'])
     .pipe(t.clean());
 });
 
 
 // Compile and minify JavaScript source.
 gulp.task('scripts', function() {
-  gulp.src('client/js/script.js')
+  return gulp.src('client/js/script.js')
     // Normal
     .pipe(t.browserify({
       transform: [hoganify, 'coffeeify', 'debowerify', 'brfs'],
@@ -88,7 +92,7 @@ gulp.task('styles', function() {
       paths: [path.join(__dirname, 'assets', 'css')]
     }));
 
-  stream.concat(vendors, backgrounds, genghis)
+  return stream.concat(vendors, backgrounds, genghis)
     // Normal
     .pipe(t.concat('style.css'))
     .pipe(t.header(HEADER_OPTS))
@@ -108,32 +112,32 @@ gulp.task('styles', function() {
 
 // Compile page templates.
 gulp.task('templates', function() {
-  gulp.src('server/templates/{index,error}.mustache.tpl')
+  var dev = gulp.src('server/templates/{index,error}.mustache.tpl')
     .pipe(t.rename({ext: '.mustache'}))
     .pipe(t.template({
       favicon:  '{{ base_url }}/img/favicon.png',
-      style:    '{{ base_url }}/css/style.css',
-      script:   '{{ base_url }}/js/script.js',
       keyboard: '{{ base_url }}/img/keyboard.png'
     }))
     .pipe(gulp.dest('public/templates'));
 
-  gulp.src('server/templates/{index,error}.mustache.tpl')
+  var dist = gulp.src('server/templates/{index,error}.mustache.tpl')
     .pipe(t.rename({ext: '.min.mustache'}))
     .pipe(t.template({
       favicon:  datauri('client/img/favicon.png'),
-      style:    '{{ base_url }}/css/style.min.css',
-      script:   '{{ base_url }}/js/script.min.js',
       keyboard: datauri('client/img/keyboard.png')
     }))
+    .pipe(t.bytediff.start())
     .pipe(t.htmlmin(HTMLMIN_OPTS))
+    .pipe(t.bytediff.stop())
     .pipe(gulp.dest('public/templates'));
+
+  return stream.concat(dev, dist);
 });
 
 
 // Copy static assets over to public directory
 gulp.task('copy', function() {
-  gulp.src('client/img/**')
+  return gulp.src('client/img/**')
     .pipe(gulp.dest('public/img'));
 });
 
@@ -143,7 +147,7 @@ gulp.task('copy', function() {
 // Currently only lints the client code.
 // TODO: do this with the server code too.
 gulp.task('lint', function() {
-  gulp.src(['client/js/**/*.coffee'])
+  gulp.src('client/js/**/*.coffee')
     .pipe(t.coffeelint(COFFEELINT_OPTS))
     .pipe(map(function (file, cb) {
       if (!file.coffeelint.success) {
@@ -176,7 +180,7 @@ gulp.task('lint', function() {
 
 
 // Start a LiveReload server instance.
-gulp.task('lr-server', function() {
+gulp.task('livereload', function() {
   server.listen(35729, function(err) {
     if(err) return console.log(err);
   });
@@ -190,12 +194,79 @@ gulp.task('report', function() {
 });
 
 
+// Internal builds for distribution...
+gulp.task('build:assets', ['styles', 'scripts', 'templates', 'copy'], function() {
+  return gulp.src([
+    'public/js/script.min.js',
+    'public/css/style.min.css',
+    'public/templates/index.min.mustache',
+    'public/templates/error.min.mustache'
+  ])
+    .pipe(header(function(file) {
+      return "\n@@ " + file.path.replace(/^.*?public\/(templates\/)?|/, '').replace('.min.', '.') + "\n";
+    }))
+    .pipe(t.concat('assets.txt'))
+    .pipe(gulp.dest('tmp'));
+});
+
+gulp.task('build:php:lib', function() {
+  return gulp.src(['server/php/**/*.php', '!server/php/Genghis/AssetLoader/Dev.php'])
+    .pipe(t.spawn({cmd: 'php', args: ['-w']}))
+    .pipe(t.replace(/^(<\?php\n\s*|\s*$)/g, ''))
+    .pipe(t.concat('lib.php'))
+    .pipe(gulp.dest('tmp'));
+});
+
+gulp.task('build:php', function() {
+  gulp.src('server/templates/genghis.php.tpl')
+    .pipe(t.template({
+      version:  VERSION,
+      includes: fs.readFileSync('tmp/lib.php'),
+      assets:   fs.readFileSync('tmp/assets.txt')
+    }))
+    .pipe(t.rename('genghis.php'))
+    .pipe(gulp.dest('.'));
+});
+
+gulp.task('build:rb:lib', function() {
+  return gulp.src([
+    'server/rb/genghis/json.rb',
+    'server/rb/genghis/errors.rb',
+    'server/rb/genghis/models/**/*',
+    'server/rb/genghis/helpers.rb',
+    'server/rb/genghis/server.rb'
+  ])
+    .pipe(t.concat('lib.rb'))
+    .pipe(gulp.dest('tmp'));
+});
+
+gulp.task('build:rb', function() {
+  gulp.src('server/templates/genghis.rb.tpl')
+    .pipe(t.template({
+      version:  VERSION,
+      includes: fs.readFileSync('tmp/lib.rb'),
+      assets:   fs.readFileSync('tmp/assets.txt')
+    }))
+    .pipe(t.rename('genghis.rb'))
+    .pipe(gulp.dest('.'));
+});
+
+
 // Build Genghis.
-gulp.task('build', ['styles', 'scripts', 'templates', 'copy']);
+gulp.task('build', ['build:assets', 'build:rb:lib', 'build:php:lib'], function() {
+  gulp.run('build:rb', 'build:php');
+});
+
+// Rebuild Genghis.
+gulp.task('rebuild', ['clean'], function() {
+  gulp.run('build');
+});
 
 
+// By default, do all the things!
 gulp.task('default', function() {
-  gulp.run('lr-server', 'clean', 'build');
+
+  gulp.run('livereload', 'rebuild');
 
   gulp.watch('client/css/**/*.{less,css}', function() {
     gulp.run('styles');

@@ -16,6 +16,7 @@
   },
 
   "devDependencies": {
+    "lodash":            "latest",
     "browserify":        "~3.19.1",
     "brfs":              "latest",
     "browserify-hogan":  "~0.0.2",
@@ -45,12 +46,16 @@
     "gulp-spawn":        "~0.2.1",
     "gulp-uglify":       "latest",
     "gulp-template":     "latest",
+    "gulp-spawn":        "latest",
+    "gulp-replace":      "latest",
 
     "chalk":             "latest",
     "datauri":           "latest",
     "event-stream":      "latest",
+    "replacestream":     "latest",
     "map-stream":        "latest",
     "tiny-lr":           "latest",
+    "gulp-util":         "latest",
 
     "through": "latest"
   },

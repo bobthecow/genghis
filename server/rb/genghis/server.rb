@@ -15,6 +15,14 @@ module Genghis
 
     enable :inline_templates
 
+    def error_template
+      'error.mustache'.intern
+    end
+
+    def index_template
+      'index.mustache'.intern
+    end
+
     helpers Sinatra::Streaming
 
     helpers Sinatra::JSON
@@ -38,7 +46,7 @@ module Genghis
           content_type :json
           error(status, {:error => message, :status => status}.to_json)
         else
-          error(status, mustache('error.html'.intern))
+          error(status, mustache(error_template))
         end
       end
     end
@@ -54,14 +62,14 @@ module Genghis
 
     ### Asset routes ###
 
-    get '/assets/style.css' do
+    get '/css/style.css' do
       content_type 'text/css'
-      self.class.templates['style.css'.intern].first
+      self.class.templates['css/style.css'.intern].first
     end
 
-    get '/assets/script.js' do
+    get '/js/script.js' do
       content_type 'text/javascript'
-      self.class.templates['script.js'.intern].first
+      self.class.templates['js/script.js'.intern].first
     end
 
     ### GridFS handling ###
@@ -91,7 +99,7 @@ module Genghis
       pass if request.xhr?
       @genghis_version = Genghis::VERSION
       @base_url = request.env['SCRIPT_NAME']
-      mustache 'index.html'.intern
+      mustache index_template
     end
 
     ### Genghis API ###

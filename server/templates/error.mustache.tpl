@@ -6,7 +6,7 @@
         <link rel="shortcut icon" type="image/png" href="<%= favicon %>">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Rokkitt:400,700|Source+Code+Pro">
-        <link type="text/css" rel="stylesheet" href="<%= style %>?v={{ genghis_version }}">
+        <link type="text/css" rel="stylesheet" href="{{ base_url }}/css/style.css?v={{ genghis_version }}">
     </head>
     <body>
         <header class="navbar navbar-default navbar-fixed-top">

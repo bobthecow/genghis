@@ -33,12 +33,10 @@ class Genghis_App
         if ($this->isJsonRequest() || $this->isGridFsRequest()) {
             return $this->getApi()->route($method, $path);
         } elseif ($this->isAssetRequest($path)) {
-            return $this->getAsset(substr($path, 8));
-        } elseif (substr($path, -11) === 'VERSION.txt') {
-            return new Genghis_AssetResponse('VERSION.txt', GENGHIS_VERSION);
+            return $this->getAsset($path);
         } else {
-            // not an api request, we'll return index.html and render the page in javascript.
-            return $this->renderTemplate('index.html.mustache');
+            // not an api request, we'll return index and render the page in javascript.
+            return $this->renderTemplate('index.mustache');
         }
     }
 
@@ -66,7 +64,7 @@ class Genghis_App
 
     protected function isAssetRequest($path)
     {
-        return (strpos($path, '/assets/') === 0);
+        return preg_match('#^/(js|css|img)/#', $path);
     }
 
     protected function getBaseUrl()
@@ -194,7 +192,7 @@ class Genghis_App
     protected function getAsset($name)
     {
         try {
-            return $this->loader->load($name);
+            return $this->loader->load(substr($name, 1));
         } catch (InvalidArgumentException $e) {
             throw new Genghis_HttpException(404);
         }
@@ -207,6 +205,6 @@ class Genghis_App
 
     protected function errorResponse($message, $status = 500)
     {
-        return $this->renderTemplate('error.html.mustache', $status, compact('message', 'status'));
+        return $this->renderTemplate('error.mustache', $status, compact('message', 'status'));
     }
 }

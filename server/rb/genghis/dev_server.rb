@@ -10,7 +10,15 @@ require 'genghis/server'
 
 module Genghis
   class DevServer < Genghis::Server
-    set :views,         File.expand_path('../../../templates', __FILE__)
-    set :public_folder, File.expand_path('../../../..', __FILE__)
+    set :views,         File.expand_path('../../../../public/templates', __FILE__)
+    set :public_folder, File.expand_path('../../../../public', __FILE__)
+
+    def index_template
+      'index'.intern
+    end
+
+    def error_template
+      'error'.intern
+    end
   end
 end

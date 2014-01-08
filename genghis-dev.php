@@ -15,5 +15,5 @@ require dirname(__FILE__).'/server/php/Genghis/Autoloader.php';
 
 Genghis_Autoloader::register();
 
-$app = new Genghis_App(new Genghis_AssetLoader_Dev(dirname(__FILE__) . '/assets', dirname(__FILE__) . '/src/templates'));
+$app = new Genghis_App(new Genghis_AssetLoader_Dev(dirname(__FILE__) . '/public', dirname(__FILE__) . '/public/templates'));
 $app->run();
