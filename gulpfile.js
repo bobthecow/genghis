@@ -183,6 +183,13 @@ gulp.task('lr-server', function() {
 });
 
 
+// Misc code reporting.
+gulp.task('report', function() {
+  gulp.src(['client/js/**/*.{js,coffee}', 'server/php/**/*.php', 'server/rb/**.*.rb'])
+    .pipe(t.sloc());
+});
+
+
 // Build Genghis.
 gulp.task('build', ['styles', 'scripts', 'templates', 'copy']);
 
