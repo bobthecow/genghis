@@ -92,9 +92,29 @@ gulp.task('styles', function() {
     // Minified
     .pipe(cssmin({
       keepSpecialComments: 0
+
+// Compile page templates.
+gulp.task('templates', function() {
+  gulp.src('server/templates/{index,error}.mustache.tpl')
+    .pipe(t.rename({ext: '.mustache'}))
+    .pipe(t.template({
+      favicon:  '{{ base_url }}/img/favicon.png',
+      style:    '{{ base_url }}/css/style.css',
+      script:   '{{ base_url }}/js/script.js',
+      keyboard: '{{ base_url }}/img/keyboard.png'
     }))
-    .pipe(header(HEADER_OPTS))
-    .pipe(gulp.dest('tmp'));
+    .pipe(gulp.dest('public/templates'));
+
+  gulp.src('server/templates/{index,error}.mustache.tpl')
+    .pipe(t.rename({ext: '.min.mustache'}))
+    .pipe(t.template({
+      favicon:  datauri('client/img/favicon.png'),
+      style:    '{{ base_url }}/css/style.min.css',
+      script:   '{{ base_url }}/js/script.min.js',
+      keyboard: datauri('client/img/keyboard.png')
+    }))
+    .pipe(t.htmlmin(HTMLMIN_OPTS))
+    .pipe(gulp.dest('public/templates'));
 });
 
 
@@ -150,5 +170,8 @@ gulp.task('default', function() {
 
   gulp.watch('client/js/**/*.{js,coffee}', function() {
     gulp.run(['lint', 'scripts']);
+  });
+  gulp.watch('server/templates/{index,error}.mustache.tpl', function() {
+    gulp.run('templates');
   });
 });

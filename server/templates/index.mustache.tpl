@@ -3,12 +3,12 @@
     <head>
         <meta charset="utf-8">
         <title>Genghis</title>
-        <link rel="shortcut icon" type="image/png" href="<%= favicon_uri %>">
+        <link rel="shortcut icon" type="image/png" href="<%= favicon %>">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Rokkitt:400,700|Source+Code+Pro">
-        <link type="text/css" rel="stylesheet" href="{{ base_url }}/assets/style.css?v={{ genghis_version }}">
-        <script type="text/javascript" src="{{ base_url }}/assets/script.js?v={{ genghis_version }}"></script>
-        <script type="text/javascript">require('genghis/boot')('{{ base_url }}');</script>
+        <link type="text/css" rel="stylesheet" href="<%= style %>?v={{ genghis_version }}">
+        <script type="text/javascript" src="<%= script %>?v={{ genghis_version }}"></script>
+        <script type="text/javascript">Genghis.boot('{{ base_url }}');</script>
     </head>
     <body>
         <header class="navbar navbar-default navbar-fixed-top">
@@ -32,7 +32,7 @@
 
         <footer id="footer" class="container">
             <p><a href="http://genghisapp.com">Genghis</a>, by <a href="http://justinhileman.info">Justin Hileman</a>.</p>
-            <p><a style="display: none" class="keyboard-shortcuts" href="#">Keyboard shortcuts available <img src="<%= keyboard_uri %>"></a></p>
+            <p><a style="display: none" class="keyboard-shortcuts" href="#">Keyboard shortcuts available <img src="<%= keyboard %>"></a></p>
         </footer>
     </body>
 </html>

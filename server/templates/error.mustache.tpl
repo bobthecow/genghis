@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8" />
+        <meta charset="utf-8">
         <title>Genghis &mdash; {{ status }}: {{ message }}</title>
-        <link rel="shortcut icon" type="image/png" href="{{ base_url }}/assets/img/favicon.png">
+        <link rel="shortcut icon" type="image/png" href="<%= favicon %>">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Rokkitt:400,700|Source+Code+Pro">
-        <link type="text/css" rel="stylesheet" href="{{ base_url }}/assets/style.css?v={{ genghis_version }}">
+        <link type="text/css" rel="stylesheet" href="<%= style %>?v={{ genghis_version }}">
     </head>
     <body>
         <header class="navbar navbar-default navbar-fixed-top">
