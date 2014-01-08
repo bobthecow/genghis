@@ -4,12 +4,15 @@ var _       = require('lodash');
 var fs      = require('fs');
 var gulp    = require('gulp');
 var t       = require('gulp-load-tasks')();
-var chalk   = require('chalk');
+var gutil   = require('gulp-util');
 var lr      = require('tiny-lr');
 var map     = require('map-stream');
 var path    = require('path');
 var stream  = require('event-stream');
 var datauri = require('datauri');
+var toDatauri = require('./tasks/datauri');
+
+var chalk   = gutil.color;
 
 // TODO: switch back to the originals once my PRs are released.
 var hoganify = require('./tasks/browserify-hogan');
@@ -79,9 +82,9 @@ gulp.task('styles', function() {
 
   // vendor styles
   var vendors = gulp.src([
-      'client/vendor/codemirror/lib/codemirror.css',
-      'client/vendor/keyscss/keys.css'
-    ]);
+    'client/vendor/codemirror/lib/codemirror.css',
+    'client/vendor/keyscss/keys.css'
+  ]);
 
   // background images (coming soon: with data uris!)
   var backgrounds = gulp.src('client/css/backgrounds.css');
@@ -102,6 +105,10 @@ gulp.task('styles', function() {
 
     // Minified
     .pipe(t.rename({suffix: '.min'}))
+    .pipe(toDatauri({
+      base:   'client/css/',
+      target: 'client/img/backgrounds/*.*'
+    }))
     .pipe(t.autoprefixer())
     .pipe(t.csso())
     .pipe(t.header(HEADER_OPTS))
@@ -162,7 +169,7 @@ gulp.task('lint', function() {
       cb(null, file);
     }));
 
-  gulp.src(['gulpfile.js', 'client/js/**/*.js', '!client/js/modernizr.js'])
+  gulp.src(['gulpfile.js', 'tasks/**/*.js', 'client/js/**/*.js', '!client/js/modernizr.js'])
     .pipe(t.jshint(JSHINT_OPTS))
     .pipe(map(function (file, cb) {
       if (!file.jshint.success) {

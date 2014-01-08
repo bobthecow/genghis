@@ -49,15 +49,13 @@
     "gulp-spawn":        "latest",
     "gulp-replace":      "latest",
 
-    "chalk":             "latest",
     "datauri":           "latest",
     "event-stream":      "latest",
-    "replacestream":     "latest",
     "map-stream":        "latest",
     "tiny-lr":           "latest",
     "gulp-util":         "latest",
-
-    "through": "latest"
+    "through":           "latest",
+    "minimatch":         "latest"
   },
 
   "peerDependencies": {
