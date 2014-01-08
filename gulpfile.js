@@ -131,6 +131,13 @@ gulp.task('templates', function() {
 });
 
 
+// Copy static assets over to public directory
+gulp.task('copy', function() {
+  gulp.src('client/img/**')
+    .pipe(gulp.dest('public/img'));
+});
+
+
 // Lint coffeescript and js.
 //
 // Currently only lints the client code.
@@ -190,6 +197,11 @@ gulp.task('default', function() {
   gulp.watch('client/js/**/*.{js,coffee}', function() {
     gulp.run(['lint', 'scripts']);
   });
+
+  gulp.watch('client/img/**.*', function() {
+    gulp.run(['copy']);
+  });
+
   gulp.watch('server/templates/{index,error}.mustache.tpl', function() {
     gulp.run('templates');
   });
