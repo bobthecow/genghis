@@ -1,24 +1,16 @@
 'use strict';
 
-var gulp       = require('gulp');
-var chalk      = require('chalk');
-var lr         = require('tiny-lr');
-var map        = require('map-stream');
-var path       = require('path');
-var stream     = require('event-stream');
+var gulp    = require('gulp');
+var t       = require('gulp-load-tasks')();
+var chalk   = require('chalk');
+var lr      = require('tiny-lr');
+var map     = require('map-stream');
+var path    = require('path');
+var stream  = require('event-stream');
+var datauri = require('datauri');
 
-var browserify = require('gulp-browserify');
-var clean      = require('gulp-clean');
-var coffeelint = require('gulp-coffeelint');
-var concat     = require('gulp-concat');
-var cssmin     = require('gulp-minify-css');
-var header     = require('gulp-header');
-var htmlmin    = require('gulp-htmlmin');
-var jshint     = require('gulp-jshint');
-var less       = require('gulp-less');
-var refresh    = require('gulp-livereload');
-var spawn      = require('gulp-spawn');
-var uglify     = require('gulp-uglify');
+// TODO: switch back to the original once my PR is released.
+var hoganify   = require('./tasks/browserify-hogan');
 
 var server = lr();
 
@@ -38,33 +30,47 @@ var HEADER_OPTS = {
   version: VERSION
 };
 
+var HTMLMIN_OPTS = {
+  removeComments:            true,
+  collapseWhitespace:        true,
+  collapseBooleanAttributes: true,
+  removeRedundantAttributes: true,
+  removeEmptyAttributes:     true
+};
 
+
+// Remove all compiled assets.
 gulp.task('clean', function() {
-  gulp.src(['public', 'tmp'])
-    .pipe(clean());
+  gulp.src(['public'])
+    .pipe(t.clean());
 });
 
 
+// Compile and minify JavaScript source.
 gulp.task('scripts', function() {
   gulp.src('client/js/script.js')
     // Normal
-    .pipe(browserify({
-      transform: ['browserify-hogan', 'coffeeify', 'debowerify', 'brfs'],
+    .pipe(t.browserify({
+      transform: [hoganify, 'coffeeify', 'debowerify', 'brfs'],
       debug: true
     }))
-    .pipe(header(HEADER_OPTS))
+    .pipe(t.header(HEADER_OPTS))
+    .pipe(t.bytediff.start())
     .pipe(gulp.dest('public/js'))
-    .pipe(refresh(server))
+    .pipe(t.livereload(server))
 
     // Minified
-    .pipe(uglify({
+    .pipe(t.rename({suffix: '.min'}))
+    .pipe(t.uglify({
       output: {ascii_only: true}
     }))
-    .pipe(header(HEADER_OPTS))
-    .pipe(gulp.dest('tmp'));
+    .pipe(t.header(HEADER_OPTS))
+    .pipe(t.bytediff.stop())
+    .pipe(gulp.dest('public/js'));
 });
 
 
+// Compile and concatenate LESS (and other) stylesheets.
 gulp.task('styles', function() {
 
   // vendor styles
@@ -78,20 +84,27 @@ gulp.task('styles', function() {
 
   // genghis styles
   var genghis = gulp.src('client/css/style.less')
-    .pipe(less({
+    .pipe(t.less({
       paths: [path.join(__dirname, 'assets', 'css')]
     }));
 
   stream.concat(vendors, backgrounds, genghis)
     // Normal
-    .pipe(concat('style.css'))
-    .pipe(header(HEADER_OPTS))
+    .pipe(t.concat('style.css'))
+    .pipe(t.header(HEADER_OPTS))
+    .pipe(t.bytediff.start())
     .pipe(gulp.dest('public/css'))
-    .pipe(refresh(server))
+    .pipe(t.livereload(server))
 
     // Minified
-    .pipe(cssmin({
-      keepSpecialComments: 0
+    .pipe(t.rename({suffix: '.min'}))
+    .pipe(t.autoprefixer())
+    .pipe(t.csso())
+    .pipe(t.header(HEADER_OPTS))
+    .pipe(t.bytediff.stop())
+    .pipe(gulp.dest('public/css'));
+});
+
 
 // Compile page templates.
 gulp.task('templates', function() {
@@ -118,9 +131,13 @@ gulp.task('templates', function() {
 });
 
 
+// Lint coffeescript and js.
+//
+// Currently only lints the client code.
+// TODO: do this with the server code too.
 gulp.task('lint', function() {
   gulp.src(['client/js/**/*.coffee'])
-    .pipe(coffeelint(COFFEELINT_OPTS))
+    .pipe(t.coffeelint(COFFEELINT_OPTS))
     .pipe(map(function (file, cb) {
       if (!file.coffeelint.success) {
         var filename = file.path.replace(file.cwd + '/', '');
@@ -134,7 +151,7 @@ gulp.task('lint', function() {
     }));
 
   gulp.src(['gulpfile.js', 'client/js/**/*.js', '!client/js/modernizr.js'])
-    .pipe(jshint(JSHINT_OPTS))
+    .pipe(t.jshint(JSHINT_OPTS))
     .pipe(map(function (file, cb) {
       if (!file.jshint.success) {
         var filename = file.path.replace(file.cwd + '/', '');
@@ -151,6 +168,7 @@ gulp.task('lint', function() {
 });
 
 
+// Start a LiveReload server instance.
 gulp.task('lr-server', function() {
   server.listen(35729, function(err) {
     if(err) return console.log(err);
@@ -158,7 +176,8 @@ gulp.task('lr-server', function() {
 });
 
 
-gulp.task('build', ['styles', 'scripts']);
+// Build Genghis.
+gulp.task('build', ['styles', 'scripts', 'templates', 'copy']);
 
 
 gulp.task('default', function() {
