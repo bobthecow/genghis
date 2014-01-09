@@ -14,17 +14,22 @@ class Genghis_App
     {
         set_error_handler(array('Genghis_ErrorException', 'throwException'));
 
+        $method = $this->getRequestMethod();
+        $path   = $this->getRequestPath();
         try {
-            $response = $this->route($this->getRequestMethod(), $this->getRequestPath());
+            $response = $this->route($method, $path);
             if ($response instanceof Genghis_Response) {
+                $this->logResponse($method, $path, $response);
                 $response->render();
             } else {
                 throw new Genghis_HttpException(500);
             }
         } catch (Genghis_HttpException $e) {
+            $this->logException($e, $e->getStatus());
             $this->errorResponse($e->getMessage(), $e->getStatus())->render();
         } catch (Exception $e) {
-            $this->errorResponse($e->getMessage())->render();
+            $this->logException($e);
+            $this->errorResponse($e->getMessage(), 703)->render();
         }
     }
 
@@ -206,5 +211,76 @@ class Genghis_App
     protected function errorResponse($message, $status = 500)
     {
         return $this->renderTemplate('error.mustache', $status, compact('message', 'status'));
+    }
+
+    protected function logResponse($method, $path, Genghis_Response $response)
+    {
+        $isApi  = !($response instanceof Genghis_AssetResponse);
+        $status = $response->getStatus();
+
+        $msg = sprintf(
+            "%s [%d]: %s %s",
+            $_SERVER['HTTP_HOST'],
+            $status,
+            $method,
+            $path
+        );
+
+        $this->log($this->formatLine($status, $isApi, $msg));
+    }
+
+    protected function logException(Exception $e, $status = 500)
+    {
+        $msg = sprintf(
+            "%s [%d]: %s",
+            $_SERVER['HTTP_HOST'],
+            $status,
+            $e->getMessage()
+        );
+
+        $this->log($this->colorText(self::RED, $msg));
+    }
+
+    protected function log($line)
+    {
+        if (!isset($this->log)) {
+            $this->log = fopen('php://stderr', 'w');
+        }
+
+        $date   = new DateTime;
+        $prefix = $date->format('[D M d H:i:s Y] ');
+
+        fwrite($this->log, $prefix . $line . PHP_EOL);
+    }
+
+    const BLACK   = 30;
+    const RED     = 31;
+    const GREEN   = 32;
+    const YELLOW  = 33;
+    const BLUE    = 34;
+    const MAGENTA = 35;
+    const CYAN    = 36;
+    const WHITE   = 37;
+
+    protected function formatLine($status, $isApi, $text)
+    {
+        if ($status >= 200 && $status < 300) {
+            $color = $isApi ? self::BLUE : self::GREEN;
+        } elseif ($status >= 400 && $status < 500) {
+            $color = self::YELLOW;
+        } else {
+            $color = self::WHITE;
+        }
+
+        return $this->colorText($color, $text);
+    }
+
+    protected function colorText($color, $text)
+    {
+        if (php_sapi_name() !== 'cli') {
+            return $text;
+        }
+
+        return sprintf("\033[%sm%s\033[0m", $color, $text);
     }
 }

@@ -41,6 +41,11 @@ class Genghis_Response
         $this->renderContent();
     }
 
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
     public static function getStatusText($status)
     {
         if (isset(self::$statusCodes[$status])) {
