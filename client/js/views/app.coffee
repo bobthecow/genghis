@@ -22,11 +22,8 @@ class App extends Giraffe.App
   el: 'section#genghis'
 
   initialize: (options = {}) ->
-    # let's save this for later
-    @baseUrl = options.baseUrl
-
     # for current selection
-    @selection = new Selection()
+    @selection = new Selection({}, {baseUrl: @baseUrl})
 
     # for messaging
     alerts = @alerts = new Alerts()
@@ -38,7 +35,7 @@ class App extends Giraffe.App
     # initialize all our app views
     @titleView  = new TitleView(model: @router)
     @navbarView = new NavbarView(
-      model:   selection
+      model:   @selection
       baseUrl: @baseUrl
       router:  @router
     )

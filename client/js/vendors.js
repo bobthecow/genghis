@@ -32,6 +32,7 @@ require('jquery.tablesorter/js/jquery.tablesorter.js');
 
 var _        = window._        = require('underscore');
 var Backbone = window.Backbone = require('backbone');
+Backbone.$ = $;
 
 // Backbone extensions
 require('backbone.declarative');

@@ -5,6 +5,8 @@ var fs      = require('fs');
 var gulp    = require('gulp');
 var t       = require('gulp-load-tasks')();
 var gutil   = require('gulp-util');
+var chalk   = require('chalk');
+// var chalk   = gutil.color;
 var lr      = require('tiny-lr');
 var map     = require('map-stream');
 var path    = require('path');
@@ -12,7 +14,6 @@ var stream  = require('event-stream');
 var datauri = require('datauri');
 var toDatauri = require('./tasks/datauri');
 
-var chalk   = gutil.color;
 
 // TODO: switch back to the originals once my PRs are released.
 var hoganify = require('./tasks/browserify-hogan');
@@ -61,7 +62,6 @@ gulp.task('scripts', function() {
       transform: [hoganify, 'coffeeify', 'debowerify', 'brfs'],
       debug: true
     }))
-    .pipe(t.header(HEADER_OPTS))
     .pipe(t.bytediff.start())
     .pipe(gulp.dest('public/js'))
     .pipe(t.livereload(server))

@@ -52,34 +52,31 @@ class Selection extends Giraffe.Model
     page = null,
     explain = false
   ) =>
-    @set({server, database, collection, document, query, page, explain})
+    @set({server, database, collection, document: documentId, query, page, explain})
 
   buildUrl: (type) =>
     e = (prop) =>
       encodeURIComponent @get(prop)
 
-    urlQuery = =>
-      params = {}
-      params.q    = encodeURIComponent(JSON.stringify(GenghisJSON.parse(@get('query')))) if @has('query')
-      params.page = e('page') if @has('page')
-      unless _.isEmpty(params)
-        "?" + Util.buildQuery(params)
-
     switch type
       when "documents", "explain"
-        "#{baseUrl}/servers/#{e 'server'}/databases/#{e 'database'}/collections/#{e 'collection'}/#{type}#{urlQuery}"
+        params = {}
+        params.q    = encodeURIComponent(JSON.stringify(GenghisJSON.parse(@get('query')))) if @has('query')
+        params.page = e('page') if @has('page')
+        urlQuery = if _.isEmpty(params) then '' else "?#{Util.buildQuery(params)}"
+        "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}/collections/#{e 'collection'}/#{type}#{urlQuery}"
       when "collection"
-        "#{baseUrl}/servers/#{e 'server'}/databases/#{e 'database'}/collections/#{e 'collection'}"
+        "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}/collections/#{e 'collection'}"
       when "collections"
-        "#{baseUrl}/servers/#{e 'server'}/databases/#{e 'database'}/collections"
+        "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}/collections"
       when "database"
-        "#{baseUrl}/servers/#{e 'server'}/databases/#{e 'database'}"
+        "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}"
       when "databases"
-        "#{baseUrl}/servers/#{e 'server'}/databases"
+        "#{@baseUrl}servers/#{e 'server'}/databases"
       when "server"
-        "#{baseUrl}/servers/#{e 'server'}"
+        "#{@baseUrl}servers/#{e 'server'}"
       when "servers"
-        "#{baseUrl}/servers"
+        "#{@baseUrl}servers"
       else
         throw new Error("Unknown URL type: #{type}")
 
@@ -102,45 +99,45 @@ class Selection extends Giraffe.Model
 
     changed = @changedAttributes()
 
-    @servers.url = @buildUrl("servers")
+    @servers.url = @buildUrl('servers')
     # TODO: fetch servers less often.
     @servers.fetch(reset: true, error: showErrorMessage)
 
-    if @has("server") and not _.isEmpty(_.pick(changed, SERVER_PARAMS))
-      @currentServer.url = @buildUrl("server")
+    if @has('server') and not _.isEmpty(_.pick(changed, SERVER_PARAMS))
+      @currentServer.url = @buildUrl('server')
       @currentServer.fetch
         reset: true
-        error: fetchErrorHandler("databases", "Server Not Found")
+        error: fetchErrorHandler('databases', 'Server Not Found')
 
-      @databases.url = @buildUrl("databases")
+      @databases.url = @buildUrl('databases')
       @databases.fetch
         reset: true
         error: showErrorMessage
 
-    if @has("database") and not _.isEmpty(_.pick(changed, DATABASE_PARAMS))
-      @currentDatabase.url = @buildUrl("database")
+    if @has('database') and not _.isEmpty(_.pick(changed, DATABASE_PARAMS))
+      @currentDatabase.url = @buildUrl('database')
       @currentDatabase.fetch
         reset: true
-        error: fetchErrorHandler("collections", "Database Not Found")
+        error: fetchErrorHandler('collections', 'Database Not Found')
 
-      @collections.url = @buildUrl("collections")
+      @collections.url = @buildUrl('collections')
       @collections.fetch
         reset: true
         error: showErrorMessage
 
-    if @has("collection") and not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
-      @currentCollection.url = @buildUrl("collection")
+    if @has('collection') and not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
+      @currentCollection.url = @buildUrl('collection')
       @currentCollection.fetch
         reset: true
-        error: fetchErrorHandler("documents", "Collection Not Found")
+        error: fetchErrorHandler('documents', 'Collection Not Found')
 
-    if @has("collection") and not _.isEmpty(_.pick(changed, DOCUMENTS_PARAMS))
-      @documents.url = @buildUrl("documents")
+    if @has('collection') and not _.isEmpty(_.pick(changed, DOCUMENTS_PARAMS))
+      @documents.url = @buildUrl('documents')
       @documents.fetch
         reset: true
         error: showErrorMessage
 
-    if @has("document") and not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
+    if @has('document') and not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
       @currentDocument.clear silent: true
       @currentDocument.id      = @get('document')
       @currentDocument.urlRoot = @buildUrl('documents')
@@ -152,8 +149,8 @@ class Selection extends Giraffe.Model
           'But I&#146;m sure there are plenty of other nice documents out there&hellip;'
         )
 
-    if @get("explain")
-      @explain.url = @buildUrl("explain")
+    if @get('explain')
+      @explain.url = @buildUrl('explain')
       @explain.fetch error: showErrorMessage
 
   nextPage: =>

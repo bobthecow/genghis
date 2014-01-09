@@ -70,7 +70,7 @@ class Search extends View
         .mouseup(mouseUp)
 
   updateQuery: =>
-    @$query.val @normalizeQuery(@model.get('query') or @getDocumentQuery() or '')
+    @$query.val @normalizeQuery(@model.get('query') or @getDocumentQuery())
 
   getDocumentQuery: ->
     q = @model.get('document')
@@ -121,9 +121,9 @@ class Search extends View
     @$query.blur()
     @updateQuery()
 
-  normalizeQuery: (q) ->
+  normalizeQuery: (q = '') ->
     q = q.trim()
-    if q isnt ""
+    if q isnt ''
       try
         q = GenghisJSON.normalize(q, false)
     q

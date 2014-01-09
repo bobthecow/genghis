@@ -10,3 +10,5 @@ class Server extends Model
 
   error: ->
     @get 'error'
+
+module.exports = Server

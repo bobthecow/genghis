@@ -55,7 +55,8 @@
     "tiny-lr":           "latest",
     "gulp-util":         "latest",
     "through":           "latest",
-    "minimatch":         "latest"
+    "minimatch":         "latest",
+    "chalk":             "latest"
   },
 
   "peerDependencies": {
