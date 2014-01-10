@@ -18,9 +18,8 @@ class Genghis_AssetResponse extends Genghis_Response
 
     public function __construct($name, $content, $headers = array())
     {
-        parent::__construct($content);
-        $this->name    = $name;
-        $this->headers = array_merge(array('Content-type' => $this->getContentType()), $headers);
+        $this->name = $name;
+        parent::__construct($content, 200, array_merge(array('Content-type' => $this->getContentType()), $headers));
     }
 
     protected function getContentType()

@@ -2,6 +2,8 @@
 
 class Genghis_Response
 {
+    const DEFAULT_CONTENT_TYPE = 'text/html; charset=UTF-8';
+
     protected static $statusCodes = array(
         200 => 'OK',
         201 => 'Created',
@@ -32,7 +34,7 @@ class Genghis_Response
     {
         $this->data    = $data;
         $this->status  = $status;
-        $this->headers = $headers;
+        $this->headers = array_merge(array('Content-Type' => self::DEFAULT_CONTENT_TYPE), $headers);
     }
 
     public function render()
