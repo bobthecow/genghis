@@ -66,21 +66,23 @@ Util =
       $s = undefined
       unless $property.children('.e').length
         if isObject
+          # Try to find the 'name' or 'title' property first...
           $s = $(_.detect($value.find('> span.p > var'), (el) ->
             isName.test $(el).text()
           )).siblings('span.v')
 
+          # Otherwise, we'll settle for anything, basically.
           if $s.length is 0
             $s = $(_.detect($value.find('> span.p > span.v'), (el) ->
               $el = $(el)
               $el.hasClass('n') or $el.hasClass('b') or ($el.hasClass('q') and $el.text().length < 64)
             ))
 
-          if $s and $s.length
+          # If we found something, store the summary.
+          if $s?.length
             prop    = $s.siblings('var').text()
             summary = ((if prop then prop + ': ' else '')) + Util.escape($s.text())
 
-        if isObject
           open  = '{'
           close = '}'
         else
