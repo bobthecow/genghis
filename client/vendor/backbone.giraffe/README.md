@@ -87,18 +87,17 @@ asynchronous bootstrap data or a websocket connection before starting.
 in markup provides simple one-way binding. (does not try to be __Knockout__ or
 __AngularJS__)
 
-
 ## Download
 
-__Version 0.1.5__
+__Version 0.2.1__
 
-[backbone.giraffe.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.js) _64.9k_
+[backbone.giraffe.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.js) _65.5k_
 
-[backbone.giraffe.min.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.min.js) _17.4k_
+[backbone.giraffe.min.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.min.js) _17.8k_
 
-[backbone.giraffe.contrib.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.contrib.js) _16.1k_
+[backbone.giraffe.contrib.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.contrib.js) _16.5k_
 
-[backbone.giraffe.contrib.min.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.contrib.min.js) _5.6k_
+[backbone.giraffe.contrib.min.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.contrib.min.js) _5.8k_
 
 ## Building
 
@@ -109,6 +108,17 @@ __Version 0.1.5__
 
 ## Changelog
 
+### 0.2.1
+
+- Fixed AMD loader check.
+
+### 0.2.0
+
+- Added support for AMD and node-style loaders.
+
+- Put contributors in one place, the AUTHORS file.
+
+- Using accurate semantic versioning, starting...now.
 
 ### 0.1.5
 
@@ -121,7 +131,6 @@ __Version 0.1.5__
 - Registered as a Bower package: `bower install backbone.giraffe`
 
 ### 0.1.4
-
 
 - Added the function `Giraffe.configure` which 
   [mixes several Giraffe features](http://barc.github.io/backbone.giraffe/backbone.giraffe.html#configure)
@@ -147,8 +156,15 @@ __Version 0.1.5__
   of a function name on an object. Here's a reference for future development - 
   [__Backbone.Advice__](https://github.com/rhysbrettbowen/Backbone.Advice)
 
+## Contributors
+
+View Giraffe's contributors [here](https://github.com/barc/backbone.giraffe/graphs/contributors)
+or see the file [AUTHORS](https://github.com/barc/backbone.giraffe/blob/master/AUTHORS).
+
+Suggestions and pull requests are welcome!
+
 ## License
 
 Copyright (c) 2013 Barc Inc.
 
-See the file [LICENSE](license.html) for copying permission.
+See the file [LICENSE](https://github.com/barc/backbone.giraffe/blob/master/LICENSE) for copying permission.

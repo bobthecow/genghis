@@ -3,8 +3,12 @@
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  if (typeof Giraffe === 'undefined') {
+    throw new Error('Can\'t find Giraffe');
+  }
+
   Contrib = Giraffe.Contrib = {
-    version: '0.1.5'
+    version: '0.2.1'
   };
 
   /*
@@ -488,5 +492,13 @@
     return FastCollectionView;
 
   })(Giraffe.View);
+
+  if (_.isObject(typeof module !== "undefined" && module !== null ? module.exports : void 0)) {
+    module.exports = Contrib;
+  } else if (typeof define === 'function' && define.amd) {
+    define('backbone.giraffe.contrib', [], function() {
+      return Contrib;
+    });
+  }
 
 }).call(this);

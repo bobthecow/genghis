@@ -7,8 +7,26 @@
 
   $ = window.$, _ = window._, Backbone = window.Backbone;
 
+  if (!_) {
+    if (typeof require !== 'undefined') {
+      _ = require('underscore');
+    }
+    if (!_) {
+      throw new Error('Can\'t find underscore');
+    }
+  }
+
+  if (!Backbone) {
+    if (typeof require !== 'undefined') {
+      Backbone = require('backbone');
+    }
+    if (!Backbone) {
+      throw new Error('Can\'t find Backbone');
+    }
+  }
+
   Backbone.Giraffe = window.Giraffe = Giraffe = {
-    version: '0.1.5',
+    version: '0.2.1',
     app: null,
     apps: {},
     views: {}
@@ -1938,5 +1956,13 @@
       return result;
     };
   };
+
+  if (_.isObject(typeof module !== "undefined" && module !== null ? module.exports : void 0)) {
+    module.exports = Giraffe;
+  } else if (typeof define === 'function' && define.amd) {
+    define('backbone.giraffe', [], function() {
+      return Giraffe;
+    });
+  }
 
 }).call(this);

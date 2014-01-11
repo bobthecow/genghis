@@ -41,10 +41,7 @@ require('backbone.declarative');
 require('mousetrap');
 require('backbone.mousetrap');
 
-// Giraffe needs a shim, but not for long
-require('backbone.giraffe');
-var Giraffe = Backbone.Giraffe;
-
+var Giraffe = require('backbone.giraffe');
 
 // And export the whole mess.
 module.exports = {

@@ -3,7 +3,7 @@
     "dependencies": {
         "backbone":               "~1.1.0",
         "backbone.declarative":   "Codecademy/backbone.declarative",
-        "backbone.giraffe":       "~0.1.5",
+        "backbone.giraffe":       "~0.2.1",
         "backbone.mousetrap":     "elasticsales/backbone.mousetrap",
         "bootstrap":              "~3.0.3",
         "codemirror":             "~3.20.0",
