@@ -4,8 +4,9 @@ Search   = require './search.coffee'
 template = require '../../templates/navbar.mustache'
 
 class Navbar extends View
-  el:       '.navbar'
-  template: template
+  tagName:   'header'
+  className: 'navbar navbar-default navbar-fixed-top'
+  template:  template
 
   ui:
     '$nav': 'nav'
@@ -25,15 +26,15 @@ class Navbar extends View
     {@baseUrl}
 
   afterRender: ->
-    @navView.attachTo @$nav
+    @navView.attachTo(@$nav)
 
-  onChangeCollection: (model) ->
+  onChangeCollection: (model) =>
     if model.get('collection')
-      @searchView.attachTo @$nav unless @searchView.isAttached()
+      @searchView.attachTo(@$nav) unless @searchView.isAttached()
     else
-      @searchView.detach true if @searchView.isAttached()
+      @searchView.detach(true) if @searchView.isAttached()
 
-  onClickBrand: (e) ->
+  onClickBrand: (e) =>
     return if e.ctrlKey or e.shiftKey or e.metaKey
     e.preventDefault()
     @router.navigate '', true

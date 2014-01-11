@@ -4,7 +4,8 @@ Util     = require '../util.coffee'
 template = require '../../templates/explain.mustache'
 
 class Explain extends View
-  el:       'section#explain'
+  id:       'explain'
+  tagName:  'section'
   template: template
 
   ui:

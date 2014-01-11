@@ -3,7 +3,7 @@ DatabaseRow = require './database_row.coffee'
 template    = require '../../templates/databases.mustache'
 
 class Databases extends Section
-  el:       'section#databases'
+  id:       'databases'
   template: template
   rowView:  DatabaseRow
   formatTitle: (model) ->

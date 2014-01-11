@@ -2,6 +2,9 @@
 View   = require './view.coffee'
 
 class Section extends View
+  tagName:   'section'
+  className: 'app-section'
+
   ui:
     '$title':         '> header h2'
     '$table':         'table'
@@ -29,9 +32,6 @@ class Section extends View
     'sync':    'stopSpinning'
     'destroy': 'stopSpinning'
 
-  initialize: ->
-    @render()
-
   serialize: ->
     title: @formatTitle(@model)
 
@@ -44,6 +44,8 @@ class Section extends View
 
     if @collection.size()
       @$table.trigger 'sorton', [[[0, 0]]]
+
+    @show()
 
   updateTitle: =>
     @$title.text @formatTitle(@model)
@@ -86,14 +88,12 @@ class Section extends View
 
   show: =>
     @bindKeyboardEvents()
-    $('body').addClass "section-#{@$el.attr('id')}"
-    @$el.show()
-    $(document).scrollTop 0
+    $('body').addClass("section-#{@id}")
+    $(document).scrollTop(0)
 
   hide: =>
     @unbindKeyboardEvents()
-    $('body').removeClass "section-#{@$el.attr('id')}"
-    @$el.hide()
+    $('body').removeClass("section-#{@id}")
 
   startSpinning: =>
     @$el.addClass 'spinning'

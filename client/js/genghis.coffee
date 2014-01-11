@@ -7,5 +7,6 @@ module.exports =
   boot: (baseUrl) ->
     $ ->
       baseUrl = "#{baseUrl}/" unless baseUrl[-1] is '/'
-      window.app = new App(baseUrl: baseUrl)
+      app = window.app = new App(baseUrl: baseUrl)
+      app.attachTo('body')
       Backbone.history.start(pushState: true, root: baseUrl)

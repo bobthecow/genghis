@@ -14,8 +14,10 @@ FILE_API_MSG    = "<h2>Unable to upload file.</h2> Your browser does not
                   support the File API. Please use a modern browser."
 
 class Documents extends View
-  el:       'section#documents'
-  template: template
+  id:        'documents'
+  tagName:   'section'
+  className: 'app-section'
+  template:  template
 
   ui:
     '$header':     'header'

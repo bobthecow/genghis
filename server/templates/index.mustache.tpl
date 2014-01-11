@@ -11,23 +11,6 @@
         <script type="text/javascript">Genghis.boot('{{ base_url }}');</script>
     </head>
     <body>
-        <header class="navbar navbar-default navbar-fixed-top">
-            <div class="container">
-                <div class="navbar-header"><a class="navbar-brand" href="{{ base_url }}/">Genghis</a></div>
-            </div>
-        </header>
-
         <noscript><h1>You won&#146;t get far in life without JavaScript&hellip;</h1></noscript>
-
-        <section id="genghis" class="container fluid">
-            <aside id="alerts"></aside>
-            <section id="servers" class="app-section"></section>
-            <section id="databases" class="app-section"></section>
-            <section id="collections" class="app-section"></section>
-            <section id="documents" class="app-section"></section>
-            <section id="explain" class="app-section"></section>
-            <section id="document" class="app-section"><header></header></section>
-            <section id="error" class="app-section"></section>
-        </section>
     </body>
 </html>

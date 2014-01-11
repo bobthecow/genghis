@@ -4,7 +4,7 @@ CollectionRow = require './collection_row.coffee'
 template      = require '../../templates/collections.mustache'
 
 class Collections extends Section
-  el:       'section#collections'
+  id:       'collections'
   template: template
   rowView:  CollectionRow
 

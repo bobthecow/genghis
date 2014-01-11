@@ -143,7 +143,7 @@ class Search extends View
     @editor.setValue q
 
   expandSearch: (expand) =>
-    return unless @_isAttached
+    return unless @isAttached()
     unless @editor
       wrapper = @$advanced
       @editor = CodeMirror(@$well[0], _.extend({}, defaults.codeMirror,

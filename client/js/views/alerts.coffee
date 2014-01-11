@@ -2,13 +2,15 @@ View      = require './view.coffee'
 AlertView = require './alert.coffee'
 
 class Alerts extends View
-  el: 'aside#alerts'
+  id:        'alerts'
+  tagName:   'aside'
+  className: 'container'
 
   collectionEvents:
     'reset': 'render'
     'add':   'addModel'
 
   addModel: (model) ->
-    @attach new AlertView(model: model)
+    @attach(new AlertView(model: model))
 
 module.exports = Alerts

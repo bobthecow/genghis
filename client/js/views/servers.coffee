@@ -4,7 +4,7 @@ ServerRow = require './server_row.coffee'
 template  = require '../../templates/servers.mustache'
 
 class Servers extends Section
-  el:       'section#servers'
+  id:       'servers'
   template: template
   rowView:  ServerRow
 
