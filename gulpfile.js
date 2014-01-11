@@ -122,16 +122,14 @@ gulp.task('templates', function() {
   var dev = gulp.src('server/templates/{index,error}.mustache.tpl')
     .pipe(t.rename({ext: '.mustache'}))
     .pipe(t.template({
-      favicon:  '{{ base_url }}/img/favicon.png',
-      keyboard: '{{ base_url }}/img/keyboard.png'
+      favicon: '{{ base_url }}/img/favicon.png',
     }))
     .pipe(gulp.dest('public/templates'));
 
   var dist = gulp.src('server/templates/{index,error}.mustache.tpl')
     .pipe(t.rename({ext: '.min.mustache'}))
     .pipe(t.template({
-      favicon:  datauri('client/img/favicon.png'),
-      keyboard: datauri('client/img/keyboard.png')
+      favicon: datauri('client/img/favicon.png'),
     }))
     .pipe(t.bytediff.start())
     .pipe(t.htmlmin(HTMLMIN_OPTS))

@@ -13,25 +13,28 @@ body {
 
 #footer {
     font-weight: 400;
-    text-align: center;
+    p {
+        text-align: center;
+    }
     a.keyboard-shortcuts {
         &:link, &:visited {
             color: #888;
-            img {
-                .opacity(50);
-            }
         }
         &:hover, &:active {
             color: #666;
-            img {
-                .opacity(100);
+            &:after {
+                .opacity(1);
             }
         }
-        img {
-            line-height:    1px;
-            vertical-align: text-top;
-            height: 11px;
-            width:  19px;
+        &:after {
+            display:          inline-block;
+            margin-left:      3px;
+            width:            19px;
+            height:           11px;
+            content:          ' ';
+            vertical-align:   text-top;
+            line-height:      1px;
+            .opacity(0.5);
         }
     }
 }

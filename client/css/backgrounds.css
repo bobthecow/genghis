@@ -13,3 +13,7 @@ section#servers tr.spinning td:first-child {
 body > section section.spinning > header h2 {
     background-image: url('../img/backgrounds/section_spin.gif');
 }
+
+#footer a.keyboard-shortcuts:after {
+    background-image: url('../img/backgrounds/keyboard.png');
+}

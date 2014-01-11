@@ -16,6 +16,7 @@ DocumentsView         = require './documents.coffee'
 ExplainView           = require './explain.coffee'
 DocumentSectionView   = require './document_section.coffee'
 MastheadView          = require './masthead.coffee'
+FooterView            = require './footer.coffee'
 
 notFoundTemplate      = require '../../templates/not_found.mustache'
 welcomeTemplate       = require '../../templates/welcome.mustache'
@@ -62,6 +63,9 @@ class App extends Giraffe.App
 
     @masthead = new View();
     @masthead.attachTo('header.navbar', {method: 'after'})
+
+    @footer  = new FooterView()
+    @footer.attachTo('body')
 
     # Let's just keep these for later...
     @sections =
