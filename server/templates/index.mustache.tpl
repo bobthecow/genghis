@@ -29,10 +29,5 @@
             <section id="document" class="app-section"><header></header></section>
             <section id="error" class="app-section"></section>
         </section>
-
-        <footer id="footer" class="container">
-            <p><a href="http://genghisapp.com">Genghis</a>, by <a href="http://justinhileman.info">Justin Hileman</a>.</p>
-            <p><a style="display: none" class="keyboard-shortcuts" href="#">Keyboard shortcuts available <img src="<%= keyboard %>"></a></p>
-        </footer>
     </body>
 </html>

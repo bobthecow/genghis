@@ -26,8 +26,6 @@
             </div>
         </header>
 
-        <section id="genghis" class="container fluid"></section>
-
         <footer id="footer" class="container">
             <p><a href="http://genghisapp.com">Genghis</a>, by <a href="http://justinhileman.info">Justin Hileman</a>.</p>
         </footer>
