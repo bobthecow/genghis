@@ -19,17 +19,29 @@ class KeyboardShortcuts extends View
 
   afterRender: ->
     $('footer a.keyboard-shortcuts').click(@show).show()
-    @$el.modal(backdrop: true, keyboard: true, show: false)
+    @$el.modal(backdrop: true, show: false)
+      .on({
+        'shown.bs.modal': @bindEscape,
+        'hide.bs.modal':  @unbindEscape
+      })
 
   show: (e) =>
     e.preventDefault()
-    @$el.modal 'show'
+    @$el.modal('show')
 
   hide: (e) =>
     e.preventDefault()
-    @$el.modal 'hide'
+    @$el.modal('hide')
 
   toggle: =>
-    @$el.modal 'toggle'
+    @$el.modal('toggle')
+
+  bindEscape: =>
+    @bindKeyboardEvents(esc: 'hide', enter: 'hide')
+
+  unbindEscape: =>
+    @unbindKeyboardEvents()
+    @bindKeyboardEvents() # ... and then re-bind the ? key.
+
 
 module.exports = KeyboardShortcuts
