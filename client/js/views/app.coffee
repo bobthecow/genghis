@@ -4,6 +4,7 @@ Selection             = require '../models/selection.coffee'
 Alerts                = require '../collections/alerts.coffee'
 Router                = require '../router.coffee'
 
+View                  = require './view.coffee'
 TitleView             = require './title.coffee'
 NavbarView            = require './navbar.coffee'
 AlertsView            = require './alerts.coffee'
@@ -16,6 +17,7 @@ ExplainView           = require './explain.coffee'
 DocumentSectionView   = require './document_section.coffee'
 MastheadView          = require './masthead.coffee'
 
+notFoundTemplate      = require '../../templates/not_found.mustache'
 welcomeTemplate       = require '../../templates/welcome.mustache'
 
 class App extends Giraffe.App
@@ -58,6 +60,9 @@ class App extends Giraffe.App
     @explainView           = new ExplainView(model: @selection.explain)
     @documentSectionView   = new DocumentSectionView(model: @selection.currentDocument)
 
+    @masthead = new View();
+    @masthead.attachTo('header.navbar', {method: 'after'})
+
     # Let's just keep these for later...
     @sections =
       servers:     @serversView
@@ -75,15 +80,18 @@ class App extends Giraffe.App
     # trigger the first selection change. go go gadget app!
     _.defer @selection.update
 
-  showMasthead: (heading, content, options = {}) =>
-    # remove any old mastheads
-    @removeMasthead true
-    new MastheadView(_.extend(options, {heading, content}))
+  showMasthead: (options = {}) =>
+    @masthead.attach(new MastheadView(options), {method: 'html'})
 
-  removeMasthead: (force = false) ->
-    masthead = $('header.masthead')
-    masthead = masthead.not('.sticky') unless force
-    masthead.remove()
+  removeMasthead: () ->
+    @masthead.detachChildren()
+
+  showNotFound: (heading, content) ->
+    this.showMasthead(content: notFoundTemplate({heading, content}), epic: true, error: true)
+
+  showWelcome: _.once(->
+    @showMasthead(content: welcomeTemplate(version: Genghis.version), epic: true, className: 'masthead welcome')
+  )
 
   autoShowSection: (route) ->
     switch route
@@ -111,10 +119,5 @@ class App extends Giraffe.App
 
     @sections[section].show() if hasSection
 
-  showWelcome: _.once(->
-    @showMasthead '', welcomeTemplate(version: Genghis.version),
-      epic:      true
-      className: 'masthead welcome'
-  )
 
 module.exports = App

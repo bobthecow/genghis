@@ -87,15 +87,13 @@ class Selection extends Giraffe.Model
         data = JSON.parse(response.responseText)
       app.alerts.add(msg: data?.error or 'Unknown error', level: 'danger', block: true)
 
-    fetchErrorHandler = (section, notFoundTitle = 'Not Found', notFoundSubtitle = 'Please try again.') ->
+    fetchErrorHandler = (section, notFoundHeading = 'Not Found', notFoundContent = '<p>Please try again.</p>') ->
       (model, response) ->
         switch response.status
           when 404
-            # app.router.notFound(url + '/' + documentId);
-            app.showSection()
-            app.showMasthead "404: #{notFoundTitle}", "<p>#{notFoundSubtitle}</p>", error: true
+            app.showNotFound(notFoundHeading, notFoundContent)
           else
-            showErrorMessage model, response
+            showErrorMessage(model, response)
 
     changed = @changedAttributes()
 
@@ -140,7 +138,7 @@ class Selection extends Giraffe.Model
         .fail(fetchErrorHandler(
           'document',
           'Document Not Found',
-          'But I&#146;m sure there are plenty of other nice documents out there&hellip;'
+          '<p>But I&#146;m sure there are plenty of other nice documents out there&hellip;</p>'
         ))
 
     if @get('explain')

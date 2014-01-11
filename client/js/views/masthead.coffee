@@ -12,17 +12,10 @@ class Masthead extends View
     epic:    false
     sticky:  false
 
-  initialize: ->
-    @render()
-
-  serialize: ->
-    {@heading, @content}
-
   afterRender: ->
     @$el
       .toggleClass('error',  @error)
       .toggleClass('epic',   @epic)
       .toggleClass('sticky', @sticky)
-      .insertAfter('header.navbar')
 
 module.exports = Masthead

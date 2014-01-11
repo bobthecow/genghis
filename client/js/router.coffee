@@ -2,9 +2,6 @@
 Util       = require './util.coffee'
 
 e          = encodeURIComponent
-NOT_FOUND  = "<p>If you think you've reached this message in error, please
-              press <strong>0</strong> to speak with an operator. Otherwise,
-              hang up and try again.</p>"
 
 getParams = ->
   return {} unless document.location.search
@@ -106,7 +103,6 @@ class Router extends Backbone.Router
       @redirectToCollectionQuery server, db, coll, query
 
   notFound: (path) ->
-    @app.showSection()
-    @app.showMasthead '404: Not Found', NOT_FOUND, error: true, epic: true
+    @app.showNotFound()
 
 module.exports = Router
