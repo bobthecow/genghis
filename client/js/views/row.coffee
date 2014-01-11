@@ -13,8 +13,6 @@ class Row extends View
     'change':  'render'
     'destroy': 'remove'
 
-  isParanoid: false
-
   initialize: ->
     # TODO: figure out why remove doesn't like us and stop doing this.
     _.bindAll(this, 'remove')
@@ -40,26 +38,15 @@ class Row extends View
     app.router.navigate Util.route($(e.target).attr('href')), true
 
   destroy: =>
-    model = @model
-    name  = (if model.has('name') then model.get('name') else '')
-    if @isParanoid
-      throw new Error('Unable to confirm destruction without a confirmation string.') unless name
-      new Confirm(
-        header:       'Deleting is forever.'
-        body:         "Type <strong>#{name}</strong> to continue:"
-        confirmInput: name
-        confirmText:  "Delete #{name} forever"
-        confirm:      -> model.destroy()
-      )
-    else
-      options =
-        confirmText: @destroyConfirmButton(name)
-        confirm:     -> model.destroy()
-
-      options.body = @destroyConfirmText(name) if @destroyConfirmText
-      new Confirm(options)
-
-  destroyConfirmButton: (name) ->
-    "<strong>Yes</strong>, delete #{name} forever"
+    name = (if @model.has('name') then @model.get('name') else '')
+    throw new Error('Unable to confirm distruction without a confirmation string.') unless name
+    new Confirm(
+      header:       'Deleting is forever.',
+      body:         "Type <strong>#{name}</strong> to continue:",
+      confirmInput: name,
+      confirmText:  "Delete #{name} forever",
+      confirm: =>
+        @model.destroy()
+    )
 
 module.exports = Row

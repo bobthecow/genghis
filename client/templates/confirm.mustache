@@ -20,7 +20,7 @@
 
     <div class="modal-footer">
       <button class="btn btn-default dismiss" aria-hidden="true">{{ dismissText }}</button>
-      <button class="btn btn-danger confirm"{{# confirmInput }} disabled{{/ confirmInput }}>{{{ confirmText }}}</button>
+      <button class="btn {{# isDangerous }}btn-danger {{/ isDangerous }}{{^ isDangerous }}btn-primary{{/ isDangerous }} confirm"{{# confirmInput }} disabled{{/ confirmInput }}>{{{ confirmText }}}</button>
     </div>
   </div>
 </div>

@@ -19,6 +19,7 @@ class Confirm extends View
     body:        'Really? There is no undo.'
     confirmText: 'Okay'
     dismissText: 'Cancel'
+    isDangerous: true
 
   omittedOptions: ['parse', 'confirm']
 
