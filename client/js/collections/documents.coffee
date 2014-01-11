@@ -11,7 +11,7 @@ isGuessable = (d) ->
   # object ids with the wrong length string should
   return false unless id.$value.length is 24
 
-  timestamp = parseInt(id.$value.substring[0..7], 16) * 1000
+  timestamp = parseInt(id.$value[0..7], 16) * 1000
 
   # If it's too far in the past or future, don't guess creation time.
   @end > timestamp > @start

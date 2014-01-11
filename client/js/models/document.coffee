@@ -52,7 +52,7 @@ class Document extends Giraffe.Model
         if _.isObject(id) and id.$genghisType
           if id.$genghisType is 'ObjectId' and id.$value.length is 24
             time = new Date()
-            time.setTime parseInt(id.$value.substring(0, 8), 16) * 1000
+            time.setTime parseInt(id.$value[0..7], 16) * 1000
             @_prettyTime = time.toUTCString()
       @_prettyTime
 
