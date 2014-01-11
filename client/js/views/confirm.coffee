@@ -5,38 +5,32 @@ template = require '../../templates/confirm.mustache'
 class Confirm extends View
   className: 'modal confirm-modal'
   template:  template
+
   ui:
-    $confirm: 'button.confirm'
+    '$confirm': 'button.confirm'
 
   events:
     'click $confirm':       'confirm'
     'click button.dismiss': 'dismiss'
     'keyup .confirm-input': 'validateInput'
 
-  defaults:
+  defaultOptions:
     header:      null
     body:        'Really? There is no undo.'
     confirmText: 'Okay'
     dismissText: 'Cancel'
 
-  initialize: (options) ->
-    _.bindAll this, 'render', 'confirm', 'validateInput', 'dismiss', 'remove'
-    @onConfirm    = options.confirm or $.noop
-    @confirmInput = options.confirmInput
-    @modalOptions = _.pick(options, 'backdrop', 'keyboard')
-    @options = _.pick(options, 'header', 'body', 'confirmText', 'confirmInput', 'dismissText')
-    @render()  if options.show isnt false
+  omittedOptions: ['parse', 'confirm']
 
-  serialize: ->
-    _.defaults @options, @defaults
+  initialize: (options) ->
+    @onConfirm = options.confirm or $.noop
+    @render() if options.show isnt false
 
   afterRender: ->
-    $el = @$el
     if @confirmInput
-      $el.on 'shown.bs.modal', ->
-        $el.find('.confirm-input').focus()
-
-    $el.modal @modalOptions
+      @$el.on 'shown.bs.modal', =>
+        @$el.find('.confirm-input').focus()
+    @$el.modal({@backdrop, @keyboard})
 
   confirm: =>
     @onConfirm()
@@ -54,6 +48,6 @@ class Confirm extends View
       @$confirm.attr 'disabled', true
 
   dismiss: =>
-    @$el.on('hidden.bs.modal', @remove).modal 'hide'
+    @$el.on('hidden.bs.modal', @remove).modal('hide')
 
 module.exports = Confirm
