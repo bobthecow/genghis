@@ -15,6 +15,10 @@ class Row extends View
 
   isParanoid: false
 
+  initialize: ->
+    # TODO: figure out why remove doesn't like us and stop doing this.
+    _.bindAll(this, 'remove')
+
   afterRender: ->
     @$el
       .toggleClass('error', @model.get('error'))
