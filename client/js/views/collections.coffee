@@ -10,7 +10,7 @@ class Collections extends Section
 
   ui: _.extend(
     '$addFormGridFs':  '.add-form-gridfs'
-    '$addInputGridFs': '.add-input-gridfs'
+    '$addInputGridFs': '.add-form-gridfs input'
     '$addFormToggle':  '.add-form-toggle'
   , Section::ui)
 
