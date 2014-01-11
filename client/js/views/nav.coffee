@@ -19,9 +19,7 @@ class Nav extends View
     's': 'navigateToServers'
     'u': 'navigateUp'
 
-  initialize: (options) ->
-    @baseUrl = options.baseUrl
-
+  initialize: ->
     # TODO: clean this up somehow
     $('body').bind 'click', (e) ->
       $('.dropdown-toggle, .menu').parent('li').removeClass 'open'

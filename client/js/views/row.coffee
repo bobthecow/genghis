@@ -39,8 +39,7 @@ class Row extends View
     model = @model
     name  = (if model.has('name') then model.get('name') else '')
     if @isParanoid
-      unless name
-        throw new Error('Unable to confirm destruction without a confirmation string.')
+      throw new Error('Unable to confirm destruction without a confirmation string.') unless name
       new Confirm(
         header:       'Deleting is forever.'
         body:         "Type <strong>#{name}</strong> to continue:"

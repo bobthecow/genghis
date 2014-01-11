@@ -5,7 +5,7 @@ class DocumentsHeader extends View
   template: template
 
   modelEvents:
-    change: 'render'
+    'change': 'render'
 
   serialize: ->
     count = @model.get('count')

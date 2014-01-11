@@ -33,16 +33,15 @@ class Documents extends View
     'drop      button.file-upload': 'dropGridFile'
 
   keyboardEvents:
-    c: 'createDocument'
+    'c': 'createDocument'
 
   collectionEvents:
-    reset:   'addAll'
-    add:     'addDocument'
-    request: 'onRequest'
-    sync:    'onSync'
+    'reset':   'addAll'
+    'add':     'addDocument'
+    'request': 'onRequest'
+    'sync':    'onSync'
 
-  initialize: (options) ->
-    @pagination = options.pagination
+  initialize: ->
     @render()
 
   afterRender: ->

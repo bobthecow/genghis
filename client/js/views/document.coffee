@@ -32,8 +32,8 @@ class Document extends BaseDocument
     'click .ref .ref-id .v .s, .ref .ref-id .v.n': 'navigateId' # handle numeric IDs too
 
   modelEvents:
-    change:  'updateDocument'
-    destroy: 'remove'
+    'change':  'updateDocument'
+    'destroy': 'remove'
 
   afterRender: ->
     Util.attachCollapsers @el

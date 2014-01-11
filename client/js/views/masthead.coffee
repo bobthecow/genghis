@@ -6,17 +6,17 @@ class Masthead extends View
   className: 'masthead'
   template:  template
 
-  initialize: (options) ->
-    @heading = options.heading
-    @content = options.content or ''
-    @error   = options.error   or false
-    @epic    = options.epic    or false
-    @sticky  = options.sticky  or false
+  defaultOptions:
+    content: ''
+    error:   false
+    epic:    false
+    sticky:  false
+
+  initialize: ->
     @render()
 
   serialize: ->
-    heading: @heading
-    content: @content
+    {@heading, @content}
 
   afterRender: ->
     @$el

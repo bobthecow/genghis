@@ -8,10 +8,10 @@ class DocumentSection extends View
   template: template
 
   ui:
-    $content: '.content'
+    '$content': '.content'
 
   modelEvents:
-    change: 'render'
+    'change': 'render'
 
   afterRender: ->
     @$el.removeClass 'spinning'

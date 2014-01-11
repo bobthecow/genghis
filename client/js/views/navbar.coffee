@@ -16,14 +16,13 @@ class Navbar extends View
   modelEvents:
     'change:collection': 'onChangeCollection'
 
-  initialize: (options = {}) ->
-    {@router, @baseUrl} = options
-    @navView = new Nav(model: @model, baseUrl: @baseUrl)
-    @searchView = new Search(model: @model)
+  initialize: ->
+    @navView    = new Nav({@model, @baseUrl})
+    @searchView = new Search({@model})
     @render()
 
   serialize: ->
-    baseUrl: @baseUrl
+    {@baseUrl}
 
   afterRender: ->
     @navView.attachTo @$nav

@@ -21,9 +21,9 @@ welcomeTemplate       = require '../../templates/welcome.mustache'
 class App extends Giraffe.App
   el: 'section#genghis'
 
-  initialize: (options = {}) ->
+  initialize: ->
     # for current selection
-    @selection = new Selection({}, {baseUrl: @baseUrl})
+    @selection = new Selection({}, {@baseUrl})
 
     # for messaging
     alerts = @alerts = new Alerts()
@@ -78,7 +78,7 @@ class App extends Giraffe.App
   showMasthead: (heading, content, options = {}) =>
     # remove any old mastheads
     @removeMasthead true
-    new MastheadView(_.extend(options, heading: heading, content: content))
+    new MastheadView(_.extend(options, {heading, content}))
 
   removeMasthead: (force = false) ->
     masthead = $('header.masthead')
