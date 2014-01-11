@@ -1,4 +1,4 @@
-## v2.4.0
+## v3.0.0-dev
 
  * Update to Bootstrap v3.0.
  * Visual refresh.
