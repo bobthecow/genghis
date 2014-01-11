@@ -57,10 +57,10 @@ class Section extends View
   submitAddForm: =>
     {alerts} = @app
     @collection.create(
-      {name: @$addInput.val()}
-      wait: true
-      success: @closeAddForm
-      error: (model, response) -> alerts.handleError response
+      {name: @$addInput.val()},
+      wait: true,
+      success: @closeAddForm,
+      error: (model, response) -> alerts.handleError(response)
     )
 
   closeAddForm: =>

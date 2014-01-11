@@ -66,16 +66,17 @@ class NewDocument extends BaseDocument
     data = @getEditorValue()
     return if data is false
     {closeModal, showServerError} = @
-    @collection.create data,
-      wait: true
+    @collection.create(
+      data,
+      wait: true,
       success: (doc) ->
         closeModal()
         app.router.navigate Util.route(doc.url()), true
-
       error: (doc, xhr) ->
         try
           msg = JSON.parse(xhr.responseText).error
         showServerError msg or 'Error creating document.'
+    )
 
   closeModal: (e) =>
     @modal.modal 'hide'

@@ -113,13 +113,14 @@ class Document extends BaseDocument
     return if data is false
     showServerError = @showServerError
     @model.clear silent: true
-    @model.save data,
-      wait:    true
-      success: @cancelEdit
-      error: (doc, xhr) ->
-        try
-          msg = JSON.parse(xhr.responseText).error
-        showServerError msg or 'Error updating document.'
+    @model.save(data, wait: true)
+      .then(@cancelEdit)
+      .fail(
+        (doc, xhr) ->
+          try
+            msg = JSON.parse(xhr.responseText).error
+          showServerError msg or 'Error updating document.'
+      )
 
   destroy: =>
     model = @model
@@ -136,24 +137,27 @@ class Document extends BaseDocument
       confirmText: "<strong>Yes</strong>, delete #{docType} forever"
       confirm: ->
         selection = app.selection
-        model.destroy
-          wait: true
-          error: (doc, xhr) ->
-            try
-              msg = JSON.parse(xhr.responseText).error
-            app.alerts.create(level: 'danger', msg: msg or "Error deleting #{docType}.")
-          success: (doc, xhr) ->
-            selection.pagination.decrementTotal()
+        model.destroy(wait: true)
+          .then(
+            (doc, xhr) ->
+              selection.pagination.decrementTotal()
 
-            # if we're currently in single-document view, bust outta this!
-            if selection.get('document')
-              app.router.redirectTo(
-                selection.get('server'),
-                selection.get('database'),
-                selection.get('collection'),
-                null,
-                selection.get('query')
-              )
+              # if we're currently in single-document view, bust outta this!
+              if selection.get('document')
+                app.router.redirectTo(
+                  selection.get('server'),
+                  selection.get('database'),
+                  selection.get('collection'),
+                  null,
+                  selection.get('query')
+                )
+          )
+          .fail(
+            (doc, xhr) ->
+              try
+                msg = JSON.parse(xhr.responseText).error
+              app.alerts.create(level: 'danger', msg: msg or "Error deleting #{docType}.")
+          )
     )
 
   download: (e) =>

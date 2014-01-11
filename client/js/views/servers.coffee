@@ -21,10 +21,10 @@ class Servers extends Section
   submitAddForm: ->
     {alerts} = @app
     @collection.create(
-      (url: @$addInput.val())
-      wait: true
-      success: @closeAddForm
-      error: (model, response) -> alerts.handleError response
+      {url: @$addInput.val()},
+      wait:    true,
+      success: @closeAddForm,
+      error: (model, response) -> alerts.handleError(response)
     )
 
   updateTitle: $.noop

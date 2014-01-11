@@ -6,9 +6,9 @@ class CollectionRow extends Row
   template:   template
   isParanoid: true
 
-  events: _.extend(
+  events: _.extend({
     'click button.truncate': 'truncate'
-  , Row::events)
+  }, Row::events)
 
   truncate: ->
     model = @model
@@ -22,10 +22,8 @@ class CollectionRow extends Row
       confirmInput: name
       confirmText:  "Empty #{name}"
       confirm: ->
-        model.truncate
-          wait: true
-          success: ->
-            model.fetch()
+        model.truncate(wait: true)
+          .then(-> model.fetch())
     )
 
 module.exports = CollectionRow

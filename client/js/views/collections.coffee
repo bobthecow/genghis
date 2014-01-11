@@ -51,16 +51,16 @@ class Collections extends Section
     # TODO: not this
     closeAfterTwo = _.after(2, @closeAddFormGridFs)
     @collection.create(
-      {name: "#{name}.files"}
-      wait: true
-      success: closeAfterTwo
-      error: (model, response) -> alerts.handleError response
+      {name: "#{name}.files"},
+      wait: true,
+      success: closeAfterTwo,
+      error: (model, response) -> alerts.handleError(response)
     )
     @collection.create(
-      {name: "#{name}.chunks"}
-      wait: true
-      success: closeAfterTwo
-      error: (model, response) -> alerts.handleError response
+      {name: "#{name}.chunks"},
+      wait: true,
+      success: closeAfterTwo,
+      error: (model, response) -> alerts.handleError(response)
     )
 
   closeAddFormGridFs: =>

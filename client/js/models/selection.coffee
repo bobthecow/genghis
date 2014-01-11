@@ -101,57 +101,52 @@ class Selection extends Giraffe.Model
 
     @servers.url = @buildUrl('servers')
     # TODO: fetch servers less often.
-    @servers.fetch(reset: true, error: showErrorMessage)
+    @servers.fetch(reset: true)
+      .fail(showErrorMessage)
 
     if @has('server') and not _.isEmpty(_.pick(changed, SERVER_PARAMS))
       @currentServer.url = @buildUrl('server')
-      @currentServer.fetch
-        reset: true
-        error: fetchErrorHandler('databases', 'Server Not Found')
+      @currentServer.fetch(reset: true)
+        .fail(fetchErrorHandler('databases', 'Server Not Found'))
 
       @databases.url = @buildUrl('databases')
-      @databases.fetch
-        reset: true
-        error: showErrorMessage
+      @databases.fetch(reset: true)
+        .fail(showErrorMessage)
 
     if @has('database') and not _.isEmpty(_.pick(changed, DATABASE_PARAMS))
       @currentDatabase.url = @buildUrl('database')
-      @currentDatabase.fetch
-        reset: true
-        error: fetchErrorHandler('collections', 'Database Not Found')
+      @currentDatabase.fetch(reset: true)
+        .fail(fetchErrorHandler('collections', 'Database Not Found'))
 
       @collections.url = @buildUrl('collections')
-      @collections.fetch
-        reset: true
-        error: showErrorMessage
+      @collections.fetch(reset: true)
+        .fail(showErrorMessage)
 
     if @has('collection') and not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
       @currentCollection.url = @buildUrl('collection')
-      @currentCollection.fetch
-        reset: true
-        error: fetchErrorHandler('documents', 'Collection Not Found')
+      @currentCollection.fetch(reset: true)
+        .fail(fetchErrorHandler('documents', 'Collection Not Found'))
 
     if @has('collection') and not _.isEmpty(_.pick(changed, DOCUMENTS_PARAMS))
       @documents.url = @buildUrl('documents')
-      @documents.fetch
-        reset: true
-        error: showErrorMessage
+      @documents.fetch(reset: true)
+        .fail(showErrorMessage)
 
     if @has('document') and not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
       @currentDocument.clear silent: true
       @currentDocument.id      = @get('document')
       @currentDocument.urlRoot = @buildUrl('documents')
-      @currentDocument.fetch
-        reset: true
-        error: fetchErrorHandler(
+      @currentDocument.fetch(reset: true)
+        .fail(fetchErrorHandler(
           'document',
           'Document Not Found',
           'But I&#146;m sure there are plenty of other nice documents out there&hellip;'
-        )
+        ))
 
     if @get('explain')
       @explain.url = @buildUrl('explain')
-      @explain.fetch error: showErrorMessage
+      @explain.fetch()
+        .fail(showErrorMessage)
 
   nextPage: =>
     1 + (@get('page') or 1)
