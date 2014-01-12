@@ -12,6 +12,13 @@ PLACEHOLDERS = [
   '{neverGonna: ["give you up", "let you down", "run around", "desert you"]}'
 ]
 
+normalize = (q = '', pretty = false) ->
+  q = q.trim()
+  if q isnt ''
+    try
+      q = GenghisJSON.normalize(q, pretty)
+  q
+
 class Search extends View
   tagName:   'form'
   className: 'navbar-search navbar-form navbar-left'
@@ -88,16 +95,17 @@ class Search extends View
   findDocuments: (q, section = 'documents') =>
     url = Util.route("#{@model.currentCollection.url}/#{section}")
     q = q.trim()
-    if section is "documents" and q.match(/^([a-z\d]+)$/i)
-      url = url + "/" + q
+    if section is 'documents' and q.match(/^([a-z\d]+)$/i)
+      url = "#{url}/#{q}"
     else
       try
         q = GenghisJSON.normalize(q, false)
       catch e
-        @$el.addClass "error"
+        @$el.addClass('error')
         return
-      url = url + "?" + Util.buildQuery(q: q)
-    app.router.navigate url, true
+      query = Util.buildQuery(q: q)
+      url   = "#{url}?#{query}"
+    app.router.navigate(url, true)
 
   findDocumentsAdvanced: (e) =>
     @findDocuments @editor.getValue()
@@ -121,11 +129,7 @@ class Search extends View
     @updateQuery()
 
   normalizeQuery: (q = '') ->
-    q = q.trim()
-    if q isnt ''
-      try
-        q = GenghisJSON.normalize(q, false)
-    q
+    normalize(q)
       .replace(/^\{\s*\}$/, '')
       .replace(/^\{\s*(['"]?)_id\1\s*:\s*\{\s*(['"]?)\$id\2\s*:\s*(["'])([a-z\d]+)\3\s*\}\s*\}$/, '$4')
       .replace(/^\{\s*(['"]?)_id\1\s*:\s*(new\s+)?ObjectId\s*\(\s*(["'])([a-z\d]+)\3\s*\)\s*\}$/, '$4')
@@ -136,10 +140,7 @@ class Search extends View
   queryToAdvancedSearch: =>
     q = @$query.val().trim()
     q = "{_id:ObjectId(\"#{q}\")}" if q.match(/^[a-z\d]+$/i)
-    if q isnt ''
-      try
-        q = GenghisJSON.normalize(q, true)
-    @editor.setValue(q)
+    @editor.setValue(normalize(q, true))
 
   expandSearch: (expand) =>
     return unless @isAttached()
