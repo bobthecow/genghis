@@ -47,15 +47,16 @@ class Documents extends View
     @render()
 
   afterRender: ->
-    @headerView = new DocumentsHeader(
-      el:    @$header
-      model: @pagination
-    )
+    header = new DocumentsHeader(el: @$header, model: @pagination)
+    header.attachTo(@$header, method: 'html')
 
-    @paginationView = new Pagination(
-      el:         @$pagination
-      model:      @pagination
-      collection: @collection
+    @$pagination.each((i, el) =>
+      view = new Pagination(
+        el:         el
+        model:      @pagination
+        collection: @collection
+      )
+      view.attachTo(el, method: 'html')
     )
 
     @addAll()
