@@ -1,8 +1,5 @@
 {$, _} = require './vendors'
 
-_e = encodeURIComponent
-_d = decodeURIComponent
-
 Util =
   route: (url) ->
     url.replace(window.app.baseUrl, '').replace /^\//, ''
@@ -12,11 +9,15 @@ Util =
     if str.length
       _.each str.split('&'), (val) ->
         [name, chunks...] = val.split('=')
-        params[name] = _d(chunks.join("="))
+        params[name] = decodeURIComponent(chunks.join("="))
     params
 
+  # Encode query params, but not too much. Our queries have a bunch of {}[]:$,
+  # ... which are all technically legal to have there. So let's keep 'em.
   buildQuery: (params) ->
-    _.map(params, (val, name) -> "#{_e name}=#{_e val}").join('&')
+    e = (v) ->
+      encodeURIComponent(v).replace(/%(7B|7D|5B|5D|3A|24|2C)/g, decodeURIComponent)
+    _.map(params, (val, name) -> "#{e(name)}=#{e(val)}").join('&')
 
   humanizeSize: (bytes) ->
     return 'n/a' if bytes is -0
