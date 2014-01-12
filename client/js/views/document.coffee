@@ -5,6 +5,7 @@ Alert        = require '../models/alert.coffee'
 BaseDocument = require './base_document.coffee'
 AlertView    = require './alert.coffee'
 Confirm      = require './confirm.coffee'
+defaults     = require '../defaults.coffee'
 template     = require '../../templates/document.mustache'
 
 class Document extends BaseDocument
@@ -75,7 +76,7 @@ class Document extends BaseDocument
     @$document.hide()
 
     $el = @$el.addClass('edit')
-    @editor = CodeMirror.fromTextArea(textarea[0], _.extend({}, Genghis.defaults.codeMirror,
+    @editor = CodeMirror.fromTextArea(textarea[0], _.extend({}, defaults.codeMirror,
       autofocus: true
       extraKeys:
         'Ctrl-Enter': @saveDocument
