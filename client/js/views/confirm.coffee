@@ -49,6 +49,6 @@ class Confirm extends View
       @$confirm.attr 'disabled', true
 
   dismiss: =>
-    @$el.on('hidden.bs.modal', @remove).modal('hide')
+    @$el.on('hidden.bs.modal', @detach).modal('hide')
 
 module.exports = Confirm
