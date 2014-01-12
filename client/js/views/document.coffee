@@ -134,6 +134,7 @@ class Document extends BaseDocument
       gridMsg    = ''
 
     new Confirm(
+      header:      'Deleting is forever'
       body:        "<strong>Really?</strong> #{gridMsg}There is no undo."
       confirmText: "<strong>Yes</strong>, delete #{docType} forever"
       confirm: ->

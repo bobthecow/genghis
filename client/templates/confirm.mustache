@@ -1,4 +1,4 @@
-<div class="modal-dialog">
+<div class="modal-dialog{{# isDangerous }} modal-danger{{/ isDangerous }}">
   <div class="modal-content">
     {{# header }}
       <div class="modal-header">
@@ -19,7 +19,7 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn btn-default dismiss" aria-hidden="true">{{ dismissText }}</button>
+      <button class="btn btn-default dismiss">{{ dismissText }}</button>
       <button class="btn {{ dangerLevel }} confirm"{{# confirmInput }} disabled{{/ confirmInput }}>{{{ confirmText }}}</button>
     </div>
   </div>
