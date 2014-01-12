@@ -38,7 +38,7 @@ class Search extends View
     'change:collection': 'collapseNoFocus'
 
   serialize: ->
-    query:       @model.get("query")
+    query:       @model.get('query')
     placeholder: _.sample(PLACEHOLDERS)
 
   afterRender: ->
@@ -54,7 +54,7 @@ class Search extends View
         mouseY = e.clientY + document.documentElement.scrollTop - wrapper.offset().top
         wrapper.height mouseY + 'px'  if mouseY >= minHeight and mouseY <= maxHeight
         if wrapper.hasClass('expanded')
-          collapse()  if mouseY < minHeight
+          collapse() if mouseY < minHeight
         else
           expand() if mouseY > 100
         false
@@ -169,12 +169,13 @@ class Search extends View
     @focusSearch()
 
   collapseNoFocus: =>
-    @$el
-      .removeClass('expanded')
+    @$el.removeClass('expanded').css('height', 'auto')
+
+  toggleExpanded: =>
     if @$el.hasClass('expanded')
       @collapseSearch()
     else
       @expandSearch()
-      @$el.height Math.floor($(window).height() / 4) + 'px'
+      @$el.height(Math.floor($(window).height() / 4) + 'px')
 
 module.exports = Search
