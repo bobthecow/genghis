@@ -22,7 +22,8 @@ class CollectionRow extends Row
       confirmText:  "Empty #{name}"
       confirm: =>
         @model.truncate(wait: true)
-          .then(=> @model.fetch())
+          .fail(@app.alerts.handleError)
+          .always(=> @model.fetch())
     )
 
 module.exports = CollectionRow

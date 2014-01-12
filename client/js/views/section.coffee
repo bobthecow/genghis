@@ -55,13 +55,14 @@ class Section extends View
     @$addInput.select().focus()
 
   submitAddForm: =>
-    {alerts} = @app
-    @collection.create(
-      {name: @$addInput.val()},
-      wait: true,
-      success: @closeAddForm,
-      error: (model, response) -> alerts.handleError(response)
-    )
+    model = new @collection.model(name: @$addInput.val())
+    model.collection = @collection
+    model.save()
+      .done( =>
+        @collection.add(model)
+        @closeAddForm()
+      )
+      .fail((xhr) => @app.alerts.handleError(xhr))
 
   closeAddForm: =>
     @$addFormToggle.show()

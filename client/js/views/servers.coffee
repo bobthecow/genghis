@@ -22,14 +22,15 @@ class Servers extends Section
     # add placeholder help
     $('.help', @addForm).tooltip(container: 'body')
 
-  submitAddForm: ->
-    {alerts} = @app
-    @collection.create(
-      {url: @$addInput.val()},
-      wait:    true,
-      success: @closeAddForm,
-      error: (model, response) -> alerts.handleError(response)
-    )
+  submitAddForm: =>
+    model = new @collection.model(url: @$addInput.val())
+    model.collection = @collection
+    model.save()
+      .done( =>
+        @collection.add(model)
+        @closeAddForm()
+      )
+      .fail((xhr) => @app.alerts.handleError(xhr))
 
   updateTitle: $.noop
 

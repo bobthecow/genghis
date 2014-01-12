@@ -50,18 +50,24 @@ class Collections extends Section
 
     # TODO: not this
     closeAfterTwo = _.after(2, @closeAddFormGridFs)
-    @collection.create(
-      {name: "#{name}.files"},
-      wait: true,
-      success: closeAfterTwo,
-      error: (model, response) -> alerts.handleError(response)
-    )
-    @collection.create(
-      {name: "#{name}.chunks"},
-      wait: true,
-      success: closeAfterTwo,
-      error: (model, response) -> alerts.handleError(response)
-    )
+
+    files = new @collection.model(name: "#{name}.files")
+    files.collection = @collection
+    files.save()
+      .done( =>
+        @collection.add(files)
+        closeAfterTwo()
+      )
+      .fail((xhr) => @app.alerts.handleError(xhr))
+
+    chunks = new @collection.model(name: "#{name}.chunks")
+    chunks.collection = @collection
+    chunks.save()
+      .done( =>
+        @collection.add(chunks)
+        closeAfterTwo()
+      )
+      .fail((xhr) => @app.alerts.handleError(xhr))
 
   closeAddFormGridFs: =>
     @$addFormToggle.show()

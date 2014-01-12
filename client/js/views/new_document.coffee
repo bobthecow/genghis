@@ -64,19 +64,16 @@ class NewDocument extends BaseDocument
 
   saveDocument: =>
     data = @getEditorValue()
-    return if data is false
-    {closeModal, showServerError} = this
-    @collection.create(
-      data,
-      wait: true,
-      success: (doc) ->
-        closeModal()
-        app.router.navigate Util.route(doc.url()), true
-      error: (doc, xhr) ->
-        try
-          msg = JSON.parse(xhr.responseText).error
-        showServerError msg or 'Error creating document.'
-    )
+    return unless data
+    model = new @collection.model(data)
+    model.collection = @collection
+    model.save()
+      .done( =>
+        @collection.add(model)
+        @closeModal()
+        @app.router.navigate(Util.route(model.url()), true)
+      )
+      .fail((xhr) => @app.alerts.handleError(xhr))
 
   closeModal: (e) =>
     @modal.modal 'hide'

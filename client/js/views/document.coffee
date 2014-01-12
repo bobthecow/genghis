@@ -115,7 +115,7 @@ class Document extends BaseDocument
     showServerError = @showServerError
     @model.clear silent: true
     @model.save(data, wait: true)
-      .then(@cancelEdit)
+      .done(@cancelEdit)
       .fail(
         (doc, xhr) ->
           try
