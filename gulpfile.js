@@ -279,7 +279,7 @@ gulp.task('dev', ['clean'], function() {
     gulp.run('styles');
   });
 
-  gulp.watch('client/js/**/*.{js,coffee}', function() {
+  gulp.watch(['client/js/**/*.{js,coffee}', 'client/templates/**/*.mustache'], function() {
     gulp.run(['lint', 'scripts']);
   });
 
