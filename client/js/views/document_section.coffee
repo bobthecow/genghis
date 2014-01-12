@@ -4,8 +4,10 @@ DocumentView = require './document.coffee'
 template     = require '../../templates/document_section.mustache'
 
 class DocumentSection extends View
-  el:       'section#document'
-  template: template
+  id:        'document'
+  tagName:   'section'
+  className: 'app-section'
+  template:  template
 
   ui:
     '$content': '.content'
@@ -14,17 +16,14 @@ class DocumentSection extends View
     'change': 'render'
 
   afterRender: ->
-    @$el.removeClass 'spinning'
     view = new DocumentView(model: @model)
-    @$content.html view.render().el
+    view.attachTo(@$content)
 
   show: ->
-    $('body').addClass "section-#{@$el.attr('id')}"
-    @$el.addClass('spinning').show()
-    $(document).scrollTop 0
+    $('body').addClass("section-#{@id}")
+    $(document).scrollTop(0)
 
   hide: ->
-    $('body').removeClass "section-#{@$el.attr('id')}"
-    @$el.hide()
+    $('body').removeClass("section-#{@id}")
 
 module.exports = DocumentSection

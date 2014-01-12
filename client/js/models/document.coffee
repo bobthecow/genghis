@@ -18,7 +18,7 @@ class Document extends Giraffe.Model
       return null unless object?.url
       if _.isFunction(object.url) then object.url() else object.url
 
-    base = getUrl(@collection) or @urlRoot or urlError()
+    base = getUrl(@collection) or @urlRoot || ''
     base = base.split('?').shift()
     base = base[0..-2] if base[-1] is "/"
 
@@ -29,6 +29,7 @@ class Document extends Giraffe.Model
 
   prettyId: =>
     id = @get('_id')
+    return unless id
     if _.isObject(id) and id.$genghisType
       switch id.$genghisType
         when 'ObjectId'
@@ -43,7 +44,7 @@ class Document extends Giraffe.Model
           return id.$value.$binary.replace(/\=+$/, '')
 
     # Make null and hash IDs prettier
-    GenghisJSON.stringify id, false
+    GenghisJSON.stringify(id, false)
 
   prettyTime: =>
     if not @collection or @collection.guessCreationTime

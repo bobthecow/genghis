@@ -41,7 +41,7 @@ class Document extends BaseDocument
     setTimeout @updateDocument, 1
 
   updateDocument: =>
-    @$document.empty()
+    @$document?.empty()
       .append(@model.prettyPrint())
       .show()
 

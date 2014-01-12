@@ -111,7 +111,7 @@ class App extends Giraffe.App
         new ExplainView(model: @section.explain)
 
       when 'document'
-        new DocumentsView(model: @selection.currentDocument)
+        new DocumentSectionView(model: @selection.currentDocument)
 
     if view
       $('body').addClass('has-section')
