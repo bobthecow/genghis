@@ -85,9 +85,8 @@ class Search extends View
       @findDocuments $(e.target).val()
     else @blurSearch()  if e.keyCode is 27
 
-  findDocuments: (q, section) =>
-    section = section or "documents"
-    url = Util.route(@model.currentCollection.url + "/" + section)
+  findDocuments: (q, section = 'documents') =>
+    url = Util.route("#{@model.currentCollection.url}/#{section}")
     q = q.trim()
     if section is "documents" and q.match(/^([a-z\d]+)$/i)
       url = url + "/" + q
@@ -97,7 +96,7 @@ class Search extends View
       catch e
         @$el.addClass "error"
         return
-      url = url + "?" + Util.buildQuery(q: encodeURIComponent(q))
+      url = url + "?" + Util.buildQuery(q: q)
     app.router.navigate url, true
 
   findDocumentsAdvanced: (e) =>
@@ -105,15 +104,15 @@ class Search extends View
     @collapseSearch()
 
   explainQuery: (e) ->
-    @findDocuments @editor.getValue(), "explain"
+    @findDocuments(@editor.getValue(), 'explain')
     @collapseSearch()
 
   focusSearch: (e) =>
     # TODO: make the view stateful rather than querying the DOM
-    if @$query.is(":visible")
+    if @$query.is(':visible')
       e?.preventDefault?()
       @$query.focus()
-    else if @editor and @$well.is(":visible")
+    else if @editor and @$well.is(':visible')
       e?.preventDefault?()
       @editor.focus()
 
@@ -132,15 +131,15 @@ class Search extends View
       .replace(/^\{\s*(['"]?)_id\1\s*:\s*(new\s+)?ObjectId\s*\(\s*(["'])([a-z\d]+)\3\s*\)\s*\}$/, '$4')
 
   advancedSearchToQuery: =>
-    @$query.val @normalizeQuery(@editor.getValue())
+    @$query.val(@normalizeQuery(@editor.getValue()))
 
   queryToAdvancedSearch: =>
     q = @$query.val().trim()
     q = "{_id:ObjectId(\"#{q}\")}" if q.match(/^[a-z\d]+$/i)
-    if q isnt ""
+    if q isnt ''
       try
         q = GenghisJSON.normalize(q, true)
-    @editor.setValue q
+    @editor.setValue(q)
 
   expandSearch: (expand) =>
     return unless @isAttached()
