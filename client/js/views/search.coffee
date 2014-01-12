@@ -148,6 +148,7 @@ class Search extends View
       wrapper = @$advanced
       @editor = CodeMirror(@$well[0], _.extend({}, defaults.codeMirror,
         lineNumbers: false
+        placeholder: GenghisJSON.normalize(@$query.attr('placeholder'), true)
         extraKeys:
           'Ctrl-Enter': @findDocumentsAdvanced
           'Cmd-Enter':  @findDocumentsAdvanced
