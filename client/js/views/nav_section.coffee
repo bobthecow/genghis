@@ -12,13 +12,9 @@ class NavSection extends View
     '$toggle': '.dropdown-toggle'
     '$menu':   'ul.dropdown-menu'
 
-  modelEvents:
-    'change': 'updateLink'
-
-  collectionEvents:
-    'add':    'renderMenu'
-    'remove': 'renderMenu'
-    'reset':  'renderMenu'
+  dataEvents:
+    'change model':                'updateLink'
+    'add remove reset collection': 'renderMenu'
 
   initialize: ->
     @render()

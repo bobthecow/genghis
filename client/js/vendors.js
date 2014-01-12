@@ -35,7 +35,6 @@ var Backbone = window.Backbone = require('backbone');
 Backbone.$ = $;
 
 // Backbone extensions
-require('backbone.declarative');
 
 // give backbone.mousetrap a hand.
 require('mousetrap');

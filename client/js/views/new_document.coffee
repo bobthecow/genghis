@@ -65,7 +65,7 @@ class NewDocument extends BaseDocument
   saveDocument: =>
     data = @getEditorValue()
     return if data is false
-    {closeModal, showServerError} = @
+    {closeModal, showServerError} = this
     @collection.create(
       data,
       wait: true,

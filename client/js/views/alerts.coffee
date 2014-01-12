@@ -6,9 +6,9 @@ class Alerts extends View
   tagName:   'aside'
   className: 'container'
 
-  collectionEvents:
-    'reset': 'render'
-    'add':   'addModel'
+  dataEvents:
+    'reset collection': 'render'
+    'add   collection': 'addModel'
 
   addModel: (model) ->
     @attach(new AlertView(model: model))

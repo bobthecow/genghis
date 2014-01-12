@@ -12,8 +12,8 @@ class Explain extends View
   ui:
     '$doc': '.document'
 
-  modelEvents:
-    'sync': 'updateExplain'
+  dataEvents:
+    'sync model': 'updateExplain'
 
   initialize: ->
     @render()

@@ -40,9 +40,9 @@ class Search extends View
   keyboardEvents:
     '/': 'focusSearch'
 
-  modelEvents:
-    'change':            'updateQuery'
-    'change:collection': 'collapseNoFocus'
+  dataEvents:
+    'change            model': 'updateQuery'
+    'change:collection model': 'collapseNoFocus'
 
   serialize: ->
     query:       @model.get('query')

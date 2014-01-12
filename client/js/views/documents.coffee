@@ -37,11 +37,11 @@ class Documents extends View
   keyboardEvents:
     'c': 'createDocument'
 
-  collectionEvents:
-    'reset':   'addAll'
-    'add':     'addDocument'
-    'request': 'onRequest'
-    'sync':    'onSync'
+  dataEvents:
+    'reset   collection': 'addAll'
+    'add     collection': 'addDocument'
+    'request collection': 'onRequest'
+    'sync    collection': 'onSync'
 
   initialize: ->
     @render()

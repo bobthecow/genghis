@@ -2,8 +2,8 @@ Util = require '../util.coffee'
 View = require './view.coffee'
 
 class Title extends View
-  modelEvents:
-    all: 'setTitle'
+  dataEvents:
+    'all model': 'setTitle'
 
   setTitle: (name, args...) ->
     switch name

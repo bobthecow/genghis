@@ -9,13 +9,9 @@ class Row extends View
     'click a.name':         'navigate'
     'click button.destroy': 'destroy'
 
-  modelEvents:
-    'change':  'render'
-    'destroy': 'remove'
-
-  initialize: ->
-    # TODO: figure out why remove doesn't like us and stop doing this.
-    _.bindAll(this, 'remove')
+  dataEvents:
+    'change  model': 'render'
+    'destroy model': 'detach'
 
   afterRender: ->
     @$el

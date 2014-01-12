@@ -4,8 +4,8 @@ template = require '../../templates/documents_header.mustache'
 class DocumentsHeader extends View
   template: template
 
-  modelEvents:
-    'change': 'render'
+  dataEvents:
+    'change model': 'render'
 
   serialize: ->
     count = @model.get('count')

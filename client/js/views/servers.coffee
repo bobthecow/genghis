@@ -11,7 +11,11 @@ class Servers extends Section
   # override, since the servers section has no model
   # mebbe this model should be the one that holds user config?
   # who knows...
-  modelEvents: null
+  dataEvents:
+    'reset        collection': 'render'
+    'add          collection': 'addModelAndUpdate'
+    'request      collection': 'startSpinning'
+    'sync destroy collection': 'stopSpinning'
 
   afterRender: ->
     super

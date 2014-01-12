@@ -7,9 +7,9 @@ class Alert extends View
   events:
     'click button.close': 'destroy'
 
-  modelEvents:
-    'change':   'render'
-    'disposed': 'dispose'
+  dataEvents:
+    'change   model': 'render'
+    'disposed model': 'dispose'
 
   afterRender: ->
     # A bit ghetto, but whatevs.

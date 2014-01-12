@@ -14,8 +14,8 @@ class Navbar extends View
   events:
     'click a.navbar-brand': 'onClickBrand'
 
-  modelEvents:
-    'change:collection': 'onChangeCollection'
+  dataEvents:
+    'change:collection model': 'onChangeCollection'
 
   initialize: ->
     @navView    = new Nav({@model, @baseUrl})

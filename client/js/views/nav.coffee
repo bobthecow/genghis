@@ -12,8 +12,8 @@ class Nav extends View
   events:
     'click a': 'navigate'
 
-  modelEvents:
-    'change': 'updateSubnav'
+  dataEvents:
+    'change model': 'updateSubnav'
 
   keyboardEvents:
     's': 'navigateToServers'

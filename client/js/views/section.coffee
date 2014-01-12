@@ -22,15 +22,13 @@ class Section extends View
   keyboardEvents:
     'c': 'showAddForm'
 
-  modelEvents:
-    'change': 'updateTitle'
+  dataEvents:
+    'change model':            'updateTitle'
 
-  collectionEvents:
-    'reset':   'render'
-    'add':     'addModelAndUpdate'
-    'request': 'startSpinning'
-    'sync':    'stopSpinning'
-    'destroy': 'stopSpinning'
+    'reset        collection': 'render'
+    'add          collection': 'addModelAndUpdate'
+    'request      collection': 'startSpinning'
+    'sync destroy collection': 'stopSpinning'
 
   serialize: ->
     title: @formatTitle(@model)

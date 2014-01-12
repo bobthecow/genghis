@@ -17,8 +17,8 @@ class Pagination extends View
     'n': 'nextPage'
     'p': 'prevPage'
 
-  modelEvents:
-    'change': 'render'
+  dataEvents:
+    'change model': 'render'
 
   serialize: ->
     count = 9

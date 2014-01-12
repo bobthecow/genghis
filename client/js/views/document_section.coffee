@@ -12,8 +12,8 @@ class DocumentSection extends View
   ui:
     '$content': '.content'
 
-  modelEvents:
-    'change': 'render'
+  dataEvents:
+    'change model': 'render'
 
   afterRender: ->
     view = new DocumentView(model: @model)

@@ -28,8 +28,8 @@ class Selection extends Giraffe.Model
     document:   null
     explain:    false
 
-  modelEvents:
-    'change': 'update'
+  dataEvents:
+    'change this': 'update'
 
   initialize: ->
     @pagination        = new Pagination()

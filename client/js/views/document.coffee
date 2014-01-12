@@ -32,9 +32,9 @@ class Document extends BaseDocument
     'click .ref .ref-db .v .s':                    'navigateDb'
     'click .ref .ref-id .v .s, .ref .ref-id .v.n': 'navigateId' # handle numeric IDs too
 
-  modelEvents:
-    'change':  'updateDocument'
-    'destroy': 'remove'
+  dataEvents:
+    'change  model': 'updateDocument'
+    'destroy model': 'detach'
 
   afterRender: ->
     Util.attachCollapsers @el
@@ -134,7 +134,7 @@ class Document extends BaseDocument
       gridMsg    = ''
 
     new Confirm(
-      body:        "<strong>Really?</strong> #{gridmsg}There is no undo."
+      body:        "<strong>Really?</strong> #{gridMsg}There is no undo."
       confirmText: "<strong>Yes</strong>, delete #{docType} forever"
       confirm: ->
         selection = app.selection
