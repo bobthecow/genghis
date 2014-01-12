@@ -11,7 +11,7 @@ class Row extends View
 
   dataEvents:
     'change  model': 'render'
-    'destroy model': 'detach'
+    'destroy model': 'dispose'
 
   afterRender: ->
     @$el

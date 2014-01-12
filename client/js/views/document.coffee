@@ -34,7 +34,7 @@ class Document extends BaseDocument
 
   dataEvents:
     'change  model': 'updateDocument'
-    'destroy model': 'detach'
+    'destroy model': 'dispose'
 
   afterRender: ->
     Util.attachCollapsers @el
