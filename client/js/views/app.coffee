@@ -108,7 +108,7 @@ class App extends Giraffe.App
         )
 
       when 'explain'
-        new ExplainView(model: @section.explain)
+        new ExplainView(model: @selection.explain)
 
       when 'document'
         new DocumentSectionView(model: @selection.currentDocument)
