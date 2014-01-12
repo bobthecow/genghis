@@ -167,7 +167,7 @@ gulp.task('lint', function() {
       cb(null, file);
     }));
 
-  gulp.src(['gulpfile.js', 'tasks/**/*.js', 'client/js/**/*.js', '!client/js/modernizr.js'])
+  gulp.src(['gulpfile.js', 'tasks/**/*.js', 'client/js/**/*.js', '!client/js/modernizr.js', '!tasks/browserify-hogan.js'])
     .pipe(t.jshint(JSHINT_OPTS))
     .pipe(map(function (file, cb) {
       if (!file.jshint.success) {
