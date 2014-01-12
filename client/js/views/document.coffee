@@ -125,13 +125,12 @@ class Document extends BaseDocument
 
   destroy: =>
     model = @model
-    if isGridFile = @model.isGridFile()
-      docType    = 'file'
-      @model.url = @model.url().replace('.files/documents/', '.files/files/')
-      gridMsg    = "This will delete all GridFS chunks as well. <br><br>"
+    if @model.isGridFile()
+      docType = 'file'
+      gridMsg = "This will delete all GridFS chunks as well. <br><br>"
     else
-      docType    = 'document'
-      gridMsg    = ''
+      docType = 'document'
+      gridMsg = ''
 
     new Confirm(
       header:      'Deleting is forever'
@@ -139,6 +138,8 @@ class Document extends BaseDocument
       confirmText: "<strong>Yes</strong>, delete #{docType} forever"
       confirm: ->
         selection = app.selection
+        if model.isGridFile()
+          model.url = model.url().replace('.files/documents/', '.files/files/')
         model.destroy(wait: true)
           .then(
             (doc, xhr) ->
