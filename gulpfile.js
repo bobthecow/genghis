@@ -124,7 +124,8 @@ gulp.task('templates', function() {
     .pipe(t.template({
       favicon: '{{ base_url }}/img/favicon.png',
     }))
-    .pipe(gulp.dest('public/templates'));
+    .pipe(gulp.dest('public/templates'))
+    .pipe(t.livereload(server));
 
   var dist = gulp.src('server/templates/{index,error}.mustache.tpl')
     .pipe(t.rename({ext: '.min.mustache'}))
@@ -263,16 +264,16 @@ gulp.task('build', ['build:assets', 'build:rb:lib', 'build:php:lib'], function()
   gulp.run('build:rb', 'build:php');
 });
 
+
 // Rebuild Genghis.
 gulp.task('rebuild', ['clean'], function() {
   gulp.run('build');
 });
 
 
-// By default, do all the things!
-gulp.task('default', function() {
-
-  gulp.run('livereload', 'rebuild');
+// For the developments. Livereload, plus building dev versions of stuff.
+gulp.task('dev', ['clean'], function() {
+  gulp.run('livereload', 'lint', 'styles', 'scripts', 'copy', 'templates');
 
   gulp.watch('client/css/**/*.{less,css}', function() {
     gulp.run('styles');
@@ -290,3 +291,7 @@ gulp.task('default', function() {
     gulp.run('templates');
   });
 });
+
+
+// By default, build all the things!
+gulp.task('default', ['rebuild']);
