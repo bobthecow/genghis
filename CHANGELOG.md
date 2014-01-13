@@ -1,15 +1,20 @@
 ## v3.0.0-dev
 
- * Update to Bootstrap v3.0.
  * Visual refresh.
+ * Update to the latest version of a bunch of vendor libraries.
+ * Speed things up! Because faster is better!
  * Hide "keyboard shortcuts available" until they are.
  * Add "Explain query" feature — Thanks @craigerm for doing all the hard work!
  * Add support for emptying collections.
  * Lots of internal refactoring, to make everything awesomer, and more future-proof.
+ * Also, easier to hack on. So send those pull requests :)
  * [Fix #115][i115] — Add support for viewing and updating NaN values.
  * [Fix #128][i128] — Use normal browser navigation when ctrl/shift/meta-clicking links — Thanks @craigerm.
  * Add support for BSON Timestamp values.
- * Add request logging when running PHP backend from the command line.
+ * Add request and error logging when running PHP backend from the command line.
+ * Improve keyboard interaction with confirmation dialogs and "add" forms.
+ * Add UTF-8 headers for more PHP responses, help out poorly configured servers.
+ * Add placeholders to the search box as an affordance because we don't want a manual.
 
 [i115]: https://github.com/bobthecow/genghis/issues/115
 [i128]: https://github.com/bobthecow/genghis/issues/128
