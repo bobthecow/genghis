@@ -1,20 +1,25 @@
 ## v3.0.0-dev
 
- * Visual refresh.
- * Update to the latest version of a bunch of vendor libraries.
- * Speed things up! Because faster is better!
- * Hide "keyboard shortcuts available" until they are.
+New:
+
  * Add "Explain query" feature — Thanks @craigerm for doing all the hard work!
  * Add support for emptying collections.
- * Lots of internal refactoring, to make everything awesomer, and more future-proof.
- * Also, easier to hack on. So send those pull requests :)
- * [Fix #115][i115] — Add support for viewing and updating NaN values.
- * [Fix #128][i128] — Use normal browser navigation when ctrl/shift/meta-clicking links — Thanks @craigerm.
  * Add support for BSON Timestamp values.
+ * [Fix #115][i115] — Add support for viewing and updating NaN values.
  * Add request and error logging when running PHP backend from the command line.
+
+Improved:
+
+ * Visual refresh.
+ * Speed things up! Because faster is better!
+ * Hide "keyboard shortcuts available" until they are.
+ * [Fix #128][i128] — Use normal browser navigation when ctrl/shift/meta-clicking links — Thanks @craigerm.
  * Improve keyboard interaction with confirmation dialogs and "add" forms.
  * Add UTF-8 headers for more PHP responses, help out poorly configured servers.
  * Add placeholders to the search box as an affordance because we don't want a manual.
+ * Update to the latest version of a bunch of vendor libraries.
+ * Lots of internal refactoring, to make everything awesomer, and more future-proof.
+ * Also, easier to hack on. So send those pull requests :)
 
 [i115]: https://github.com/bobthecow/genghis/issues/115
 [i128]: https://github.com/bobthecow/genghis/issues/128
