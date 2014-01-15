@@ -2,7 +2,7 @@
 NewDocument = require './new_document.coffee'
 Document    = require '../models/document.coffee'
 Util        = require '../util.coffee'
-GenghisJSON = require '../json'
+GenghisJSON = require '../json.coffee'
 template    = require '../../templates/new_grid_file.mustache'
 
 class NewGridFile extends NewDocument

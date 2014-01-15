@@ -10,7 +10,7 @@ Collection  = require './collection.coffee'
 Documents   = require '../collections/documents.coffee'
 Document    = require './document.coffee'
 Util        = require '../util.coffee'
-GenghisJSON = require '../json'
+GenghisJSON = require '../json.coffee'
 
 SERVER_PARAMS     = ['server']
 DATABASE_PARAMS   = ['server', 'database']

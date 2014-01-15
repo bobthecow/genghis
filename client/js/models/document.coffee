@@ -1,6 +1,6 @@
 {_, Giraffe} = require '../vendors'
 Util         = require '../util.coffee'
-GenghisJSON  = require '../json'
+GenghisJSON  = require '../json.coffee'
 
 e = encodeURIComponent
 

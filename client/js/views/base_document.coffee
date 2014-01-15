@@ -1,6 +1,6 @@
 {_}         = require '../vendors'
 View        = require './view.coffee'
-GenghisJSON = require '../json'
+GenghisJSON = require '../json.coffee'
 AlertView   = require './alert.coffee'
 Alert       = require '../models/alert.coffee'
 

@@ -58,7 +58,7 @@ Util =
 
   attachCollapsers: (scope) ->
     $('.document', scope).on 'click', 'button,span.e', (e) ->
-      $property = $(this).parent()
+      $property = $(this).blur().parent()
       $value = $property.children('.v')
       isName = /^\s*(name|title)\s*/i
       isObject = $value.hasClass('o')
@@ -82,14 +82,14 @@ Util =
           # If we found something, store the summary.
           if $s?.length
             prop    = $s.siblings('var').text()
-            summary = ((if prop then prop + ': ' else '')) + Util.escape($s.text())
+            summary = ((if prop then prop + ': ' else '')) + Util.escape($s.text()) + ' '
 
           open  = '{'
           close = '}'
         else
           open  = '['
           close = ']'
-        $property.append "<span class=\"e\">#{open} <q>#{summary} &hellip;</q> #{close}</span>"
+        $property.append "<span class=\"e\">#{open} <q>#{summary}&hellip;</q> #{close}</span>"
       $property.toggleClass 'collapsed'
       e.preventDefault()
 
