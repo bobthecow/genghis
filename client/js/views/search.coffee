@@ -1,6 +1,6 @@
 {$, _}      = require '../vendors'
 Util        = require '../util.coffee'
-GenghisJSON = require '../json'
+GenghisJSON = require '../json.coffee'
 defaults    = require '../defaults.coffee'
 View        = require './view.coffee'
 template    = require '../../templates/search.mustache'
