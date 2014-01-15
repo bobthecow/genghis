@@ -364,4 +364,7 @@ GenghisJSON =
 
     print(value, '')
 
+  normalize: (value, pretty) ->
+    GenghisJSON.stringify(GenghisJSON.parse(value), pretty)
+
 module.exports = GenghisJSON
