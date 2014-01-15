@@ -104,7 +104,8 @@ class App extends Giraffe.App
         new DocumentsView(
           model:      @selection.currentCollection,
           collection: @documents,
-          pagination: @selection.pagination
+          pagination: @selection.pagination,
+          query:      @selection.query
         )
 
       when 'explain'

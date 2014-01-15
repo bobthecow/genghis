@@ -9,6 +9,7 @@ Collections = require '../collections/collections.coffee'
 Collection  = require './collection.coffee'
 Documents   = require '../collections/documents.coffee'
 Document    = require './document.coffee'
+Query       = require './query.coffee'
 Util        = require '../util.coffee'
 GenghisJSON = require '../json.coffee'
 
@@ -33,6 +34,7 @@ class Selection extends Giraffe.Model
 
   initialize: ->
     @pagination        = new Pagination()
+    @query             = new Query()
     @servers           = new Servers()
     @currentServer     = new Server()
     @databases         = new Databases()
@@ -43,14 +45,16 @@ class Selection extends Giraffe.Model
     @currentDocument   = new Document()
     @explain           = new Document()
 
+    this.on('change:query change:fields change:sort change:page', @updateQuery)
+
   select: (
-    server = null,
-    database = null,
+    server     = null,
+    database   = null,
     collection = null,
     documentId = null,
-    query = null,
-    page = null,
-    explain = false
+    query      = null,
+    page       = null,
+    explain    = false
   ) =>
     @set({server, database, collection, document: documentId, query, page, explain})
 
@@ -60,11 +64,8 @@ class Selection extends Giraffe.Model
 
     switch type
       when "documents", "explain"
-        params = {}
-        params.q    = encodeURIComponent(JSON.stringify(GenghisJSON.parse(@get('query')))) if @has('query')
-        params.page = e('page') if @has('page')
-        urlQuery = if _.isEmpty(params) then '' else "?#{Util.buildQuery(params)}"
-        "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}/collections/#{e 'collection'}/#{type}#{urlQuery}"
+        q = @query.toString(pretty: false)
+        "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}/collections/#{e 'collection'}/#{type}#{q}"
       when "collection"
         "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}/collections/#{e 'collection'}"
       when "collections"
@@ -151,5 +152,11 @@ class Selection extends Giraffe.Model
 
   previousPage: =>
     Math.max(1, (@get('page') or 1) - 1)
+
+  updateQuery: =>
+    @query.set(
+      query: GenghisJSON.parse(@get('query') || '{}'),
+      page:  @get('page')
+    )
 
 module.exports = Selection

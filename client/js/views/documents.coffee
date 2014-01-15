@@ -55,6 +55,7 @@ class Documents extends View
         el:         el
         model:      @pagination
         collection: @collection
+        query:      @query
       )
       view.attachTo(el, method: 'html')
     )

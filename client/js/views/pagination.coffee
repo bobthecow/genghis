@@ -23,8 +23,8 @@ class Pagination extends View
   serialize: ->
     count = 9
     half  = Math.ceil(count / 2)
-    page  = @model.get("page")
-    pages = @model.get("pages")
+    page  = @model.get('page')
+    pages = @model.get('pages')
     min   = (if (page > half) then Math.max(page - (half - 3), 1) else 1)
     max   = (if (pages - page > half) then Math.min(page + (half - 3), pages) else pages)
     start = (if (max is pages) then Math.max(pages - (count - 3), 1) else min)
@@ -53,18 +53,8 @@ class Pagination extends View
     @$el.toggle @model.get('pages') > 1
 
   urlTemplate: (i) =>
-    url    = @collection.url
-    chunks = url.split('?')
-    base   = chunks.shift()
-    params = Util.parseQuery(chunks.join('?'))
-    extra  = {page: i}
-
-    # TODO: this is ugly. fix it.
-
-    # swap out the query for a pretty one
-    extra.q = encodeURIComponent(app.selection.get('query')) if params.q
-    queryString = Util.buildQuery(_.extend(params, extra))
-    "#{base}?#{queryString}"
+    base = @collection.url.split('?')[0]
+    "#{base}#{@query.toString(page: i)}"
 
   navigate: (e) ->
     e.preventDefault()

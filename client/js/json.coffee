@@ -239,7 +239,7 @@ GenghisJSON =
     ) node
 
   stringify: (value, pretty) ->
-    $("<div>#{@prettyPrint(value, pretty)}</div>").text()
+    $("<div>#{GenghisJSON.prettyPrint(value, pretty)}</div>").text()
 
   prettyPrint: (value, pretty = true) ->
     if pretty

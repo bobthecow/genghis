@@ -13,6 +13,7 @@ Improved:
  * Visual refresh.
  * Speed things up! Because faster is better!
  * 7X FASTER DOCUMENT RENDERING! Seven times faster is very better!
+ * URL queries are prettier.
  * Hide "keyboard shortcuts available" until they are.
  * [Fix #128][i128] — Use normal browser navigation when ctrl/shift/meta-clicking links — Thanks @craigerm.
  * Improve keyboard interaction with confirmation dialogs and "add" forms.
