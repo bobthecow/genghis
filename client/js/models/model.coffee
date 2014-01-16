@@ -2,8 +2,8 @@
 Util      = require '../util.coffee'
 
 class Model extends Giraffe.Model
-  name:  -> @get 'name'
-  count: -> @get 'count'
+  name:  -> @get('name')
+  count: -> @get('count')
 
   humanCount: ->
     Util.humanizeCount(@get('count') or 0)

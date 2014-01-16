@@ -93,7 +93,7 @@ class Search extends View
     else @blurSearch()  if e.keyCode is 27
 
   findDocuments: (q, section = 'documents') =>
-    url = Util.route("#{@model.currentCollection.url}/#{section}")
+    url = Util.route("#{@model.coll.url}/#{section}")
     q = q.trim()
     if section is 'documents' and q.match(/^([a-z\d]+)$/i)
       url = "#{url}/#{q}"

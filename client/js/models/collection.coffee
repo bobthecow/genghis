@@ -2,10 +2,22 @@
 Model       = require './model.coffee'
 GenghisJSON = require '../json.coffee'
 Util        = require '../util.coffee'
+Documents   = require '../collections/documents.coffee'
 
 _h = Util.humanizeSize
 
 class Collection extends Model
+  dataEvents:
+    'change:id this': 'fetchDocuments'
+
+  initialize: ->
+    @documents = new Documents([], {coll: this})
+    # @explain   = new Document([], {coll: this})
+    super
+
+  fetchDocuments: =>
+    @documents.fetch(reset: true)
+
   indexesIsPlural: ->
     @indexCount() isnt 1
 

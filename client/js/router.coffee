@@ -1,7 +1,7 @@
-{Backbone} = require './vendors'
-Util       = require './util.coffee'
+{_, Backbone} = require './vendors'
+Util          = require './util.coffee'
 
-e          = encodeURIComponent
+_e = encodeURIComponent
 
 getParams = ->
   return {} unless document.location.search
@@ -36,59 +36,59 @@ class Router extends Backbone.Router
     ''
 
   redirectToIndex: ->
-    @navigate @indexRoute(), true
+    @navigate(@indexRoute(), true)
 
   server: (server) ->
-    @app.selection.select server
+    @app.selection.select(server)
 
   serverRoute: (server) ->
-    "servers/#{e server}"
+    "servers/#{_e(server)}"
 
   redirectToServer: (server) ->
-    @navigate @serverRoute(server), true
+    @navigate(@serverRoute(server), true)
 
   database: (server, db) ->
-    @app.selection.select server, db
+    @app.selection.select(server, db)
 
   databaseRoute: (server, db) ->
-    "servers/#{e server}/databases/#{e db}"
+    "servers/#{_e(server)}/databases/#{_e(db)}"
 
   redirectToDatabase: (server, db) ->
-    @navigate @databaseRoute(server, db), true
+    @navigate(@databaseRoute(server, db), true)
 
   collection: (server, db, coll) ->
     return @redirectToQuery(server, db, coll, getQuery()) if window.location.search
-    @app.selection.select server, db, coll
+    @app.selection.select(server, db, coll)
 
   collectionRoute: (server, db, coll) ->
-    "servers/#{e server}/databases/#{e db}/collections/#{e coll}"
+    "servers/#{_e(server)}/databases/#{_e(db)}/collections/#{_e(coll)}"
 
   redirectToCollection: (server, db, coll) ->
-    @navigate @collectionRoute(server, db, coll), true
+    @navigate(@collectionRoute(server, db, coll), true)
 
   collectionQuery: (server, db, coll) ->
     return @redirectToCollection(server, db, coll) unless window.location.search
     params = getParams()
-    @app.selection.select server, db, coll, null, params.q, params.page
+    @app.selection.select(server, db, coll, null, query: params.q, page: params.page)
 
   collectionQueryRoute: (server, db, coll, query) ->
     queryString = Util.buildQuery(q: e(query))
-    "servers/#{e server}/databases/#{e db}/collections/#{e coll}/documents?#{queryString}"
+    "servers/#{_e(server)}/databases/#{_e(db)}/collections/#{_e(coll)}/documents?#{queryString}"
 
   redirectToCollectionQuery: (server, db, coll, query) ->
-    @navigate @collectionQueryRoute(server, db, coll, query or getQuery()), true
+    @navigate(@collectionQueryRoute(server, db, coll, query or getQuery()), true)
 
   explainQuery: (server, db, coll) ->
-    @app.selection.select server, db, coll, null, getQuery(), null, true
+    @app.selection.select(server, db, coll, null, query: getQuery(), explain: true)
 
   document: (server, db, coll, docId) ->
-    @app.selection.select server, db, coll, docId
+    @app.selection.select(server, db, coll, docId)
 
   documentRoute: (server, db, coll, docId) ->
-    "/servers/#{e server}/databases/#{e db}/collections/#{e coll}/documents/#{e docId}"
+    "/servers/#{_e(server)}/databases/#{_e(db)}/collections/#{_e(coll)}/documents/#{_e(docId)}"
 
   redirectToDocument: (server, db, coll, docId) ->
-    @navigate @documentRoute(server, db, coll, docId), true
+    @navigate(@documentRoute(server, db, coll, docId), true)
 
   redirectTo: (server, db, coll, docId, query) ->
     return @redirectToIndex()              unless server
@@ -96,11 +96,11 @@ class Router extends Backbone.Router
     return @redirectToDatabase(server, db) unless coll
 
     if not docId and not query
-      @redirectToCollection server, db, coll
+      @redirectToCollection(server, db, coll)
     else unless query
-      @redirectToDocument server, db, coll, docId
+      @redirectToDocument(server, db, coll, docId)
     else
-      @redirectToCollectionQuery server, db, coll, query
+      @redirectToCollectionQuery(server, db, coll, query)
 
   notFound: (path) ->
     @app.showNotFound()

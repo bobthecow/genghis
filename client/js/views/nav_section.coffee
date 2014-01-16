@@ -31,10 +31,10 @@ class NavSection extends View
   updateLink: ->
     @$toggle
       .text((if @model.id then @model.id else ''))
-      .attr('href', (if @model.id then @model.url else ''))
+      .attr('href', (if @model.id then _.result(@model, 'url') else ''))
 
   renderMenu: ->
-    @$menu.html @menuTemplate(model: @model, collection: @collection)
+    @$menu.html(@menuTemplate(model: @model, collection: @collection))
 
     # Handle really wide badges on the menu dropdown
     @$menu.find('a span').each (i, el) ->

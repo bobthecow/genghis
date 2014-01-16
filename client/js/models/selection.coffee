@@ -3,83 +3,63 @@
 Pagination  = require './pagination.coffee'
 Servers     = require '../collections/servers.coffee'
 Server      = require './server.coffee'
-Databases   = require '../collections/databases.coffee'
 Database    = require './database.coffee'
-Collections = require '../collections/collections.coffee'
 Collection  = require './collection.coffee'
-Documents   = require '../collections/documents.coffee'
 Document    = require './document.coffee'
-Query       = require './query.coffee'
+Explain     = require './explain.coffee'
 Util        = require '../util.coffee'
 GenghisJSON = require '../json.coffee'
 
 SERVER_PARAMS     = ['server']
 DATABASE_PARAMS   = ['server', 'database']
 COLLECTION_PARAMS = ['server', 'database', 'collection']
-DOCUMENTS_PARAMS  = ['server', 'database', 'collection', 'query', 'page', 'explain']
+DOCUMENTS_PARAMS  = ['server', 'database', 'collection', 'query', 'fields', 'sort', 'page', 'explain']
 DOCUMENT_PARAMS   = ['server', 'database', 'collection', 'document']
 
 class Selection extends Giraffe.Model
   defaults:
+    # Current selection
     server:     null
     database:   null
     collection: null
-    query:      null
-    page:       null
     document:   null
+
+    # URL query params
+    query:      null
+    fields:     null
+    sort:       null
+    page:       null
+
+    # Explain flag
+    # TODO: this might not be a good model for the concept. Revisit.
     explain:    false
 
   dataEvents:
-    'change this': 'update'
+    'change:id change this': 'update'
+    # 'change:query change:fields change:sort change:page this': 'updateQuery'
 
   initialize: ->
-    @pagination        = new Pagination()
-    @query             = new Query()
-    @servers           = new Servers()
-    @currentServer     = new Server()
-    @databases         = new Databases()
-    @currentDatabase   = new Database()
-    @collections       = new Collections()
-    @currentCollection = new Collection()
-    @documents         = new Documents()
-    @currentDocument   = new Document()
-    @explain           = new Document()
+    @servers             = new Servers()
+    @servers.url         = "#{@baseUrl}servers"
+    @server              = new Server()
+    @server.collection   = @servers
+    @databases           = @server.databases
+    @database            = new Database()
+    @database.collection = @databases
+    @collections         = @database.collections
+    @coll                = new Collection()
+    @coll.collection     = @collections
+    @documents           = @coll.documents
+    @document            = new Document()
+    @document.collection = @documents
+    @explain = new Explain()
+    @explain.coll = @coll
 
-    this.on('change:query change:fields change:sort change:page', @updateQuery)
-
-  select: (
-    server     = null,
-    database   = null,
-    collection = null,
-    documentId = null,
-    query      = null,
-    page       = null,
-    explain    = false
-  ) =>
-    @set({server, database, collection, document: documentId, query, page, explain})
-
-  buildUrl: (type) =>
-    e = (prop) =>
-      encodeURIComponent @get(prop)
-
-    switch type
-      when "documents", "explain"
-        q = @query.toString(pretty: false)
-        "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}/collections/#{e 'collection'}/#{type}#{q}"
-      when "collection"
-        "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}/collections/#{e 'collection'}"
-      when "collections"
-        "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}/collections"
-      when "database"
-        "#{@baseUrl}servers/#{e 'server'}/databases/#{e 'database'}"
-      when "databases"
-        "#{@baseUrl}servers/#{e 'server'}/databases"
-      when "server"
-        "#{@baseUrl}servers/#{e 'server'}"
-      when "servers"
-        "#{@baseUrl}servers"
-      else
-        throw new Error("Unknown URL type: #{type}")
+  select: (server = null, database = null, collection = null, doc = null, opts = {}) =>
+    @set(_.extend(
+      {server, database, collection, document: doc},
+      _.pick(opts, 'query', 'fields', 'sort', 'page')
+    ))
 
   update: =>
     showErrorMessage = (model, response = {}) ->
@@ -98,44 +78,28 @@ class Selection extends Giraffe.Model
 
     changed = @changedAttributes()
 
-    @servers.url = @buildUrl('servers')
     # TODO: fetch servers less often.
     @servers.fetch(reset: true)
       .fail(showErrorMessage)
 
     if @has('server') and not _.isEmpty(_.pick(changed, SERVER_PARAMS))
-      @currentServer.url = @buildUrl('server')
-      @currentServer.fetch(reset: true)
+      @server.set('id', @get('server'))
+      @server.fetch(reset: true)
         .fail(fetchErrorHandler('databases', 'Server Not Found'))
 
-      @databases.url = @buildUrl('databases')
-      @databases.fetch(reset: true)
-        .fail(showErrorMessage)
-
     if @has('database') and not _.isEmpty(_.pick(changed, DATABASE_PARAMS))
-      @currentDatabase.url = @buildUrl('database')
-      @currentDatabase.fetch(reset: true)
+      @database.set('id', @get('database'))
+      @database.fetch(reset: true)
         .fail(fetchErrorHandler('collections', 'Database Not Found'))
 
-      @collections.url = @buildUrl('collections')
-      @collections.fetch(reset: true)
-        .fail(showErrorMessage)
-
     if @has('collection') and not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
-      @currentCollection.url = @buildUrl('collection')
-      @currentCollection.fetch(reset: true)
+      @coll.set('id', @get('collection'))
+      @coll.fetch(reset: true)
         .fail(fetchErrorHandler('documents', 'Collection Not Found'))
 
-    if @has('collection') and not _.isEmpty(_.pick(changed, DOCUMENTS_PARAMS))
-      @documents.url = @buildUrl('documents')
-      @documents.fetch(reset: true)
-        .fail(showErrorMessage)
-
     if @has('document') and not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
-      @currentDocument.clear silent: true
-      @currentDocument.id      = @get('document')
-      @currentDocument.urlRoot = @buildUrl('documents')
-      @currentDocument.fetch(reset: true)
+      @document.set('id', @get('document'))
+      @document.fetch(reset: true)
         .fail(fetchErrorHandler(
           'document',
           'Document Not Found',
@@ -143,7 +107,6 @@ class Selection extends Giraffe.Model
         ))
 
     if @get('explain')
-      @explain.url = @buildUrl('explain')
       @explain.fetch()
         .fail(showErrorMessage)
 

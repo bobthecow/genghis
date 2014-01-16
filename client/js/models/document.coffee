@@ -2,8 +2,6 @@
 Util         = require '../util.coffee'
 GenghisJSON  = require '../json.coffee'
 
-e = encodeURIComponent
-
 class Document extends Giraffe.Model
   idAttribute: null
 
@@ -14,18 +12,12 @@ class Document extends Giraffe.Model
     resp
 
   url: ->
-    getUrl = (object) ->
-      return null unless object?.url
-      if _.isFunction(object.url) then object.url() else object.url
+    base = "#{@collection.baseUrl()}"
+    base = base[0..-2] if base[-1] is '/'
 
-    base = getUrl(@collection) or @urlRoot || ''
-    base = base.split('?').shift()
-    base = base[0..-2] if base[-1] is "/"
+    return base if @isNew()
 
-    if @isNew()
-      base
-    else
-      "#{base}/#{e(@id)}"
+    "#{base}/#{encodeURIComponent(@id)}"
 
   prettyId: =>
     id = @get('_id')

@@ -53,20 +53,20 @@ class Document extends BaseDocument
   navigateDb: (e) ->
     $dbRef = $(e.target).parents('.ref')
     db     = $dbRef.find('.ref-db .v .s').text()
-    app.router.redirectToDatabase app.selection.currentServer.id, db
+    app.router.redirectToDatabase app.selection.server.id, db
 
   navigateColl: (e) ->
     $dbRef = $(e.target).parents('.ref')
-    db     = $dbRef.find('.ref-db  .v .s').text() or app.selection.currentDatabase.id
+    db     = $dbRef.find('.ref-db  .v .s').text() or app.selection.database.id
     coll   = $dbRef.find('.ref-ref .v .s').text()
-    app.router.redirectToCollection app.selection.currentServer.id, db, coll
+    app.router.redirectToCollection app.selection.server.id, db, coll
 
   navigateId: (e) ->
     $dbRef = $(e.target).parents('.ref')
-    db     = $dbRef.find('.ref-db  .v .s').text() or app.selection.currentDatabase.id
-    coll   = $dbRef.find('.ref-ref .v .s').text() or app.selection.currentCollection.id
+    db     = $dbRef.find('.ref-db  .v .s').text() or app.selection.database.id
+    coll   = $dbRef.find('.ref-ref .v .s').text() or app.selection.coll.id
     id     = $dbRef.find('.ref-id').attr('data-document-id')
-    app.router.redirectToDocument app.selection.currentServer.id, db, coll, encodeURIComponent(id)
+    app.router.redirectToDocument app.selection.server.id, db, coll, encodeURIComponent(id)
 
   openEditDialog: =>
     $well    = @$well
