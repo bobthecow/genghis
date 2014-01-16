@@ -104,7 +104,7 @@ class Selection extends Giraffe.Model
         .fail(fetchErrorHandler('documents', 'Collection Not Found'))
 
     if @has('document') and not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
-      @document.set('id', @document.id = @get('document'))
+      @document.id = @get('document')
       @document.fetch(reset: true)
         .fail(fetchErrorHandler(
           'document',

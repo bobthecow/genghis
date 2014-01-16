@@ -69,28 +69,29 @@ class Document extends BaseDocument
     app.router.redirectToDocument app.selection.server.id, db, coll, encodeURIComponent(id)
 
   openEditDialog: =>
-    $well    = @$well
-    height   = Math.max(180, Math.min(600, $well.height() + 40))
-    editorId = "editor-#{@model.id.replace('~', '-')}"
-    textarea = $("<textarea id=\"#{editorId}\"></textarea>").text(@model.JSONish()).appendTo($well)
-    @$document.hide()
+    @model.fetch().then =>
+      $well    = @$well
+      height   = Math.max(180, Math.min(600, $well.height() + 40))
+      editorId = "editor-#{@model.id.replace('~', '-')}"
+      textarea = $("<textarea id=\"#{editorId}\"></textarea>").text(@model.JSONish()).appendTo($well)
+      @$document.hide()
 
-    $el = @$el.addClass('edit')
-    @editor = CodeMirror.fromTextArea(textarea[0], _.extend({}, defaults.codeMirror,
-      autofocus: true
-      extraKeys:
-        'Ctrl-Enter': @saveDocument
-        'Cmd-Enter':  @saveDocument
-    ))
+      $el = @$el.addClass('edit')
+      @editor = CodeMirror.fromTextArea(textarea[0], _.extend({}, defaults.codeMirror,
+        autofocus: true
+        extraKeys:
+          'Ctrl-Enter': @saveDocument
+          'Cmd-Enter':  @saveDocument
+      ))
 
-    @editor.on 'focus', ->
-      $el.addClass 'focused'
+      @editor.on 'focus', ->
+        $el.addClass 'focused'
 
-    @editor.on 'blur', ->
-      $el.removeClass 'focused'
+      @editor.on 'blur', ->
+        $el.removeClass 'focused'
 
-    @editor.setSize null, height
-    textarea.resize _.throttle(@editor.refresh, 100)
+      @editor.setSize null, height
+      textarea.resize _.throttle(@editor.refresh, 100)
 
   cancelEdit: =>
     @$el.removeClass 'edit focused'
