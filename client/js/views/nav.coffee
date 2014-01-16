@@ -26,19 +26,19 @@ class Nav extends View
 
     @serverNavView = new NavSection(
       className:  'dropdown server'
-      model:      @model.currentServer
+      model:      @model.server
       collection: @model.servers
     )
 
     @databaseNavView = new NavSection(
       className:  'dropdown database'
-      model:      @model.currentDatabase
+      model:      @model.database
       collection: @model.databases
     )
 
     @collectionNavView = new NavSection(
       className:  'dropdown collection'
-      model:      @model.currentCollection
+      model:      @model.coll
       collection: @model.collections
     )
 

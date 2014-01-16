@@ -2,7 +2,7 @@
 Util         = require '../util.coffee'
 GenghisJSON  = require '../json.coffee'
 
-_j = (val) ->
+stringify = (val) ->
   GenghisJSON.stringify(val, false)
 
 class Query extends Giraffe.Model
@@ -14,7 +14,7 @@ class Query extends Giraffe.Model
 
   toQuery: (opts = {}) =>
     params = {}
-    _j = if opts.pretty is false then JSON.stringify else GenghisJSON.stringify
+    _j = if opts.pretty then JSON.stringify else stringify
 
     if q = opts.query or @get('query')
       params.q = _j(q) unless _.isEmpty(q)

@@ -90,19 +90,19 @@ class App extends Giraffe.App
 
       when 'databases'
         new DatabasesView(
-          model:      @selection.currentServer,
+          model:      @selection.server,
           collection: @databases
         )
 
       when 'collections'
         new CollectionsView(
-          model:      @selection.currentDatabase,
+          model:      @selection.database,
           collection: @collections
         )
 
       when 'documents'
         new DocumentsView(
-          model:      @selection.currentCollection,
+          model:      @selection.coll,
           collection: @documents,
           pagination: @selection.pagination,
           query:      @selection.query
@@ -112,7 +112,7 @@ class App extends Giraffe.App
         new ExplainView(model: @selection.explain)
 
       when 'document'
-        new DocumentSectionView(model: @selection.currentDocument)
+        new DocumentSectionView(model: @selection.document)
 
     if view
       $('body').addClass('has-section')

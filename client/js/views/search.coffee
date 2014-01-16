@@ -44,6 +44,12 @@ class Search extends View
     'change            model': 'updateQuery'
     'change:collection model': 'collapseNoFocus'
 
+  initialize: ->
+    @documents = @model.documents
+    @query     = @model.query
+    @explain   = @model.explain
+    super
+
   serialize: ->
     query:       @model.get('query')
     placeholder: _.sample(PLACEHOLDERS)
@@ -86,33 +92,36 @@ class Search extends View
     q
 
   handleSearchKeyup: (e) =>
-    @$el.removeClass "error"
+    @$el.removeClass('has-error')
     if e.keyCode is 13
       e.preventDefault()
-      @findDocuments $(e.target).val()
-    else @blurSearch()  if e.keyCode is 27
-
-  findDocuments: (q, section = 'documents') =>
-    url = Util.route("#{@model.currentCollection.url}/#{section}")
-    q = q.trim()
-    if section is 'documents' and q.match(/^([a-z\d]+)$/i)
-      url = "#{url}/#{q}"
+      @findDocuments($(e.target).val())
     else
-      try
-        q = GenghisJSON.normalize(q, false)
-      catch e
-        @$el.addClass('error')
-        return
-      query = Util.buildQuery(q: q)
-      url   = "#{url}?#{query}"
-    app.router.navigate(url, true)
+      @blurSearch() if e.keyCode is 27
+
+  findDocuments: (q, opt = {}) =>
+    q   = q.trim()
+    url = if opt.explain then @explain.baseUrl() else @documents.baseUrl()
+
+    if q.match(/^([a-z\d]+)$/i) and not opt.explain
+      app.router.navigate("#{url}/#{q}", true)
+      return
+
+    try
+      q = GenghisJSON.parse(q)
+    catch e
+      @$el.addClass('has-error')
+      return
+
+    query = @query.toString(query: q, pretty: true)
+    app.router.navigate("#{url}#{query}", true)
 
   findDocumentsAdvanced: (e) =>
     @findDocuments @editor.getValue()
     @collapseSearch()
 
   explainQuery: (e) ->
-    @findDocuments(@editor.getValue(), 'explain')
+    @findDocuments(@editor.getValue(), {explain: true})
     @collapseSearch()
 
   focusSearch: (e) =>

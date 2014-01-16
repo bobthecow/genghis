@@ -18,13 +18,19 @@ class Pagination extends View
     'p': 'prevPage'
 
   dataEvents:
-    'change model': 'render'
+    'change query':      'render'
+    'change pagination': 'render'
+
+  initialize: ->
+    @pagination = @collection.pagination
+    @query      = @collection.query
+    super
 
   serialize: ->
     count = 9
     half  = Math.ceil(count / 2)
-    page  = @model.get('page')
-    pages = @model.get('pages')
+    page  = @pagination.get('page')
+    pages = @pagination.get('pages')
     min   = (if (page > half) then Math.max(page - (half - 3), 1) else 1)
     max   = (if (pages - page > half) then Math.min(page + (half - 3), pages) else pages)
     start = (if (max is pages) then Math.max(pages - (count - 3), 1) else min)
@@ -50,11 +56,12 @@ class Pagination extends View
     isLast:   page is pages
 
   afterRender: ->
-    @$el.toggle @model.get('pages') > 1
+    @$el.toggle @pagination.get('pages') > 1
 
   urlTemplate: (i) =>
-    base = @collection.url.split('?')[0]
-    "#{base}#{@query.toString(page: i)}"
+    base  = @collection.baseUrl()
+    query = @query.toString(page: i)
+    "#{base}#{query}"
 
   navigate: (e) ->
     e.preventDefault()

@@ -1,10 +1,21 @@
-{_}   = require '../vendors'
-Model = require './model.coffee'
-Util  = require '../util.coffee'
+{_}         = require '../vendors'
+Model       = require './model.coffee'
+Util        = require '../util.coffee'
+Collections = require '../collections/collections.coffee'
 
 _h = Util.humanizeSize
 
 class Database extends Model
+  dataEvents:
+    'change:id this': 'fetchCollections'
+
+  initialize: ->
+    @collections = new Collections([], {database: this})
+    super
+
+  fetchCollections: =>
+    @collections.fetch(reset: true)
+
   firstChildren: ->
     _.first (@get('collections') or []), 15
 

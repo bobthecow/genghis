@@ -1,5 +1,7 @@
 {_, Giraffe} = require '../vendors'
 Document     = require '../models/document.coffee'
+Query        = require '../models/query.coffee'
+Pagination   = require '../models/pagination.coffee'
 
 isGuessable = (d) ->
   id = d._id or null
@@ -18,8 +20,31 @@ isGuessable = (d) ->
 
 class Documents extends Giraffe.Collection
   model: Document
+
+  dataEvents:
+    'change query':   'fetchReset'
+    'change:id coll': 'fetchReset'
+
+  initialize: ->
+    @query      = new Query()
+    @pagination = new Pagination()
+    # @pagination.query = @query
+    super
+
+  fetchReset: =>
+    return unless @coll.id # WTF?
+    @fetch(reset: true)
+
+  baseUrl: =>
+    "#{_.result(@coll, 'url')}/documents"
+
+  url: (opts = {}) =>
+    base  = @baseUrl()
+    query = @query.toString(_.extend({pretty: false}, opts))
+    "#{base}#{query}"
+
   parse: (resp) ->
-    app.selection.pagination.set
+    @pagination.set
       page:  resp.page
       pages: resp.pages
       count: resp.documents.length
@@ -29,6 +54,7 @@ class Documents extends Giraffe.Collection
       start: 1251388342000                                    # MongoDB v1.0 release date
       end: (new Date()).getTime() + (2 * 24 * 60 * 60 * 1000) # within the next 48 hours
     )
+
     resp.documents
 
 module.exports = Documents
