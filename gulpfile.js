@@ -25,7 +25,7 @@ var server = lr();
 var VERSION = fs.readFileSync('VERSION.txt');
 
 var COFFEELINT_OPTS = {
-  max_line_length: {value: 120}
+  max_line_length: {value: 120, level: 'warn'}
 };
 
 var JSHINT_OPTS = {
@@ -161,7 +161,8 @@ gulp.task('lint', function() {
         var filename = file.path.replace(file.cwd + '/', '');
         console.log(filename + ":\n");
         file.coffeelint.results.forEach(function (error) {
-          console.log(chalk.red('  ' + error.message));
+          var color = error.level == 'error' ? chalk.red : chalk.yellow;
+          console.log(color('  ' + error.message));
           console.log(chalk.grey('  ' + filename + ':' + error.lineNumber + "\n"));
         });
       }
