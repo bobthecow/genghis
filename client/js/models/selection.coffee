@@ -15,6 +15,7 @@ DATABASE_PARAMS   = ['server', 'database']
 COLLECTION_PARAMS = ['server', 'database', 'collection']
 DOCUMENTS_PARAMS  = ['server', 'database', 'collection', 'query', 'fields', 'sort', 'page', 'explain']
 DOCUMENT_PARAMS   = ['server', 'database', 'collection', 'document']
+QUERY_PARAMS      = ['query', 'fields', 'sort', 'page']
 
 class Selection extends Giraffe.Model
   defaults:
@@ -35,8 +36,7 @@ class Selection extends Giraffe.Model
     explain:    false
 
   dataEvents:
-    'change:id change this': 'update'
-    # 'change:query change:fields change:sort change:page this': 'updateQuery'
+    'change this': 'update'
 
   initialize: ->
     @servers             = new Servers()
@@ -50,15 +50,17 @@ class Selection extends Giraffe.Model
     @coll                = new Collection()
     @coll.collection     = @collections
     @documents           = @coll.documents
+    @query               = @documents.query
     @document            = new Document()
     @document.collection = @documents
-    @explain = new Explain()
-    @explain.coll = @coll
+    @explain             = new Explain()
+    @explain.query       = @query
+    @explain.coll        = @coll
 
   select: (server = null, database = null, collection = null, doc = null, opts = {}) =>
     @set(_.extend(
       {server, database, collection, document: doc},
-      _.pick(opts, 'query', 'fields', 'sort', 'page')
+      _.pick(opts, 'query', 'fields', 'sort', 'page', 'explain')
     ))
 
   update: =>
@@ -83,22 +85,26 @@ class Selection extends Giraffe.Model
       .fail(showErrorMessage)
 
     if @has('server') and not _.isEmpty(_.pick(changed, SERVER_PARAMS))
-      @server.set('id', @get('server'))
+      @server.set('id', @server.id = @get('server'))
       @server.fetch(reset: true)
         .fail(fetchErrorHandler('databases', 'Server Not Found'))
 
     if @has('database') and not _.isEmpty(_.pick(changed, DATABASE_PARAMS))
-      @database.set('id', @get('database'))
+      @database.set('id', @database.id = @get('database'))
       @database.fetch(reset: true)
         .fail(fetchErrorHandler('collections', 'Database Not Found'))
 
+    # Get query params out of the way before updating the collection or explain...
+    if @has('collection') and not _.isEmpty(_.pick(changed, QUERY_PARAMS))
+      @updateQuery()
+
     if @has('collection') and not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
-      @coll.set('id', @get('collection'))
+      @coll.set('id', @coll.id = @get('collection'))
       @coll.fetch(reset: true)
         .fail(fetchErrorHandler('documents', 'Collection Not Found'))
 
     if @has('document') and not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
-      @document.set('id', @get('document'))
+      @document.set('id', @document.id = @get('document'))
       @document.fetch(reset: true)
         .fail(fetchErrorHandler(
           'document',

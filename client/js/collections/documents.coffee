@@ -22,7 +22,8 @@ class Documents extends Giraffe.Collection
   model: Document
 
   dataEvents:
-    'change query': 'fetchReset'
+    'change query':   'fetchReset'
+    'change:id coll': 'fetchReset'
 
   initialize: ->
     @query      = new Query()
@@ -31,13 +32,16 @@ class Documents extends Giraffe.Collection
     super
 
   fetchReset: =>
+    return unless @coll.id # WTF?
     @fetch(reset: true)
 
   baseUrl: =>
     "#{_.result(@coll, 'url')}/documents"
 
-  url: (opts) =>
-    "#{@baseUrl()}#{@query.toString(opts)}"
+  url: (opts = {}) =>
+    base  = @baseUrl()
+    query = @query.toString(_.extend({pretty: false}, opts))
+    "#{base}#{query}"
 
   parse: (resp) ->
     @pagination.set
