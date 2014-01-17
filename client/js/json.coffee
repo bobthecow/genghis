@@ -299,7 +299,7 @@ GenghisJSON =
       props   = (printProp(k, v, newGap, isDbRef) for own k, v of obj).join(",#{nl}")
       extra   = if isDbRef then ' ref' else ''
       if props.length is 0
-        "#{prefix}<span class='v o'>{}</span>"
+        "#{prefix}<span class='v o empty'>{}</span>"
       else
         "#{prefix}<span class='v o#{extra}'>{#{nl}#{props}#{nl}#{gap}}</span>"
 
@@ -334,7 +334,7 @@ GenghisJSON =
       newGap = "#{gap}#{indent}"
       items  = ("#{newGap}#{print(item, newGap, '')}" for item in arr).join(",#{nl}")
       if items.length is 0
-        "#{prefix}<span class='v ar'>[]</span>"
+        "#{prefix}<span class='v ar empty'>[]</span>"
       else
         "#{prefix}<span class='v ar'>[#{nl}#{items}#{nl}#{gap}]</span>"
 

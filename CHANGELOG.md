@@ -20,6 +20,9 @@ Improved:
  * Improve keyboard interaction with confirmation dialogs and "add" forms.
  * Add UTF-8 headers for more PHP responses, help out poorly configured servers.
  * Add placeholders to the search box as an affordance because we don't want a manual.
+ * Add summaries to collapsed arrays.
+ * Truncate really long summaries on collapsed objects and arrays.
+ * Fix a bug where clicking the elipses on a collapsed object wouldn't always uncollapse.
  * Update to the latest version of a bunch of vendor libraries.
  * Lots of internal refactoring, to make everything awesomer, and more future-proof.
  * Also, easier to hack on. So send those pull requests :)

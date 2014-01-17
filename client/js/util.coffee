@@ -57,13 +57,16 @@ Util =
       .replace(/"/g, '&quot;')
 
   toggleCollapser: (e) ->
-    $property = $(e.target).blur().parent()
+    $property = $(e.currentTarget).blur().parent()
     $value    = $property.children('.v')
     isName    = /^\s*(name|title)\s*/i
     summary   = ''
 
     unless $property.children('.e').length
       if $value.hasClass('o')
+        open  = '{'
+        close = '}'
+
         # Try to find the 'name' or 'title' property first...
         $s = $(_.detect($value.find('> span.p > var'), (el) ->
           isName.test $(el).text()
@@ -79,14 +82,22 @@ Util =
         # If we found something, store the summary.
         if $s?.length
           prop    = $s.siblings('var').text()
-          summary = ((if prop then prop + ': ' else '')) + Util.escape($s.text()) + ' '
+          summary = ((if prop then prop + ': ' else '')) + $s.text()
 
-        open  = '{'
-        close = '}'
       else
-        # TODO: put integers and short strings in here?
         open  = '['
         close = ']'
+
+        # Look for the first short thing to put in the summary...
+        $s = $value
+          .children('.v')
+          .first()
+          .filter('.call,.a,.re,.b,.z,.n,.q,.ar.empty,.o.empty')
+
+        if $s?.length
+          summary = $s.text()
+
+      summary = Util.escape("#{summary[0..50]} ") if summary isnt ''
       $property.append "<span class=\"e\">#{open} <q>#{summary}&hellip;</q> #{close}</span>"
 
     $property.toggleClass('collapsed')
