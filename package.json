@@ -46,7 +46,6 @@
     "gulp-spawn":        "~0.2.1",
     "gulp-uglify":       "latest",
     "gulp-template":     "latest",
-    "gulp-spawn":        "latest",
     "gulp-replace":      "latest",
 
     "datauri":           "latest",
