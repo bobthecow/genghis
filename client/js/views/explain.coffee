@@ -12,14 +12,14 @@ class Explain extends View
   ui:
     '$doc': '.document'
 
+  events:
+    'click button,span.e': Util.toggleCollapser
+
   dataEvents:
     'sync model': 'updateExplain'
 
   initialize: ->
     @render()
-
-  afterRender: ->
-    Util.attachCollapsers @$('article')[0]
 
   updateExplain: ->
     @$doc.html @model.prettyPrint()

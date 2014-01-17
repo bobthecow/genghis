@@ -56,43 +56,41 @@ Util =
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
 
-  attachCollapsers: (scope) ->
-    $('.document', scope).on 'click', 'button,span.e', (e) ->
-      $property = $(this).blur().parent()
-      $value = $property.children('.v')
-      isName = /^\s*(name|title)\s*/i
-      isObject = $value.hasClass('o')
-      summary = ''
-      prop = undefined
-      $s = undefined
-      unless $property.children('.e').length
-        if isObject
-          # Try to find the 'name' or 'title' property first...
-          $s = $(_.detect($value.find('> span.p > var'), (el) ->
-            isName.test $(el).text()
-          )).siblings('span.v')
+  toggleCollapser: (e) ->
+    $property = $(e.target).blur().parent()
+    $value    = $property.children('.v')
+    isName    = /^\s*(name|title)\s*/i
+    summary   = ''
 
-          # Otherwise, we'll settle for anything, basically.
-          if $s.length is 0
-            $s = $(_.detect($value.find('> span.p > span.v'), (el) ->
-              $el = $(el)
-              $el.hasClass('n') or $el.hasClass('b') or ($el.hasClass('q') and $el.text().length < 64)
-            ))
+    unless $property.children('.e').length
+      if $value.hasClass('o')
+        # Try to find the 'name' or 'title' property first...
+        $s = $(_.detect($value.find('> span.p > var'), (el) ->
+          isName.test $(el).text()
+        )).siblings('span.v')
 
-          # If we found something, store the summary.
-          if $s?.length
-            prop    = $s.siblings('var').text()
-            summary = ((if prop then prop + ': ' else '')) + Util.escape($s.text()) + ' '
+        # Otherwise, we'll settle for anything, basically.
+        if $s.length is 0
+          $s = $(_.detect($value.find('> span.p > span.v'), (el) ->
+            $el = $(el)
+            $el.hasClass('n') or $el.hasClass('b') or ($el.hasClass('q') and $el.text().length < 64)
+          ))
 
-          open  = '{'
-          close = '}'
-        else
-          open  = '['
-          close = ']'
-        $property.append "<span class=\"e\">#{open} <q>#{summary}&hellip;</q> #{close}</span>"
-      $property.toggleClass 'collapsed'
-      e.preventDefault()
+        # If we found something, store the summary.
+        if $s?.length
+          prop    = $s.siblings('var').text()
+          summary = ((if prop then prop + ': ' else '')) + Util.escape($s.text()) + ' '
 
+        open  = '{'
+        close = '}'
+      else
+        # TODO: put integers and short strings in here?
+        open  = '['
+        close = ']'
+      $property.append "<span class=\"e\">#{open} <q>#{summary}&hellip;</q> #{close}</span>"
+
+    $property.toggleClass('collapsed')
+    e.preventDefault()
 
   base64Encode: (string) ->
     b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='

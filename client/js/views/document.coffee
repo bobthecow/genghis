@@ -20,6 +20,8 @@ class Document extends BaseDocument
     'click a.id':            'navigate'
     'click button.edit':     'openEditDialog'
 
+    'click button,span.e':   Util.toggleCollapser
+
     # 'dblclick .document':    'openEditDialog',
     'click button.save':     'saveDocument'
     'click button.cancel':   'cancelEdit'
@@ -37,7 +39,6 @@ class Document extends BaseDocument
     'destroy model': 'dispose'
 
   afterRender: ->
-    Util.attachCollapsers @el
     setTimeout @updateDocument, 1
 
   updateDocument: =>
