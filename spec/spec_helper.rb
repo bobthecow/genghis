@@ -1,14 +1,17 @@
+lib = File.expand_path('../../server/rb', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
 require 'rspec/autorun'
 require 'json_expressions/rspec'
 require 'net/http'
-require_relative '../genghis.rb'
+require 'genghis/dev_server'
 
 RSpec.configure do |config|
   def genghis_backends
     if ENV['GENGHIS_BACKEND']
       ENV['GENGHIS_BACKEND'].split(',').map(&:to_sym)
     else
-      [:php, :ruby]
+      [:php, :php_dev, :ruby, :ruby_dev]
     end
   end
 
@@ -23,35 +26,67 @@ RSpec.configure do |config|
     @genghis_port = find_available_port
 
     case backend
-    when :php
-      @genghis_pid = spawn 'php', '-S', "localhost:#{@genghis_port}", 'genghis.php', :out => '/dev/null'
-      api = Faraday.new url: "http://localhost:#{@genghis_port}"
+    when :php, :php_dev
+      @genghis_pid = spawn 'php', '-S', "localhost:#{@genghis_port}", php_backend_filename(backend), :out => '/dev/null', :err => '/dev/null'
+      api = Faraday.new :url => "http://localhost:#{@genghis_port}"
       0.upto(20) do |i|
         break if api_started?(api)
         sleep 0.1
       end
       api
-    when :ruby
+    when :ruby, :ruby_dev
       Faraday.new do |conn|
-        conn.adapter :rack, Genghis::Server.new
+        conn.adapter :rack, ruby_backend_class(backend).new
       end
+    end
+  end
+
+  def php_backend_filename(backend)
+    case backend
+    when :php     then 'genghis.php'
+    when :php_dev then 'genghis-dev.php'
+    end
+  end
+
+  def ruby_backend_class(backend)
+    case backend
+    when :ruby     then Genghis::Server
+    when :ruby_dev then Genghis::DevServer
     end
   end
 
   def api_started?(api)
     api.get '/'
     true
-  rescue Faraday::Error::ConnectionFailed => e
+  rescue Faraday::Error::ConnectionFailed
     false
   end
 
   def encode_upload(file)
-    "data:text/plain;base64," + Base64.strict_encode64(file)
+    'data:text/plain;base64,' + Base64.strict_encode64(file)
   end
 
   config.after :all do
     # Kill any outstanding Genghis backend
     Process.kill('HUP', @genghis_pid) unless @genghis_pid.nil?
     @genghis_pid = nil
+  end
+end
+
+RSpec::Matchers.define :be_a_json_response do
+  match do |actual|
+    actual.headers &&
+      actual.headers['content-type'] &&
+      actual.headers['content-type'].start_with?('application/json')
+  end
+end
+
+RSpec::Matchers.define :be_a_download_response do
+  match do |actual|
+    actual.headers &&
+      actual.headers['content-type'] &&
+      actual.headers['content-type'].start_with?('binary/octet-stream') &&
+      actual.headers['content-disposition'] &&
+      actual.headers['content-disposition'].start_with?('attachment') # TODO: include filename= for all backends
   end
 end

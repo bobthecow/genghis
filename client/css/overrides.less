@@ -1,0 +1,80 @@
+/* overrides */
+
+// Container overrides... make it elastic
+.container, .navbar .container {
+    padding-left:  20px;
+    padding-right: 20px;
+    width: auto;
+    min-width: 320px;
+    max-width: 1400px;
+}
+
+
+// better font family
+code, pre {
+    font-family: 'Source Code Pro', monospace;
+}
+
+
+.popover-title {
+    font-size: 18px;
+}
+
+.popover-content {
+    ul {
+        padding-left: 0px;
+    }
+    li {
+        list-style:    none;
+        white-space:   nowrap;
+        overflow:      hidden;
+        text-overflow: ellipsis;
+
+        // Fake the bullets since we're using text overflow
+        &:before {
+            color:         lighten(#000, 66%);
+            content:       '\25CF'; // black circle
+            padding-right: 10px;
+        }
+    }
+
+    // No bullets for the index details list items
+    ul.index-details li:before {
+        display: none;
+    }
+}
+
+.pagination {
+  > .disabled {
+    > span,
+    > a,
+    > a:hover,
+    > a:focus {
+      cursor: default;
+    }
+  }
+}
+
+.modal-header {
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    .box-shadow(inset 0 1px 0 white);
+    .border-top-radius(@border-radius-base + 2);
+}
+
+
+// Style us up some buttons
+.btn    { border-radius: 2px; }
+.btn-xs { border-radius: 1px; }
+
+.btn-styles(@color) {
+    box-shadow: inset 0 1px 1px lighten(@color, 5%), 0 1px 1px rgba(0,0,0,.1);
+}
+
+.btn-default { .btn-styles(@btn-default-bg); }
+.btn-primary { .btn-styles(@btn-primary-bg); }
+.btn-success { .btn-styles(@btn-success-bg); }
+.btn-info    { .btn-styles(@btn-info-bg);    }
+.btn-warning { .btn-styles(@btn-warning-bg); }
+.btn-danger  { .btn-styles(@btn-danger-bg);  }
+

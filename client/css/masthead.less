@@ -1,0 +1,105 @@
+.mastheadbg(@bgColor) {
+    background:
+        -webkit-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 0 0,
+        -webkit-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 16px 16px,
+        -webkit-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 0 -1px,
+        -webkit-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 16px 15px,
+        -webkit-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 0 1px,
+        -webkit-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 16px 17px;
+    background:
+           -moz-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 0 0,
+           -moz-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 16px 16px,
+           -moz-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 0 -1px,
+           -moz-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 16px 15px,
+           -moz-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 0 1px,
+           -moz-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 16px 17px;
+    background:
+           -ms-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 0 0,
+           -ms-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 16px 16px,
+           -ms-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 0 -1px,
+           -ms-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 16px 15px,
+           -ms-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 0 1px,
+           -ms-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 16px 17px;
+    background:
+            -o-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 0 0,
+            -o-radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 16px 16px,
+            -o-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 0 -1px,
+            -o-radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 16px 15px,
+            -o-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 0 1px,
+            -o-radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 16px 17px;
+    background:
+               radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 0 0,
+               radial-gradient(darken(@bgColor, 3%)    25%, transparent 26%) 16px 16px,
+               radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 0 -1px,
+               radial-gradient(rgba(0, 0, 0, .2)       25%, transparent 26%) 16px 15px,
+               radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 0 1px,
+               radial-gradient(rgba(255, 255, 255, .1) 25%, transparent 26%) 16px 17px;
+
+    -webkit-background-size: 32px 30px;
+       -moz-background-size: 32px 30px;
+        -ms-background-size: 32px 30px;
+         -o-background-size: 32px 30px;
+            background-size: 32px 30px;
+
+    background-color: @bgColor;
+}
+
+.masthead {
+    position: relative;
+    padding: 40px 0;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,.4), 0 0 30px rgba(0,0,0,.1);
+    .mastheadbg(darken(@mongo-green, 10%));
+    .box-shadow(~"inset 0 3px 7px rgba(0,0,0,.2), inset 0 -3px 7px rgba(0,0,0,.2)");
+    .container {
+        position: relative;
+        z-index:  2;
+    }
+    &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        top:    0;
+        right:  0;
+        bottom: 0;
+        left:   0;
+        #gradient > .horizontal(rgba(0,0,0,.5), rgba(255,255,255,.01));
+    }
+
+    h1 {
+        font-size: 60px;
+        font-weight: bold;
+        letter-spacing: -1px;
+        line-height: 1;
+        small {
+          display: block;
+          color: #fff;
+          font-weight: bold;
+        }
+    }
+    p {
+        font-size: 24px;
+        line-height: 1.25;
+        margin-bottom: 20px;
+        font-weight: 300;
+    }
+
+    &.epic {
+        text-align: center;
+        padding: 70px 80px;
+        h1 {
+            font-size: 120px;
+        }
+        h2 {
+            font-size: 80px;
+        }
+        p {
+            font-size: 40px;
+            font-weight: 200;
+            margin-bottom: 30px;
+        }
+    }
+
+    &.error { .mastheadbg(darken(@brand-danger, 10%)); }
+    &.muted { .mastheadbg(@gray-dark);                 }
+}

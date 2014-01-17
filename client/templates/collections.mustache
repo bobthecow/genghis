@@ -1,0 +1,51 @@
+<header><h2>{{ title }}</h2></header>
+<div class="content">
+    <table>
+        <thead>
+            <tr>
+                <th>name</th>
+                <th>documents</th>
+                <th>indexes</th>
+                <th>size</th>
+                <th data-sorter="false"></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+
+<div class="add-form-toggle form-inline" role="form">
+    <div class="btn-group">
+        <button class="btn btn-default">Add collection</button>
+        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="show" href="#">Add collection</a></li>
+            <li><a class="show-gridfs" href="#">Add GridFS collection</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="add-form form-inline" role="form">
+    <div class="form-group">
+        <label class="sr-only" for="new-collection-name">Collection name</label>
+        <input class="name form-control add-form-input" type="text" id="new-collection-name">
+    </div>
+    <button class="btn btn-primary add">Add collection</button>
+    <button class="btn btn-default cancel">Cancel</button>
+</div>
+
+<div class="add-form-gridfs form-inline" role="form">
+    <div class="form-group add-form-input">
+        <div class="input-group">
+            <label class="sr-only" for="new-gridfs-collection-name">GridFS collection name</label>
+            <input class="name form-control" type="text" id="new-gridfs-collection-name">
+            <span class="input-group-addon">.files</span>
+        </div>
+    </div>
+    <button class="btn btn-primary add">Add GridFS collection</button>
+    <button class="btn btn-default cancel">Cancel</button>
+</div>

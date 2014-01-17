@@ -1,0 +1,31 @@
+<header><h2>Servers</h2></header>
+<div class="content">
+    <table>
+        <thead>
+            <tr>
+                <th>name</th>
+                <th>databases</th>
+                <th>size</th>
+                <th data-sorter="false"></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<div class="add-form-toggle form-inline" role="form">
+    <button class="btn btn-default">Add server</button>
+</div>
+
+<div class="add-form form-inline" role="form">
+    <div class="form-group add-form-input">
+        <div class="input-group">
+            <label class="sr-only" for="new-server-uri">Server URI</label>
+            <input class="name form-control" type="text" id="new-server-uri">
+            <span class="input-group-addon help" title="user:pass@localhost:27017/db">?</span>
+        </div>
+    </div>
+    <button class="btn btn-primary add">Add server</button>
+    <button class="btn btn-default cancel">Cancel</button>
+</div>

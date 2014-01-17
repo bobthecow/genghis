@@ -1,0 +1,191 @@
+{$, _}      = require '../vendors'
+Util        = require '../util.coffee'
+GenghisJSON = require '../json.coffee'
+defaults    = require '../defaults.coffee'
+View        = require './view.coffee'
+template    = require '../../templates/search.mustache'
+
+PLACEHOLDERS = [
+  '{name: /genghis(app)?/i}'
+  '{awesomeness: {$gt: 10}}'
+  '{search: "like this, yo."}'
+  '{neverGonna: ["give you up", "let you down", "run around", "desert you"]}'
+]
+
+normalize = (q = '', pretty = false) ->
+  q = q.trim()
+  if q isnt ''
+    try
+      q = GenghisJSON.normalize(q, pretty)
+  q
+
+class Search extends View
+  tagName:   'form'
+  className: 'navbar-search navbar-form navbar-left'
+  template:  template
+
+  ui:
+    '$query':    'input#navbar-query'
+    '$well':     '.well'
+    '$grippie':  '.grippie'
+    '$advanced': '.search-advanced'
+
+  events:
+    'keyup $query':         'handleSearchKeyup'
+    'click span.grippie':   'toggleExpanded'
+    'click button.cancel':  'collapseSearch'
+    'click button.search':  'findDocumentsAdvanced'
+    'click button.explain': 'explainQuery'
+
+  keyboardEvents:
+    '/': 'focusSearch'
+
+  dataEvents:
+    'change            model': 'updateQuery'
+    'change:collection model': 'collapseNoFocus'
+
+  initialize: ->
+    @documents = @model.documents
+    @query     = @model.query
+    @explain   = @model.explain
+    super
+
+  serialize: ->
+    query:       @model.get('query')
+    placeholder: _.sample(PLACEHOLDERS)
+
+  afterRender: ->
+    @$el.submit (e) -> e.preventDefault()
+
+    wrapper   = @$el
+    resizable = @$well
+    expand    = @expandSearch
+    collapse  = @collapseSearch
+
+    @$grippie.bind 'mousedown', (e) ->
+      mouseMove = (e) ->
+        mouseY = e.clientY + document.documentElement.scrollTop - wrapper.offset().top
+        wrapper.height mouseY + 'px'  if mouseY >= minHeight and mouseY <= maxHeight
+        if wrapper.hasClass('expanded')
+          collapse() if mouseY < minHeight
+        else
+          expand() if mouseY > 100
+        false
+      mouseUp = (e) ->
+        $(document).unbind('mousemove', mouseMove).unbind('mouseup', mouseUp)
+        collapse() unless wrapper.hasClass('expanded')
+        e.preventDefault()
+      e.preventDefault()
+      minHeight = 30
+      maxHeight = Math.min($(window).height() / 2, 350)
+      $(document)
+        .mousemove(mouseMove)
+        .mouseup(mouseUp)
+
+  updateQuery: =>
+    @$query.val @normalizeQuery(@model.get('query') or @getDocumentQuery())
+
+  getDocumentQuery: ->
+    q = @model.get('document')
+    if _.isString(q) and q[0] is '~'
+      q = GenghisJSON.normalize("{\"_id\":#{Util.decodeDocumentId(q)}}")
+    q
+
+  handleSearchKeyup: (e) =>
+    @$el.removeClass('has-error')
+    if e.keyCode is 13
+      e.preventDefault()
+      @findDocuments($(e.target).val())
+    else
+      @blurSearch() if e.keyCode is 27
+
+  findDocuments: (q, opt = {}) =>
+    q   = q.trim()
+    url = if opt.explain then @explain.baseUrl() else @documents.baseUrl()
+
+    if q.match(/^([a-z\d]+)$/i) and not opt.explain
+      app.router.navigate("#{url}/#{q}", true)
+      return
+
+    try
+      q = GenghisJSON.parse(q)
+    catch e
+      @$el.addClass('has-error')
+      return
+
+    query = @query.toString(query: q, pretty: true)
+    app.router.navigate("#{url}#{query}", true)
+
+  findDocumentsAdvanced: (e) =>
+    @findDocuments @editor.getValue()
+    @collapseSearch()
+
+  explainQuery: (e) ->
+    @findDocuments(@editor.getValue(), {explain: true})
+    @collapseSearch()
+
+  focusSearch: (e) =>
+    # TODO: make the view stateful rather than querying the DOM
+    if @$query.is(':visible')
+      e?.preventDefault?()
+      @$query.focus()
+    else if @editor and @$well.is(':visible')
+      e?.preventDefault?()
+      @editor.focus()
+
+  blurSearch: =>
+    @$query.blur()
+    @updateQuery()
+
+  normalizeQuery: (q = '') ->
+    normalize(q)
+      .replace(/^\{\s*\}$/, '')
+      .replace(/^\{\s*(['"]?)_id\1\s*:\s*\{\s*(['"]?)\$id\2\s*:\s*(["'])([a-z\d]+)\3\s*\}\s*\}$/, '$4')
+      .replace(/^\{\s*(['"]?)_id\1\s*:\s*(new\s+)?ObjectId\s*\(\s*(["'])([a-z\d]+)\3\s*\)\s*\}$/, '$4')
+
+  advancedSearchToQuery: =>
+    @$query.val(@normalizeQuery(@editor.getValue()))
+
+  queryToAdvancedSearch: =>
+    q = @$query.val().trim()
+    q = "{_id:ObjectId(\"#{q}\")}" if q.match(/^[a-z\d]+$/i)
+    @editor.setValue(normalize(q, true))
+
+  expandSearch: (expand) =>
+    return unless @isAttached()
+    unless @editor
+      wrapper = @$advanced
+      @editor = CodeMirror(@$well[0], _.extend({}, defaults.codeMirror,
+        lineNumbers: false
+        placeholder: GenghisJSON.normalize(@$query.attr('placeholder'), true)
+        extraKeys:
+          'Ctrl-Enter': @findDocumentsAdvanced
+          'Cmd-Enter':  @findDocumentsAdvanced
+          'Esc':        @findDocumentsAdvanced
+      ))
+      @editor.on 'focus', -> wrapper.addClass    'focused'
+      @editor.on 'blur',  -> wrapper.removeClass 'focused'
+      @editor.on 'change', @advancedSearchToQuery
+
+    @queryToAdvancedSearch()
+    @$el.addClass 'expanded'
+    {editor, focusSearch} = this
+    _.defer ->
+      editor.refresh()
+      focusSearch()
+
+  collapseSearch: =>
+    @collapseNoFocus()
+    @focusSearch()
+
+  collapseNoFocus: =>
+    @$el.removeClass('expanded').css('height', 'auto')
+
+  toggleExpanded: =>
+    if @$el.hasClass('expanded')
+      @collapseSearch()
+    else
+      @expandSearch()
+      @$el.height(Math.floor($(window).height() / 4) + 'px')
+
+module.exports = Search

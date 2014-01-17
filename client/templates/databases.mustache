@@ -1,0 +1,29 @@
+<header><h2>{{ title }}</h2></header>
+<div class="content">
+    <table>
+        <thead>
+            <tr>
+                <th>name</th>
+                <th>collections</th>
+                <th>size</th>
+                <th data-sorter="false"></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+
+<div class="add-form-toggle form-inline" role="form">
+    <button class="btn btn-default">Add database</button>
+</div>
+
+<div class="add-form form-inline" role="form">
+    <div class="form-group">
+        <label class="sr-only" for="new-database-name">Database name</label>
+        <input class="name form-control add-form-input" type="text" id="new-database-name">
+    </div>
+    <button class="btn btn-primary add">Add database</button>
+    <button class="btn btn-default cancel">Cancel</button>
+</div>

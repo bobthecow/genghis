@@ -1,0 +1,9 @@
+<div class="alert{{# block }} alert-block{{/ block }} alert-{{ level }} alert-dismissable">
+    <button type="button" class="close" aria-hidden="true">&times;</button>
+    {{# block }}
+        <p>{{{ msg }}}</p>
+    {{/ block }}
+    {{^ block }}
+        {{{ msg }}}
+    {{/ block }}
+</div>

@@ -15,7 +15,7 @@ Vegas::Runner.new(Genghis::Server, 'genghisapp', options) do |runner, opts, app|
     ENV['GENGHIS_NO_UPDATE_CHECK'] = '1'
   end
 
-  opts.on('-s SERVERS', '--servers SERVERS', 'Specify default server list') do |servers|
+  opts.on('-s SERVERS', '--servers SERVERS', 'Set a semicolon delimited list of default servers') do |servers|
     runner.logger.info "Using Genghis servers #{servers.inspect}"
     ENV['GENGHIS_SERVERS'] = servers
   end
