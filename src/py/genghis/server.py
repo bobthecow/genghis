@@ -71,7 +71,7 @@ def catch_all(path):
 def check_status():
     try:
         return jsonify(alerts = server_status_alerts())
-    except:
+    except Exception:
         logger.error("Ouch", exc_info=True)
 
 

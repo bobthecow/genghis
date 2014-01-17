@@ -44,7 +44,7 @@ def page_param():
 def request_json():
     try:
         return decode(request.data)
-    except:
+    except Exception:
         raise MalformedDocument
 
 def thunk_mongo_id(id_):

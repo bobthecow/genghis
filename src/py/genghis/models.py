@@ -219,7 +219,7 @@ class Database(object):
             return Collection(self.database.create_collection(coll_name))
         except CollectionInvalid:
             raise CollectionAlreadyExists(self, coll_name)
-        except:
+        except Exception:
             raise MalformedDocument('Invalid collection name')
 
     @property
@@ -405,5 +405,5 @@ class Collection(object):
             if not re.match("^data:[^;]+;base64,", data):
                 raise ValueError
             return base64.b64decode(re.sub("^data:[^;]+;base64,", "", data))
-        except:
+        except Exception:
             raise MalformedDocument('File must be a base64 encoded data: URI')
