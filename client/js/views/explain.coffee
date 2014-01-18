@@ -13,7 +13,7 @@ class Explain extends View
     '$doc': '.document'
 
   events:
-    'click button,span.e': Util.toggleCollapser
+    'click button, span.e': Util.toggleCollapser
 
   dataEvents:
     'sync model': 'updateExplain'

@@ -20,7 +20,7 @@ class Document extends BaseDocument
     'click a.id':            'navigate'
     'click button.edit':     'openEditDialog'
 
-    'click button,span.e':   Util.toggleCollapser
+    'click .document button, .document span.e': Util.toggleCollapser
 
     # 'dblclick .document':    'openEditDialog',
     'click button.save':     'saveDocument'
