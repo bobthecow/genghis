@@ -23,7 +23,7 @@ npm install
 ```
 
 In order to run the test suite, you'll need Ruby, too. Ruby 1.9.x or 2.x would be best. After you've got Ruby, install
-those dependencies too:
+those dependencies:
 
 ```sh
 gem install bundler
@@ -41,7 +41,7 @@ they can be used from where they sit.
 First, build the assets they expect:
 
 ```sh
-gulp scripts styles templates
+gulp styles scripts copy templates
 ```
 
 That will create a `public` directory with all the assets that `genghis-dev.*` need to run. Now start up your dev
@@ -59,13 +59,27 @@ ruby genghis-dev.rb
 
 Then visit [http://localhost:4567](http://localhost:4567) in your browser and start playing.
 
+For added dev awesomeness, you can run a gulp task called `dev`, which watches source files for changes and
+automatically rebuilds them. As a bonus, it sets up LiveReload as well. So install the Chrome or Safari browser
+plugins for great justice.
+
+```sh
+gulp dev
+```
+
 
 ## Building Genghis
 
 Genghis is... a bit weird.
 
- * The two app files, `genghis.rb` and `genghis.php` are built with a JavaScript asset packaging library called Gulp.
-   Rake. To regenerate them, run `gulp rebuild` from the project directory.
+ * Genghis is built with a JavaScript build system called [gulp](http://gulpjs.com). To build it, run `gulp` from the
+   project directory.
+ * The development apps, `genghis-dev.rb` and `genghis-dev.php` don't need to be built before using them. They include
+   source files out of the `server/*` directory like sane, normal, webapps. But they do require client-side assets to
+   be generated.
+ * To build client-side assets, run `gulp styles scripts copy templates`.
+ * The two production app files, `genghis.rb` and `genghis.php`, should never be edited by hand. In fact, there's a
+   non-zero chance that editing them will crash your IDE. They can be built by runing `gulp rebuild`.
  * Go ahead and skip committing the updated `genghis.rb` and `genghis.php`… that's just asking for a merge conflict,
    and we'll recompile them before cutting a release anyway.
 
