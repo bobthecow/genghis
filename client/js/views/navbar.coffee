@@ -18,7 +18,7 @@ class Navbar extends View
     'change:collection model': 'onChangeCollection'
 
   initialize: ->
-    @navView    = new Nav({@model, @baseUrl})
+    @navView    = new Nav({@model, @baseUrl, @router})
     @searchView = new Search({@model})
     @render()
 

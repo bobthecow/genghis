@@ -17,7 +17,7 @@ class Nav extends View
 
   keyboardEvents:
     's': 'navigateToServers'
-    # 'u': 'navigateUp'
+    'u': 'navigateUp'
 
   initialize: ->
     # TODO: clean this up somehow
@@ -50,29 +50,36 @@ class Nav extends View
 
     if _.has(attrs, 'server')
       if attrs.server?
-        @attach @serverNavView unless @serverNavView.isAttached()
+        @attach(@serverNavView) unless @serverNavView.isAttached()
       else
-        @serverNavView.detach true
+        @serverNavView.detach(true)
 
     if _.has(attrs, 'database')
       if attrs.database?
-        @attach @databaseNavView unless @databaseNavView.isAttached()
+        @attach(@databaseNavView) unless @databaseNavView.isAttached()
       else
-        @databaseNavView.detach true
+        @databaseNavView.detach(true)
 
     if _.has(attrs, 'collection')
       if attrs.collection?
-        @attach @collectionNavView unless @collectionNavView.isAttached()
+        @attach(@collectionNavView) unless @collectionNavView.isAttached()
       else
-        @collectionNavView.detach true
+        @collectionNavView.detach(true)
 
   navigate: (e) ->
     return if e.ctrlKey or e.shiftKey or e.metaKey
     e.preventDefault()
-    app.router.navigate Util.route($(e.target).attr('href')), true
+    @router.navigate(Util.route($(e.target).attr('href')), true)
 
   navigateToServers: (e) ->
     e.preventDefault()
-    app.router.redirectToIndex()
+    @router.redirectToIndex()
+
+  navigateUp: (e) ->
+    e.preventDefault()
+    return @router.navigate(@model.coll.url(), true)     if @model.has('search') or @model.has('document')
+    return @router.navigate(@model.database.url(), true) if @model.has('collection')
+    return @router.navigate(@model.server.url(), true)   if @model.has('database')
+    return @router.navigate(@baseUrl, true)              if @model.has('server')
 
 module.exports = Nav
