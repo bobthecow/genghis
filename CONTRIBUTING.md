@@ -26,7 +26,7 @@ In order to run the test suite, you'll need Ruby, too. Ruby 1.9.x or 2.x would b
 those dependencies too:
 
 ```sh
-gem install bundle
+gem install bundler
 bundle install
 ```
 
