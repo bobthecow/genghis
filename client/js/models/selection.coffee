@@ -92,7 +92,7 @@ class Selection extends Giraffe.Model
         .fail(fetchErrorHandler('collections', 'Database Not Found'))
 
     # Get search params out of the way before updating the collection or explain...
-    unless _.isEmpty(_.pick(changed, SEARCH_PARAMS))
+    unless _.isEmpty(_.pick(changed || {}, SEARCH_PARAMS))
       @search.fromString(@get('search') || '')
 
     if @has('collection') and not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
