@@ -38,6 +38,12 @@ def jsonify(obj=None, **kwargs):
 def query_param():
     return decode(request.args.get('q', '{}'))
 
+def fields_param():
+    return decode(request.args.get('fields', '{}'))
+
+def sort_param():
+    return decode(request.args.get('sort', '{}'))
+
 def page_param():
     return int(request.args.get('page', 1))
 

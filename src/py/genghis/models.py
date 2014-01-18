@@ -167,10 +167,12 @@ class Query(object):
     PAGE_LIMIT = 50
     _documents = None
     
-    def __init__(self, collection, query=None, page=1):
+    def __init__(self, collection, query=None, fields=None, sort=None, page=1):
         self.collection = collection
-        self.page = page
         self.query = query or {}
+        self.fields = fields or {}
+        self.sort = sort or {}
+        self.page = page
         
     def as_json(self):
         return {
@@ -196,7 +198,16 @@ class Query(object):
     @property
     def documents(self):
         if not self._documents:
-            self._documents = self.collection.find(self.query, limit=Query.PAGE_LIMIT, skip=self.offset)
+            opts = {
+                "limit" : Query.PAGE_LIMIT,
+                "skip" : self.offset
+            }
+            if self.fields:
+                opts["fields"] = self.fields
+            if self.sort:
+                opts["sort"] = self.sort
+                
+            self._documents = self.collection.find(self.query, **opts)
         return self._documents
     
 class Database(object):
@@ -329,8 +340,8 @@ class Collection(object):
     def explain(self, query=None):
         return self.collection.find(query or {}).explain()
     
-    def documents(self, query=None, page=1):
-        return Query(self.collection, query or {}, page)
+    def documents(self, query=None, fields=None, sort=None, page=1):
+        return Query(self.collection, query or {}, fields or {}, sort or {}, page)
     
     def __getitem__(self, doc_id):
         doc = self.collection.find_one(self._thunk_mongo_id(doc_id))

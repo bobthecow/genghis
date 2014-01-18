@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from genghis.helpers import server_status_alerts, servers, add_server,\
     remove_server, query_param, request_json, page_param, jsonify,\
-    get_asset
+    get_asset, fields_param, sort_param
 from flask import Flask, request
 from genghis.errors import ServerNotFound, GenghisException
 import pystache
@@ -124,7 +124,7 @@ def explain_collection(server, database, collection):
 @app.route('/servers/<server>/databases/<database>/collections/<collection>/documents', methods=["GET", "POST", "DELETE"])
 def documents(server, database, collection):    
     if request.method == "GET":
-        return jsonify(servers()[server][database][collection].documents(query_param(), page_param()))
+        return jsonify(servers()[server][database][collection].documents(query_param(), fields_param(), sort_param(), page_param()))
     elif request.method == "DELETE":
         servers()[server][database][collection].truncate()
         return jsonify(success=True)
