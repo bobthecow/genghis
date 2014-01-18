@@ -691,6 +691,9 @@ genghis_backends.each do |backend|
                   {:_id => OBJECT_ID, :b => 3},
                 ].ordered!
             end
+
+            it 'saves users from themselves by preventing dumb sorts'
+            it 'allows users to override dumb sort prevention and/or offers to let them add an index'
           end
         end
       end
