@@ -17,7 +17,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
     {
         $this->default = $default;
 
-        if (version_compare(phpversion("mongo"), '1.3.4', '>=')) {
+        if (version_compare(Mongo::VERSION, '1.3.4', '>=')) {
             $this->defaultOptions['connectTimeoutMS'] = 1000;
         } else {
             $this->defaultOptions['timeout'] = 1000;
