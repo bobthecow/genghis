@@ -1,4 +1,5 @@
 import bson, json, re, base64, datetime
+import math
 
 def as_json(object_):
     return _enc(object_)  # TODO check for types: Array, Hash, BSON::OrderedHash, Genghis::Models::Query
@@ -36,15 +37,21 @@ def _enc(o):
         return _db_ref(o)
     elif isinstance(o, bson.binary.Binary):
         return _thunk("BinData", { "$subtype" : o.subtype, "$binary" : _enc_bin_data(o) })
+    elif isinstance(o, bson.timestamp.Timestamp):
+        return _thunk("Timestamp", { "$t" : o.time, "$i" : o.inc })
+    elif math.isnan(o):
+        return _thunk("NaN")
     else:
         return o
 
 
-def _thunk(name, value):
-    return {
-        '$genghisType' : name,
-        '$value' : value
+def _thunk(name, value=None):
+    result = {
+        '$genghisType' : name
     }
+    if value:
+        result['$value'] = value
+    return result
 
 def _enc_re_flags(opt):
     return ('m' if (opt & re.MULTILINE) else '') + ('i' if (opt & re.IGNORECASE) else '')
@@ -71,6 +78,10 @@ def _dec(o):
                 return _mongo_reg_exp(o['$value'])
             if o['$genghisType'] == "BinData":
                 return _mongo_bin_data(o['$value'])
+            if o['$genghisType'] == "Timestamp":
+                return _mongo_timestamp(o['$value'])
+            if o['$genghisType'] == "Float":
+                return float('nan')
         return {k:_dec(v) for k,v in o.iteritems()}
     elif hasattr(o, "__iter__"):
         return [_dec(i) for i in o]
@@ -95,3 +106,5 @@ def _mongo_reg_exp(value):
 def _mongo_bin_data(value):
     return bson.binary.Binary(base64.b64decode(value['$binary']), value['$subtype'])
 
+def _mongo_timestamp(value):
+    return bson.timestamp.Timestamp(value['$t'], value['$i'])

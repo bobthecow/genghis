@@ -40,13 +40,13 @@ def handle_api_errors(error):
 
 ### Asset routes ###
 
-@app.route("/assets/style.css")
+@app.route("/css/style.css")
 def asset_stylecss():
     response = make_response(get_asset("style.css"))
     response.mimetype = 'text/css'
     return response 
 
-@app.route("/assets/script.js")
+@app.route("/js/script.js")
 def asset_scriptjs():
     response = make_response(get_asset("script.js"), )
     response.mimetype = 'text/javascript'
@@ -79,7 +79,7 @@ def check_status():
 def servers_():
     if request.method == 'GET':
         return jsonify(servers().values())
-    return jsonify(add_server(request.get_json()["name"]))
+    return jsonify(add_server(request.get_json()["url"]))
 
 @app.route('/servers/<server>', methods=["GET", "DELETE"])
 def server(server):
@@ -117,10 +117,17 @@ def collection(server, database, collection):
     servers()[server][database][collection].drop()
     return jsonify(success=True)
 
-@app.route('/servers/<server>/databases/<database>/collections/<collection>/documents', methods=["GET", "POST"])
+@app.route('/servers/<server>/databases/<database>/collections/<collection>', methods=["GET"])
+def explain_collection(server, database, collection):
+    return jsonify(servers()[server][database][collection].explain(query_param()))
+
+@app.route('/servers/<server>/databases/<database>/collections/<collection>/documents', methods=["GET", "POST", "DELETE"])
 def documents(server, database, collection):    
     if request.method == "GET":
         return jsonify(servers()[server][database][collection].documents(query_param(), page_param()))
+    elif request.method == "DELETE":
+        servers()[server][database][collection].truncate()
+        return jsonify(success=True)
     return jsonify(servers()[server][database][collection].insert(request_json()))
 
 @app.route('/servers/<server>/databases/<database>/collections/<collection>/documents/<document>', methods=["GET", "PUT", "DELETE"])
@@ -142,7 +149,7 @@ def files(server, database, collection):
 def file_document(server, database, collection, document):
     if request.method == "GET":
         file_ = servers()[server][database][collection].get_file(document)
-        content_type = file_.content_type or 'application/octet-stream'
+        content_type = file_.content_type or 'binary/octet-stream'
         filename = file_.filename or document
         response = make_response(iter(file_), mimetype=content_type)
         response.headers["Content-Disposition"] = "attachment; filename={filename}".format(filename=filename)

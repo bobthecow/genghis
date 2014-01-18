@@ -294,6 +294,12 @@ class Collection(object):
     def drop(self):
         self.colleciton.drop()
         
+    def truncate(self):
+        indexes = self.collection.index_information()
+        self.colleciton.drop()
+        for name, index in indexes.iteritems():
+            self.collection.ensure_index(index.pop(), name=name, **index)  # TODO: check if correct
+        
     def insert(self, data):
         try:
             id_ = self.collection.insert(data)
@@ -319,6 +325,9 @@ class Collection(object):
         except OperationFailure, e:
             traceback.print_exc()
             raise MalformedDocument(e.message)
+    
+    def explain(self, query=None):
+        return self.collection.find(query or {}).explain()
     
     def documents(self, query=None, page=1):
         return Query(self.collection, query or {}, page)
