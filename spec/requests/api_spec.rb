@@ -671,6 +671,27 @@ genghis_backends.each do |backend|
                 ]
             end
           end
+
+          context 'with sort order' do
+            let(:sort) { {'a' => -1, 'c' => 1} }
+            let(:res)  { @api.get "/servers/localhost/databases/__genghis_spec_test__/collections/#{coll}/documents?sort=#{sort.to_json}" }
+
+            it 'returns a list of documents in order' do
+              expect(res.status).to eq 200
+              expect(res).to be_a_json_response
+              expect(res.body).to match_json_expression \
+                :count     => 3,
+                :page      => 1,
+                :pages     => 1,
+                :per_page  => 50,
+                :offset    => 0,
+                :documents => [
+                  {:_id => OBJECT_ID, :a => 2, :b => 2},
+                  {:_id => OBJECT_ID, :a => 1},
+                  {:_id => OBJECT_ID, :b => 3},
+                ].ordered!
+            end
+          end
         end
       end
 

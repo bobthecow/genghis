@@ -8,6 +8,7 @@ New:
  * [Fix #115][i115] — Add support for viewing and updating NaN values.
  * Add request and error logging when running PHP backend from the command line.
  * [Fix #159][i159] — Add projection document (API) support.
+ * [Fix #58][i58] — Add sort order (API) support.
 
 Improved:
 
@@ -30,6 +31,7 @@ Improved:
 
 [i115]: https://github.com/bobthecow/genghis/issues/115
 [i159]: https://github.com/bobthecow/genghis/issues/159
+[i58]:  https://github.com/bobthecow/genghis/issues/58
 [i128]: https://github.com/bobthecow/genghis/issues/128
 
 

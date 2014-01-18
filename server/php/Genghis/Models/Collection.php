@@ -141,16 +141,22 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         return $result;
     }
 
-    public function findDocuments($query = null, $fields = null, $page = 1)
+    public function findDocuments($query = null, $fields = null, $sort = null, $page = 1)
     {
         $query  = $this->decodeQuery($query);
         $fields = $this->decodeQuery($fields);
+        $sort   = $this->decodeQuery($sort);
         $offset = Genghis_Api::PAGE_LIMIT * ($page - 1);
 
         $cursor = $this->collection
             ->find($query ? $query : array(), $fields ? $fields : array())
-            ->limit(Genghis_Api::PAGE_LIMIT)
-            ->skip($offset);
+            ->limit(Genghis_Api::PAGE_LIMIT);
+
+        if (!empty($sort)) {
+            $cursor->sort($sort);
+        }
+
+        $cursor->skip($offset);
 
         $count = $cursor->count();
 

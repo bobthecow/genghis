@@ -21,6 +21,10 @@ module Genghis
       ::Genghis::JSON.decode(params.fetch('fields', '{}'))
     end
 
+    def sort_param
+      ::Genghis::JSON.decode(params.fetch('sort', '{}'))
+    end
+
     def page_param
       params.fetch('page', 1).to_i
     end

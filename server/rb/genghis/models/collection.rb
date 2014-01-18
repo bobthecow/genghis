@@ -59,8 +59,8 @@ module Genghis
         @collection.find(query).explain
       end
 
-      def documents(query = {}, fields = {}, page = 1)
-        Query.new(@collection, query, fields, page)
+      def documents(query = {}, fields = {}, sort = {}, page = 1)
+        Query.new(@collection, query, fields, sort, page)
       end
 
       def [](doc_id)
