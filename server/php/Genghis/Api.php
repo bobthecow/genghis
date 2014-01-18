@@ -210,7 +210,8 @@ class Genghis_Api extends Genghis_App
                 $query  = (string) $this->getQueryParam('q',      null);
                 $fields = (string) $this->getQueryParam('fields', null);
                 $sort   = (string) $this->getQueryParam('sort',   null);
-                $page   = (int)    $this->getQueryParam('page',   1);
+
+                $page   = (int) $this->getQueryParam('page', 1);
 
                 return $this->servers[$server][$db][$coll]->findDocuments($query, $fields, $sort, $page);
 
