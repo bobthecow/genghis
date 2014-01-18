@@ -148,6 +148,12 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         $sort   = $this->decodeQuery($sort);
         $offset = Genghis_Api::PAGE_LIMIT * ($page - 1);
 
+        // Mongo driver < 1.3 couldn't deal with an object for the sort hash, so
+        // we'll give it an associative array.
+        if (version_compare(Mongo::VERSION, '1.3.0', '<')) {
+            $sort = (array) $sort;
+        }
+
         $cursor = $this->collection
             ->find($query ? $query : array(), $fields ? $fields : array())
             ->limit(Genghis_Api::PAGE_LIMIT);
