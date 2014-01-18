@@ -12,6 +12,9 @@ class Search extends Giraffe.Model
     sort:   {}
     page:   1
 
+  hasProjection: =>
+    not _.isEmpty(@get('fields'))
+
   toParams: (opts = {}) =>
     params = {}
     if q = opts.query or @get('query')

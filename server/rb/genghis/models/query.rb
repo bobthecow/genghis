@@ -3,10 +3,11 @@ module Genghis
     class Query
       PAGE_LIMIT = 50
 
-      def initialize(collection, query = {}, page = 1)
+      def initialize(collection, query = {}, fields = {}, page = 1)
         @collection = collection
-        @page       = page
         @query      = query
+        @fields     = fields
+        @page       = page
       end
 
       def as_json(*)
@@ -35,7 +36,9 @@ module Genghis
       end
 
       def documents
-        @documents ||= @collection.find(@query, :limit => PAGE_LIMIT, :skip => offset)
+        opts = {:limit => PAGE_LIMIT, :skip => offset}
+        opts[:fields] = @fields unless @fields.empty?
+        @documents ||= @collection.find(@query, opts)
       end
     end
   end

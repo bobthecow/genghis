@@ -623,6 +623,55 @@ genghis_backends.each do |backend|
               :status => 404
           end
         end
+
+        context 'with a search string' do
+          let(:q)   { {'a' => {'$exists' => true}} }
+          let(:res) { @api.get "/servers/localhost/databases/__genghis_spec_test__/collections/#{coll}/documents?q=#{q.to_json}" }
+
+          before :all do
+            @coll.remove({})
+            @coll.insert([
+              {:a => 1},
+              {:a => 2, :b => 2},
+              {:b => 3},
+            ])
+          end
+
+          it 'returns a list of documents' do
+            expect(res.status).to eq 200
+            expect(res).to be_a_json_response
+            expect(res.body).to match_json_expression \
+              :count     => 2,
+              :page      => 1,
+              :pages     => 1,
+              :per_page  => 50,
+              :offset    => 0,
+              :documents => [
+                {:_id => OBJECT_ID, :a => 1},
+                {:_id => OBJECT_ID, :a => 2, :b => 2},
+              ]
+          end
+
+          context 'with projection fields' do
+            let(:fields) { {'a' => 1, '_id' => 0} }
+            let(:res)    { @api.get "/servers/localhost/databases/__genghis_spec_test__/collections/#{coll}/documents?q=#{q.to_json}&fields=#{fields.to_json}" }
+
+            it 'returns a list of projection documents' do
+              expect(res.status).to eq 200
+              expect(res).to be_a_json_response
+              expect(res.body).to match_json_expression \
+                :count => 2,
+                :page  => 1,
+                :pages => 1,
+                :per_page => 50,
+                :offset => 0,
+                :documents => [
+                  {:a => 1},
+                  {:a => 2},
+                ]
+            end
+          end
+        end
       end
 
       describe 'GET /servers/:server/databases/:db/collections/:coll/explain?q=' do

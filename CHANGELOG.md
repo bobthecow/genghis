@@ -7,6 +7,7 @@ New:
  * Add support for BSON Timestamp values.
  * [Fix #115][i115] — Add support for viewing and updating NaN values.
  * Add request and error logging when running PHP backend from the command line.
+ * [Fix #159][i159] — Add projection document (API) support.
 
 Improved:
 
@@ -28,6 +29,7 @@ Improved:
  * Also, easier to hack on. So send those pull requests :)
 
 [i115]: https://github.com/bobthecow/genghis/issues/115
+[i159]: https://github.com/bobthecow/genghis/issues/159
 [i128]: https://github.com/bobthecow/genghis/issues/128
 
 

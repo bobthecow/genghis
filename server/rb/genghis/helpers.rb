@@ -17,6 +17,10 @@ module Genghis
       ::Genghis::JSON.decode(params.fetch('q', '{}'))
     end
 
+    def fields_param
+      ::Genghis::JSON.decode(params.fetch('fields', '{}'))
+    end
+
     def page_param
       params.fetch('page', 1).to_i
     end

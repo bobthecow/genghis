@@ -6,6 +6,9 @@ class Document extends Giraffe.Model
   idAttribute: null
 
   parse: (resp) ->
+    # keep track of this...
+    @projection = @collection.hasProjection()
+
     # a little bitta id thunk.
     if id = Util.encodeDocumentId(resp._id)
       @id = id
@@ -18,6 +21,12 @@ class Document extends Giraffe.Model
     return base if @isNew()
 
     "#{base}/#{encodeURIComponent(@id)}"
+
+  isProjection: =>
+    @projection?
+
+  isEditable: =>
+    @id?
 
   prettyId: =>
     id = @get('_id')

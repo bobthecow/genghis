@@ -39,7 +39,7 @@ class Document extends BaseDocument
     'destroy model': 'dispose'
 
   afterRender: ->
-    setTimeout @updateDocument, 1
+    _.defer(@updateDocument)
 
   updateDocument: =>
     @$document?.empty()
@@ -70,6 +70,10 @@ class Document extends BaseDocument
     app.router.redirectToDocument(app.selection.server.id, db, coll, encodeURIComponent(id))
 
   openEditDialog: =>
+    unless @model.isEditable()
+      @app.alerts.error(msg: 'Unable to edit document')
+      return
+
     @model.fetch().then =>
       $well    = @$well
       height   = Math.max(180, Math.min(600, $well.height() + 40))
@@ -112,6 +116,10 @@ class Document extends BaseDocument
     @getErrorBlock().append alertView.render().el
 
   saveDocument: =>
+    unless @model.isEditable()
+      @app.alerts.error(msg: 'Unable to edit document')
+      return
+
     data = @getEditorValue()
     return if data is false
     showServerError = @showServerError

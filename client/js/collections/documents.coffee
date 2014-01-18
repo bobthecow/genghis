@@ -31,6 +31,9 @@ class Documents extends Giraffe.Collection
     # @pagination.search = @search
     super
 
+  hasProjection: =>
+    @search.hasProjection()
+
   fetchReset: =>
     return unless @coll.id # WTF?
     @fetch(reset: true)
