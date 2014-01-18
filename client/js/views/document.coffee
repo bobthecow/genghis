@@ -54,20 +54,20 @@ class Document extends BaseDocument
   navigateDb: (e) ->
     $dbRef = $(e.target).parents('.ref')
     db     = $dbRef.find('.ref-db .v .s').text()
-    app.router.redirectToDatabase app.selection.server.id, db
+    app.router.redirectToDatabase(app.selection.server.id, db)
 
   navigateColl: (e) ->
     $dbRef = $(e.target).parents('.ref')
     db     = $dbRef.find('.ref-db  .v .s').text() or app.selection.database.id
     coll   = $dbRef.find('.ref-ref .v .s').text()
-    app.router.redirectToCollection app.selection.server.id, db, coll
+    app.router.redirectToCollection(app.selection.server.id, db, coll)
 
   navigateId: (e) ->
     $dbRef = $(e.target).parents('.ref')
     db     = $dbRef.find('.ref-db  .v .s').text() or app.selection.database.id
     coll   = $dbRef.find('.ref-ref .v .s').text() or app.selection.coll.id
     id     = $dbRef.find('.ref-id').attr('data-document-id')
-    app.router.redirectToDocument app.selection.server.id, db, coll, encodeURIComponent(id)
+    app.router.redirectToDocument(app.selection.server.id, db, coll, encodeURIComponent(id))
 
   openEditDialog: =>
     @model.fetch().then =>
@@ -149,12 +149,10 @@ class Document extends BaseDocument
 
               # if we're currently in single-document view, bust outta this!
               if selection.get('document')
-                app.router.redirectTo(
+                app.router.redirectToCollection(
                   selection.get('server'),
                   selection.get('database'),
-                  selection.get('collection'),
-                  null,
-                  selection.get('query')
+                  selection.get('collection')
                 )
           )
           .fail(

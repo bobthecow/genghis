@@ -18,12 +18,12 @@ class Pagination extends View
     'p': 'prevPage'
 
   dataEvents:
-    'change query':      'render'
+    'change search':     'render'
     'change pagination': 'render'
 
   initialize: ->
+    @search     = @collection.search
     @pagination = @collection.pagination
-    @query      = @collection.query
     super
 
   serialize: ->
@@ -59,9 +59,9 @@ class Pagination extends View
     @$el.toggle @pagination.get('pages') > 1
 
   urlTemplate: (i) =>
-    base  = @collection.baseUrl()
-    query = @query.toString(page: i)
-    "#{base}#{query}"
+    base   = @collection.baseUrl()
+    search = @search.toString(page: i)
+    "#{base}#{search}"
 
   navigate: (e) ->
     e.preventDefault()

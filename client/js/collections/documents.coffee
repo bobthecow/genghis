@@ -1,6 +1,6 @@
 {_, Giraffe} = require '../vendors'
 Document     = require '../models/document.coffee'
-Query        = require '../models/query.coffee'
+Search       = require '../models/search.coffee'
 Pagination   = require '../models/pagination.coffee'
 
 isGuessable = (d) ->
@@ -22,13 +22,13 @@ class Documents extends Giraffe.Collection
   model: Document
 
   dataEvents:
-    'change query':   'fetchReset'
+    'change search':  'fetchReset'
     'change:id coll': 'fetchReset'
 
   initialize: ->
-    @query      = new Query()
+    @search     = new Search()
     @pagination = new Pagination()
-    # @pagination.query = @query
+    # @pagination.search = @search
     super
 
   fetchReset: =>
@@ -39,9 +39,9 @@ class Documents extends Giraffe.Collection
     "#{_.result(@coll, 'url')}/documents"
 
   url: (opts = {}) =>
-    base  = @baseUrl()
-    query = @query.toString(_.extend({pretty: false}, opts))
-    "#{base}#{query}"
+    base   = @baseUrl()
+    search = @search.toString(_.extend({pretty: false}, opts))
+    "#{base}#{search}"
 
   parse: (resp) ->
     @pagination.set

@@ -1,12 +1,13 @@
 Document = require './document.coffee'
-Query    = require './query.coffee'
+Search   = require './search.coffee'
 
 class Explain extends Document
   baseUrl: =>
     "#{_.result(@coll, 'url')}/explain"
 
   url: =>
-    query = @query.toString(pretty: false)
-    "#{@baseUrl()}#{query}"
+    base  = @baseUrl()
+    search = @search.toString(pretty: false)
+    "#{base}#{search}"
 
 module.exports = Explain

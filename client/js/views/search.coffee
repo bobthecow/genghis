@@ -12,8 +12,11 @@ PLACEHOLDERS = [
   '{neverGonna: ["give you up", "let you down", "run around", "desert you"]}'
 ]
 
-normalize = (q = '', pretty = false) ->
-  q = q.trim()
+_j = (val, pretty = false) ->
+  GenghisJSON.stringify(val, pretty)
+
+_n = (q = '', pretty = false) ->
+  q = "#{q}".trim()
   if q isnt ''
     try
       q = GenghisJSON.normalize(q, pretty)
@@ -46,12 +49,11 @@ class Search extends View
 
   initialize: ->
     @documents = @model.documents
-    @query     = @model.query
+    @search    = @model.search
     @explain   = @model.explain
     super
 
   serialize: ->
-    query:       @model.get('query')
     placeholder: _.sample(PLACEHOLDERS)
 
   afterRender: ->
@@ -82,14 +84,15 @@ class Search extends View
         .mousemove(mouseMove)
         .mouseup(mouseUp)
 
-  updateQuery: =>
-    @$query.val @normalizeQuery(@model.get('query') or @getDocumentQuery())
-
-  getDocumentQuery: ->
-    q = @model.get('document')
-    if _.isString(q) and q[0] is '~'
-      q = GenghisJSON.normalize("{\"_id\":#{Util.decodeDocumentId(q)}}")
-    q
+  updateQuery: (query = '') =>
+    if query = @search.get('query')
+      query = _j(query) unless _.isEmpty(query)
+    if _.isEmpty(query)
+      query = @model.get('document')
+      if _.isString(query) and query[0] is '~'
+        query = _j({_id: Util.decodeDocumentId(query)})
+    query = '' if _.isEmpty(query)
+    @$query.val(query)
 
   handleSearchKeyup: (e) =>
     @$el.removeClass('has-error')
@@ -113,8 +116,8 @@ class Search extends View
       @$el.addClass('has-error')
       return
 
-    query = @query.toString(query: q, pretty: true)
-    app.router.navigate("#{url}#{query}", true)
+    search = @search.toString(query: q, fields: {}, sort: {}, page: 1, pretty: true)
+    app.router.navigate("#{url}#{search}", true)
 
   findDocumentsAdvanced: (e) =>
     @findDocuments @editor.getValue()
@@ -137,19 +140,17 @@ class Search extends View
     @$query.blur()
     @updateQuery()
 
-  normalizeQuery: (q = '') ->
-    normalize(q)
+  advancedSearchToQuery: =>
+    q = _n(@editor.getValue())
       .replace(/^\{\s*\}$/, '')
       .replace(/^\{\s*(['"]?)_id\1\s*:\s*\{\s*(['"]?)\$id\2\s*:\s*(["'])([a-z\d]+)\3\s*\}\s*\}$/, '$4')
       .replace(/^\{\s*(['"]?)_id\1\s*:\s*(new\s+)?ObjectId\s*\(\s*(["'])([a-z\d]+)\3\s*\)\s*\}$/, '$4')
-
-  advancedSearchToQuery: =>
-    @$query.val(@normalizeQuery(@editor.getValue()))
+    @$query.val(q)
 
   queryToAdvancedSearch: =>
     q = @$query.val().trim()
     q = "{_id:ObjectId(\"#{q}\")}" if q.match(/^[a-z\d]+$/i)
-    @editor.setValue(normalize(q, true))
+    @editor.setValue(_n(q, true))
 
   expandSearch: (expand) =>
     return unless @isAttached()
@@ -157,7 +158,7 @@ class Search extends View
       wrapper = @$advanced
       @editor = CodeMirror(@$well[0], _.extend({}, defaults.codeMirror,
         lineNumbers: false
-        placeholder: GenghisJSON.normalize(@$query.attr('placeholder'), true)
+        placeholder: _n(@$query.attr('placeholder'), true)
         extraKeys:
           'Ctrl-Enter': @findDocumentsAdvanced
           'Cmd-Enter':  @findDocumentsAdvanced

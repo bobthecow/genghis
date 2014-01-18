@@ -17,7 +17,7 @@ class Nav extends View
 
   keyboardEvents:
     's': 'navigateToServers'
-    'u': 'navigateUp'
+    # 'u': 'navigateUp'
 
   initialize: ->
     # TODO: clean this up somehow
@@ -74,15 +74,5 @@ class Nav extends View
   navigateToServers: (e) ->
     e.preventDefault()
     app.router.redirectToIndex()
-
-  navigateUp: (e) =>
-    e.preventDefault()
-    if @model.get('server')
-      server = @model.has('database')
-    if @model.get('database')
-      db = @model.has('collection')
-    if @model.has('document') or @model.has('query')
-      coll = @model.get('collection')
-    app.router.redirectTo(server, db, coll)
 
 module.exports = Nav

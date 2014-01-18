@@ -4,7 +4,7 @@ Util =
   route: (url) ->
     url.replace(window.app.baseUrl, '').replace /^\//, ''
 
-  parseQuery: (str = '') ->
+  parseSearch: (str = '') ->
     params = {}
     if str.length
       _.each str.split('&'), (val) ->
@@ -12,9 +12,9 @@ Util =
         params[name] = decodeURIComponent(chunks.join("="))
     params
 
-  # Encode query params, but not too much. Our queries have a bunch of {}[]:$,
+  # Encode search params, but not too much. Our queries have a bunch of {}[]:$,
   # ... which are all technically legal to have there. So let's keep 'em.
-  buildQuery: (params) ->
+  buildSearch: (params) ->
     e = (v) ->
       encodeURIComponent(v).replace(/%(7B|7D|5B|5D|3A|24|2C)/g, decodeURIComponent)
     _.map(params, (val, name) -> "#{e(name)}=#{e(val)}").join('&')

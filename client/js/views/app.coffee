@@ -23,13 +23,13 @@ notFoundTemplate      = require '../../templates/not_found.mustache'
 welcomeTemplate       = require '../../templates/welcome.mustache'
 
 ROUTE_SECTION_MAP =
-  'route:index':           'servers'
-  'route:server':          'databases'
-  'route:database':        'collections'
-  'route:collection':      'documents'
-  'route:collectionQuery': 'documents'
-  'route:explainQuery':    'explain'
-  'route:document':        'document'
+  'route:index':            'servers'
+  'route:server':           'databases'
+  'route:database':         'collections'
+  'route:collection':       'documents'
+  'route:collectionSearch': 'documents'
+  'route:explain':          'explain'
+  'route:document':         'document'
 
 class App extends Giraffe.App
   initialize: ->
@@ -103,9 +103,7 @@ class App extends Giraffe.App
       when 'documents'
         new DocumentsView(
           model:      @selection.coll,
-          collection: @documents,
-          pagination: @selection.pagination,
-          query:      @selection.query
+          collection: @documents
         )
 
       when 'explain'

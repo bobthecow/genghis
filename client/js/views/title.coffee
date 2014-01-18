@@ -11,9 +11,9 @@ class Title extends View
         break # we'll just pass these through...
       when 'route:document'
         args.push Util.decodeDocumentId(args.pop())
-      when 'route:collectionQuery'
+      when 'route:collectionSearch'
         args.push 'Query results'
-      when 'route:explainQuery'
+      when 'route:explain'
         args.push 'Query explanation'
       when 'route:notFound'
         args = ['Not Found']

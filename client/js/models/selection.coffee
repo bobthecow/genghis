@@ -13,9 +13,9 @@ GenghisJSON = require '../json.coffee'
 SERVER_PARAMS     = ['server']
 DATABASE_PARAMS   = ['server', 'database']
 COLLECTION_PARAMS = ['server', 'database', 'collection']
-DOCUMENTS_PARAMS  = ['server', 'database', 'collection', 'query', 'fields', 'sort', 'page', 'explain']
+DOCUMENTS_PARAMS  = ['server', 'database', 'collection', 'search', 'explain']
 DOCUMENT_PARAMS   = ['server', 'database', 'collection', 'document']
-QUERY_PARAMS      = ['query', 'fields', 'sort', 'page']
+SEARCH_PARAMS     = ['search']
 
 class Selection extends Giraffe.Model
   defaults:
@@ -25,11 +25,8 @@ class Selection extends Giraffe.Model
     collection: null
     document:   null
 
-    # URL query params
-    query:      null
-    fields:     null
-    sort:       null
-    page:       null
+    # URL search params
+    search:     null
 
     # Explain flag
     # TODO: this might not be a good model for the concept. Revisit.
@@ -50,17 +47,17 @@ class Selection extends Giraffe.Model
     @coll                = new Collection()
     @coll.collection     = @collections
     @documents           = @coll.documents
-    @query               = @documents.query
+    @search              = @documents.search
     @document            = new Document()
     @document.collection = @documents
     @explain             = new Explain()
-    @explain.query       = @query
+    @explain.search      = @search
     @explain.coll        = @coll
 
   select: (server = null, database = null, collection = null, doc = null, opts = {}) =>
     @set(_.extend(
-      {server, database, collection, document: doc},
-      _.pick(opts, 'query', 'fields', 'sort', 'page', 'explain')
+      {server, database, collection, document: doc, search: null},
+      _.pick(opts, 'search', 'explain')
     ))
 
   update: =>
@@ -94,9 +91,9 @@ class Selection extends Giraffe.Model
       @database.fetch(reset: true)
         .fail(fetchErrorHandler('collections', 'Database Not Found'))
 
-    # Get query params out of the way before updating the collection or explain...
-    if @has('collection') and not _.isEmpty(_.pick(changed, QUERY_PARAMS))
-      @updateQuery()
+    # Get search params out of the way before updating the collection or explain...
+    unless _.isEmpty(_.pick(changed, SEARCH_PARAMS))
+      @search.fromString(@get('search') || '')
 
     if @has('collection') and not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
       @coll.set('id', @coll.id = @get('collection'))
@@ -121,11 +118,5 @@ class Selection extends Giraffe.Model
 
   previousPage: =>
     Math.max(1, (@get('page') or 1) - 1)
-
-  updateQuery: =>
-    @query.set(
-      query: GenghisJSON.parse(@get('query') || '{}'),
-      page:  @get('page')
-    )
 
 module.exports = Selection
