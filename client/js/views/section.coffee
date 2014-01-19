@@ -76,15 +76,16 @@ class Section extends View
       when 27 then @closeAddForm()  # escape
 
   addModel: (model) =>
-    @$tbody.append (new @rowView(model: model)).render().el
+    view = new @rowView(model: model)
+    view.attachTo(@$tbody)
 
   addModelAndUpdate: (model) =>
-    @addModel model
-    @$table.trigger 'update'
+    @addModel(model)
+    @$table.trigger('update')
 
   addAll: =>
     @$tbody.empty()
-    @collection.each @addModel
+    @collection.each(@addModel)
 
   onAttached: =>
     @bindKeyboardEvents()

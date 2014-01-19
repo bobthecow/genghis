@@ -18,9 +18,6 @@ class Explain extends View
   dataEvents:
     'sync model': 'updateExplain'
 
-  initialize: ->
-    @render()
-
   updateExplain: ->
     @$doc.html(@model.prettyPrint())
     @$el.removeClass('spinning')

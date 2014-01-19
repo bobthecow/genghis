@@ -46,9 +46,6 @@ class Documents extends View
     'attached this': 'onAttached'
     'detached this': 'onDetached'
 
-  initialize: ->
-    @render()
-
   afterRender: ->
     header = new DocumentsHeader(el: @$header, model: @collection.pagination)
     header.attachTo(@$header, method: 'html')
@@ -68,7 +65,7 @@ class Documents extends View
 
   addDocument: (document) =>
     view = new DocumentView(model: document)
-    @$content.append view.render().el
+    view.attachTo(@$content)
 
   createDocument: (e) =>
     e?.preventDefault?()

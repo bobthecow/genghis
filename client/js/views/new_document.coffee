@@ -12,9 +12,6 @@ class NewDocument extends BaseDocument
   el:       '#new-document'
   template: template
 
-  initialize: ->
-    @render()
-
   render: ->
     # TODO: clean this up, it's weird.
     @$el   = $(@template()).hide().appendTo('body')
