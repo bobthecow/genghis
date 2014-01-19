@@ -83,6 +83,8 @@ class App extends Giraffe.App
   showSection: (section) =>
     @removeMasthead()
 
+    $body = $('body').removeClass()
+
     view = switch section
       when 'servers'
         @showWelcome()
@@ -113,11 +115,11 @@ class App extends Giraffe.App
         new DocumentSectionView(model: @selection.document)
 
     if view
-      $('body').addClass('has-section')
+      $body.addClass("has-section section-#{view.id}")
       @content.attach(view, method: 'html')
+      _.defer(-> $(document).scrollTop(0))
     else
       @content.detachChildren()
-      $('body').removeClass('has-section')
       @showNotFound()
 
 module.exports = App

@@ -19,11 +19,4 @@ class DocumentSection extends View
     view = new DocumentView(model: @model)
     view.attachTo(@$content)
 
-  show: ->
-    $('body').addClass("section-#{@id}")
-    $(document).scrollTop(0)
-
-  hide: ->
-    $('body').removeClass("section-#{@id}")
-
 module.exports = DocumentSection

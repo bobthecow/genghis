@@ -23,12 +23,15 @@ class Section extends View
     'c': 'showAddForm'
 
   dataEvents:
-    'change model':            'updateTitle'
+    'change model': 'updateTitle'
 
     'reset        collection': 'render'
     'add          collection': 'addModelAndUpdate'
     'request      collection': 'startSpinning'
     'sync destroy collection': 'stopSpinning'
+
+    'attached this': 'onAttached'
+    'detached this': 'onDetached'
 
   serialize: ->
     title: @formatTitle(@model)
@@ -42,8 +45,6 @@ class Section extends View
 
     if @collection.size()
       @$table.trigger 'sorton', [[[0, 0]]]
-
-    @show()
 
   updateTitle: =>
     @$title.text @formatTitle(@model)
@@ -85,19 +86,16 @@ class Section extends View
     @$tbody.empty()
     @collection.each @addModel
 
-  show: =>
+  onAttached: =>
     @bindKeyboardEvents()
-    $('body').addClass("section-#{@id}")
-    $(document).scrollTop(0)
 
-  hide: =>
+  onDetached: =>
     @unbindKeyboardEvents()
-    $('body').removeClass("section-#{@id}")
 
   startSpinning: =>
-    @$el.addClass 'spinning'
+    @$el.addClass('spinning')
 
   stopSpinning: =>
-    @$el.removeClass 'spinning'
+    @$el.removeClass('spinning')
 
 module.exports = Section

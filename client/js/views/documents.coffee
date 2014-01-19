@@ -43,6 +43,9 @@ class Documents extends View
     'request collection': 'onRequest'
     'sync    collection': 'onSync'
 
+    'attached this': 'onAttached'
+    'detached this': 'onDetached'
+
   initialize: ->
     @render()
 
@@ -100,27 +103,20 @@ class Documents extends View
 
   getNewDocumentView: ->
     @newDocumentView = new NewDocument(collection: @collection) unless @newDocumentView
-    @newDocumentView
 
   getNewGridFileView: ->
     @newGridFileView = new NewGridFile(collection: @collection) unless @newGridFileView
-    @newGridFileView
-
-  show: ->
-    @bindKeyboardEvents()
-    $('body').addClass "section-#{@$el.attr('id')}"
-    @$el.show()
-    $(document).scrollTop 0
-
-  hide: ->
-    @unbindKeyboardEvents()
-    $('body').removeClass "section-#{@$el.attr('id')}"
-    @$el.hide()
 
   onRequest: =>
-    @$el.addClass 'spinning'
+    @$el.addClass('spinning')
 
   onSync: =>
-    @$el.removeClass 'spinning'
+    @$el.removeClass('spinning')
+
+  onAttached: =>
+    @bindKeyboardEvents()
+
+  onDetached: =>
+    @unbindKeyboardEvents()
 
 module.exports = Documents

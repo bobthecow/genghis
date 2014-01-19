@@ -22,16 +22,7 @@ class Explain extends View
     @render()
 
   updateExplain: ->
-    @$doc.html @model.prettyPrint()
-    @$el.removeClass 'spinning'
-
-  show: ->
-    $('body').addClass "section-#{@$el.attr('id')}"
-    @$el.addClass('spinning').show()
-    $(document).scrollTop 0
-
-  hide: ->
-    $('body').removeClass "section-#{@$el.attr('id')}"
-    @$el.hide()
+    @$doc.html(@model.prettyPrint())
+    @$el.removeClass('spinning')
 
 module.exports = Explain
