@@ -7,7 +7,7 @@ class Document extends Giraffe.Model
 
   parse: (resp) ->
     # keep track of this...
-    @projection = @collection.hasProjection()
+    @projection = @collection?.hasProjection()
 
     # a little bitta id thunk.
     if id = Util.encodeDocumentId(resp._id)
