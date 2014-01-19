@@ -1,3 +1,5 @@
+<div class="errors"></div>
+
 <div class="well">
     {{# isEditable }}
         <div class="document-actions">
@@ -7,8 +9,6 @@
             {{# isGridChunk }}
                 <a class="btn btn-sm btn-default grid-file" href="{{ fileUrl }}">Grid File</a>
             {{/ isGridChunk }}
-            <button class="btn btn-sm btn-primary save">Save</button>
-            <button class="btn btn-sm btn-default cancel">Cancel</button>
             <button class="btn btn-sm btn-default edit">Edit</button>
             <button class="btn btn-sm btn-danger destroy">Delete</button>
         </div>

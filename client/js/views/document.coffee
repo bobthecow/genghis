@@ -1,30 +1,27 @@
 {$, _}       = require '../vendors'
-CodeMirror   = require '../shims/codemirror'
 Util         = require '../util.coffee'
 Alert        = require '../models/alert.coffee'
-BaseDocument = require './base_document.coffee'
-AlertView    = require './alert.coffee'
+View         = require './view.coffee'
+EditDocument = require './edit_document.coffee'
 Confirm      = require './confirm.coffee'
-defaults     = require '../defaults.coffee'
 template     = require '../../templates/document.mustache'
 
-class Document extends BaseDocument
+class Document extends View
   tagName:  'article'
   template: template
 
   ui:
-    '$document': '.document'
+    '$errors':   '.errors'
     '$well':     '.well'
+    '$document': '.document'
 
   events:
     'click a.id':            'navigate'
-    'click button.edit':     'openEditDialog'
+    'click button.edit':     'edit'
+    # 'dblclick .document':    'edit',
 
     'click .document button, .document span.e': Util.toggleCollapser
 
-    # 'dblclick .document':    'openEditDialog',
-    'click button.save':     'saveDocument'
-    'click button.cancel':   'cancelEdit'
     'click button.destroy':  'destroy'
     'click a.grid-download': 'download'
     'click a.grid-file':     'navigate'
@@ -45,6 +42,27 @@ class Document extends BaseDocument
     @$document?.empty()
       .append(@model.prettyPrint())
       .show()
+
+  edit: =>
+    @$el.addClass('edit')
+    @$document.hide()
+    height = Math.max(180, Math.min(600, @$well.height() + 40))
+
+    @model.fetch().then =>
+      view = new EditDocument(model: @model, height: height, errorBlock: @$errors)
+
+      @listenTo(view,
+        focused: => @$el.addClass('focused'),
+        blurred: => @$el.removeClass('focused'),
+        detached: @afterEdit
+      )
+
+      view.attachTo(@$well)
+
+  afterEdit: =>
+    @$el.removeClass('edit focused')
+    @updateDocument()
+    @$well.height('auto')
 
   navigate: (e) ->
     return if e.ctrlKey or e.shiftKey or e.metaKey
@@ -68,70 +86,6 @@ class Document extends BaseDocument
     coll   = $dbRef.find('.ref-ref .v .s').text() or app.selection.coll.id
     id     = $dbRef.find('.ref-id').attr('data-document-id')
     app.router.redirectToDocument(app.selection.server.id, db, coll, encodeURIComponent(id))
-
-  openEditDialog: =>
-    unless @model.isEditable()
-      @app.alerts.error(msg: 'Unable to edit document')
-      return
-
-    @model.fetch().then =>
-      $well    = @$well
-      height   = Math.max(180, Math.min(600, $well.height() + 40))
-      editorId = "editor-#{@model.id.replace('~', '-')}"
-      textarea = $("<textarea id=\"#{editorId}\"></textarea>").text(@model.JSONish()).appendTo($well)
-      @$document.hide()
-
-      $el = @$el.addClass('edit')
-      @editor = CodeMirror.fromTextArea(textarea[0], _.extend({}, defaults.codeMirror,
-        autofocus: true
-        extraKeys:
-          'Ctrl-Enter': @saveDocument
-          'Cmd-Enter':  @saveDocument
-      ))
-
-      @editor.on 'focus', ->
-        $el.addClass 'focused'
-
-      @editor.on 'blur', ->
-        $el.removeClass 'focused'
-
-      @editor.setSize null, height
-      textarea.resize _.throttle(@editor.refresh, 100)
-
-  cancelEdit: =>
-    @$el.removeClass 'edit focused'
-    @editor.toTextArea()
-    @$('textarea').remove()
-    @updateDocument()
-    @$well.height 'auto'
-
-  getErrorBlock: ->
-    errorBlock = @$('div.errors')
-    errorBlock = $('<div class="errors"></div>').prependTo(@el) if errorBlock.length is 0
-    errorBlock
-
-  showServerError: (message) =>
-    alert     = new Alert(level: 'danger', msg: message, block: true)
-    alertView = new AlertView(model: alert)
-    @getErrorBlock().append alertView.render().el
-
-  saveDocument: =>
-    unless @model.isEditable()
-      @app.alerts.error(msg: 'Unable to edit document')
-      return
-
-    data = @getEditorValue()
-    return if data is false
-    showServerError = @showServerError
-    @model.clear silent: true
-    @model.save(data, wait: true)
-      .done(@cancelEdit)
-      .fail(
-        (doc, xhr) ->
-          try
-            msg = JSON.parse(xhr.responseText).error
-          showServerError msg or 'Error updating document.'
-      )
 
   destroy: =>
     model = @model
