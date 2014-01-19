@@ -9,15 +9,10 @@ class Section extends View
     '$title':         '> header h2'
     '$table':         'table'
     '$tbody':         'table tbody'
-    '$addForm':       '.add-form'
-    '$addInput':      '.add-form input'
     '$addFormToggle': '.add-form-toggle'
 
   events:
     'click .add-form-toggle button': 'showAddForm'
-    'click .add-form button.add':    'submitAddForm'
-    'click .add-form button.cancel': 'closeAddForm'
-    'keyup .add-form input.name':    'updateOnKeyup'
 
   keyboardEvents:
     'c': 'showAddForm'
@@ -30,8 +25,15 @@ class Section extends View
     'request      collection': 'startSpinning'
     'sync destroy collection': 'stopSpinning'
 
-    'attached this': 'onAttached'
-    'detached this': 'onDetached'
+    'attached this':    'onAttached'
+    'detached this':    'onDetached'
+    # 'detached addForm': 'onAddFormDetached'
+
+  initialize: ->
+    @addForm = new @addFormView(collection: @collection, disposeOnDetach: false)
+
+    # TODO: figure out why this doesn't work in the dataEvents above?
+    @listenTo(@addForm, 'detached', @onAddFormDetached)
 
   serialize: ->
     title: @formatTitle(@model)
@@ -47,33 +49,12 @@ class Section extends View
       @$table.trigger 'sorton', [[[0, 0]]]
 
   updateTitle: =>
-    @$title.text @formatTitle(@model)
+    @$title.text(@formatTitle(@model))
 
   showAddForm: (e) =>
     e?.preventDefault?()
     @$addFormToggle.hide()
-    @$addForm.show()
-    @$addInput.select().focus()
-
-  submitAddForm: =>
-    model = new @collection.model(name: @$addInput.val())
-    model.collection = @collection
-    model.save()
-      .done( =>
-        @collection.add(model)
-        @closeAddForm()
-      )
-      .fail((xhr) => @app.alerts.handleError(xhr))
-
-  closeAddForm: =>
-    @$addFormToggle.show()
-    @$addForm.hide()
-    @$addInput.val('')
-
-  updateOnKeyup: (e) =>
-    switch e.keyCode
-      when 13 then @submitAddForm() # enter
-      when 27 then @closeAddForm()  # escape
+    @attach(@addForm)
 
   addModel: (model) =>
     view = new @rowView(model: model)
@@ -92,6 +73,9 @@ class Section extends View
 
   onDetached: =>
     @unbindKeyboardEvents()
+
+  onAddFormDetached: =>
+    @$addFormToggle.show()
 
   startSpinning: =>
     @$el.addClass('spinning')

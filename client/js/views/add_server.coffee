@@ -1,0 +1,15 @@
+AddForm  = require './add_form.coffee'
+template = require '../../templates/add_server.mustache'
+
+class AddServer extends AddForm
+  template: template
+
+  afterRender: ->
+    super
+    # add placeholder help
+    @$('.help').tooltip(container: 'body')
+
+  createModel: =>
+    new @collection.model(url: @$input.val())
+
+module.exports = AddServer
