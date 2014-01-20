@@ -8,7 +8,7 @@ _h = Util.humanizeSize
 
 class Collection extends Model
   dataEvents:
-    'change:id this': 'fetchDocuments'
+    'sync this': 'fetchDocuments'
 
   initialize: ->
     @documents = new Documents([], {coll: this})

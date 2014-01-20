@@ -4,7 +4,7 @@ Databases = require '../collections/databases.coffee'
 
 class Server extends Model
   dataEvents:
-    'change:id this': 'fetchDatabases'
+    'sync this': 'fetchDatabases'
 
   initialize: (opts) ->
     @databases = new Databases([], {server: this})

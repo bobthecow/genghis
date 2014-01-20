@@ -7,7 +7,7 @@ _h = Util.humanizeSize
 
 class Database extends Model
   dataEvents:
-    'change:id this': 'fetchCollections'
+    'sync this': 'fetchCollections'
 
   initialize: ->
     @collections = new Collections([], {database: this})
