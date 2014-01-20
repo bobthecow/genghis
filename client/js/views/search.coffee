@@ -106,8 +106,9 @@ class Search extends View
     q   = q.trim()
     url = if opt.explain then @explain.baseUrl() else @documents.baseUrl()
 
+    # ObjectId hax.
     if q.match(/^([a-z\d]+)$/i) and not opt.explain
-      app.router.navigate("#{url}/#{q}", true)
+      @app.router.navigate("#{url}/#{q}", true)
       return
 
     try
@@ -117,10 +118,10 @@ class Search extends View
       return
 
     search = @search.toString(query: q, fields: {}, sort: {}, page: 1, pretty: true)
-    app.router.navigate("#{url}#{search}", true)
+    @app.router.navigate("#{url}#{search}", true)
 
   findDocumentsAdvanced: (e) =>
-    @findDocuments @editor.getValue()
+    @findDocuments(@editor.getValue())
     @collapseSearch()
 
   explainQuery: (e) ->
@@ -155,7 +156,6 @@ class Search extends View
   expandSearch: (expand) =>
     return unless @isAttached()
     unless @editor
-      wrapper = @$advanced
       @editor = CodeMirror(@$well[0], _.extend({}, defaults.codeMirror,
         lineNumbers: false
         placeholder: _n(@$query.attr('placeholder'), true)
@@ -164,9 +164,11 @@ class Search extends View
           'Cmd-Enter':  @findDocumentsAdvanced
           'Esc':        @findDocumentsAdvanced
       ))
-      @editor.on 'focus', -> wrapper.addClass    'focused'
-      @editor.on 'blur',  -> wrapper.removeClass 'focused'
-      @editor.on 'change', @advancedSearchToQuery
+      @editor.on(
+        focus:  => @$advanced.addClass('focused')
+        blur:   => @$advanced.removeClass('focused')
+        change: @advancedSearchToQuery
+      )
 
     @queryToAdvancedSearch()
     @$el.addClass 'expanded'
