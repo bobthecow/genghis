@@ -20,6 +20,5 @@ class Explain extends View
 
   updateExplain: ->
     @$doc.html(@model.prettyPrint())
-    @$el.removeClass('spinning')
 
 module.exports = Explain

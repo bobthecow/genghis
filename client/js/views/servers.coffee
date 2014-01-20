@@ -16,8 +16,8 @@ class Servers extends Section
   dataEvents:
     'reset        collection': 'render'
     'add          collection': 'addModelAndUpdate'
-    'request      collection': 'startSpinning'
-    'sync destroy collection': 'stopSpinning'
+    'request      collection': 'onRequest'
+    'sync destroy collection': 'onSync'
 
   updateTitle: $.noop
 

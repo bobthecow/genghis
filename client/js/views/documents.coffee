@@ -104,9 +104,11 @@ class Documents extends View
     view.showMetadata(file)
 
   onRequest: =>
-    @$el.addClass('spinning')
+    spin = => @$el.addClass('spinning')
+    @spinTimeout = setTimeout(spin, 500)
 
   onSync: =>
+    clearTimeout(@spinTimeout) if @spinTimeout
     @$el.removeClass('spinning')
 
   onAttached: =>

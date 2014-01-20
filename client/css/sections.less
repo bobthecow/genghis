@@ -39,7 +39,7 @@
     }
 
     &.spinning > {
-        height: 180px;
+        min-height: 180px;
         header h2 {
             background-color:    transparent;
             background-position: left center;
@@ -47,7 +47,8 @@
             text-indent: -10000em;
         }
         .controls, .add-form, .add-form-toggle, .content {
-            display: none;
+            // display: none;
+            visibility: hidden;
         }
     }
 

@@ -22,8 +22,8 @@ class Section extends View
 
     'reset        collection': 'render'
     'add          collection': 'addModelAndUpdate'
-    'request      collection': 'startSpinning'
-    'sync destroy collection': 'stopSpinning'
+    'request      collection': 'onRequest'
+    'sync destroy collection': 'onSync'
 
     'attached this':    'onAttached'
     'detached this':    'onDetached'
@@ -77,10 +77,12 @@ class Section extends View
   onAddFormDetached: =>
     @$addFormToggle.show()
 
-  startSpinning: =>
-    @$el.addClass('spinning')
+  onRequest: =>
+    spin = => @$el.addClass('spinning')
+    @spinTimeout = setTimeout(spin, 500)
 
-  stopSpinning: =>
+  onSync: =>
+    clearTimeout(@spinTimeout) if @spinTimeout
     @$el.removeClass('spinning')
 
 module.exports = Section
