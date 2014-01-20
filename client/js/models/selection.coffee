@@ -33,7 +33,8 @@ class Selection extends Giraffe.Model
     explain:    false
 
   dataEvents:
-    'change this': 'update'
+    'change this':   'update'
+    'change search': 'update'
 
   initialize: ->
     @servers             = new Servers()
@@ -60,6 +61,14 @@ class Selection extends Giraffe.Model
       _.pick(opts, 'search', 'explain')
     ))
 
+  current: =>
+    return 'servers'     unless @has('server')
+    return 'databases'   unless @has('database')
+    return 'collections' unless @has('collection')
+    return 'explain'     if @get('explain')
+    return 'documents'   unless @has('document')
+    'document'
+
   update: =>
     showErrorMessage = (model, response = {}) ->
       return if response.status is 404
@@ -76,47 +85,46 @@ class Selection extends Giraffe.Model
             showErrorMessage(model, response)
 
     changed = @changedAttributes()
+    current = @current()
 
-    # TODO: fetch servers less often.
-    @servers.fetch(reset: true)
-      .fail(showErrorMessage)
+    if @servers.length is 0 or current is 'servers'
+      @servers.fetch(reset: true)
+        .fail(showErrorMessage)
 
-    if @has('server') and not _.isEmpty(_.pick(changed, SERVER_PARAMS))
-      @server.set('id', @server.id = @get('server'))
-      @server.fetch(reset: true)
-        .fail(fetchErrorHandler('databases', 'Server Not Found'))
+    if @has('server')
+      if current is 'databases' or not _.isEmpty(_.pick(changed, SERVER_PARAMS))
+        @server.set('id', @server.id = @get('server'))
+        @server.fetch(reset: true)
+          .fail(fetchErrorHandler('databases', 'Server Not Found'))
 
-    if @has('database') and not _.isEmpty(_.pick(changed, DATABASE_PARAMS))
-      @database.set('id', @database.id = @get('database'))
-      @database.fetch(reset: true)
-        .fail(fetchErrorHandler('collections', 'Database Not Found'))
+    if @has('database')
+      if current is 'collections' or not _.isEmpty(_.pick(changed, DATABASE_PARAMS))
+        @database.set('id', @database.id = @get('database'))
+        @database.fetch(reset: true)
+          .fail(fetchErrorHandler('collections', 'Database Not Found'))
 
     # Get search params out of the way before updating the collection or explain...
     unless _.isEmpty(_.pick(changed || {}, SEARCH_PARAMS))
       @search.fromString(@get('search') || '')
 
-    if @has('collection') and not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
-      @coll.set('id', @coll.id = @get('collection'))
-      @coll.fetch(reset: true)
-        .fail(fetchErrorHandler('documents', 'Collection Not Found'))
+    if @has('collection') and current isnt 'explain'
+      if current is 'documents' or not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
+        @coll.set('id', @coll.id = @get('collection'))
+        @coll.fetch(reset: true)
+          .fail(fetchErrorHandler('documents', 'Collection Not Found'))
 
-    if @has('document') and not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
-      @document.id = @get('document')
-      @document.fetch(reset: true)
-        .fail(fetchErrorHandler(
-          'document',
-          'Document Not Found',
-          '<p>But I&#146;m sure there are plenty of other nice documents out there&hellip;</p>'
-        ))
+    if @has('document')
+      if current is 'document' or not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
+        @document.id = @get('document')
+        @document.fetch(reset: true)
+          .fail(fetchErrorHandler(
+            'document',
+            'Document Not Found',
+            '<p>But I&#146;m sure there are plenty of other nice documents out there&hellip;</p>'
+          ))
 
     if @get('explain')
       @explain.fetch()
         .fail(showErrorMessage)
-
-  nextPage: =>
-    1 + (@get('page') or 1)
-
-  previousPage: =>
-    Math.max(1, (@get('page') or 1) - 1)
 
 module.exports = Selection
