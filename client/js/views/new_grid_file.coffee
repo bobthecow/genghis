@@ -55,7 +55,19 @@ class NewGridFile extends NewDocument
     Util.readAsDataURL(@currentFile)
       .done((file) =>
         data.file = file
-        NewDocument::onSave.call(this, data)
+        model = new @collection.model(data)
+        model.collection = @collection
+        model.url = @collection.url().replace('.files/documents', '.files/files')
+        model.save()
+          .done( =>
+            model.url = Document::url
+            @collection.add(model)
+            @closeModal()
+
+            # TODO: figure out why this doesn't work with this.app
+            app.router.navigate(model.url(), true)
+          )
+          .fail((xhr) => @app.alerts.handleError(xhr))
       )
 
 module.exports = NewGridFile

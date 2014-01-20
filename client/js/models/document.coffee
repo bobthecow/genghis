@@ -63,11 +63,11 @@ class Document extends Giraffe.Model
 
   isGridFile: =>
     # define grid files as: in a grid collection and has a chunkSize
-    @get('chunkSize') and /\.files\/documents\//.test(@url())
+    @get('chunkSize') and /\.files\/documents\//.test(_.result(this, 'url'))
 
   isGridChunk: =>
     # define grid files as: in a grid chunks collection and has a files_id
-    @get('files_id') and /\.chunks\/documents\//.test(@url())
+    @get('files_id') and /\.chunks\/documents\//.test(_.result(this, 'url'))
 
   downloadUrl: =>
     throw new Error('Not a GridFS file.') unless @isGridFile()
