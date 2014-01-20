@@ -5,7 +5,7 @@
         "backbone.giraffe":       "~0.2.1",
         "backbone.mousetrap":     "elasticsales/backbone.mousetrap",
         "bootstrap":              "~3.0.3",
-        "codemirror":             "~3.20.0",
+        "codemirror":             "~3.21.0",
         "esprima":                "~1.0.4",
         "jquery":                 "~2.0.3",
         "jquery-hoverIntent":     "*",

@@ -16,14 +16,14 @@
     "package.json"
   ],
   "homepage": "https://github.com/marijnh/CodeMirror",
-  "version": "3.20.0",
-  "_release": "3.20.0",
+  "version": "3.21.0",
+  "_release": "3.21.0",
   "_resolution": {
     "type": "version",
-    "tag": "3.20.0",
-    "commit": "0e58d2cf24d613805ee8b5fa41811a985515e924"
+    "tag": "3.21.0",
+    "commit": "3a76b567e1cd5ebe7a4aca7ef139058c36f154e9"
   },
   "_source": "git://github.com/marijnh/CodeMirror.git",
-  "_target": "~3.20.0",
+  "_target": "~3.21.0",
   "_originalSource": "codemirror"
 }
