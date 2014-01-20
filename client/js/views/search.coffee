@@ -126,7 +126,7 @@ class Search extends View
 
   explainQuery: (e) ->
     @findDocuments(@editor.getValue(), {explain: true})
-    @collapseSearch()
+    @collapseNoFocus()
 
   focusSearch: (e) =>
     # TODO: make the view stateful rather than querying the DOM
