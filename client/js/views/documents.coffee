@@ -40,8 +40,8 @@ class Documents extends View
   dataEvents:
     'reset   collection': 'addAll'
     'add     collection': 'addDocument'
-    'request collection': 'onRequest'
-    'sync    collection': 'onSync'
+    # 'request collection': 'onRequest'
+    # 'sync    collection': 'onSync'
 
     'attached this': 'onAttached'
     'detached this': 'onDetached'

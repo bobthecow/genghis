@@ -22,8 +22,8 @@ class Section extends View
 
     'reset        collection': 'render'
     'add          collection': 'addModelAndUpdate'
-    'request      collection': 'onRequest'
-    'sync destroy collection': 'onSync'
+    # 'request      collection': 'onRequest'
+    # 'sync destroy collection': 'onSync'
 
     'attached this':    'onAttached'
     'detached this':    'onDetached'
