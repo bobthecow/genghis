@@ -88,7 +88,7 @@ class Document extends View
     app.router.redirectToDocument(app.selection.server.id, db, coll, encodeURIComponent(id))
 
   destroy: =>
-    selection = app.selection
+    selection = @app.selection
     model     = @model
 
     if @model.isGridFile()
@@ -108,8 +108,6 @@ class Document extends View
         model.destroy(wait: true)
           .then(
             (doc, xhr) ->
-              selection.pagination.decrementTotal()
-
               # if we're currently in single-document view, bust outta this!
               if selection.get('document')
                 app.router.redirectToCollection(
