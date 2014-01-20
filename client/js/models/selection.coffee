@@ -70,38 +70,38 @@ class Selection extends Giraffe.Model
     'document'
 
   update: =>
-    showErrorMessage = (model, response = {}) ->
+    showError = (model, response = {}) ->
       return if response.status is 404
       try
         data = JSON.parse(response.responseText)
       app.alerts.add(msg: data?.error or 'Unknown error', level: 'danger', block: true)
 
-    fetchErrorHandler = (section, notFoundHeading = 'Not Found', notFoundContent = '<p>Please try again.</p>') ->
+    handleError = (section, notFoundHead = 'Not Found', notFoundContent = '<p>Please try again.</p>') ->
       (model, response) ->
         switch response.status
           when 404
-            app.showNotFound(notFoundHeading, notFoundContent)
+            app.showNotFound(notFoundHead, notFoundContent)
           else
-            showErrorMessage(model, response)
+            showError(model, response)
 
     changed = @changedAttributes()
     current = @current()
 
     if @servers.length is 0 or current is 'servers'
       @servers.fetch(reset: true)
-        .fail(showErrorMessage)
+        .fail(showError)
 
     if @has('server')
       if current is 'databases' or not _.isEmpty(_.pick(changed, SERVER_PARAMS))
-        @server.set('id', @server.id = @get('server'))
+        @server.id = @get('server')
         @server.fetch(reset: true)
-          .fail(fetchErrorHandler('databases', 'Server Not Found'))
+          .fail(handleError('databases', 'Server Not Found'))
 
     if @has('database')
       if current is 'collections' or not _.isEmpty(_.pick(changed, DATABASE_PARAMS))
-        @database.set('id', @database.id = @get('database'))
+        @database.id = @get('database')
         @database.fetch(reset: true)
-          .fail(fetchErrorHandler('collections', 'Database Not Found'))
+          .fail(handleError('collections', 'Database Not Found'))
 
     # Get search params out of the way before updating the collection or explain...
     unless _.isEmpty(_.pick(changed || {}, SEARCH_PARAMS))
@@ -109,15 +109,15 @@ class Selection extends Giraffe.Model
 
     if @has('collection') and current isnt 'explain'
       if current is 'documents' or not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
-        @coll.set('id', @coll.id = @get('collection'))
+        @coll.id = @get('collection')
         @coll.fetch(reset: true)
-          .fail(fetchErrorHandler('documents', 'Collection Not Found'))
+          .fail(handleError('documents', 'Collection Not Found'))
 
     if @has('document')
       if current is 'document' or not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
         @document.id = @get('document')
         @document.fetch(reset: true)
-          .fail(fetchErrorHandler(
+          .fail(handleError(
             'document',
             'Document Not Found',
             '<p>But I&#146;m sure there are plenty of other nice documents out there&hellip;</p>'
@@ -125,6 +125,6 @@ class Selection extends Giraffe.Model
 
     if @get('explain')
       @explain.fetch()
-        .fail(showErrorMessage)
+        .fail(showError)
 
 module.exports = Selection
