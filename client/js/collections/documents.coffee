@@ -23,7 +23,6 @@ class Documents extends Giraffe.Collection
 
   dataEvents:
     'change search':  'fetchReset'
-    'change:id coll': 'fetchReset'
 
   initialize: ->
     @search     = new Search()
