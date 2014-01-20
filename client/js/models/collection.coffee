@@ -28,7 +28,7 @@ class Collection extends Model
     _.map(_.pluck(@get('indexes'), 'key'), GenghisJSON.prettyPrint)
 
   isGridCollection: ->
-    /\.files$/.test @get('name')
+    /\.files$/.test @id
 
   humanSize: ->
     if stats = @get('stats')

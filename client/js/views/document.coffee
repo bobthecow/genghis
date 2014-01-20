@@ -88,7 +88,9 @@ class Document extends View
     app.router.redirectToDocument(app.selection.server.id, db, coll, encodeURIComponent(id))
 
   destroy: =>
-    model = @model
+    selection = app.selection
+    model     = @model
+
     if @model.isGridFile()
       docType = 'file'
       gridMsg = "This will delete all GridFS chunks as well. <br><br>"
@@ -101,7 +103,6 @@ class Document extends View
       body:        "<strong>Really?</strong> #{gridMsg}There is no undo."
       confirmText: "<strong>Yes</strong>, delete #{docType} forever"
       confirm: ->
-        selection = app.selection
         if model.isGridFile()
           model.url = model.url().replace('.files/documents/', '.files/files/')
         model.destroy(wait: true)

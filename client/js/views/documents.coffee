@@ -46,6 +46,9 @@ class Documents extends View
     'attached this': 'onAttached'
     'detached this': 'onDetached'
 
+  serialize: ->
+    isGrid: @model.isGridCollection()
+
   afterRender: ->
     header = new DocumentsHeader(el: @$header, model: @collection.pagination)
     header.attachTo(@$header, method: 'html')
@@ -59,9 +62,7 @@ class Documents extends View
 
   addAll: =>
     @$content.empty()
-    text = if @model.isGridCollection() then 'Upload file' else 'Add document'
-    @$addButton.text(text).toggleClass 'file-upload', @model.isGridCollection()
-    @collection.each @addDocument
+    @collection.each(@addDocument)
 
   addDocument: (document) =>
     view = new DocumentView(model: document)
@@ -74,9 +75,9 @@ class Documents extends View
       unless Modernizr.filereader
         app.alerts.create(msg: FILE_API_MSG, level: 'danger', block: true)
         return
-      @getNewGridFileView().show()
+      @attach(new NewGridFile(collection: @collection))
     else
-      @getNewDocumentView().show()
+      @attach(new NewDocument(collection: @collection))
 
   dragGridFile: (e) ->
     e.stopPropagation()
@@ -96,13 +97,11 @@ class Documents extends View
     unless Modernizr.filereader
       app.alerts.create(msg: FILE_API_MSG, level: 'danger', block: true)
       return
-    @getNewGridFileView().showMetadata e.originalEvent.dataTransfer.files[0]
 
-  getNewDocumentView: ->
-    @newDocumentView = new NewDocument(collection: @collection) unless @newDocumentView
-
-  getNewGridFileView: ->
-    @newGridFileView = new NewGridFile(collection: @collection) unless @newGridFileView
+    file = e.originalEvent.dataTransfer.files[0]
+    view = new NewGridFile(collection: @collection, fileDialog: false)
+    @attach(view)
+    view.showMetadata(file)
 
   onRequest: =>
     @$el.addClass('spinning')

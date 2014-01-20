@@ -178,4 +178,14 @@ Util =
         frame = $('<iframe>', id: 'genghis-util-download').hide().appendTo('body')
       frame.attr 'src', url
 
+  readAsDataURL: (file) ->
+    deferred = new $.Deferred()
+    reader   = new FileReader()
+    reader.onload = (e) ->
+      deferred.resolve(e.target.result, e)
+    reader.onerror = (e) ->
+      deferred.resolve(e)
+    reader.readAsDataURL(file)
+    deferred.promise()
+
 module.exports = Util

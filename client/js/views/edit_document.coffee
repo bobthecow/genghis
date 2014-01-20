@@ -27,7 +27,8 @@ class EditDocument extends View
     showControls: @showControls
 
   afterRender: =>
-    @$textarea.text(@model.JSONish())
+    data = if @model? then @model.JSONish() else "{\n    \n}\n"
+    @$textarea.text(data)
     @editor = CodeMirror.fromTextArea(@$textarea[0], _.extend({}, defaults.codeMirror,
       autofocus: true
       extraKeys:
@@ -37,9 +38,7 @@ class EditDocument extends View
     @editor.setSize(null, @height) if @height
 
     # hax!
-    if _.isEmpty(@model.attributes)
-      @editor.setValue("{\n    \n}\n")
-      @editor.setCursor(line: 1, ch: 4)
+    @editor.setCursor(line: 1, ch: 4) unless @model?
 
     @$textarea.resize(_.throttle(@editor.refresh, 100))
     @listenTo(@$textarea, 'focused blurred', (e) => @trigger(e))
@@ -47,10 +46,15 @@ class EditDocument extends View
   clearErrors: ->
     @getErrorBlock().empty()
     _.each @errorLines, (marker) =>
-      @editor.removeLineClass marker, 'background', 'error-line'
+      @editor.removeLineClass(marker, 'background', 'error-line')
     @errorLines = []
 
-  getEditorValue: ->
+  setEditorValue: (val, cursor) =>
+    @clearErrors()
+    @editor.setValue(val)
+    @editor.setCursor(cursor) if cursor
+
+  getEditorValue: =>
     @clearErrors()
     try
       return GenghisJSON.parse(@editor.getValue())
@@ -66,16 +70,17 @@ class EditDocument extends View
     false
 
   save: =>
-    data = @getEditorValue()
-    return if data is false
+    if data = @getEditorValue()
+      @onSave(data)
 
+  onSave: (data) =>
     @model.clear(silent: true)
     @model.save(data, wait: true)
       .done(@cancel)
       .fail((doc, xhr) =>
         try
           msg = JSON.parse(xhr.responseText).error
-        @showServerError(msg or 'Error updating document.')
+        @showError(msg or 'Error updating document.')
       )
 
   cancel: =>
@@ -89,7 +94,7 @@ class EditDocument extends View
     return @errorBlock if @errorBlock?
     @errorBlock = $('<div class="errors"></div>').insertBefore(@$el)
 
-  showServerError: (message) =>
+  showError: (message) =>
     alert     = new Alert(level: 'danger', msg: message, block: true)
     alertView = new AlertView(model: alert)
     @getErrorBlock().append alertView.render().el

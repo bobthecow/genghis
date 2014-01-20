@@ -1,78 +1,61 @@
-{$, _}      = require '../vendors'
-NewDocument = require './new_document.coffee'
-Document    = require '../models/document.coffee'
-Util        = require '../util.coffee'
-GenghisJSON = require '../json.coffee'
-template    = require '../../templates/new_grid_file.mustache'
+{$, _}       = require '../vendors'
+NewDocument  = require './new_document.coffee'
+EditDocument = require './edit_document.coffee'
+Document     = require '../models/document.coffee'
+Util         = require '../util.coffee'
+GenghisJSON  = require '../json.coffee'
+template     = require '../../templates/new_grid_file.mustache'
 
 class NewGridFile extends NewDocument
-  el:       '#new-grid-file'
-  template: template
+  id:        'new-grid-file'
+  className: 'modal modal-file-upload'
+  template:  template
 
-  render: ->
+  ui:
+    '$errors':  '.errors'
+    '$wrapper': '.wrapper'
+    '$file':    'input[type=file]'
+
+  events:
+    'change $file':        'onFileChange'
+    'click button.cancel': 'closeModal'
+    'click button.save':   'save'
+
+  modalOptions:
+    backdrop: 'static'
+    keyboard: false
+    show:     false
+
+  afterRender: =>
     super
-    @fileInput = $('<input id="new-grid-file-input" type="file">')
-      .hide()
-      .appendTo('body')
-    @currentFile = null
-    @fileInput.bind 'change', @handleFileInputChange
-    this
+    @$file.click() unless @fileDialog is false
 
-  getTextArea: ->
-    @$('#editor-upload')[0]
-
-  show: ->
-    # get the file
-    @fileInput.click()
-
-  handleFileInputChange: (e) =>
-    @showMetadata e.target.files[0]
+  onFileChange: (e) =>
+    @showMetadata(e.target.files[0])
 
   showMetadata: (file) =>
-    @currentFile = file
-    if file
-      @fileInput.val ''
+    return unless @currentFile = file
 
-      # now let 'em edit metadata
-      @editor.setValue GenghisJSON.stringify(
-        filename:    file.name
-        contentType: file.type or 'binary/octet-stream'
-        metadata:    {}
-      )
+    @$file.val('')
 
-      @editor.setCursor(line: 3, ch: 15)
-      @modal.modal 'show'
+    # now let 'em edit metadata
+    @editView.setEditorValue(GenghisJSON.stringify(
+      filename:    @currentFile.name
+      contentType: @currentFile.type or 'binary/octet-stream'
+      metadata:    {}
+    ), line: 3, ch: 15)
 
-  saveDocument: ->
-    data = @getEditorValue()
-    return if data is false
+    @modal.modal('show')
+
+  onSave: (data) =>
     if data.file
-      @showServerError "Unexpected property: 'file'"
+      @editView.showError("Unexpected property: 'file'")
       return
 
-    {closeModal, showServerError} = this
-    docs      = @collection
-    uploadUrl = @collection.url.replace('.files/documents', '.files/files')
-
-    reader = new FileReader()
-    reader.onload = (e) ->
-      data.file = e.target.result
-      $.ajax(
-        type:        'POST'
-        url:         uploadUrl
-        data:        JSON.stringify(data)
-        contentType: 'application/json'
-      ).success((doc) ->
-        docs.add doc
-        closeModal()
-        id = new Document(doc).prettyId()
-        app.router.navigate Util.route("#{docs.url}/#{id}"), true
-      ).error((xhr) ->
-        try
-          msg = JSON.parse(xhr.responseText).error
-        showServerError msg or 'Error uploading file.'
+    Util.readAsDataURL(@currentFile)
+      .done((file) =>
+        data.file = file
+        NewDocument::onSave.call(this, data)
       )
-
-    reader.readAsDataURL @currentFile
 
 module.exports = NewGridFile
