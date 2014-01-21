@@ -3,7 +3,7 @@
 var _       = require('lodash');
 var fs      = require('fs');
 var gulp    = require('gulp');
-var t       = require('gulp-load-tasks')();
+var t       = require('gulp-load-plugins')();
 var gutil   = require('gulp-util');
 var chalk   = require('chalk');
 // var chalk   = gutil.color;
@@ -64,6 +64,7 @@ gulp.task('scripts', function() {
     }))
     .pipe(t.bytediff.start())
     .pipe(gulp.dest('public/js'))
+    //.pipe(t.notify('Script updated'))
     .pipe(t.livereload(server))
 
     // Minified
@@ -73,7 +74,8 @@ gulp.task('scripts', function() {
     }))
     .pipe(t.header(HEADER_OPTS))
     .pipe(t.bytediff.stop())
-    .pipe(gulp.dest('public/js'));
+    .pipe(gulp.dest('public/js'))
+    //.pipe(t.notify('Minified script updated'));
 });
 
 
@@ -102,6 +104,7 @@ gulp.task('styles', function() {
     .pipe(t.bytediff.start())
     .pipe(gulp.dest('public/css'))
     .pipe(t.livereload(server))
+    //.pipe(t.notify('Stylesheet updated'))
 
     // Minified
     .pipe(t.rename({suffix: '.min'}))
@@ -113,7 +116,8 @@ gulp.task('styles', function() {
     .pipe(t.csso())
     .pipe(t.header(HEADER_OPTS))
     .pipe(t.bytediff.stop())
-    .pipe(gulp.dest('public/css'));
+    .pipe(gulp.dest('public/css'))
+    //.pipe(t.notify('Minified stylesheet updated'));
 });
 
 
@@ -125,7 +129,11 @@ gulp.task('templates', function() {
       favicon: '{{ base_url }}/img/favicon.png',
     }))
     .pipe(gulp.dest('public/templates'))
-    .pipe(t.livereload(server));
+    .pipe(t.livereload(server))
+    //.pipe(t.notify({
+    //  message: 'Templates updated',
+    //  onLast:  true
+    //}));
 
   var dist = gulp.src('server/templates/{index,error}.mustache.tpl')
     .pipe(t.rename({ext: '.min.mustache'}))
@@ -135,7 +143,11 @@ gulp.task('templates', function() {
     .pipe(t.bytediff.start())
     .pipe(t.htmlmin(HTMLMIN_OPTS))
     .pipe(t.bytediff.stop())
-    .pipe(gulp.dest('public/templates'));
+    .pipe(gulp.dest('public/templates'))
+    //.pipe(t.notify({
+    //  message: 'Minified templates updated',
+    //  onLast:  true
+    //}));
 
   return stream.concat(dev, dist);
 });
@@ -145,7 +157,11 @@ gulp.task('templates', function() {
 gulp.task('copy', function() {
   return gulp.src('client/img/**')
     .pipe(gulp.dest('public/img'))
-    .pipe(t.livereload(server));
+    .pipe(t.livereload(server))
+    //.pipe(t.notify({
+    //  message: 'Images updated',
+    //  onLast:  true
+    //}));
 });
 
 
@@ -233,7 +249,8 @@ gulp.task('build:php', function() {
       assets:   fs.readFileSync('tmp/assets.txt')
     }))
     .pipe(t.rename('genghis.php'))
-    .pipe(gulp.dest('.'));
+    .pipe(gulp.dest('.'))
+    //.pipe(t.notify('genghis.php updated'));
 });
 
 gulp.task('build:rb:lib', function() {
@@ -256,7 +273,8 @@ gulp.task('build:rb', function() {
       assets:   fs.readFileSync('tmp/assets.txt')
     }))
     .pipe(t.rename('genghis.rb'))
-    .pipe(gulp.dest('.'));
+    .pipe(gulp.dest('.'))
+    //.pipe(t.notify('Genghis.rb updated'));
 });
 
 
@@ -276,19 +294,28 @@ gulp.task('rebuild', ['clean'], function() {
 gulp.task('dev', ['clean'], function() {
   gulp.run('livereload', 'lint', 'styles', 'scripts', 'copy', 'templates');
 
-  gulp.watch('client/css/**/*.{less,css}', function() {
+  var log = function(e) {
+    var path = e.path.replace(__dirname + '/', '');
+    console.log(chalk.grey('File ' + path + ' was ' + e.type + ', running tasks...'));
+  }
+
+  gulp.watch('client/css/**/*.{less,css}', function(event) {
+    log(event);
     gulp.run('styles');
   });
 
-  gulp.watch(['client/js/**/*.{js,coffee}', 'client/templates/**/*.mustache'], function() {
+  gulp.watch(['client/js/**/*.{js,coffee}', 'client/templates/**/*.mustache'], function(event) {
+    log(event);
     gulp.run(['lint', 'scripts']);
   });
 
-  gulp.watch('client/img/**.*', function() {
+  gulp.watch('client/img/**.*', function(event) {
+    log(event);
     gulp.run(['copy']);
   });
 
-  gulp.watch('server/templates/{index,error}.mustache.tpl', function() {
+  gulp.watch('server/templates/{index,error}.mustache.tpl', function(event) {
+    log(event);
     gulp.run('templates');
   });
 });
