@@ -1,4 +1,5 @@
 View     = require './view'
+Sort     = require './sort'
 template = require '../../templates/documents_header.mustache'
 
 class DocumentsHeader extends View
@@ -22,5 +23,9 @@ class DocumentsHeader extends View
     from:   from
     to:     to
     plural: (total isnt 1)
+
+  afterRender: =>
+    @sortView = new Sort(model: @collection.search, collection: @collection)
+    @attach(@sortView, method: 'prepend')
 
 module.exports = DocumentsHeader

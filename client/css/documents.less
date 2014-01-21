@@ -7,6 +7,32 @@
     .add-document {
         float: left;
     }
+    .sort-form {
+        .pull-right;
+        margin-right: -12px;
+        .btn-link {
+            color: @gray-light;
+            font-weight: 300;
+            strong {
+                font-weight: 500;
+            }
+            &:hover, &:focus {
+                color: @link-hover-color;
+            }
+            &[disabled], fieldset[disabled] & {
+                &:hover, &:focus {
+                    color: @btn-link-disabled-color;
+                }
+            }
+        }
+        label {
+            color: @gray-light;
+            font-weight: 300;
+        }
+        .sort-custom {
+            width: auto;
+        }
+    }
     .pagination {
         margin: 0;
         li.prev a:after {

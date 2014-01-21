@@ -175,8 +175,15 @@
     }
 }
 
-// Pretty print the "index details" popovers too
-.index-details li {
+// Pretty print the "index details" and "sort by" lists too
+.index-details li, .sort-by li {
     .pretty-print;
     white-space: normal;
+}
+
+.sort-by li > a .o {
+    color: @greyish;
+    var {
+        color: @blackish;
+    }
 }

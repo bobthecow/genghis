@@ -50,7 +50,7 @@ class Documents extends View
     isGrid: @model.isGridCollection()
 
   afterRender: ->
-    header = new DocumentsHeader(el: @$header, model: @collection.pagination)
+    header = new DocumentsHeader(el: @$header, model: @collection.pagination, collection: @collection)
     header.attachTo(@$header, method: 'html')
 
     @$pagination.each((i, el) =>
