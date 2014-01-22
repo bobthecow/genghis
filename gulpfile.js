@@ -66,7 +66,6 @@ gulp.task('styles', function() {
     'client/vendor/keyscss/keys.css'
   ]);
 
-  // background images (coming soon: with data uris!)
   var backgrounds = gulp.src('client/css/backgrounds.css');
 
   // genghis styles
