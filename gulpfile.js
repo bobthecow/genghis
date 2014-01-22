@@ -280,7 +280,7 @@ gulp.task('rebuild', ['clean'], function() {
 
 
 // For the developments. Livereload, plus building dev versions of stuff.
-gulp.task('dev', ['clean'], function() {
+gulp.task('dev', function() {
   gulp.run('livereload', 'lint', 'styles', 'scripts', 'copy', 'templates');
 
   var log = function(e) {
