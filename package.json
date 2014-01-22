@@ -48,6 +48,7 @@
     "gulp-uglify":       "latest",
     "gulp-template":     "latest",
     "gulp-replace":      "latest",
+    "gulp-debug":        "latest",
 
     "datauri":           "latest",
     "event-stream":      "latest",

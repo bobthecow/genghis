@@ -76,6 +76,7 @@ gulp.task('styles', function() {
     }));
 
   return stream.concat(vendors, backgrounds, genghis)
+    // .pipe(t.debug())
     // Normal
     .pipe(t.concat('style.css'))
     .pipe(t.header(HEADER_OPTS))
