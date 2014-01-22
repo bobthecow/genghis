@@ -108,10 +108,10 @@ gulp.task('templates', function() {
     }))
     .pipe(gulp.dest('public/templates'))
     .pipe(t.livereload(server))
-    //.pipe(t.notify({
-    //  message: 'Templates updated',
-    //  onLast:  true
-    //}));
+    .pipe(t.notify({
+      message: 'Templates updated',
+      onLast:  true
+    }));
 
   var dist = gulp.src('server/templates/{index,error}.mustache.tpl')
     .pipe(t.rename({ext: '.min.mustache'}))
@@ -128,10 +128,10 @@ gulp.task('templates', function() {
     }))
     .pipe(t.bytediff.stop())
     .pipe(gulp.dest('public/templates'))
-    //.pipe(t.notify({
-    //  message: 'Minified templates updated',
-    //  onLast:  true
-    //}));
+    .pipe(t.notify({
+      message: 'Minified templates updated',
+      onLast:  true
+    }));
 
   return stream.concat(dev, dist);
 });
@@ -142,10 +142,10 @@ gulp.task('copy', function() {
   return gulp.src('client/img/**')
     .pipe(gulp.dest('public/img'))
     .pipe(t.livereload(server))
-    //.pipe(t.notify({
-    //  message: 'Images updated',
-    //  onLast:  true
-    //}));
+    .pipe(t.notify({
+      message: 'Images updated',
+      onLast:  true
+    }));
 });
 
 
@@ -239,7 +239,7 @@ gulp.task('build:php', function() {
     }))
     .pipe(t.rename('genghis.php'))
     .pipe(gulp.dest('.'))
-    //.pipe(t.notify('genghis.php updated'));
+    .pipe(t.notify('genghis.php updated'));
 });
 
 gulp.task('build:rb:lib', function() {
@@ -263,7 +263,7 @@ gulp.task('build:rb', function() {
     }))
     .pipe(t.rename('genghis.rb'))
     .pipe(gulp.dest('.'))
-    //.pipe(t.notify('Genghis.rb updated'));
+    .pipe(t.notify('Genghis.rb updated'));
 });
 
 
