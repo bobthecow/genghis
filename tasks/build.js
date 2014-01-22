@@ -2,17 +2,18 @@ var fs       = require('fs');
 
 var gulp     = require('gulp');
 var concat   = require('gulp-concat');
+var header   = require('gulp-header');
 var notify   = require('gulp-notify');
 var rename   = require('gulp-rename');
 var replace  = require('gulp-replace');
 var spawn    = require('gulp-spawn');
 var template = require('gulp-template');
 
-// TODO: switch back to gulp-header once my pull request is merged.
-var header   = require('./header');
-
 var VERSION = fs.readFileSync('VERSION.txt');
 
+var assetName = function(file) {
+  return file.path.replace(/^.*?public\/(templates\/)?|/, '').replace('.min.', '.');
+};
 
 // Internal builds for distribution...
 gulp.task('build:assets', ['styles', 'scripts', 'templates', 'copy'], function() {
@@ -22,9 +23,7 @@ gulp.task('build:assets', ['styles', 'scripts', 'templates', 'copy'], function()
     'public/templates/index.min.mustache',
     'public/templates/error.min.mustache'
   ])
-    .pipe(header(function(file) {
-      return "\n@@ " + file.path.replace(/^.*?public\/(templates\/)?|/, '').replace('.min.', '.') + "\n";
-    }))
+    .pipe(header("\n@@ <%= name(file) %>\n", {name: assetName}))
     .pipe(concat('assets.txt'))
     .pipe(gulp.dest('tmp'));
 });
