@@ -4,9 +4,7 @@ var _       = require('lodash');
 var fs      = require('fs');
 var gulp    = require('gulp');
 var t       = require('gulp-load-plugins')();
-var gutil   = require('gulp-util');
 var chalk   = require('chalk');
-// var chalk   = gutil.color;
 var lr      = require('tiny-lr');
 var map     = require('map-stream');
 var path    = require('path');
@@ -14,35 +12,16 @@ var stream  = require('event-stream');
 var datauri = require('datauri');
 var toDatauri = require('./tasks/datauri');
 
-
 // TODO: switch back to the originals once my PRs are released.
 var header = require('./tasks/header');
 
 var server = lr();
 
-
 var VERSION = fs.readFileSync('VERSION.txt');
-
-var COFFEELINT_OPTS = {
-  max_line_length: {value: 120, level: 'warn'}
-};
-
-var JSHINT_OPTS = {
-  browser: true, // window, document, atob, etc.
-  node:    true  // we're rockin' node-style with browserify.
-};
 
 var HEADER_OPTS = {
   file:    'server/templates/banner.mustache',
   version: VERSION
-};
-
-var HTMLMIN_OPTS = {
-  removeComments:            true,
-  collapseWhitespace:        true,
-  collapseBooleanAttributes: true,
-  removeRedundantAttributes: true,
-  removeEmptyAttributes:     true
 };
 
 
@@ -140,7 +119,13 @@ gulp.task('templates', function() {
       favicon: datauri('client/img/favicon.png'),
     }))
     .pipe(t.bytediff.start())
-    .pipe(t.htmlmin(HTMLMIN_OPTS))
+    .pipe(t.htmlmin({
+      removeComments:            true,
+      collapseWhitespace:        true,
+      collapseBooleanAttributes: true,
+      removeRedundantAttributes: true,
+      removeEmptyAttributes:     true
+    }))
     .pipe(t.bytediff.stop())
     .pipe(gulp.dest('public/templates'))
     //.pipe(t.notify({
@@ -170,7 +155,9 @@ gulp.task('copy', function() {
 // TODO: do this with the server code too.
 gulp.task('lint', function() {
   gulp.src('client/js/**/*.coffee')
-    .pipe(t.coffeelint(COFFEELINT_OPTS))
+    .pipe(t.coffeelint({
+      max_line_length: {value: 120, level: 'warn'}
+    }))
     .pipe(map(function (file, cb) {
       if (!file.coffeelint.success) {
         var filename = file.path.replace(file.cwd + '/', '');
@@ -185,7 +172,10 @@ gulp.task('lint', function() {
     }));
 
   gulp.src(['gulpfile.js', 'tasks/**/*.js', 'client/js/**/*.js', '!client/js/modernizr.js', '!tasks/browserify-hogan.js'])
-    .pipe(t.jshint(JSHINT_OPTS))
+    .pipe(t.jshint({
+      browser: true, // window, document, atob, etc.
+      node:    true  // we're rockin' node-style with browserify.
+    }))
     .pipe(map(function (file, cb) {
       if (!file.jshint.success) {
         var filename = file.path.replace(file.cwd + '/', '');
