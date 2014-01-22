@@ -19,7 +19,7 @@
     "lodash":            "latest",
     "browserify":        "~3.19.1",
     "brfs":              "latest",
-    "browserify-hogan":  "~0.0.2",
+    "browserify-hogan":  "git://github.com/unfold/browserify-hogan.git#master",
     "browserify-shim":   "~3.1.4",
     "coffeeify":         "latest",
     "deamdify":          "latest",

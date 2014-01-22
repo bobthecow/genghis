@@ -16,8 +16,7 @@ var toDatauri = require('./tasks/datauri');
 
 
 // TODO: switch back to the originals once my PRs are released.
-var hoganify = require('./tasks/browserify-hogan');
-var header   = require('./tasks/header');
+var header = require('./tasks/header');
 
 var server = lr();
 
@@ -59,7 +58,7 @@ gulp.task('scripts', function() {
   return gulp.src('client/js/script.js')
     // Normal
     .pipe(t.browserify({
-      transform: [hoganify, 'coffeeify', 'debowerify', 'brfs'],
+      transform: ['browserify-hogan', 'coffeeify', 'debowerify', 'brfs'],
       debug: true
     }))
     .pipe(t.bytediff.start())
