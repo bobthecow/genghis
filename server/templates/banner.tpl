@@ -1,5 +1,5 @@
 /**
- * Genghis v{{ version }}
+ * Genghis v<%= version %>
  *
  * The single-file MongoDB admin app
  *

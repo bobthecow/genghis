@@ -19,8 +19,8 @@ var server = lr();
 
 var VERSION = fs.readFileSync('VERSION.txt');
 
-var HEADER_OPTS = {
-  file:    'server/templates/banner.mustache',
+var HEADER = fs.readFileSync('server/templates/banner.tpl');
+var HEADER_DATA = {
   version: VERSION
 };
 
@@ -50,7 +50,7 @@ gulp.task('scripts', function() {
     .pipe(t.uglify({
       output: {ascii_only: true}
     }))
-    .pipe(t.header(HEADER_OPTS))
+    .pipe(t.header(HEADER, HEADER_DATA))
     .pipe(t.bytediff.stop())
     .pipe(gulp.dest('public/js'))
     //.pipe(t.notify('Minified script updated'));
@@ -78,7 +78,7 @@ gulp.task('styles', function() {
     // .pipe(t.debug())
     // Normal
     .pipe(t.concat('style.css'))
-    .pipe(t.header(HEADER_OPTS))
+    .pipe(t.header(HEADER, HEADER_DATA))
     .pipe(t.bytediff.start())
     .pipe(gulp.dest('public/css'))
     .pipe(t.livereload(server))
@@ -92,7 +92,7 @@ gulp.task('styles', function() {
     }))
     .pipe(t.autoprefixer())
     .pipe(t.csso())
-    .pipe(t.header(HEADER_OPTS))
+    .pipe(t.header(HEADER, HEADER_DATA))
     .pipe(t.bytediff.stop())
     .pipe(gulp.dest('public/css'))
     //.pipe(t.notify('Minified stylesheet updated'));
@@ -171,7 +171,7 @@ gulp.task('lint', function() {
       cb(null, file);
     }));
 
-  gulp.src(['gulpfile.js', 'tasks/**/*.js', 'client/js/**/*.js', '!client/js/modernizr.js', '!tasks/browserify-hogan.js'])
+  gulp.src(['gulpfile.js', 'tasks/**/*.js', 'client/js/**/*.js', '!client/js/modernizr.js'])
     .pipe(t.jshint({
       browser: true, // window, document, atob, etc.
       node:    true  // we're rockin' node-style with browserify.
