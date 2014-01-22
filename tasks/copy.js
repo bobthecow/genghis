@@ -1,6 +1,6 @@
 var gulp       = require('gulp');
 var livereload = require('gulp-livereload');
-var notify     = require('gulp-notify');
+// var notify     = require('gulp-notify');
 
 var server;
 
@@ -9,10 +9,10 @@ gulp.task('copy', function() {
   return gulp.src('client/img/**')
     .pipe(gulp.dest('public/img'))
     .pipe(livereload(server))
-    .pipe(notify({
-      message: 'Images updated',
-      onLast:  true
-    }));
+    // .pipe(notify({
+    //   message: 'Images updated',
+    //   onLast:  true
+    // }));
 });
 
 module.exports = {withServer: function(lr) { server = lr; }};

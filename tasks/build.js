@@ -3,7 +3,7 @@ var fs       = require('fs');
 var gulp     = require('gulp');
 var concat   = require('gulp-concat');
 var header   = require('gulp-header');
-var notify   = require('gulp-notify');
+// var notify   = require('gulp-notify');
 var rename   = require('gulp-rename');
 var replace  = require('gulp-replace');
 var spawn    = require('gulp-spawn');
@@ -47,7 +47,7 @@ gulp.task('build:php', function() {
     }))
     .pipe(rename('genghis.php'))
     .pipe(gulp.dest('.'))
-    .pipe(notify('genghis.php updated'));
+    // .pipe(notify('genghis.php updated'));
 });
 
 
@@ -72,8 +72,8 @@ gulp.task('build:rb', function() {
       assets:   fs.readFileSync('tmp/assets.txt')
     }))
     .pipe(rename('genghis.rb'))
-    .pipe(gulp.dest('.'))
-    .pipe(notify('Genghis.rb updated'));
+    .pipe(gulp.dest('.'));
+    // .pipe(notify('Genghis.rb updated'));
 });
 
 

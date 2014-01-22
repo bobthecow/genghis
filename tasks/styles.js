@@ -11,7 +11,7 @@ var debug        = require('gulp-debug');
 var header       = require('gulp-header');
 var less         = require('gulp-less');
 var livereload   = require('gulp-livereload');
-var notify       = require('gulp-notify');
+// var notify       = require('gulp-notify');
 var rename       = require('gulp-rename');
 
 var datauri      = require('./datauri');

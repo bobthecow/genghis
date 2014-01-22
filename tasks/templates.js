@@ -7,7 +7,7 @@ var gulp       = require('gulp');
 var bytediff   = require('gulp-bytediff');
 var htmlmin    = require('gulp-htmlmin');
 var livereload = require('gulp-livereload');
-var notify     = require('gulp-notify');
+// var notify     = require('gulp-notify');
 var rename     = require('gulp-rename');
 var template   = require('gulp-template');
 
@@ -24,10 +24,10 @@ gulp.task('templates', function() {
     }))
     .pipe(gulp.dest('public/templates'))
     .pipe(livereload(server))
-    .pipe(notify({
-      message: 'Templates updated',
-      onLast:  true
-    }));
+    // .pipe(notify({
+    //   message: 'Templates updated',
+    //   onLast:  true
+    // }));
 
   var dist = gulp.src('server/templates/{index,error}.mustache.tpl')
     .pipe(rename({ext: '.min.mustache'}))
@@ -44,10 +44,10 @@ gulp.task('templates', function() {
     }))
     .pipe(bytediff.stop())
     .pipe(gulp.dest('public/templates'))
-    .pipe(notify({
-      message: 'Minified templates updated',
-      onLast:  true
-    }));
+    // .pipe(notify({
+    //   message: 'Minified templates updated',
+    //   onLast:  true
+    // }));
 
   return stream.concat(dev, dist);
 });

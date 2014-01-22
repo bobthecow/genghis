@@ -5,7 +5,7 @@ var browserify = require('gulp-browserify');
 var bytediff   = require('gulp-bytediff');
 var header     = require('gulp-header');
 var livereload = require('gulp-livereload');
-var notify     = require('gulp-notify');
+// var notify     = require('gulp-notify');
 var rename     = require('gulp-rename');
 var uglify     = require('gulp-uglify');
 
