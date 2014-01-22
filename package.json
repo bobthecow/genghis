@@ -19,6 +19,7 @@
     "brfs":              "latest",
     "browserify":        "latest",
     "browserify-hogan":  "git://github.com/unfold/browserify-hogan.git#master",
+    "hogan.js":          "latest",
     "coffeeify":         "latest",
     "debowerify":        "latest",
 
