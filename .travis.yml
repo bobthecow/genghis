@@ -43,6 +43,7 @@ before_install:
  - 'sh -c "if [ -z $(php -i | grep mongo) ]; then echo extension=mongo.so >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi"'
 
 install:
+ - rvm use 1.9.3
  - gem install bundler
  - bundle install --without development
  - 'sh -c "if [ $GENGHIS_BACKEND = ruby ] || [ $GENGHIS_BACKEND = php ]; then npm install; fi"'
