@@ -16,12 +16,12 @@
   },
 
   "devDependencies": {
-    "brfs":              "latest",
     "browserify":        "latest",
-    "browserify-hogan":  "git://github.com/unfold/browserify-hogan.git#master",
-    "hogan.js":          "latest",
+    "brfs":              "latest",
+    "browserify-hogan":  "latest",
     "coffeeify":         "latest",
     "debowerify":        "latest",
+    "hogan.js":          "latest",
 
     "gulp":              "latest",
     "gulp-autoprefixer": "latest",
@@ -32,30 +32,28 @@
     "gulp-concat":       "latest",
     "gulp-csso":         "latest",
     "gulp-debug":        "latest",
-    "gulp-exec":         "latest",
     "gulp-header":       "latest",
     "gulp-htmlmin":      "latest",
     "gulp-jshint":       "latest",
     "gulp-less":         "latest",
     "gulp-livereload":   "latest",
-    "gulp-load-plugins": "latest",
     "gulp-notify":       "latest",
     "gulp-rename":       "latest",
     "gulp-replace":      "latest",
     "gulp-sloc":         "latest",
     "gulp-spawn":        "latest",
+    "gulp-buffer":       "latest",
     "gulp-template":     "latest",
     "gulp-uglify":       "latest",
+    "gulp-util":         "latest",
 
-    "chalk":             "latest",
     "datauri":           "latest",
     "event-stream":      "latest",
-    "gulp-util":         "latest",
     "lodash":            "latest",
-    "lodash.assign":     "latest",
     "map-stream":        "latest",
     "minimatch":         "latest",
-    "through":           "latest",
-    "tiny-lr":           "latest"
+    "through2":          "latest",
+    "tiny-lr":           "latest",
+    "vinyl":             "latest"
   }
 }

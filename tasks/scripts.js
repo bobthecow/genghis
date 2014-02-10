@@ -1,13 +1,19 @@
 var fs         = require('fs');
+var path       = require('path');
+
+var browserify = require('browserify');
 
 var gulp       = require('gulp');
-var browserify = require('gulp-browserify');
+var buffer     = require('gulp-buffer');
 var bytediff   = require('gulp-bytediff');
 var header     = require('gulp-header');
 var livereload = require('gulp-livereload');
 // var notify     = require('gulp-notify');
 var rename     = require('gulp-rename');
 var uglify     = require('gulp-uglify');
+
+// TODO: replace this when upstream gets its act together.
+var source     = require('./source');
 
 var server;
 
@@ -20,13 +26,23 @@ var HEADER_DATA = {
 gulp.task('scripts', function() {
   if (!server) throw new Error('Server not set.');
 
-  return gulp.src('client/js/script.js')
+  // Start with browserify...
+  return browserify({
+    debug:      true,
+    extensions: ['.coffee']
+  })
+    .add('./client/js/script.js')
+    .transform('browserify-hogan')
+    .transform('coffeeify')
+    .transform('debowerify')
+    .transform('brfs')
+    .bundle()
+
+    // And now pass it off to gulp
+    .pipe(source('client/js/script.js'))
+    .pipe(buffer()) // this pipeline doesn't play nice with vinyl-source-stream
+
     // Normal
-    .pipe(browserify({
-      transform:  ['browserify-hogan', 'coffeeify', 'debowerify', 'brfs'],
-      extensions: ['.coffee'],
-      debug:      true
-    }))
     .pipe(bytediff.start())
     .pipe(gulp.dest('public/js'))
     //.pipe(notify('Script updated'))
