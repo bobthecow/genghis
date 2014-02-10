@@ -1,7 +1,7 @@
 {_}         = require '../vendors'
-Model       = require './model.coffee'
-Util        = require '../util.coffee'
-Collections = require '../collections/collections.coffee'
+Model       = require './model'
+Util        = require '../util'
+Collections = require '../collections/collections'
 
 _h = Util.humanizeSize
 

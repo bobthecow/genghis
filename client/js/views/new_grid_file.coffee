@@ -1,9 +1,9 @@
 {$, _}       = require '../vendors'
-NewDocument  = require './new_document.coffee'
-EditDocument = require './edit_document.coffee'
-Document     = require '../models/document.coffee'
-Util         = require '../util.coffee'
-GenghisJSON  = require '../json.coffee'
+NewDocument  = require './new_document'
+EditDocument = require './edit_document'
+Document     = require '../models/document'
+Util         = require '../util'
+GenghisJSON  = require '../json'
 template     = require '../../templates/new_grid_file.mustache'
 
 class NewGridFile extends NewDocument

@@ -1,6 +1,6 @@
-View     = require './view.coffee'
-Nav      = require './nav.coffee'
-Search   = require './search.coffee'
+View     = require './view'
+Nav      = require './nav'
+Search   = require './search'
 template = require '../../templates/navbar.mustache'
 
 class Navbar extends View

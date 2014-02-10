@@ -23,8 +23,9 @@ gulp.task('scripts', function() {
   return gulp.src('client/js/script.js')
     // Normal
     .pipe(browserify({
-      transform: ['browserify-hogan', 'coffeeify', 'debowerify', 'brfs'],
-      debug: true
+      transform:  ['browserify-hogan', 'coffeeify', 'debowerify', 'brfs'],
+      extensions: ['.coffee'],
+      debug:      true
     }))
     .pipe(bytediff.start())
     .pipe(gulp.dest('public/js'))

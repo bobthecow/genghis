@@ -1,5 +1,5 @@
-Util = require '../util.coffee'
-View = require './view.coffee'
+Util = require '../util'
+View = require './view'
 
 class Title extends View
   dataEvents:

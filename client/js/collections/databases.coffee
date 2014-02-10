@@ -1,5 +1,5 @@
-Collection = require './collection.coffee'
-Database   = require '../models/database.coffee'
+Collection = require './collection'
+Database   = require '../models/database'
 
 class Databases extends Collection
   model: Database

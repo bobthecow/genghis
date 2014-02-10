@@ -1,4 +1,4 @@
-View     = require './view.coffee'
+View     = require './view'
 template = require '../../templates/documents_header.mustache'
 
 class DocumentsHeader extends View

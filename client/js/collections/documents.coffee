@@ -1,7 +1,7 @@
 {_, Giraffe} = require '../vendors'
-Document     = require '../models/document.coffee'
-Search       = require '../models/search.coffee'
-Pagination   = require '../models/pagination.coffee'
+Document     = require '../models/document'
+Search       = require '../models/search'
+Pagination   = require '../models/pagination'
 
 isGuessable = (d) ->
   id = d._id or null

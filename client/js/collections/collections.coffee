@@ -1,6 +1,6 @@
 {_}            = require '../vendors'
-BaseCollection = require './collection.coffee'
-Collection     = require '../models/collection.coffee'
+BaseCollection = require './collection'
+Collection     = require '../models/collection'
 
 class Collections extends BaseCollection
   model: Collection

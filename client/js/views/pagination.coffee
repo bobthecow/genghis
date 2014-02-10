@@ -1,6 +1,6 @@
 {$, _}   = require '../vendors'
-View     = require './view.coffee'
-Util     = require '../util.coffee'
+View     = require './view'
+Util     = require '../util'
 template = require '../../templates/pagination.mustache'
 
 class Pagination extends View

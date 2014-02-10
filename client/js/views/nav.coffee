@@ -1,7 +1,7 @@
 {$, _}     = require '../vendors'
-Util       = require '../util.coffee'
-View       = require './view.coffee'
-NavSection = require './nav_section.coffee'
+Util       = require '../util'
+View       = require './view'
+NavSection = require './nav_section'
 template   = require '../../templates/nav.mustache'
 
 class Nav extends View

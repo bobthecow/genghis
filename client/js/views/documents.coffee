@@ -1,12 +1,12 @@
 {$, _}          = require '../vendors'
 Modernizr       = require '../shims/modernizr'
 
-View            = require './view.coffee'
-DocumentsHeader = require './documents_header.coffee'
-Pagination      = require './pagination.coffee'
-DocumentView    = require './document.coffee'
-NewDocument     = require './new_document.coffee'
-NewGridFile     = require './new_grid_file.coffee'
+View            = require './view'
+DocumentsHeader = require './documents_header'
+Pagination      = require './pagination'
+DocumentView    = require './document'
+NewDocument     = require './new_document'
+NewGridFile     = require './new_grid_file'
 
 template        = require '../../templates/documents.mustache'
 

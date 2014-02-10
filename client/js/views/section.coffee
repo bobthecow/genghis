@@ -1,5 +1,5 @@
 {$, _} = require '../vendors'
-View   = require './view.coffee'
+View   = require './view'
 
 class Section extends View
   tagName:   'section'

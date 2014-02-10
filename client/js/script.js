@@ -1,4 +1,4 @@
 'use strict';
 
 // Load the library
-window.Genghis = require('./genghis.coffee');
+window.Genghis = require('./genghis');

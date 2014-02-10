@@ -1,6 +1,6 @@
 {_}       = require '../vendors'
-Model     = require './model.coffee'
-Databases = require '../collections/databases.coffee'
+Model     = require './model'
+Databases = require '../collections/databases'
 
 class Server extends Model
   dataEvents:

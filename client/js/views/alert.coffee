@@ -1,4 +1,4 @@
-View     = require './view.coffee'
+View     = require './view'
 template = require '../../templates/alert.mustache'
 
 class Alert extends View

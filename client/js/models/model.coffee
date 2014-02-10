@@ -1,5 +1,5 @@
 {Giraffe} = require '../vendors'
-Util      = require '../util.coffee'
+Util      = require '../util'
 
 class Model extends Giraffe.Model
   name:  -> @get('name')

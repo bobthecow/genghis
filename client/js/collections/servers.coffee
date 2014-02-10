@@ -1,5 +1,5 @@
 {_, Giraffe} = require '../vendors'
-Server       = require '../models/server.coffee'
+Server       = require '../models/server'
 
 class Servers extends Giraffe.Collection
   model: Server

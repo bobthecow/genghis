@@ -1,5 +1,5 @@
-Row      = require './row.coffee'
-Confirm  = require './confirm.coffee'
+Row      = require './row'
+Confirm  = require './confirm'
 template = require '../../templates/collection_row.mustache'
 
 class CollectionRow extends Row

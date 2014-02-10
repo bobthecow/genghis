@@ -1,6 +1,6 @@
 {$, _}       = require '../vendors'
-View         = require './view.coffee'
-DocumentView = require './document.coffee'
+View         = require './view'
+DocumentView = require './document'
 template     = require '../../templates/document_section.mustache'
 
 class DocumentSection extends View

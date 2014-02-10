@@ -1,4 +1,4 @@
-AddForm  = require './add_form.coffee'
+AddForm  = require './add_form'
 template = require '../../templates/add_collection.mustache'
 
 class AddCollection extends AddForm

@@ -1,7 +1,7 @@
 {$}       = require '../vendors'
-Section   = require './section.coffee'
-ServerRow = require './server_row.coffee'
-AddServer = require './add_server.coffee'
+Section   = require './section'
+ServerRow = require './server_row'
+AddServer = require './add_server'
 template  = require '../../templates/servers.mustache'
 
 class Servers extends Section

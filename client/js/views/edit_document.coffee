@@ -1,10 +1,10 @@
 {_}         = require '../vendors'
 CodeMirror  = require '../shims/codemirror'
-View        = require './view.coffee'
-GenghisJSON = require '../json.coffee'
-AlertView   = require './alert.coffee'
-Alert       = require '../models/alert.coffee'
-defaults    = require '../defaults.coffee'
+View        = require './view'
+GenghisJSON = require '../json'
+AlertView   = require './alert'
+Alert       = require '../models/alert'
+defaults    = require '../defaults'
 template    = require '../../templates/edit_document.mustache'
 
 class EditDocument extends View

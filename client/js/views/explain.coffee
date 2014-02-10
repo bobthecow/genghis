@@ -1,6 +1,6 @@
 {$}      = require '../vendors'
-View     = require './view.coffee'
-Util     = require '../util.coffee'
+View     = require './view'
+Util     = require '../util'
 template = require '../../templates/explain.mustache'
 
 class Explain extends View

@@ -1,5 +1,5 @@
 {_}   = require '../vendors'
-Model = require './model.coffee'
+Model = require './model'
 
 class ServerStats extends Model
   url: ->

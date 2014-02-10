@@ -1,5 +1,5 @@
 {$, _}   = require '../vendors'
-View     = require './view.coffee'
+View     = require './view'
 template = require '../../templates/confirm.mustache'
 
 class Confirm extends View

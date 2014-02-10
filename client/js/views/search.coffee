@@ -1,8 +1,8 @@
 {$, _}      = require '../vendors'
-Util        = require '../util.coffee'
-GenghisJSON = require '../json.coffee'
-defaults    = require '../defaults.coffee'
-View        = require './view.coffee'
+Util        = require '../util'
+GenghisJSON = require '../json'
+defaults    = require '../defaults'
+View        = require './view'
 template    = require '../../templates/search.mustache'
 
 PLACEHOLDERS = [

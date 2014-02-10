@@ -1,9 +1,9 @@
 {$, _}       = require '../vendors'
-Util         = require '../util.coffee'
-Alert        = require '../models/alert.coffee'
-View         = require './view.coffee'
-EditDocument = require './edit_document.coffee'
-Confirm      = require './confirm.coffee'
+Util         = require '../util'
+Alert        = require '../models/alert'
+View         = require './view'
+EditDocument = require './edit_document'
+Confirm      = require './confirm'
 template     = require '../../templates/document.mustache'
 
 class Document extends View

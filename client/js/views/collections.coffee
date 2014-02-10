@@ -1,8 +1,8 @@
 {_}                 = require '../vendors'
-Section             = require './section.coffee'
-CollectionRow       = require './collection_row.coffee'
-AddCollection       = require './add_collection.coffee'
-AddGridFSCollection = require './add_gridfs_collection.coffee'
+Section             = require './section'
+CollectionRow       = require './collection_row'
+AddCollection       = require './add_collection'
+AddGridFSCollection = require './add_gridfs_collection'
 template            = require '../../templates/collections.mustache'
 
 class Collections extends Section

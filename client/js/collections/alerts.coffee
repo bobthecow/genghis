@@ -1,5 +1,5 @@
 {Giraffe} = require '../vendors'
-Alert     = require '../models/alert.coffee'
+Alert     = require '../models/alert'
 
 isBlock = (msg) ->
   not msg.search(/<(p|ul|ol|div)[ >]/)

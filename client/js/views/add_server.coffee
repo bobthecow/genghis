@@ -1,4 +1,4 @@
-AddForm  = require './add_form.coffee'
+AddForm  = require './add_form'
 template = require '../../templates/add_server.mustache'
 
 class AddServer extends AddForm

@@ -1,5 +1,5 @@
 {$, _}   = require '../vendors'
-View     = require './view.coffee'
+View     = require './view'
 template = require '../../templates/keyboard_shortcuts.mustache'
 
 class KeyboardShortcuts extends View

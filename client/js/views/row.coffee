@@ -1,7 +1,7 @@
 {$, _}  = require '../vendors'
-View    = require './view.coffee'
-Util    = require '../util.coffee'
-Confirm = require './confirm.coffee'
+View    = require './view'
+Util    = require '../util'
+Confirm = require './confirm'
 
 class Row extends View
   tagName: 'tr'

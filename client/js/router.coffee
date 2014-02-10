@@ -1,5 +1,5 @@
 {_, Backbone} = require './vendors'
-Util          = require './util.coffee'
+Util          = require './util'
 
 _e = encodeURIComponent
 

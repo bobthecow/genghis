@@ -1,5 +1,5 @@
-Document = require './document.coffee'
-Search   = require './search.coffee'
+Document = require './document'
+Search   = require './search'
 
 class Explain extends Document
   baseUrl: =>

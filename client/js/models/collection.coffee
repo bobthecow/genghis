@@ -1,8 +1,8 @@
 {_}         = require '../vendors'
-Model       = require './model.coffee'
-GenghisJSON = require '../json.coffee'
-Util        = require '../util.coffee'
-Documents   = require '../collections/documents.coffee'
+Model       = require './model'
+GenghisJSON = require '../json'
+Util        = require '../util'
+Documents   = require '../collections/documents'
 
 _h = Util.humanizeSize
 

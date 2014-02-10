@@ -1,5 +1,5 @@
 {$}          = require '../vendors'
-View         = require './view.coffee'
+View         = require './view'
 template     = require '../../templates/nav_section.mustache'
 menuTemplate = require '../../templates/nav_section_menu.mustache'
 

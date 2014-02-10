@@ -1,5 +1,5 @@
-View          = require './view.coffee'
-ShortcutsView = require './keyboard_shortcuts.coffee'
+View          = require './view'
+ShortcutsView = require './keyboard_shortcuts'
 template      = require '../../templates/footer.mustache'
 
 class Footer extends View

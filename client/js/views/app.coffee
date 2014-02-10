@@ -1,23 +1,23 @@
 {$, _, Giraffe}       = require '../vendors'
 
-Router                = require '../router.coffee'
+Router                = require '../router'
 
-Selection             = require '../models/selection.coffee'
-Alerts                = require '../collections/alerts.coffee'
+Selection             = require '../models/selection'
+Alerts                = require '../collections/alerts'
 
-View                  = require './view.coffee'
-TitleView             = require './title.coffee'
-NavbarView            = require './navbar.coffee'
-MastheadView          = require './masthead.coffee'
-AlertsView            = require './alerts.coffee'
-FooterView            = require './footer.coffee'
+View                  = require './view'
+TitleView             = require './title'
+NavbarView            = require './navbar'
+MastheadView          = require './masthead'
+AlertsView            = require './alerts'
+FooterView            = require './footer'
 
-ServersView           = require './servers.coffee'
-DatabasesView         = require './databases.coffee'
-CollectionsView       = require './collections.coffee'
-DocumentsView         = require './documents.coffee'
-ExplainView           = require './explain.coffee'
-DocumentSectionView   = require './document_section.coffee' # TODO: rename to document view, make a document_edit view?
+ServersView           = require './servers'
+DatabasesView         = require './databases'
+CollectionsView       = require './collections'
+DocumentsView         = require './documents'
+ExplainView           = require './explain'
+DocumentSectionView   = require './document_section' # TODO: rename to document view, make a document_edit view?
 
 notFoundTemplate      = require '../../templates/not_found.mustache'
 welcomeTemplate       = require '../../templates/welcome.mustache'

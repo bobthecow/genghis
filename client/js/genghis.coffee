@@ -1,6 +1,6 @@
 {$, Backbone} = require './vendors'
 fs            = require 'fs'
-App           = require './views/app.coffee'
+App           = require './views/app'
 
 module.exports =
   version: fs.readFileSync("#{__dirname}/../../VERSION.txt"),

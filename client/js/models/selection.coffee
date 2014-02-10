@@ -1,14 +1,14 @@
 {_, Giraffe} = require '../vendors'
 
-Pagination  = require './pagination.coffee'
-Servers     = require '../collections/servers.coffee'
-Server      = require './server.coffee'
-Database    = require './database.coffee'
-Collection  = require './collection.coffee'
-Document    = require './document.coffee'
-Explain     = require './explain.coffee'
-Util        = require '../util.coffee'
-GenghisJSON = require '../json.coffee'
+Pagination  = require './pagination'
+Servers     = require '../collections/servers'
+Server      = require './server'
+Database    = require './database'
+Collection  = require './collection'
+Document    = require './document'
+Explain     = require './explain'
+Util        = require '../util'
+GenghisJSON = require '../json'
 
 SERVER_PARAMS     = ['server']
 DATABASE_PARAMS   = ['server', 'database']

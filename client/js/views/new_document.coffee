@@ -1,8 +1,8 @@
 {$, _}       = require '../vendors'
 
-View         = require './view.coffee'
-EditDocument = require './edit_document.coffee'
-Util         = require '../util.coffee'
+View         = require './view'
+EditDocument = require './edit_document'
+Util         = require '../util'
 template     = require '../../templates/new_document.mustache'
 
 class NewDocument extends View

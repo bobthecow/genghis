@@ -1,6 +1,6 @@
 {_, Giraffe} = require '../vendors'
-Util         = require '../util.coffee'
-GenghisJSON  = require '../json.coffee'
+Util         = require '../util'
+GenghisJSON  = require '../json'
 
 stringify = (val) ->
   GenghisJSON.stringify(val, false)
