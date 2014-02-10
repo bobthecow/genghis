@@ -23,7 +23,7 @@ gulp.task('templates', function() {
       favicon: '{{ base_url }}/img/favicon.png',
     }))
     .pipe(gulp.dest('public/templates'))
-    .pipe(livereload(server))
+    .pipe(livereload(server));
     // .pipe(notify({
     //   message: 'Templates updated',
     //   onLast:  true
@@ -43,7 +43,7 @@ gulp.task('templates', function() {
       removeEmptyAttributes:     true
     }))
     .pipe(bytediff.stop())
-    .pipe(gulp.dest('public/templates'))
+    .pipe(gulp.dest('public/templates'));
     // .pipe(notify({
     //   message: 'Minified templates updated',
     //   onLast:  true

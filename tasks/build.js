@@ -46,7 +46,7 @@ gulp.task('build:php', function() {
       assets:   fs.readFileSync('tmp/assets.txt')
     }))
     .pipe(rename('genghis.php'))
-    .pipe(gulp.dest('.'))
+    .pipe(gulp.dest('.'));
     // .pipe(notify('genghis.php updated'));
 });
 

@@ -7,7 +7,6 @@ var autoprefixer = require('gulp-autoprefixer');
 var bytediff     = require('gulp-bytediff');
 var concat       = require('gulp-concat');
 var csso         = require('gulp-csso');
-var debug        = require('gulp-debug');
 var header       = require('gulp-header');
 var less         = require('gulp-less');
 var livereload   = require('gulp-livereload');
@@ -42,7 +41,6 @@ gulp.task('styles', function() {
     }));
 
   return stream.concat(vendors, backgrounds, genghis)
-    // .pipe(debug())
     // Normal
     .pipe(concat('style.css'))
     .pipe(header(HEADER, HEADER_DATA))

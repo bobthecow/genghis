@@ -1,7 +1,7 @@
 var gulp       = require('gulp');
 var coffeelint = require('gulp-coffeelint');
 var jshint     = require('gulp-jshint');
-var chalk      = require('chalk');
+var chalk      = require('gulp-util').colors;
 var map        = require('map-stream');
 
 

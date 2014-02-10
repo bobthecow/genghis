@@ -8,7 +8,7 @@ var server;
 gulp.task('copy', function() {
   return gulp.src('client/img/**')
     .pipe(gulp.dest('public/img'))
-    .pipe(livereload(server))
+    .pipe(livereload(server));
     // .pipe(notify({
     //   message: 'Images updated',
     //   onLast:  true

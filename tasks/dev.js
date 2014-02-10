@@ -1,5 +1,5 @@
 var gulp  = require('gulp');
-var chalk = require('chalk');
+var chalk = require('gulp-util').colors;
 
 // For the developments. Livereload, plus building dev versions of stuff.
 gulp.task('dev', function() {
