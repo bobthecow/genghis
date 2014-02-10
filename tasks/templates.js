@@ -17,8 +17,8 @@ var server;
 gulp.task('templates', function() {
   if (!server) throw new Error('Server not set.');
 
-  var dev = gulp.src('server/templates/{index,error}.mustache.tpl')
-    .pipe(rename({ext: '.mustache'}))
+  var dev = gulp.src('server/templates/{index,error}.tpl')
+    .pipe(rename({extname: '.mustache'}))
     .pipe(template({
       favicon: '{{ base_url }}/img/favicon.png',
     }))
@@ -29,8 +29,8 @@ gulp.task('templates', function() {
     //   onLast:  true
     // }));
 
-  var dist = gulp.src('server/templates/{index,error}.mustache.tpl')
-    .pipe(rename({ext: '.min.mustache'}))
+  var dist = gulp.src('server/templates/{index,error}.tpl')
+    .pipe(rename({extname: '.min.mustache'}))
     .pipe(template({
       favicon: datauri('client/img/favicon.png'),
     }))
