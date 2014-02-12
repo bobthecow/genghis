@@ -132,7 +132,6 @@ License
  * [hoverIntent][hoverintent]     — MIT License
  * [jQuery][jquery]               — MIT License
  * [jQuery Cookie][jquery.cookie] — MIT License
- * [KEYS.css][keyscss]            — MIT License
  * [Modernizr][modernizr]         — MIT or BSD (3-clause) License
  * [Mousetrap][mousetrap]         — Apache License v2.0
  * [TableSorter][tablesorter]     — MIT or GPLv2 License
@@ -148,7 +147,6 @@ License
  [hoverintent]:       http://cherne.net/brian/resources/jquery.hoverIntent.html
  [jquery]:            http://jquery.com
  [jquery.cookie]:     https://github.com/carhartl/jquery-cookie
- [keyscss]:           http://michaelhue.com/keyscss
  [modernizr]:         http://modernizr.com
  [mousetrap]:         http://craig.is/killing/mice
  [tablesorter]:       http://tablesorter.com

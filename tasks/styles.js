@@ -34,8 +34,7 @@ gulp.task('styles', function() {
 
   // vendor styles
   var vendors = gulp.src([
-    'client/vendor/codemirror/lib/codemirror.css',
-    'client/vendor/keyscss/keys.css'
+    'client/vendor/codemirror/lib/codemirror.css'
   ]);
 
   var backgrounds = gulp.src('client/css/backgrounds.css');
