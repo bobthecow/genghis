@@ -1,6 +1,5 @@
 var fs           = require('fs');
 var path         = require('path');
-var stream       = require('event-stream');
 
 var gulp         = require('gulp');
 var autoprefixer = require('gulp-autoprefixer');
@@ -32,20 +31,11 @@ gulp.task('styles', function() {
 
   log(colors.blue('Compiling stylesheets'));
 
-  // vendor styles
-  var vendors = gulp.src([
-    'client/vendor/codemirror/lib/codemirror.css'
-  ]);
-
-  var backgrounds = gulp.src('client/css/backgrounds.css');
-
-  // genghis styles
-  var genghis = gulp.src('client/css/style.less')
+  return gulp.src('client/css/style.less')
     .pipe(less({
-      paths: [path.join(__dirname, 'assets', 'css')]
-    }));
+      paths: [path.join(path.dirname(__dirname), 'assets', 'css')]
+    }))
 
-  return stream.concat(vendors, backgrounds, genghis)
     // Normal
     .pipe(concat('style.css'))
     .pipe(header(HEADER, HEADER_DATA))
