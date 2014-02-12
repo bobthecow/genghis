@@ -1,6 +1,6 @@
 'use strict';
 
-var $ = window.$ = require('jquery');
+var $ = window.$ = window.jQuery = require('jquery');
 
 // jQuery extensions
 require('jquery-hoverIntent/jquery.hoverIntent');

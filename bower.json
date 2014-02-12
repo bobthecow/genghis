@@ -7,13 +7,13 @@
         "bootstrap":              "~3.0.3",
         "codemirror":             "~3.21.0",
         "esprima":                "~1.0.4",
-        "jquery":                 "~2.0.3",
         "jquery-hoverIntent":     "*",
         "jquery.cookie":          "~1.4.0",
         "jquery.tablesorter":     "~2.14.5",
         "keyscss":                "michaelhue/keyscss",
         "mousetrap":              "~1.4.6",
         "respond":                "~1.4.2",
-        "underscore":             "~1.5.2"
+        "jquery":             "~2.1.0",
+        "underscore":         "~1.6.0"
     }
 }
