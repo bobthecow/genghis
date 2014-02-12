@@ -3,6 +3,7 @@ pkg/
 Gemfile.lock
 .bundle/
 node_modules/
+npm-debug.log
 
 # Ignore some giant vendor directories
 client/vendor/**/build/
