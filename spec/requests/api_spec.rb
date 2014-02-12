@@ -299,6 +299,10 @@ genghis_backends.each do |backend|
           @conn['__genghis_spec_drop_db_test__']['__tmp__'].drop
         end
 
+        after do
+          @conn.drop_database('__genghis_spec_drop_db_test__')
+        end
+
         it 'drops the database' do
           expect(res.status).to eq 200
           expect(res).to be_a_json_response
