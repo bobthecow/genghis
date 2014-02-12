@@ -49,7 +49,7 @@ gulp.task('build:php:lib', function() {
 gulp.task('build:php', function() {
   log(colors.blue('Building PHP backend'));
 
-  gulp.src('server/templates/genghis.php.tpl')
+  return gulp.src('server/templates/genghis.php.tpl')
     .pipe(template({
       version:  VERSION,
       includes: fs.readFileSync('tmp/lib.php'),
