@@ -27,6 +27,7 @@
     "gulp-autoprefixer": "latest",
     "gulp-browserify":   "latest",
     "gulp-bytediff":     "latest",
+    "gulp-changed":      "latest",
     "gulp-clean":        "latest",
     "gulp-coffeelint":   "latest",
     "gulp-concat":       "latest",
