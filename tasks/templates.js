@@ -11,11 +11,17 @@ var livereload = require('gulp-livereload');
 var rename     = require('gulp-rename');
 var template   = require('gulp-template');
 
+var gutil      = require('gulp-util');
+var log        = gutil.log;
+var colors     = gutil.colors;
+
 var server;
 
 // Compile page templates.
 gulp.task('templates', function() {
   if (!server) throw new Error('Server not set.');
+
+  log(colors.blue('Compiling templates'));
 
   var dev = gulp.src('server/templates/{index,error}.tpl')
     .pipe(rename({extname: '.mustache'}))

@@ -12,6 +12,10 @@ var livereload = require('gulp-livereload');
 var rename     = require('gulp-rename');
 var uglify     = require('gulp-uglify');
 
+var gutil      = require('gulp-util');
+var log        = gutil.log;
+var colors     = gutil.colors;
+
 // TODO: replace this when upstream gets its act together.
 var source     = require('./source');
 
@@ -25,6 +29,8 @@ var HEADER_DATA = {
 // Compile and minify JavaScript source.
 gulp.task('scripts', function() {
   if (!server) throw new Error('Server not set.');
+
+  log(colors.blue('Compiling scripts'));
 
   // Start with browserify...
   return browserify({

@@ -1,15 +1,19 @@
 var gulp       = require('gulp');
 var coffeelint = require('gulp-coffeelint');
 var jshint     = require('gulp-jshint');
-var chalk      = require('gulp-util').colors;
 var map        = require('map-stream');
 
+var gutil      = require('gulp-util');
+var log        = gutil.log;
+var colors     = gutil.colors;
 
 // Lint coffeescript and js.
 //
 // Currently only lints the client code.
 // TODO: do this with the server code too.
 gulp.task('lint', function() {
+  log(colors.blue('Linting client code'));
+
   gulp.src('client/js/**/*.coffee')
     .pipe(coffeelint({
       max_line_length: {value: 120, level: 'warn'}
@@ -19,15 +23,15 @@ gulp.task('lint', function() {
         var filename = file.path.replace(file.cwd + '/', '');
         console.log(filename + ":\n");
         file.coffeelint.results.forEach(function (error) {
-          var color = error.level == 'error' ? chalk.red : chalk.yellow;
+          var color = error.level == 'error' ? colors.red : colors.yellow;
           console.log(color('  ' + error.message));
-          console.log(chalk.grey('  ' + filename + ':' + error.lineNumber + "\n"));
+          console.log(colors.grey('  ' + filename + ':' + error.lineNumber + "\n"));
         });
       }
       cb(null, file);
     }));
 
-  gulp.src(['gulpfile.js', 'tasks/**/*.js', 'client/js/**/*.js', '!client/js/modernizr.js'])
+  gulp.src(['gulpfile.js', 'tasks/**/*.js', 'client/js/**/*.js', '!client/js/modernizr.js', '!tasks/source.js'])
     .pipe(jshint({
       browser: true, // window, document, atob, etc.
       node:    true  // we're rockin' node-style with browserify.
@@ -38,8 +42,8 @@ gulp.task('lint', function() {
         console.log(filename + ":\n");
         file.jshint.results.forEach(function (result) {
           if (result.error) {
-            console.log(chalk.red('  ' + result.error.reason));
-            console.log(chalk.grey('  ' + filename + ':' + result.error.line + ':' + result.error.character + "\n"));
+            console.log(colors.red('  ' + result.error.reason));
+            console.log(colors.grey('  ' + filename + ':' + result.error.line + ':' + result.error.character + "\n"));
           }
         });
       }

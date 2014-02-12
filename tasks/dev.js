@@ -1,5 +1,7 @@
-var gulp  = require('gulp');
-var chalk = require('gulp-util').colors;
+var gulp   = require('gulp');
+
+var gutil  = require('gulp-util');
+var colors = gutil.colors;
 
 // For the developments. Livereload, plus building dev versions of stuff.
 gulp.task('dev', function() {
@@ -7,7 +9,7 @@ gulp.task('dev', function() {
 
   var log = function(e) {
     var path = e.path.replace(__dirname + '/', '');
-    console.log(chalk.grey('File ' + path + ' was ' + e.type + ', running tasks...'));
+    gutil.log(colors.grey('File ' + path + ' was ' + e.type + ', running tasks...'));
   };
 
   gulp.watch('client/css/**/*.{less,css}', function(event) {

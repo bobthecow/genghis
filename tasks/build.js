@@ -9,6 +9,10 @@ var replace  = require('gulp-replace');
 var spawn    = require('gulp-spawn');
 var template = require('gulp-template');
 
+var gutil    = require('gulp-util');
+var log      = gutil.log;
+var colors   = gutil.colors;
+
 var VERSION = fs.readFileSync('VERSION.txt');
 
 var assetName = function(file) {
@@ -17,6 +21,8 @@ var assetName = function(file) {
 
 // Internal builds for distribution...
 gulp.task('build:assets', ['styles', 'scripts', 'templates', 'copy'], function() {
+  log(colors.blue('Building assets'));
+
   return gulp.src([
     'public/js/script.min.js',
     'public/css/style.min.css',
@@ -30,6 +36,8 @@ gulp.task('build:assets', ['styles', 'scripts', 'templates', 'copy'], function()
 
 
 gulp.task('build:php:lib', function() {
+  log(colors.blue('Compiling PHP libraries'));
+
   return gulp.src(['server/php/**/*.php', '!server/php/Genghis/AssetLoader/Dev.php'])
     .pipe(spawn({cmd: 'php', args: ['-w']}))
     .pipe(replace(/^(<\?php\n\s*|\s*$)/g, ''))
@@ -39,6 +47,8 @@ gulp.task('build:php:lib', function() {
 
 
 gulp.task('build:php', function() {
+  log(colors.blue('Compiling PHP backend'));
+
   gulp.src('server/templates/genghis.php.tpl')
     .pipe(template({
       version:  VERSION,
@@ -52,6 +62,8 @@ gulp.task('build:php', function() {
 
 
 gulp.task('build:rb:lib', function() {
+  log(colors.blue('Compiling Ruby libraries'));
+
   return gulp.src([
     'server/rb/genghis/json.rb',
     'server/rb/genghis/errors.rb',
@@ -65,6 +77,8 @@ gulp.task('build:rb:lib', function() {
 
 
 gulp.task('build:rb', function() {
+  log(colors.blue('Compiling Ruby backend'));
+
   gulp.src('server/templates/genghis.rb.tpl')
     .pipe(template({
       version:  VERSION,

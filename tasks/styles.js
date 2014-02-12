@@ -13,6 +13,10 @@ var livereload   = require('gulp-livereload');
 // var notify       = require('gulp-notify');
 var rename       = require('gulp-rename');
 
+var gutil        = require('gulp-util');
+var log          = gutil.log;
+var colors       = gutil.colors;
+
 var datauri      = require('./datauri');
 
 var server;
@@ -25,6 +29,8 @@ var HEADER_DATA = {
 // Compile and concatenate LESS (and other) stylesheets.
 gulp.task('styles', function() {
   if (!server) throw new Error('Server not set.');
+
+  log(colors.blue('Compiling stylesheets'));
 
   // vendor styles
   var vendors = gulp.src([
