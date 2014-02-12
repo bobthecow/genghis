@@ -1,18 +1,15 @@
 'use strict';
 
-var gulp   = require('gulp');
-var lr     = require('tiny-lr');
-var server = lr();
+var gulp = require('gulp');
 
 require('./tasks/build');
 require('./tasks/clean');
-require('./tasks/copy').withServer(server);
+require('./tasks/copy');
 require('./tasks/lint');
-require('./tasks/livereload').withServer(server);
 require('./tasks/report');
-require('./tasks/scripts').withServer(server);
-require('./tasks/styles').withServer(server);
-require('./tasks/templates').withServer(server);
+require('./tasks/scripts');
+require('./tasks/styles');
+require('./tasks/templates');
 
 var watch = require('./tasks/watch');
 

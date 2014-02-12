@@ -1,9 +1,11 @@
-var path   = require('path');
-var gulp   = require('gulp');
+var path       = require('path');
+var gulp       = require('gulp');
 
-var gutil  = require('gulp-util');
-var log    = gutil.log;
-var colors = gutil.colors;
+var gutil      = require('gulp-util');
+var log        = gutil.log;
+var colors     = gutil.colors;
+
+var livereload = require('./livereload');
 
 var STYLES    = ['client/css/**/*.{less,css}'];
 var SCRIPTS   = ['client/js/**/*.{js,coffee}', 'client/templates/**/*.mustache'];
@@ -16,6 +18,8 @@ var logChange = function(e) {
 };
 
 var watch = function() {
+  livereload.start();
+
   log(colors.blue('Watching for changes'));
 
   gulp.watch(STYLES, ['styles'])

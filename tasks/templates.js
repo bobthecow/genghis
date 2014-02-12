@@ -6,7 +6,6 @@ var datauri    = require('datauri');
 var gulp       = require('gulp');
 var bytediff   = require('gulp-bytediff');
 var htmlmin    = require('gulp-htmlmin');
-var livereload = require('gulp-livereload');
 // var notify     = require('gulp-notify');
 var rename     = require('gulp-rename');
 var template   = require('gulp-template');
@@ -15,12 +14,10 @@ var gutil      = require('gulp-util');
 var log        = gutil.log;
 var colors     = gutil.colors;
 
-var server;
+var livereload = require('./livereload');
 
 // Compile page templates.
 gulp.task('templates', function() {
-  if (!server) throw new Error('Server not set.');
-
   log(colors.blue('Compiling templates'));
 
   var dev = gulp.src('server/templates/{index,error}.tpl')
@@ -29,7 +26,7 @@ gulp.task('templates', function() {
       favicon: '{{ base_url }}/img/favicon.png',
     }))
     .pipe(gulp.dest('public/templates'))
-    .pipe(livereload(server));
+    .pipe(livereload());
     // .pipe(notify({
     //   message: 'Templates updated',
     //   onLast:  true
@@ -57,5 +54,3 @@ gulp.task('templates', function() {
 
   return stream.concat(dev, dist);
 });
-
-module.exports = {withServer: function(lr) { server = lr; }};

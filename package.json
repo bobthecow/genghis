@@ -53,7 +53,6 @@
     "map-stream":        "latest",
     "minimatch":         "latest",
     "through2":          "latest",
-    "tiny-lr":           "latest",
     "vinyl":             "latest"
   }
 }

@@ -1,12 +1,11 @@
 var gulp       = require('gulp');
-var livereload = require('gulp-livereload');
 // var notify     = require('gulp-notify');
 
 var gutil      = require('gulp-util');
 var log        = gutil.log;
 var colors     = gutil.colors;
 
-var server;
+var livereload = require('./livereload');
 
 // Copy static assets over to public directory
 gulp.task('copy', function() {
@@ -14,11 +13,9 @@ gulp.task('copy', function() {
 
   return gulp.src('client/img/**')
     .pipe(gulp.dest('public/img'))
-    .pipe(livereload(server));
+    .pipe(livereload());
     // .pipe(notify({
     //   message: 'Images updated',
     //   onLast:  true
     // }));
 });
-
-module.exports = {withServer: function(lr) { server = lr; }};

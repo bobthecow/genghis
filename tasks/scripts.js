@@ -7,7 +7,6 @@ var gulp       = require('gulp');
 var buffer     = require('gulp-buffer');
 var bytediff   = require('gulp-bytediff');
 var header     = require('gulp-header');
-var livereload = require('gulp-livereload');
 // var notify     = require('gulp-notify');
 var rename     = require('gulp-rename');
 var uglify     = require('gulp-uglify');
@@ -16,10 +15,10 @@ var gutil      = require('gulp-util');
 var log        = gutil.log;
 var colors     = gutil.colors;
 
+var livereload = require('./livereload');
+
 // TODO: replace this when upstream gets its act together.
 var source     = require('./source');
-
-var server;
 
 var HEADER = fs.readFileSync('server/templates/banner.tpl');
 var HEADER_DATA = {
@@ -28,8 +27,6 @@ var HEADER_DATA = {
 
 // Compile and minify JavaScript source.
 gulp.task('scripts', function() {
-  if (!server) throw new Error('Server not set.');
-
   log(colors.blue('Compiling scripts'));
 
   // Start with browserify...
@@ -52,7 +49,7 @@ gulp.task('scripts', function() {
     .pipe(bytediff.start())
     .pipe(gulp.dest('public/js'))
     //.pipe(notify('Script updated'))
-    .pipe(livereload(server))
+    .pipe(livereload())
 
     // Minified
     .pipe(rename({suffix: '.min'}))
@@ -64,5 +61,3 @@ gulp.task('scripts', function() {
     .pipe(gulp.dest('public/js'));
     //.pipe(notify('Minified script updated'));
 });
-
-module.exports = {withServer: function(lr) { server = lr; }};

@@ -1,20 +1,27 @@
-var gulp   = require('gulp');
+var gulp       = require('gulp');
+var livereload = require('gulp-livereload');
+var es         = require('event-stream');
 
-var gutil  = require('gulp-util');
-var log    = gutil.log;
-var colors = gutil.colors;
+var gutil      = require('gulp-util');
+var log        = gutil.log;
+var colors     = gutil.colors;
 
 var server;
 
-// Start a LiveReload server instance.
-gulp.task('livereload', function() {
-  if (!server) throw new Error('Server not set.');
-
-  log(colors.blue('Starting LiveReload server'));
-
-  server.listen(35729, function(err) {
-    if (err) log(colors.red(err));
+// If the server has been started, pass changes through
+var reload = function() {
+  return es.map(function(file, cb) {
+    if (typeof server !== 'undefined') {
+      server.changed(file.path);
+    }
+    cb(null, file);
   });
-});
+};
 
-module.exports = {withServer: function(lr) { server = lr; }};
+// Start a LiveReload server instance.
+reload.start = function() {
+  log(colors.blue('Starting LiveReload server'));
+  server = livereload();
+};
+
+module.exports = reload;
