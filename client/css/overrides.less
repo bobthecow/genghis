@@ -14,30 +14,6 @@
     font-size: 18px;
 }
 
-.popover-content {
-    ul {
-        padding-left: 0px;
-    }
-    li {
-        list-style:    none;
-        white-space:   nowrap;
-        overflow:      hidden;
-        text-overflow: ellipsis;
-
-        // Fake the bullets since we're using text overflow
-        &:before {
-            color:         lighten(#000, 66%);
-            content:       '\25CF'; // black circle
-            padding-right: 10px;
-        }
-    }
-
-    // No bullets for the index details list items
-    ul.index-details li:before {
-        display: none;
-    }
-}
-
 .pagination {
   > .disabled {
     > span,
