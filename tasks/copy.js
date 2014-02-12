@@ -12,7 +12,7 @@ var livereload = require('./livereload');
 gulp.task('copy', function() {
   log(colors.blue('Copying static assets'));
 
-  return gulp.src('client/img/**')
+  return gulp.src('client/img/**/*.*')
     .pipe(changed('public/img'))
     .pipe(gulp.dest('public/img'))
     .pipe(livereload());

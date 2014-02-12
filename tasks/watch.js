@@ -9,7 +9,7 @@ var livereload = require('./livereload');
 
 var STYLES    = ['client/css/**/*.{less,css}', 'server/templates/banner.tpl'];
 var SCRIPTS   = ['client/js/**/*.{js,coffee}', 'client/templates/**/*.mustache', 'server/templates/banner.tpl'];
-var IMAGES    = ['client/img/**.*'];
+var IMAGES    = ['client/img/**/*.*'];
 var TEMPLATES = ['server/templates/{index,error}.mustache.tpl', 'client/img/favicon.png'];
 
 var logChange = function(e) {
