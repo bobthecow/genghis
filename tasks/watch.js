@@ -7,10 +7,10 @@ var colors     = gutil.colors;
 
 var livereload = require('./livereload');
 
-var STYLES    = ['client/css/**/*.{less,css}'];
-var SCRIPTS   = ['client/js/**/*.{js,coffee}', 'client/templates/**/*.mustache'];
+var STYLES    = ['client/css/**/*.{less,css}', 'server/templates/banner.tpl'];
+var SCRIPTS   = ['client/js/**/*.{js,coffee}', 'client/templates/**/*.mustache', 'server/templates/banner.tpl'];
 var IMAGES    = ['client/img/**.*'];
-var TEMPLATES = ['server/templates/{index,error}.mustache.tpl'];
+var TEMPLATES = ['server/templates/{index,error}.mustache.tpl', 'client/img/favicon.png'];
 
 var logChange = function(e) {
   var name = e.path.replace(path.dirname(__dirname) + '/', '');
