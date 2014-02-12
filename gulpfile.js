@@ -7,7 +7,6 @@ var server = lr();
 require('./tasks/build');
 require('./tasks/clean');
 require('./tasks/copy').withServer(server);
-require('./tasks/dev');
 require('./tasks/lint');
 require('./tasks/livereload').withServer(server);
 require('./tasks/report');
@@ -15,5 +14,7 @@ require('./tasks/scripts').withServer(server);
 require('./tasks/styles').withServer(server);
 require('./tasks/templates').withServer(server);
 
+var watch = require('./tasks/watch');
+
 // By default, build all the things!
-gulp.task('default', ['rebuild']);
+gulp.task('default', ['rebuild'], watch);

@@ -21,7 +21,7 @@ var assetName = function(file) {
 
 // Internal builds for distribution...
 gulp.task('build:assets', ['styles', 'scripts', 'templates', 'copy'], function() {
-  log(colors.blue('Building assets'));
+  log(colors.blue('Packaging assets'));
 
   return gulp.src([
     'public/js/script.min.js',
@@ -36,7 +36,7 @@ gulp.task('build:assets', ['styles', 'scripts', 'templates', 'copy'], function()
 
 
 gulp.task('build:php:lib', function() {
-  log(colors.blue('Compiling PHP libraries'));
+  log(colors.blue('Packaging PHP libraries'));
 
   return gulp.src(['server/php/**/*.php', '!server/php/Genghis/AssetLoader/Dev.php'])
     .pipe(spawn({cmd: 'php', args: ['-w']}))
@@ -47,7 +47,7 @@ gulp.task('build:php:lib', function() {
 
 
 gulp.task('build:php', function() {
-  log(colors.blue('Compiling PHP backend'));
+  log(colors.blue('Building PHP backend'));
 
   gulp.src('server/templates/genghis.php.tpl')
     .pipe(template({
@@ -62,7 +62,7 @@ gulp.task('build:php', function() {
 
 
 gulp.task('build:rb:lib', function() {
-  log(colors.blue('Compiling Ruby libraries'));
+  log(colors.blue('Packaging Ruby libraries'));
 
   return gulp.src([
     'server/rb/genghis/json.rb',
@@ -77,9 +77,9 @@ gulp.task('build:rb:lib', function() {
 
 
 gulp.task('build:rb', function() {
-  log(colors.blue('Compiling Ruby backend'));
+  log(colors.blue('Building Ruby backend'));
 
-  gulp.src('server/templates/genghis.rb.tpl')
+  return gulp.src('server/templates/genghis.rb.tpl')
     .pipe(template({
       version:  VERSION,
       includes: fs.readFileSync('tmp/lib.rb'),
@@ -93,11 +93,11 @@ gulp.task('build:rb', function() {
 
 // Build Genghis.
 gulp.task('build', ['build:assets', 'build:rb:lib', 'build:php:lib'], function() {
-  gulp.run('build:rb', 'build:php');
+  return gulp.run('build:rb', 'build:php');
 });
 
 
 // Rebuild Genghis.
 gulp.task('rebuild', ['clean'], function() {
-  gulp.run('build');
+  return gulp.run('build');
 });
