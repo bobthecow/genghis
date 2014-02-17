@@ -1,7 +1,7 @@
 {
     "name": "genghis",
     "dependencies": {
-        "backbone":           "~1.1.0",
+        "backbone":           "~1.1.1",
         "backbone.giraffe":   "~0.2.1",
         "backbone.mousetrap": "elasticsales/backbone.mousetrap",
         "bootstrap":          "~3.1.0",
