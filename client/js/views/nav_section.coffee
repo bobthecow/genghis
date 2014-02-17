@@ -28,6 +28,7 @@ class NavSection extends View
 
   afterRender: ->
     @renderMenu()
+    @updateLink()
     @$el.toggleClass('has-more-children', @base.length > MENU_CAP)
     @$toggle.hoverIntent ((e) ->
       $(e.target)
