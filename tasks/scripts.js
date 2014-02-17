@@ -31,7 +31,6 @@ gulp.task('scripts', function() {
 
   // Start with browserify...
   return browserify({
-    debug:      true,
     extensions: ['.coffee']
   })
     .add('./client/js/script.js')
@@ -39,7 +38,7 @@ gulp.task('scripts', function() {
     .transform('coffeeify')
     .transform('debowerify')
     .transform('brfs')
-    .bundle()
+    .bundle({debug: true})
 
     // And now pass it off to gulp
     .pipe(source('client/js/script.js'))
