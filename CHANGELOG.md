@@ -25,6 +25,7 @@ Improved:
  * Add summaries to collapsed arrays.
  * Truncate really long summaries on collapsed objects and arrays.
  * Fix a bug where clicking the elipses on a collapsed object wouldn't always uncollapse.
+ * Improve menu item order, selection in dropdown menus.
  * Update to the latest version of a bunch of vendor libraries.
  * Lots of internal refactoring, to make everything awesomer, and more future-proof.
  * Also, easier to hack on. So send those pull requests :)

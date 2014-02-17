@@ -1,8 +1,11 @@
-{$}          = require '../vendors'
-View         = require './view'
-NavMenuItem  = require './nav_menu_item'
-# Obscura      = require 'backbone.obscura'
-template     = require '../../templates/nav_section.mustache'
+{$}         = require '../vendors'
+View        = require './view'
+NavMenuItem = require './nav_menu_item'
+Projections = require 'backbone.projections'
+
+MENU_CAP = 9
+
+template    = require '../../templates/nav_section.mustache'
 
 class NavSection extends View
   tagName:  'li'
@@ -18,12 +21,14 @@ class NavSection extends View
     'reset collection': 'render'
     'add collection':   'addModel'
 
-  # initialize: ->
-  #   @collection = new Obscura(@collection)
+  initialize: ->
+    @base = @collection
+    capped      = new Projections.Capped(@base, cap: MENU_CAP, comparator: (m) -> - m.get('count'))
+    @collection = new Projections.Sorted(capped, comparator: (m) -> m.get('name'))
 
   afterRender: ->
     @renderMenu()
-    # @$el.toggleClass('has-more-children', @collection.hasMoreChildren())
+    @$el.toggleClass('has-more-children', @base.length > MENU_CAP)
     @$toggle.hoverIntent ((e) ->
       $(e.target)
         .parent('li')
@@ -39,7 +44,7 @@ class NavSection extends View
 
   renderMenu: ->
     @collection.each(@addModel)
-
+    @$el.toggleClass('has-more-children', @base.length > MENU_CAP)
     # FIXME: Handle really wide badges on the menu dropdown
     @$menu.find('a span').each (i, el) ->
       $el = $(el)

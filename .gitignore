@@ -10,6 +10,7 @@ client/vendor/**/build/
 client/vendor/**/docs/
 client/vendor/**/test/
 client/vendor/**/tests/
+client/vendor/**/spec/
 
 client/vendor/bootstrap/_includes/
 client/vendor/bootstrap/_layouts/

@@ -152,6 +152,17 @@
     }
 }
 
+.dropdown {
+    .divider, .dropdown-menu-more {
+        display: none;
+    }
+    &.has-more-children {
+        .divider, .dropdown-menu-more {
+            display: list-item;
+        }
+    }
+}
+
 // Search (and advanced search) form
 .navbar-search {
     position: relative;
