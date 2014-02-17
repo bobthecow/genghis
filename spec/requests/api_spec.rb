@@ -754,6 +754,18 @@ genghis_backends.each do |backend|
           end
         end
 
+        context 'with unknown $genghisTypes' do
+          let(:doc) { {:foo => {'$genghisType' => 'NOT A REAL TYPE!!'}} }
+
+          it 'responds with 400' do
+            expect(res.status).to eq 400
+            expect(res).to be_a_json_response
+            expect(res.body).to match_json_expression \
+              :error => 'Malformed document',
+              :status => 400
+          end
+        end
+
         context 'with NaN values' do
           let(:doc) { {:foo => {'$genghisType' => 'NaN'}} }
 

@@ -147,6 +147,9 @@ class Genghis_Json
                         $inc = self::getProp($value, 'i');
 
                         return new MongoTimestamp($sec, $inc);
+
+                    default:
+                        throw new Genghis_JsonException(sprintf('Unknown $genghisType: %s', $type));
                 }
             } else {
                 foreach ($object as $prop => $value) {
