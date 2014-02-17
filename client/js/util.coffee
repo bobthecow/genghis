@@ -21,7 +21,7 @@ Util =
 
   humanizeSize: (bytes) ->
     return 'n/a' if bytes is -0
-    sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB']
+    sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
     i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10)
     size = (if (i is 0) then (bytes / Math.pow(1024, i)) else (bytes / Math.pow(1024, i)).toFixed(1))
     size = Util.round(size, 2).toString().replace(/\.0+/, '')
