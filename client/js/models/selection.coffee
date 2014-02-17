@@ -94,12 +94,14 @@ class Selection extends Giraffe.Model
     if @has('server')
       if current is 'databases' or not _.isEmpty(_.pick(changed, SERVER_PARAMS))
         @server.id = @get('server')
+        @server.set(@server.idAttribute, @server.id)
         @server.fetch(reset: true)
           .fail(handleError('databases', 'Server Not Found'))
 
     if @has('database')
       if current is 'collections' or not _.isEmpty(_.pick(changed, DATABASE_PARAMS))
         @database.id = @get('database')
+        @database.set(@database.idAttribute, @database.id)
         @database.fetch(reset: true)
           .fail(handleError('collections', 'Database Not Found'))
 
@@ -110,12 +112,14 @@ class Selection extends Giraffe.Model
     if @has('collection') and current isnt 'explain'
       if current is 'documents' or not _.isEmpty(_.pick(changed, COLLECTION_PARAMS))
         @coll.id = @get('collection')
+        @coll.set(@coll.idAttribute, @coll.id)
         @coll.fetch(reset: true)
           .fail(handleError('documents', 'Collection Not Found'))
 
     if @has('document')
       if current is 'document' or not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
         @document.id = @get('document')
+        @document.set(@document.idAttribute, @document.id)
         @document.fetch(reset: true)
           .fail(handleError(
             'document',
