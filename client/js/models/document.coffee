@@ -22,6 +22,9 @@ class Document extends Giraffe.Model
 
     "#{base}/#{encodeURIComponent(@id)}"
 
+  isNew: =>
+    not @id?
+
   isProjection: =>
     @projection?
 

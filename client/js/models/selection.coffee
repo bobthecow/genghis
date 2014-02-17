@@ -119,7 +119,6 @@ class Selection extends Giraffe.Model
     if @has('document')
       if current is 'document' or not _.isEmpty(_.pick(changed, DOCUMENT_PARAMS))
         @document.id = @get('document')
-        @document.set(@document.idAttribute, @document.id)
         @document.fetch(reset: true)
           .fail(handleError(
             'document',
