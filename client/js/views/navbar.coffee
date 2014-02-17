@@ -20,7 +20,6 @@ class Navbar extends View
   initialize: ->
     @navView    = new Nav({@model, @baseUrl, @router})
     @searchView = new Search({@model})
-    @render()
 
   serialize: ->
     {@baseUrl}

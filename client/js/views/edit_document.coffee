@@ -63,8 +63,7 @@ class EditDocument extends View
         message = error.message
         if error.lineNumber and not (/Line \d+/i.test(message))
           message = "Line #{error.lineNumber}: #{error.message}"
-        alertView = new AlertView(model: new Alert(level: 'danger', msg: message, block: true))
-        @getErrorBlock().append(alertView.render().el)
+        @showError(message)
         if error.lineNumber
           @errorLines.push(@editor.addLineClass(error.lineNumber - 1, 'background', 'error-line'))
     false
@@ -97,6 +96,6 @@ class EditDocument extends View
   showError: (message) =>
     alert     = new Alert(level: 'danger', msg: message, block: true)
     alertView = new AlertView(model: alert)
-    @getErrorBlock().append alertView.render().el
+    alertView.attachTo(@getErrorBlock())
 
 module.exports = EditDocument

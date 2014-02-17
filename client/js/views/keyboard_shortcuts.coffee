@@ -14,9 +14,6 @@ class KeyboardShortcuts extends View
   keyboardEvents:
     '?': 'toggle'
 
-  initialize: ->
-    @render()
-
   afterRender: ->
     @$el.modal(backdrop: true, show: false)
       .on({
