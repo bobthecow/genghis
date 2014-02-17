@@ -75,7 +75,7 @@ module Genghis
         case o
         when Array then o.map { |e| dec(e) }
         when Hash then
-          return o.merge(o) { |k, v| dec(v) } unless o.has_key?('$genghisType')
+          return o.merge(o) { |k, v| dec(v) } unless o.key?('$genghisType')
 
           case o['$genghisType']
           when 'ObjectId'  then mongo_object_id o['$value']
@@ -84,7 +84,7 @@ module Genghis
           when 'BinData'   then mongo_bin_data  o['$value']
           when 'Timestamp' then mongo_timestamp o['$value']
           when 'NaN'       then Float::NAN
-          else raise Genghis::MalformedDocument
+          else fail Genghis::MalformedDocument
           end
         else o
         end

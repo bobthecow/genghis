@@ -1,9 +1,11 @@
 AllCops:
   Excludes:
-    - client/vendor/**
+    - client/**
     - genghis.rb
     - node_modules/**
+    - pkg/**
     - public/**
+    - tasks/**
     - tmp/**
 
 Documentation:
