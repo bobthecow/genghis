@@ -1,25 +1,29 @@
 {$}          = require '../vendors'
 View         = require './view'
+NavMenuItem  = require './nav_menu_item'
+# Obscura      = require 'backbone.obscura'
 template     = require '../../templates/nav_section.mustache'
-menuTemplate = require '../../templates/nav_section_menu.mustache'
 
 class NavSection extends View
-  tagName:      'li'
-  template:     template
-  menuTemplate: menuTemplate
+  tagName:  'li'
+  template: template
 
   ui:
-    '$toggle': '.dropdown-toggle'
-    '$menu':   'ul.dropdown-menu'
+    '$toggle':  '.dropdown-toggle'
+    '$menu':    'ul.dropdown-menu'
+    '$divider': 'li.divider'
 
   dataEvents:
-    'change model':                'updateLink'
-    'add remove reset collection': 'renderMenu'
+    'change model':     'updateLink'
+    'reset collection': 'render'
+    'add collection':   'addModel'
 
-  initialize: ->
-    @render()
+  # initialize: ->
+  #   @collection = new Obscura(@collection)
 
   afterRender: ->
+    @renderMenu()
+    # @$el.toggleClass('has-more-children', @collection.hasMoreChildren())
     @$toggle.hoverIntent ((e) ->
       $(e.target)
         .parent('li')
@@ -34,12 +38,16 @@ class NavSection extends View
       .attr('href', (if @model.id then _.result(@model, 'url') else ''))
 
   renderMenu: ->
-    @$menu.html(@menuTemplate(model: @model, collection: @collection))
+    @collection.each(@addModel)
 
-    # Handle really wide badges on the menu dropdown
+    # FIXME: Handle really wide badges on the menu dropdown
     @$menu.find('a span').each (i, el) ->
       $el = $(el)
       len = $el.text().length
       $el.parent().css 'padding-right', "#{len + 0.5}em" if len > 3
+
+  addModel: (model) =>
+    view = new NavMenuItem(model: model)
+    view.attachTo(@$divider, method: 'before')
 
 module.exports = NavSection
