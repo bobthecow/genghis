@@ -41,7 +41,8 @@ class EditDocument extends View
     @editor.setCursor(line: 1, ch: 4) unless @model?
 
     @$textarea.resize(_.throttle(@editor.refresh, 100))
-    @listenTo(@$textarea, 'focused blurred', (e) => @trigger(e))
+    @editor.on('focus', => @trigger('focused'))
+    @editor.on('blur',  => @trigger('blurred'))
 
   clearErrors: ->
     @getErrorBlock().empty()

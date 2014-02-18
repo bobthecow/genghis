@@ -51,11 +51,10 @@ class Document extends View
 
       view = new EditDocument(model: @model, height: height, errorBlock: @$errors)
 
-      @listenTo(view,
-        focused: => @$el.addClass('focused'),
-        blurred: => @$el.removeClass('focused'),
+      @listenTo view,
+        focused:  => @$el.addClass('focused'),
+        blurred:  => @$el.removeClass('focused'),
         detached: @afterEdit
-      )
 
       view.attachTo(@$well)
 
