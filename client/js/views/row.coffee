@@ -19,14 +19,17 @@ class Row extends View
       .find('.label[title]')
       .tooltip(placement: 'bottom')
 
-    @$('.has-details').popover(
-      html:    true
-      content: ->
-        $(this).siblings('.details').html()
-      title: ->
-        $(this).siblings('.details').attr('title')
-      trigger: 'manual'
-    ).hoverIntent (-> $(this).popover 'show'), (-> $(this).popover 'hide')
+    @$('.has-details')
+      .popover(
+        html:    true,
+        title:   -> $(this).siblings('.details').attr('title'),
+        content: -> $(this).siblings('.details').html(),
+        trigger: 'manual'
+      )
+      .hoverIntent(
+        (-> $(this).popover 'show'),
+        (-> $(this).popover 'hide')
+      )
 
   navigate: (e) ->
     return if e.ctrlKey or e.shiftKey or e.metaKey

@@ -27,19 +27,14 @@ class Section extends View
 
     'attached this':    'onAttached'
     'detached this':    'onDetached'
-    # 'detached addForm': 'onAddFormDetached'
+    'detached addForm': 'onAddFormDetached'
 
   initialize: ->
     @addForm = new @addFormView(collection: @collection, disposeOnDetach: false)
 
-    # TODO: figure out why this doesn't work in the dataEvents above?
-    @listenTo(@addForm, 'detached', @onAddFormDetached)
-
-  serialize: ->
-    title: @formatTitle(@model)
-
   afterRender: ->
     @addAll()
+    @updateTitle()
 
     # Sort this bad boy.
     @$table.tablesorter textExtraction: (el) ->
@@ -49,7 +44,7 @@ class Section extends View
       @$table.trigger 'sorton', [[[0, 0]]]
 
   updateTitle: =>
-    @$title.text(@formatTitle(@model))
+    @$title.text(_.result(this, 'title'))
 
   showAddForm: (e) =>
     e?.preventDefault?()
@@ -78,8 +73,7 @@ class Section extends View
     @$addFormToggle.show()
 
   onRequest: =>
-    spin = => @$el.addClass('spinning')
-    @spinTimeout = setTimeout(spin, 500)
+    @spinTimeout = setTimeout((=> @$el.addClass('spinning')), 500)
 
   onSync: =>
     clearTimeout(@spinTimeout) if @spinTimeout

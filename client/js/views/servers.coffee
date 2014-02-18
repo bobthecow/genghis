@@ -9,6 +9,7 @@ class Servers extends Section
   template:    template
   rowView:     ServerRow
   addFormView: AddServer
+  title:       'Servers'
 
   # override, since the servers section has no model
   # mebbe this model should be the one that holds user config?
@@ -18,10 +19,5 @@ class Servers extends Section
     'add          collection': 'addModelAndUpdate'
     'request      collection': 'onRequest'
     'sync destroy collection': 'onSync'
-
-  updateTitle: $.noop
-
-  formatTitle: ->
-    'Servers'
 
 module.exports = Servers

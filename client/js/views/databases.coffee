@@ -8,11 +8,7 @@ class Databases extends Section
   template:    template
   rowView:     DatabaseRow
   addFormView: AddDatabase
-
-  formatTitle: (model) ->
-    if model.id
-      "#{model.id} Databases"
-    else
-      'Databases'
+  title:  =>
+    if @model.id then "#{@model.id} Databases" else 'Databases'
 
 module.exports = Databases

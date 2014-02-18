@@ -9,6 +9,8 @@ class Collections extends Section
   id:       'collections'
   template: template
   rowView:  CollectionRow
+  title: =>
+    if @model.id then "#{@model.id} Collections" else 'Collections'
 
   events: _.extend({
     'click .add-form-toggle a.show':        'showAddForm'
@@ -19,20 +21,17 @@ class Collections extends Section
     'c':       'showAddForm'
     'shift+c': 'showAddFormGridFS'
 
+  dataEvents: _.extend({
+    'detached addFormGridFS': 'onAddFormDetached'
+  }, Section::dataEvents)
+
   initialize: ->
     @addForm       = new AddCollection(collection: @collection, disposeOnDetach: false)
     @addFormGridFS = new AddGridFSCollection(collection: @collection, disposeOnDetach: false)
 
-    @listenTo(@addForm,       'detached', @onAddFormDetached)
-    @listenTo(@addFormGridFS, 'detached', @onAddFormDetached)
-
   afterRender: ->
     super
     @$('.dropdown-toggle').dropdown() # Yay dropdowns!
-
-  formatTitle: (model) ->
-    return 'Collections' unless model
-    "#{model.id} Collections"
 
   showAddFormGridFS: (e) =>
     e?.preventDefault?()
