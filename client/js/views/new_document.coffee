@@ -23,19 +23,22 @@ class NewDocument extends View
     keyboard: false
 
   afterRender: =>
-    @modal = @$el.modal(@modalOptions)
-
-    @editView = new EditDocument(errorBlock: @$errors, showControls: false, onSave: @onSave)
-    @listenTo(@editView,
-      focused:  => @$wrapper.addClass('focused'),
-      blurred:  => @$wrapper.removeClass('focused'),
+    @modal    = @$el.modal(@modalOptions)
+    @editView = new EditDocument(
+      errorBlock:   @$errors,
+      height:       @$wrapper.height(),
+      showControls: false,
+      onSave:       @onSave
     )
+
+    @listenTo @editView,
+      focused: => @$wrapper.addClass('focused'),
+      blurred: => @$wrapper.removeClass('focused'),
+
     @editView.attachTo(@$wrapper)
 
     @modal.on('hide.bs.modal',  => @detach())
     @modal.on('shown.bs.modal', => @editView.refreshEditor())
-
-    # $(window).resize _.throttle(@refreshEditor, 100)
 
   onSave: (data) =>
     model = new @collection.model(data)
