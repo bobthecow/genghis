@@ -44,11 +44,11 @@ class Document extends View
       .show()
 
   edit: =>
-    @$el.addClass('edit')
-    @$document.hide()
-    height = Math.max(180, Math.min(600, @$well.height() + 40))
-
     @model.fetch().then =>
+      height = Math.max(180, Math.min(600, @$well.height() + 38))
+      @$el.addClass('edit')
+      @$document.hide()
+
       view = new EditDocument(model: @model, height: height, errorBlock: @$errors)
 
       @listenTo(view,
