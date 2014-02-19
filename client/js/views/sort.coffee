@@ -28,7 +28,7 @@ class Sort extends View
     urlFor = (sort) -> "#{base}#{search(sort: sort)}"
 
     sort:  if _.isEmpty(sort) then 'natural' else GenghisJSON.stringify(sort, false)
-    sorts: _.map(@goodSorts(), (s) ->
+    sorts: _.map(@indexedSorts(), (s) ->
       name: GenghisJSON.prettyPrint(s)
       url:  urlFor(s)
     )
@@ -47,20 +47,21 @@ class Sort extends View
   customSort: (e) =>
     e.preventDefault()
 
-    customModel = new Search(sort: @model.get('sort'))
-    customModel.on('change:sort', =>
+    model = new Search(sort: @model.get('sort'))
+    model.on('change:sort', =>
       base   = @collection.baseUrl()
-      search = @model.toString(sort: customModel.get('sort'))
+      search = @model.toString(sort: model.get('sort'))
       app.router.navigate(Util.route("#{base}#{search}"), true)
     )
 
-    view = new CustomSort(model: customModel)
+    view = new CustomSort(model: model)
     view.on('detached', @render)
     @attach(view, method: 'html')
 
   # TODO: fill out the sorts with these...
-  goodSorts: =>
-    _.uniq(_.map(@collection.coll.get('indexes') || [], (index) ->
+  indexedSorts: =>
+    indexes = @collection.coll.get('indexes') || []
+    _.uniq(_.map(indexes, (index) ->
       _.object([_.first(_.keys(index.key))], [1])
     ))
 

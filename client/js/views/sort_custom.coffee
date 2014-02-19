@@ -4,7 +4,7 @@ template    = require '../../templates/sort_custom.mustache'
 
 class SortCustom extends View
   className: 'form-group'
-  template: template
+  template:  template
 
   ui:
     '$input':  'input'

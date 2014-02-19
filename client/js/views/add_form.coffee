@@ -22,7 +22,7 @@ class AddForm extends View
   updateOnKeyup: (e) =>
     switch e.keyCode
       when 13 then @submit() # enter
-      when 27 then @cancel()  # escape
+      when 27 then @cancel() # escape
 
   createModel: =>
     new @collection.model(name: @$input.val())

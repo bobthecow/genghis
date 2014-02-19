@@ -46,8 +46,8 @@ class Pagination extends View
     nextUrl:  url(Math.min(page + 1, pages))
     lastUrl:  url(pages)
     pageUrls: _.range(start, end + 1).map((i) ->
-      index: i
-      url: url(i)
+      index:  i
+      url:    url(i)
       active: i is page
     )
     isFirst:  page is 1
@@ -66,17 +66,16 @@ class Pagination extends View
   navigate: (e) ->
     e.preventDefault()
     url = $(e.target).attr('href')
-    app.router.navigate Util.route(url), true if url
+    app.router.navigate(Util.route(url), true) if url
 
   nextPage: (e) =>
-    # TODO: bind/unbind mousetrap so we don't have to check visibilty?
-    if @$el.is(':visible')
-      e.preventDefault()
-      @$next.click()
+    return unless @isAttached()
+    e.preventDefault()
+    @$next.click()
 
   prevPage: (e) =>
-    if @$el.is(':visible')
-      e.preventDefault()
-      @$prev.click()
+    return unless @isAttached()
+    e.preventDefault()
+    @$prev.click()
 
 module.exports = Pagination

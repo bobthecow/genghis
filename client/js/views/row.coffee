@@ -5,6 +5,7 @@ Confirm = require './confirm'
 
 class Row extends View
   tagName: 'tr'
+
   events:
     'click a.name':         'navigate'
     'click button.destroy': 'destroy'
@@ -17,7 +18,7 @@ class Row extends View
     @$el
       .toggleClass('error', @model.get('error'))
       .find('.label[title]')
-      .tooltip(placement: 'bottom')
+        .tooltip(placement: 'bottom')
 
     @$('.has-details')
       .popover(
@@ -27,14 +28,14 @@ class Row extends View
         trigger: 'manual'
       )
       .hoverIntent(
-        (-> $(this).popover 'show'),
-        (-> $(this).popover 'hide')
+        (-> $(this).popover('show')),
+        (-> $(this).popover('hide'))
       )
 
   navigate: (e) ->
     return if e.ctrlKey or e.shiftKey or e.metaKey
     e.preventDefault()
-    app.router.navigate Util.route($(e.target).attr('href')), true
+    app.router.navigate(Util.route($(e.target).attr('href')), true)
 
   destroy: =>
     name = (if @model.has('name') then @model.get('name') else '')

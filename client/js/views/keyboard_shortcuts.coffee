@@ -36,8 +36,7 @@ class KeyboardShortcuts extends View
     @bindKeyboardEvents(esc: 'hide', enter: 'hide')
 
   unbindEscape: =>
-    @unbindKeyboardEvents()
-    @bindKeyboardEvents() # ... and then re-bind the ? key.
-
+    @unbindKeyboardEvents() # unbind everything to clear the esc/enter
+    @bindKeyboardEvents()   # ... and then re-bind the ? key.
 
 module.exports = KeyboardShortcuts

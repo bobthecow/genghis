@@ -12,6 +12,10 @@ PLACEHOLDERS = [
   '{neverGonna: ["give you up", "let you down", "run around", "desert you"]}'
 ]
 
+EMPTY       = /^\{\s*\}$/
+OBJ_ID      = /^\{\s*(['"]?)_id\1\s*:\s*\{\s*(['"]?)\$id\2\s*:\s*(["'])([a-z\d]+)\3\s*\}\s*\}$/
+OBJ_ID_CALL = /^\{\s*(['"]?)_id\1\s*:\s*(new\s+)?ObjectId\s*\(\s*(["'])([a-z\d]+)\3\s*\)\s*\}$/
+
 _j = (val, pretty = false) ->
   GenghisJSON.stringify(val, pretty)
 
@@ -143,9 +147,9 @@ class Search extends View
 
   advancedSearchToQuery: =>
     q = _n(@editor.getValue())
-      .replace(/^\{\s*\}$/, '')
-      .replace(/^\{\s*(['"]?)_id\1\s*:\s*\{\s*(['"]?)\$id\2\s*:\s*(["'])([a-z\d]+)\3\s*\}\s*\}$/, '$4')
-      .replace(/^\{\s*(['"]?)_id\1\s*:\s*(new\s+)?ObjectId\s*\(\s*(["'])([a-z\d]+)\3\s*\)\s*\}$/, '$4')
+      .replace(EMPTY, '')
+      .replace(OBJ_ID, '$4')
+      .replace(OBJ_ID_CALL, '$4')
     @$query.val(q)
 
   queryToAdvancedSearch: =>
@@ -171,11 +175,10 @@ class Search extends View
       )
 
     @queryToAdvancedSearch()
-    @$el.addClass 'expanded'
-    {editor, focusSearch} = this
-    _.defer ->
-      editor.refresh()
-      focusSearch()
+    @$el.addClass('expanded')
+    _.defer =>
+      @editor.refresh()
+      @focusSearch()
 
   collapseSearch: =>
     @collapseNoFocus()

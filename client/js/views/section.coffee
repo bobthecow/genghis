@@ -37,11 +37,10 @@ class Section extends View
     @updateTitle()
 
     # Sort this bad boy.
-    @$table.tablesorter textExtraction: (el) ->
-      $('.value', el).text() or $(el).text()
+    @$table.tablesorter(textExtraction: (el) -> $('.value', el).text() or $(el).text())
 
     if @collection.size()
-      @$table.trigger 'sorton', [[[0, 0]]]
+      @$table.trigger('sorton', [[[0, 0]]])
 
   updateTitle: =>
     @$title.text(_.result(this, 'title'))

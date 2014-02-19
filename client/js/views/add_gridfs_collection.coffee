@@ -5,7 +5,7 @@ class AddGridFSCollection extends AddForm
   template: template
 
   submit: =>
-    name = @$input.val().replace(/^\s+/, '').replace(/\s+$/, '')
+    name = @$input.val().trim()
     if name is ''
       @app.alerts.add(msg: 'Please enter a valid collection name.')
       return
