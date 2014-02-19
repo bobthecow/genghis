@@ -5,7 +5,7 @@ class Title extends View
   dataEvents:
     'all model': 'setTitle'
 
-  setTitle: (name, args...) ->
+  setTitle: (name, args..., query) ->
     switch name
       when 'route:index', 'route:server', 'route:database', 'route:collection'
         break # we'll just pass these through...
