@@ -40,11 +40,13 @@
 
     &.spinning > {
         min-height: 180px;
-        header h2 {
-            background-color:    transparent;
-            background-position: left center;
-            background-repeat:   no-repeat;
-            text-indent: -10000em;
+        &.too-long {
+            header h2 {
+                background-color:    transparent;
+                background-position: left center;
+                background-repeat:   no-repeat;
+                text-indent: -10000em;
+            }
         }
         .controls, .add-form, .add-form-toggle, .content {
             // display: none;

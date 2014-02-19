@@ -22,8 +22,8 @@ class Section extends View
 
     'reset        collection': 'render'
     'add          collection': 'addModelAndUpdate'
-    # 'request      collection': 'onRequest'
-    # 'sync destroy collection': 'onSync'
+    'request      collection': 'onRequest'
+    'sync destroy collection': 'onSync'
 
     'attached this':    'onAttached'
     'detached this':    'onDetached'
@@ -73,10 +73,13 @@ class Section extends View
     @$addFormToggle.show()
 
   onRequest: =>
-    @spinTimeout = setTimeout((=> @$el.addClass('spinning')), 500)
+    @spinTimeout = setTimeout((=> @$el.addClass('too-long')), 500)
+    @$el.addClass('spinning')
 
   onSync: =>
-    clearTimeout(@spinTimeout) if @spinTimeout
-    @$el.removeClass('spinning')
+    if @spinTimeout
+      clearTimeout(@spinTimeout)
+      @spinTimeout = null
+    @$el.removeClass('spinning too-long')
 
 module.exports = Section
