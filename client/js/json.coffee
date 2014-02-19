@@ -10,15 +10,16 @@ ESPRIMA_OPTS =
   range:    true
 
 ALLOWED_CALLS =
-  ObjectId:  true
-  Date:      true
-  ISODate:   true
-  DBRef:     true
-  RegExp:    true
-  BinData:   true
-  Timestamp: true
-  MinKey:    true
-  MaxKey:    true
+  ObjectId:   true
+  Date:       true
+  ISODate:    true
+  DBRef:      true
+  RegExp:     true
+  BinData:    true
+  Timestamp:  true
+  MinKey:     true
+  MaxKey:     true
+  NumberLong: true
 
 ALLOWED_PROPERTY_VALUES =
   Literal:          true
@@ -129,6 +130,10 @@ GenghisJSON =
 
       MaxKey = ->
         $genghisType: 'MaxKey'
+
+      NumberLong = (val) ->
+        $genghisType: 'NumberLong'
+        $value:       val
 
       # Replace Date and RegExp calls with a fake constructors
       src = src.replace(/^\s*(new\s+)?(Date|RegExp)(\b)/, '$1Genghis$2$3')
@@ -337,6 +342,9 @@ GenghisJSON =
           "<span class='call timestamp'>Timestamp(#{t}, #{i})</span>"
         when 'MinKey', 'MaxKey'
           "<span class='call minmaxkey'>#{obj.$genghisType}()</span>"
+        when 'NumberLong'
+          $value = printScalar(obj.$value)
+          "<span class='call numberlong'>NumberLong(#{$value})</span>"
         else
           throw new Error("Unknown Genghis JSON type: #{obj.$genghisType}")
 

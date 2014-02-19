@@ -6,7 +6,8 @@ New:
  * Add support for emptying collections.
  * Add support for BSON Timestamp values.
  * Add support for BSON MinKey and MaxKey values.
- * [Fix #115][i115] — Add support for viewing and updating NaN values.
+ * [Fix #142][i142] — Add support for BSON NumberLong values.
+ * [Fix #115][i115] — Add support for NaN values.
  * Add request and error logging when running PHP backend from the command line.
  * [Fix #159][i159] — Add projection document (API) support.
  * [Fix #58][i58] — Add sort order (API) support.
@@ -31,6 +32,7 @@ Improved:
  * Lots of internal refactoring, to make everything awesomer, and more future-proof.
  * Also, easier to hack on. So send those pull requests :)
 
+[i142]: https://github.com/bobthecow/genghis/issues/142
 [i115]: https://github.com/bobthecow/genghis/issues/115
 [i159]: https://github.com/bobthecow/genghis/issues/159
 [i58]:  https://github.com/bobthecow/genghis/issues/58

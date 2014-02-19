@@ -4,6 +4,9 @@ require 'json'
 module Genghis
   class JSON
     class << self
+      INT32_MIN = -(1 << 31) + 1
+      INT32_MAX =  (1 << 31) - 1
+
       def as_json(object)
         enc(object, Array, Hash, BSON::OrderedHash, Genghis::Models::Query)
       end
@@ -21,6 +24,15 @@ module Genghis
       def enc(o, *a)
         o = o.to_s if o.is_a? Symbol
         fail "invalid: #{o.inspect}" unless a.empty? || a.include?(o.class)
+
+        # Explicitly handle ints too big for 64 bits
+        #
+        # This isn't as awesome as knowing whether the BSON data is *actually*
+        # a 64 bit int, but it'll do for now :-/
+        if (o.is_a?(Fixnum) || o.is_a?(Bignum)) && (o > INT32_MAX || o < INT32_MIN)
+          return thunk('NumberLong', o.to_s)
+        end
+
         case o
         when Genghis::Models::Query then enc(o.as_json)
         when Array then o.map { |e| enc(e) }
@@ -80,14 +92,15 @@ module Genghis
           return o.merge(o) { |k, v| dec(v) } unless o.key?('$genghisType')
 
           case o['$genghisType']
-          when 'ObjectId'  then mongo_object_id o['$value']
-          when 'ISODate'   then mongo_iso_date  o['$value']
-          when 'RegExp'    then mongo_reg_exp   o['$value']
-          when 'BinData'   then mongo_bin_data  o['$value']
-          when 'Timestamp' then mongo_timestamp o['$value']
-          when 'MinKey'    then BSON::MinKey.new
-          when 'MaxKey'    then BSON::MaxKey.new
-          when 'NaN'       then Float::NAN
+          when 'ObjectId'   then mongo_object_id o['$value']
+          when 'ISODate'    then mongo_iso_date  o['$value']
+          when 'RegExp'     then mongo_reg_exp   o['$value']
+          when 'BinData'    then mongo_bin_data  o['$value']
+          when 'Timestamp'  then mongo_timestamp o['$value']
+          when 'MinKey'     then BSON::MinKey.new
+          when 'MaxKey'     then BSON::MaxKey.new
+          when 'NaN'        then Float::NAN
+          when 'NumberLong' then o['$value'].to_i
           else fail Genghis::MalformedDocument
           end
         else o

@@ -87,6 +87,12 @@ class Genghis_Json
                     return array(
                         '$genghisType' => 'MaxKey'
                     );
+
+                case 'MongoInt64':
+                    return array(
+                        '$genghisType' => 'NumberLong',
+                        '$value'       => $object->value,
+                    );
             }
 
             // everything else is likely a StdClass...
@@ -163,6 +169,9 @@ class Genghis_Json
 
                     case 'MaxKey':
                         return new MongoMaxKey();
+
+                    case 'NumberLong':
+                        return new MongoInt64($value);
 
                     default:
                         throw new Genghis_JsonException(sprintf('Unknown $genghisType: %s', $type));

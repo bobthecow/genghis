@@ -729,6 +729,10 @@ genghis_backends.each do |backend|
             req.body = req_body
           end
         end
+        let(:actualdoc) do
+          json = JSON.parse(res.body)
+          @coll.find_one({:_id => BSON::ObjectId(json['_id']['$value'])})
+        end
 
         it 'creates a document' do
           expect(res.status).to eq 200
@@ -794,6 +798,28 @@ genghis_backends.each do |backend|
               :bar => {
                 '$genghisType' => 'MaxKey'
               }
+          end
+        end
+
+        context 'with NumberLong values' do
+          let(:doc) do
+            {
+              :foo => {'$genghisType' => 'NumberLong', '$value' => '2147483648'},
+              :bar => {'$genghisType' => 'NumberLong', '$value' => '-2147483649'}
+            }
+          end
+
+          it 'can hold its NumberLong' do
+            expect(res.status).to eq 200
+            expect(res).to be_a_json_response
+            expect(res.body).to match_json_expression \
+              :_id => OBJECT_ID,
+              :foo => {'$genghisType' => 'NumberLong', '$value' => '2147483648'},
+              :bar => {'$genghisType' => 'NumberLong', '$value' => '-2147483649'}
+
+            # check the actual value to make sure there are no shenanigans
+            expect(actualdoc['foo']).to eq 2147483648
+            expect(actualdoc['bar']).to eq -2147483649
           end
         end
 
