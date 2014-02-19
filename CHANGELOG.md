@@ -5,6 +5,7 @@ New:
  * Add "Explain query" feature — Thanks @craigerm for doing all the hard work!
  * Add support for emptying collections.
  * Add support for BSON Timestamp values.
+ * Add support for BSON MinKey and MaxKey values.
  * [Fix #115][i115] — Add support for viewing and updating NaN values.
  * Add request and error logging when running PHP backend from the command line.
  * [Fix #159][i159] — Add projection document (API) support.

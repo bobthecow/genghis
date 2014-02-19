@@ -17,6 +17,8 @@ ALLOWED_CALLS =
   RegExp:    true
   BinData:   true
   Timestamp: true
+  MinKey:    true
+  MaxKey:    true
 
 ALLOWED_PROPERTY_VALUES =
   Literal:          true
@@ -121,6 +123,12 @@ GenghisJSON =
         $value:
           $t: sec
           $i: inc
+
+      MinKey = ->
+        $genghisType: 'MinKey'
+
+      MaxKey = ->
+        $genghisType: 'MaxKey'
 
       # Replace Date and RegExp calls with a fake constructors
       src = src.replace(/^\s*(new\s+)?(Date|RegExp)(\b)/, '$1Genghis$2$3')
@@ -327,6 +335,8 @@ GenghisJSON =
           $t = printScalar(value.$value.$t)
           $i = printScalar(value.$value.$i)
           "<span class='call timestamp'>Timestamp(#{t}, #{i})</span>"
+        when 'MinKey', 'MaxKey'
+          "<span class='call minmaxkey'>#{obj.$genghisType}()</span>"
         else
           throw new Error("Unknown Genghis JSON type: #{obj.$genghisType}")
 

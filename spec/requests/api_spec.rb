@@ -780,6 +780,23 @@ genghis_backends.each do |backend|
           end
         end
 
+        context 'with MinKey and MaxKey values' do
+          let(:doc) { {:foo => {'$genghisType' => 'MinKey'}, :bar => {'$genghisType' => 'MaxKey'}} }
+
+          it 'handles MinKey and MaxKey values like a champ' do
+            expect(res.status).to eq 200
+            expect(res).to be_a_json_response
+            expect(res.body).to match_json_expression \
+              :_id => OBJECT_ID,
+              :foo => {
+                '$genghisType' => 'MinKey'
+              },
+              :bar => {
+                '$genghisType' => 'MaxKey'
+              }
+          end
+        end
+
         context 'with Timestamp values' do
           let(:doc) { {:foo => {'$genghisType' => 'Timestamp', '$value' => {'$t' => 123, '$i' => 456}}} }
 

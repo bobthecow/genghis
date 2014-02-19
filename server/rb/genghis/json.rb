@@ -31,6 +31,8 @@ module Genghis
         when BSON::DBRef then db_ref(o)
         when BSON::Binary then thunk('BinData', '$subtype' => o.subtype, '$binary' => enc_bin_data(o))
         when BSON::Timestamp then thunk('Timestamp', '$t' => o.seconds, '$i' => o.increment)
+        when BSON::MinKey then {'$genghisType' => 'MinKey'}
+        when BSON::MaxKey then {'$genghisType' => 'MaxKey'}
         when Float then o.nan? ? {'$genghisType' => 'NaN'} : o
         else o
         end
@@ -83,6 +85,8 @@ module Genghis
           when 'RegExp'    then mongo_reg_exp   o['$value']
           when 'BinData'   then mongo_bin_data  o['$value']
           when 'Timestamp' then mongo_timestamp o['$value']
+          when 'MinKey'    then BSON::MinKey.new
+          when 'MaxKey'    then BSON::MaxKey.new
           when 'NaN'       then Float::NAN
           else fail Genghis::MalformedDocument
           end

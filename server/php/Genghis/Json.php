@@ -77,6 +77,16 @@ class Genghis_Json
                             '$i' => $object->inc,
                         )
                     );
+
+                case 'MongoMinKey':
+                    return array(
+                        '$genghisType' => 'MinKey'
+                    );
+
+                case 'MongoMaxKey':
+                    return array(
+                        '$genghisType' => 'MaxKey'
+                    );
             }
 
             // everything else is likely a StdClass...
@@ -147,6 +157,12 @@ class Genghis_Json
                         $inc = self::getProp($value, 'i');
 
                         return new MongoTimestamp($sec, $inc);
+
+                    case 'MinKey':
+                        return new MongoMinKey();
+
+                    case 'MaxKey':
+                        return new MongoMaxKey();
 
                     default:
                         throw new Genghis_JsonException(sprintf('Unknown $genghisType: %s', $type));
