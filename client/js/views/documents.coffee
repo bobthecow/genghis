@@ -38,10 +38,10 @@ class Documents extends View
     'c': 'createDocument'
 
   dataEvents:
-    'reset   collection': 'addAll'
-    'add     collection': 'addDocument'
-    # 'request collection': 'onRequest'
-    # 'sync    collection': 'onSync'
+    'reset        collection': 'addAll'
+    'add          collection': 'addDocument'
+    'request      collection': 'onRequest'
+    'sync destroy collection': 'onSync'
 
     'attached this': 'onAttached'
     'detached this': 'onDetached'
@@ -104,12 +104,14 @@ class Documents extends View
     view.showMetadata(file)
 
   onRequest: =>
-    spin = => @$el.addClass('spinning')
-    @spinTimeout = setTimeout(spin, 500)
+    @spinTimeout = setTimeout((=> @$el?.addClass('too-long')), 500)
+    @$el.addClass('spinning')
 
   onSync: =>
-    clearTimeout(@spinTimeout) if @spinTimeout
-    @$el.removeClass('spinning')
+    if @spinTimeout
+      clearTimeout(@spinTimeout)
+      @spinTimeout = null
+    @$el.removeClass('spinning too-long')
 
   onAttached: =>
     @bindKeyboardEvents()
