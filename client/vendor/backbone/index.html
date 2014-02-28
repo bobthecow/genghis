@@ -285,7 +285,7 @@
   <div id="sidebar" class="interface">
 
     <a class="toc_title" href="#">
-      Backbone.js <span class="version">(1.1.1)</span>
+      Backbone.js <span class="version">(1.1.2)</span>
     </a>
     <ul class="toc_section">
       <li>&raquo; <a href="http://github.com/jashkenas/backbone">GitHub Repository</a></li>
@@ -559,11 +559,11 @@
 
     <table>
       <tr>
-        <td><a class="punch" href="backbone.js">Development Version (1.1.1)</a></td>
+        <td><a class="punch" href="backbone.js">Development Version (1.1.2)</a></td>
         <td class="text"><i>60kb, Full source, tons of comments</i></td>
       </tr>
       <tr>
-        <td><a class="punch" href="backbone-min.js">Production Version (1.1.1)</a></td>
+        <td><a class="punch" href="backbone-min.js">Production Version (1.1.2)</a></td>
         <td class="text" style="line-height: 16px;">
           <i>6.5kb, Packed and gzipped</i><br />
           <small>(<a href="backbone-min.map">Source Map</a>)</small>
@@ -1295,7 +1295,7 @@ book.save({author: "Teddy"});
 
     <p>
       <b>save</b> accepts <tt>success</tt> and <tt>error</tt> callbacks in the
-      options hash, which will passed the arguments <tt>(model, response, options)</tt>.
+      options hash, which will be passed the arguments <tt>(model, response, options)</tt>.
       If a server-side validation fails, return a non-<tt>200</tt>
       HTTP response code, along with an error response in text or JSON.
     </p>
@@ -2355,6 +2355,9 @@ var Router = Backbone.Router.extend({
       When all of your <a href="#Router">Routers</a> have been created,
       and all of the routes are set up properly, call <tt>Backbone.history.start()</tt>
       to begin monitoring <tt>hashchange</tt> events, and dispatching routes.
+      Subsequent calls to <tt>Backbone.history.start()</tt> will throw an error,
+      and <tt>Backbone.History.started</tt> is a boolean value indicating whether
+      it has already been called.
     </p>
 
     <p>
@@ -4028,6 +4031,22 @@ ActiveRecord::Base.include_root_in_json = false
 
     <h2 id="changelog">Change Log</h2>
 
+    <b class="header">1.1.2</b> &mdash; <small><i>Feb. 20, 2014</i></small> 
+    &mdash; <a href="https://github.com/jashkenas/backbone/compare/1.1.1...1.1.2">Diff</a> 
+    &mdash; <a href="http://htmlpreview.github.com/?https://raw.github.com/jashkenas/backbone/1.1.2/index.html">Docs</a>
+    <br />
+    <ul style="margin-top: 5px;">
+      <li>
+        Backbone no longer tries to require jQuery in Node/CommonJS environments, 
+        for better compatibility with folks using Browserify.
+        If you'd like to have Backbone use jQuery from Node, assign it like so:
+        <tt>Backbone.$ = require('jquery');</tt>
+      </li>
+      <li>
+        Bugfix for route parameters with newlines in them.
+      </li>
+    </ul>
+
     <b class="header">1.1.1</b> &mdash; <small><i>Feb. 13, 2014</i></small> &mdash; <a href="https://github.com/jashkenas/backbone/compare/1.1.0...1.1.1">Diff</a> &mdash; <a href="http://htmlpreview.github.com/?https://raw.github.com/jashkenas/backbone/1.1.1/index.html">Docs</a><br />
     <ul style="margin-top: 5px;">
       <li>
@@ -4056,7 +4075,8 @@ ActiveRecord::Base.include_root_in_json = false
       </li>
       <li>
         Backbone Views no longer automatically attach options passed to the constructor as
-        <tt>this.options</tt>, but you can do it yourself if you prefer.
+        <tt>this.options</tt> and Backbone Models no longer attach <tt>url</tt> and
+        <tt>urlRoot</tt> options, but you can do it yourself if you prefer.
       </li>
       <li>
         All <tt>"invalid"</tt> events now pass consistent arguments. First the
@@ -4069,10 +4089,6 @@ ActiveRecord::Base.include_root_in_json = false
       <li>
         On the other hand, <tt>parse</tt> is now an excellent place to extract
         and vivify incoming nested JSON into associated submodels.
-      </li>
-      <li>
-        Backbone Models no longer automatically attach the <tt>url</tt> and <tt>urlRoot</tt>
-        options passed to the constructor.
       </li>
       <li>
         Many tweaks, optimizations and bugfixes relating to Backbone 1.0,
