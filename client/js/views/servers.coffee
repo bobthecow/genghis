@@ -2,7 +2,7 @@
 Section   = require './section'
 ServerRow = require './server_row'
 AddServer = require './add_server'
-template  = require '../../templates/servers.mustache'
+template  = require('../../templates/servers.mustache').render
 
 class Servers extends Section
   id:          'servers'

@@ -1,7 +1,7 @@
 View     = require './view'
 Nav      = require './nav'
 Search   = require './search'
-template = require '../../templates/navbar.mustache'
+template = require('../../templates/navbar.mustache').render
 
 class Navbar extends View
   tagName:   'header'

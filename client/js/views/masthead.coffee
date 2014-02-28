@@ -1,5 +1,5 @@
 View     = require './view'
-template = require '../../templates/masthead.mustache'
+template = require('../../templates/masthead.mustache').render
 
 class Masthead extends View
   tagName:   'header'

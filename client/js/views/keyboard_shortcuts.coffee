@@ -1,6 +1,6 @@
 {$, _}   = require '../vendors'
 View     = require './view'
-template = require '../../templates/keyboard_shortcuts.mustache'
+template = require('../../templates/keyboard_shortcuts.mustache').render
 
 class KeyboardShortcuts extends View
   id:        'keyboard-shortcuts'

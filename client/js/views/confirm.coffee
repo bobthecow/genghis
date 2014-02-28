@@ -1,6 +1,6 @@
 {$, _}   = require '../vendors'
 View     = require './view'
-template = require '../../templates/confirm.mustache'
+template = require('../../templates/confirm.mustache').render
 
 class Confirm extends View
   className: 'modal confirm-modal'

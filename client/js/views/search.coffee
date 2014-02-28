@@ -3,7 +3,7 @@ Util        = require '../util'
 GenghisJSON = require '../json'
 defaults    = require '../defaults'
 View        = require './view'
-template    = require '../../templates/search.mustache'
+template    = require('../../templates/search.mustache').render
 
 PLACEHOLDERS = [
   '{name: /genghis(app)?/i}'

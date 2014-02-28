@@ -1,7 +1,7 @@
 {$}      = require '../vendors'
 View     = require './view'
 Util     = require '../util'
-template = require '../../templates/explain.mustache'
+template = require('../../templates/explain.mustache').render
 
 class Explain extends View
   id:        'explain'

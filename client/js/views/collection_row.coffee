@@ -1,6 +1,6 @@
 Row      = require './row'
 Confirm  = require './confirm'
-template = require '../../templates/collection_row.mustache'
+template = require('../../templates/collection_row.mustache').render
 
 class CollectionRow extends Row
   template:   template

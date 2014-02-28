@@ -1,6 +1,6 @@
 View     = require './view'
 Sort     = require './sort'
-template = require '../../templates/documents_header.mustache'
+template = require('../../templates/documents_header.mustache').render
 
 class DocumentsHeader extends View
   template: template

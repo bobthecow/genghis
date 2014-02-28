@@ -1,5 +1,5 @@
 AddForm  = require './add_form'
-template = require '../../templates/add_gridfs_collection.mustache'
+template = require('../../templates/add_gridfs_collection.mustache').render
 
 class AddGridFSCollection extends AddForm
   template: template

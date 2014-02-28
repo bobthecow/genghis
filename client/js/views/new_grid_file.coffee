@@ -4,7 +4,7 @@ EditDocument = require './edit_document'
 Document     = require '../models/document'
 Util         = require '../util'
 GenghisJSON  = require '../json'
-template     = require '../../templates/new_grid_file.mustache'
+template     = require('../../templates/new_grid_file.mustache').render
 
 class NewGridFile extends NewDocument
   id:        'new-grid-file'

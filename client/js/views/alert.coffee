@@ -1,5 +1,5 @@
 View     = require './view'
-template = require '../../templates/alert.mustache'
+template = require('../../templates/alert.mustache').render
 
 class Alert extends View
   template: template

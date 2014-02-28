@@ -19,8 +19,8 @@ DocumentsView         = require './documents'
 ExplainView           = require './explain'
 DocumentSectionView   = require './document_section' # TODO: rename to document view, make a document_edit view?
 
-notFoundTemplate      = require '../../templates/not_found.mustache'
-welcomeTemplate       = require '../../templates/welcome.mustache'
+notFoundTemplate      = require('../../templates/not_found.mustache').render
+welcomeTemplate       = require('../../templates/welcome.mustache').render
 
 ROUTE_SECTION_MAP =
   'route:index':            'servers'

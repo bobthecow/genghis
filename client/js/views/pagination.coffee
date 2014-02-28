@@ -1,7 +1,7 @@
 {$, _}   = require '../vendors'
 View     = require './view'
 Util     = require '../util'
-template = require '../../templates/pagination.mustache'
+template = require('../../templates/pagination.mustache').render
 
 class Pagination extends View
   template: template

@@ -4,7 +4,7 @@ Alert        = require '../models/alert'
 View         = require './view'
 EditDocument = require './edit_document'
 Confirm      = require './confirm'
-template     = require '../../templates/document.mustache'
+template     = require('../../templates/document.mustache').render
 
 class Document extends View
   tagName:  'article'
