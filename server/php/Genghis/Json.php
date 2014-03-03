@@ -107,6 +107,8 @@ class Genghis_Json
             }
         } elseif (is_float($object) && is_nan($object)) {
             return array('$genghisType' => 'NaN');
+        } elseif (is_infinite($object)) {
+            return array('$genghisType' => $object > 0 ? 'Infinity', '-Infinity');
         }
 
         return $object;
@@ -157,6 +159,12 @@ class Genghis_Json
 
                     case 'NaN':
                         return NAN;
+
+                    case 'Infinity':
+                        return INF;
+
+                    case '-Infinity':
+                        return -INF;
 
                     case 'Timestamp':
                         $sec = self::getProp($value, 't');
