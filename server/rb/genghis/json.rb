@@ -45,7 +45,7 @@ module Genghis
         when BSON::Timestamp then thunk('Timestamp', '$t' => o.seconds, '$i' => o.increment)
         when BSON::MinKey then {'$genghisType' => 'MinKey'}
         when BSON::MaxKey then {'$genghisType' => 'MaxKey'}
-        when Float then o.nan? ? {'$genghisType' => 'NaN'} : o
+        when Float then o.nan? ? {'$genghisType' => 'NaN'} : o.finite? ? o : {'$genghisType' => o.to_s}
         else o
         end
       end
@@ -100,6 +100,8 @@ module Genghis
           when 'MinKey'     then BSON::MinKey.new
           when 'MaxKey'     then BSON::MaxKey.new
           when 'NaN'        then Float::NAN
+          when 'Infinity'   then Float::INFINITY
+          when '-Infinity'  then 0 - Float::INFINITY
           when 'NumberLong' then o['$value'].to_i
           else fail Genghis::MalformedDocument
           end

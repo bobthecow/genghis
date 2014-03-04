@@ -226,8 +226,12 @@ GenghisJSON =
         # Property value has to be an array, object, literal, or a whitelisted call
         when 'Property'
           if node.value
-            if node.value.type is 'Identifier' and node.value.name is 'NaN'
-              node.update("\"#{node.key.name}\": {\"$genghisType\": \"NaN\"}")
+            # -Infinity is seen as a UnaryExp, so handle it with a special case
+            if node.value.type is 'UnaryExpression' and node.value.argument.type is 'Identifier' and node.value.argument.name is 'Infinity'
+              node.update("\"#{node.key.name}\": {\"$genghisType\": \"-Infinity\"}")
+            # +Infinity and NaN are known identifiers, where the genghisType is the same as the identifier
+            else if node.value.type is 'Identifier' and node.value.name in ['NaN', 'Infinity']
+              node.update("\"#{node.key.name}\": {\"$genghisType\": \"#{node.value.name}\"}")
             else
               unless ALLOWED_PROPERTY_VALUES[node.value.type]
                 addError("Unexpected value: #{node.value.source()}", node.value)
@@ -336,6 +340,10 @@ GenghisJSON =
           "<span class='call bindata'>BinData(#{$subtype}, #{$binary})</span>"
         when 'NaN'
           "<span class='v a'>NaN</span>"
+        when 'Infinity'
+          "<span class='v a inf'>Infinity</span>"
+        when '-Infinity'
+          "<span class='v a inf'>-Infinity</span>"
         when 'Timestamp'
           $t = printScalar(value.$value.$t)
           $i = printScalar(value.$value.$i)

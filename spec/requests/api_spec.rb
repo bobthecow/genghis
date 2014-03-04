@@ -784,6 +784,34 @@ genghis_backends.each do |backend|
           end
         end
 
+        context 'with Infinity values' do
+          let(:doc) { {:foo => {'$genghisType' => 'Infinity'}} }
+
+          it 'handles Infinity values like a champ' do
+            expect(res.status).to eq 200
+            expect(res).to be_a_json_response
+            expect(res.body).to match_json_expression \
+              :_id => OBJECT_ID,
+              :foo => {
+                '$genghisType' => 'Infinity'
+              }
+          end
+        end
+
+        context 'with -Infinity values' do
+          let(:doc) { {:foo => {'$genghisType' => '-Infinity'}} }
+
+          it 'handles -Infinity values like a champ' do
+            expect(res.status).to eq 200
+            expect(res).to be_a_json_response
+            expect(res.body).to match_json_expression \
+              :_id => OBJECT_ID,
+              :foo => {
+                '$genghisType' => '-Infinity'
+              }
+          end
+        end
+
         context 'with MinKey and MaxKey values' do
           let(:doc) { {:foo => {'$genghisType' => 'MinKey'}, :bar => {'$genghisType' => 'MaxKey'}} }
 
