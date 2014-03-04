@@ -107,7 +107,7 @@ class Genghis_Json
             }
         } elseif (is_float($object) && is_nan($object)) {
             return array('$genghisType' => 'NaN');
-        } elseif (is_infinite($object)) {
+        } elseif (is_float($object) && is_infinite($object)) {
             return array('$genghisType' => $object > 0 ? 'Infinity' : '-Infinity');
         }
 
