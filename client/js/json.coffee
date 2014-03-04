@@ -227,7 +227,7 @@ GenghisJSON =
         when 'Property'
           if node.value
             # -Infinity is seen as a UnaryExp, so handle it with a special case
-            if node.value.type is 'UnaryExpression' and node.value.argument.name is 'Infinity'
+            if node.value.type is 'UnaryExpression' and node.value.argument.type is 'Identifier' and node.value.argument.name is 'Infinity'
               node.update("\"#{node.key.name}\": {\"$genghisType\": \"-Infinity\"}")
             # +Infinity and NaN are known identifiers, where the genghisType is the same as the identifier
             else if node.value.type is 'Identifier' and node.value.name in ['NaN', 'Infinity']
