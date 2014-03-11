@@ -731,7 +731,7 @@ genghis_backends.each do |backend|
         end
         let(:actualdoc) do
           json = JSON.parse(res.body)
-          @coll.find_one({:_id => BSON::ObjectId(json['_id']['$value'])})
+          @coll.find_one(:_id => BSON::ObjectId(json['_id']['$value']))
         end
 
         it 'creates a document' do
@@ -819,7 +819,7 @@ genghis_backends.each do |backend|
 
             # check the actual value to make sure there are no shenanigans
             expect(actualdoc['foo']).to eq 2147483648
-            expect(actualdoc['bar']).to eq -2147483649
+            expect(actualdoc['bar']).to eq(-2147483649)
           end
         end
 
