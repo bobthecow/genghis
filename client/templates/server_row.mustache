@@ -1,35 +1,35 @@
 {{# error }}
-    <td colspan="3">
-        <span class="value">{{ name }}</span>
-        <span class="label label-danger" title="{{ error }}">Error</span>
-    </td>
+  <td colspan="3">
+    <span class="value">{{ name }}</span>
+    <span class="label label-danger" title="{{ error }}">Error</span>
+  </td>
 {{/ error }}
 {{^ error }}
-    <td>
-        <a href="{{ url }}" class="name value">{{ name }}</a>
-    </td>
-    <td>
-        <span class="databases has-details value">{{ count }}</span>
-        <div class="details" title="{{ count }} Database{{# isPlural }}s{{/ isPlural }}">
-            {{# count }}
-                <ul>
-                    {{# firstChildren }}
-                        <li>{{ . }}</li>
-                    {{/ firstChildren }}
-                    {{# hasMoreChildren }}
-                        <li>&hellip;</li>
-                    {{/ hasMoreChildren }}
-                </ul>
-            {{/ count }}
-            {{^ count }}
-                <em>None.</em>
-            {{/ count }}
-        </div>
-    </td>
-    <td>
-        <span class="size value">{{ humanSize }}</span>
-    </td>
+  <td>
+    <a class="name value" href="{{ url }}">{{ name }}</a>
+  </td>
+  <td>
+    <span class="databases has-details value">{{ count }}</span>
+    <div class="details" title="{{ count }} Database{{# isPlural }}s{{/ isPlural }}">
+      {{# count }}
+        <ul>
+          {{# firstChildren }}
+            <li>{{ . }}</li>
+          {{/ firstChildren }}
+          {{# hasMoreChildren }}
+            <li>&hellip;</li>
+          {{/ hasMoreChildren }}
+        </ul>
+      {{/ count }}
+      {{^ count }}
+        <em>None.</em>
+      {{/ count }}
+    </div>
+  </td>
+  <td>
+    <span class="size value">{{ humanSize }}</span>
+  </td>
 {{/ error }}
 <td class="action-column">
-    {{# editable }}<button class="btn btn-xs btn-danger destroy">Remove from list</button>{{/ editable }}
+  {{# editable }}<button class="btn btn-xs btn-danger destroy">Remove from list</button>{{/ editable }}
 </td>

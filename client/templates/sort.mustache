@@ -1,14 +1,14 @@
 <div class="btn-group">
-    <button class="btn btn-link dropdown-toggle" data-toggle="dropdown">
-        Sort: <strong>{{ sort }}</strong>
-        <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu pull-right sort-by" role="menu">
-        <li><a class="sort-link" href="{{ naturalUrl }}">natural</a>
-        {{# sorts }}
-          <li><a class="sort-link" href="{{ url }}">{{{ name }}}</a></li>
-        {{/ sorts }}
-        <li class="divider"></li>
-        <li><a class="custom" href="#">Custom…</a></li>
-    </ul>
+  <button class="btn btn-link dropdown-toggle" data-toggle="dropdown">
+    Sort: <strong>{{ sort }}</strong>
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu pull-right sort-by" role="menu">
+    <li><a class="sort-link" href="{{ naturalUrl }}">natural</a>
+    {{# sorts }}
+      <li><a class="sort-link" href="{{ url }}">{{{ name }}}</a></li>
+    {{/ sorts }}
+    <li class="divider"></li>
+    <li><a class="custom" href="#">Custom…</a></li>
+  </ul>
 </div>
