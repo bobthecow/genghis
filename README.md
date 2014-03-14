@@ -116,7 +116,7 @@ Check [the Genghis wiki](https://github.com/bobthecow/genghis/wiki) for addition
 License
 -------
 
- * Copyright 2011 [Justin Hileman](http://justinhileman.com)
+ * Copyright (c) 2011-2014 [Justin Hileman](http://justinhileman.com)
  * Distributed under the [MIT License](http://creativecommons.org/licenses/MIT/)
 
 

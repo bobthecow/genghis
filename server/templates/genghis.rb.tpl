@@ -6,7 +6,7 @@
 #
 # http://genghisapp.com
 #
-# @author Justin Hileman <justin@justinhileman.info>
+# Copyright (c) 2011-2014 Justin Hileman
 #
 module Genghis
   VERSION = '<%= version %>'

@@ -7,7 +7,7 @@
  *
  * http://genghisapp.com
  *
- * @author Justin Hileman <justin@justinhileman.info>
+ * Copyright (c) 2011-2014 Justin Hileman
  */
 define('GENGHIS_VERSION', '<%= version %>');
 
