@@ -1,3 +1,10 @@
+## v2.3.11
+
+ * [Fix #167][i167] — bug in rounding when displaying "humanized" sizes.
+
+[i167]: https://github.com/bobthecow/genghis/issues/167
+
+
 ## v2.3.10
 
  * [Fix #145][i145], [#148][i148] — work around rack-protection's misguided path decoding.
