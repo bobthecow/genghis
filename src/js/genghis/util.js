@@ -28,7 +28,7 @@ Genghis.Util = {
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)), 10);
 
         var size = (i === 0) ? (bytes / Math.pow(1024, i)) : (bytes / Math.pow(1024, i)).toFixed(1);
-        size = Genghis.Util.round(size, 2).toString().replace(/\.0+/, '');
+        size = Genghis.Util.round(size, 2).toString().replace(/\.0+$/, '');
 
         return size + ' ' + sizes[i];
     },
