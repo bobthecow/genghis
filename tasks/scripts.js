@@ -22,7 +22,7 @@ var source     = require('./source');
 
 var HEADER = fs.readFileSync('server/templates/banner.tpl');
 var HEADER_DATA = {
-  version: fs.readFileSync('VERSION.txt')
+  version: fs.readFileSync('VERSION')
 };
 
 // Compile and minify JavaScript source.

@@ -9,7 +9,7 @@
  *
  * @author Justin Hileman <justin@justinhileman.info>
  */
-define('GENGHIS_VERSION', file_get_contents(dirname(__FILE__).'/VERSION.txt'));
+define('GENGHIS_VERSION', file_get_contents(dirname(__FILE__).'/VERSION'));
 
 require dirname(__FILE__).'/server/php/Genghis/Autoloader.php';
 

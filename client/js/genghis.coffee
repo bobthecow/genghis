@@ -3,7 +3,7 @@ fs            = require 'fs'
 App           = require './views/app'
 
 module.exports =
-  version: fs.readFileSync("#{__dirname}/../../VERSION.txt"),
+  version: fs.readFileSync("#{__dirname}/../../VERSION"),
   boot: (baseUrl) ->
     $ ->
       baseUrl = "#{baseUrl}/" unless baseUrl[-1] is '/'

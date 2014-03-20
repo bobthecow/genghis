@@ -13,7 +13,7 @@ var gutil    = require('gulp-util');
 var log      = gutil.log;
 var colors   = gutil.colors;
 
-var VERSION = fs.readFileSync('VERSION.txt');
+var VERSION = fs.readFileSync('VERSION');
 
 var assetName = function(file) {
   return file.path.replace(/^.*?public\/(templates\/)?|/, '').replace('.min.', '.');
