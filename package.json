@@ -20,7 +20,7 @@
     "brfs":              "latest",
     "browserify-hogan":  "latest",
     "coffeeify":         "latest",
-    "debowerify":        "latest",
+    "debowerify":        "khaled/debowerify#master",
     "hogan.js":          "latest",
 
     "gulp":              "latest",
