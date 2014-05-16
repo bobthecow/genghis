@@ -68,6 +68,8 @@ class Genghis_Json
                             '$binary'  => base64_encode($object->bin),
                         )
                     );
+                case 'MongoTimestamp':
+                    return $object; // no encode needs, trigger an exception "The 'sec' property is read-only"
             }
 
             // everything else is likely a StdClass...
