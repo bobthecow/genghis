@@ -46,7 +46,7 @@ gulp.task('build:php:lib', function() {
 });
 
 
-gulp.task('build:php', function() {
+gulp.task('build:php', ['build:assets', 'build:php:lib'], function() {
   log(colors.blue('Building PHP backend'));
 
   return gulp.src('server/templates/genghis.php.tpl')
@@ -76,7 +76,7 @@ gulp.task('build:rb:lib', function() {
 });
 
 
-gulp.task('build:rb', function() {
+gulp.task('build:rb', ['build:assets', 'build:rb:lib'], function() {
   log(colors.blue('Building Ruby backend'));
 
   return gulp.src('server/templates/genghis.rb.tpl')
@@ -92,9 +92,7 @@ gulp.task('build:rb', function() {
 
 
 // Build Genghis.
-gulp.task('build', ['build:assets', 'build:rb:lib', 'build:php:lib'], function() {
-  return gulp.run('build:rb', 'build:php');
-});
+gulp.task('build', ['build:rb', 'build:php']);
 
 
 // Rebuild Genghis.
