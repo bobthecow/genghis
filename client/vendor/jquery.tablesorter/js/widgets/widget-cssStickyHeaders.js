@@ -1,7 +1,7 @@
-/*! tablesorter CSS Sticky Headers widget - updated 12/14/2013 (v2.14.4)
+/*! tablesorter CSS Sticky Headers widget - updated 5/5/2014 (v2.16.4)
 * Requires a modern browser, tablesorter v2.8+
 */
-/*global jQuery: false, unused:false */
+/*jshint jquery:true, unused:false */
 ;(function($){
 	"use strict";
 
@@ -9,9 +9,11 @@
 		id: "cssStickyHeaders",
 		priority: 10,
 		options: {
-			cssStickyHeaders_offset     : 0,
-			cssStickyHeaders_addCaption : false,
-			cssStickyHeaders_attachTo   : null
+			cssStickyHeaders_offset        : 0,
+			cssStickyHeaders_addCaption    : false,
+			cssStickyHeaders_attachTo      : null,
+			cssStickyHeaders_filteredToTop : true,
+			cssStickyHeaders_zIndex        : 10
 		},
 		init : function(table, thisWidget, c, wo) {
 			var $attach = $(wo.cssStickyHeaders_attachTo),
@@ -35,11 +37,20 @@
 					$cells = $cells.add($caption);
 				}
 				$cells.css({
-					"transform": finalY === 0 ? "" : "translate(0px," + finalY + "px)",
-					"-ms-transform": finalY === 0 ? "" : "translate(0px," + finalY + "px)",
-					"-webkit-transform": finalY === 0 ? "" : "translate(0px," + finalY + "px)"
+					"position" : "relative",
+					"z-index" : wo.cssStickyHeaders_zIndex,
+					"transform" : finalY === 0 ? "" : "translate(0px," + finalY + "px)",
+					"-ms-transform" : finalY === 0 ? "" : "translate(0px," + finalY + "px)",
+					"-webkit-transform" : finalY === 0 ? "" : "translate(0px," + finalY + "px)"
 				});
 			});
+			c.$table.bind('filterEnd', function() {
+				if (wo.cssStickyHeaders_filteredToTop) {
+					// scroll top of table into view
+					window.scrollTo(0, c.$table.position().top);
+				}
+			});
+
 		},
 		remove: function(table, c, wo){
 			var namespace = '.cssstickyheader';
@@ -47,7 +58,9 @@
 			c.$table
 				.unbind('update updateAll '.split(' ').join(namespace + ' '))
 				.children('thead, caption').css({
-					"transform": "",
+					"position" : "",
+					"z-index" : "",
+					"transform" : "",
 					"-ms-transform" : "",
 					"-webkit-transform" : ""
 				});

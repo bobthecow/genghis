@@ -8,25 +8,21 @@
   $ = window.$, _ = window._, Backbone = window.Backbone;
 
   if (!_) {
-    if (typeof require !== 'undefined') {
-      _ = require('underscore');
-    }
+    _ = typeof require === "function" ? require('underscore') : void 0;
     if (!_) {
       throw new Error('Can\'t find underscore');
     }
   }
 
   if (!Backbone) {
-    if (typeof require !== 'undefined') {
-      Backbone = require('backbone');
-    }
+    Backbone = typeof require === "function" ? require('backbone') : void 0;
     if (!Backbone) {
       throw new Error('Can\'t find Backbone');
     }
   }
 
   Backbone.Giraffe = window.Giraffe = Giraffe = {
-    version: '0.2.1',
+    version: '0.2.4',
     app: null,
     apps: {},
     views: {}
@@ -1404,13 +1400,14 @@
 
 
     Router.prototype.cause = function() {
-      var any, appEvent, route, _ref;
+      var any, appEvent, last, route, _ref;
       appEvent = arguments[0], any = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       route = this.getRoute.apply(this, [appEvent].concat(__slice.call(any)));
       if (route != null) {
-        return Backbone.history.navigate(route, {
+        last = any[any.length - 1];
+        return Backbone.history.navigate(route, _.extend({
           trigger: true
-        });
+        }, (_.isObject(last) ? last : {})));
       } else {
         return (_ref = this.app).trigger.apply(_ref, [appEvent].concat(__slice.call(any)));
       }
@@ -1490,13 +1487,15 @@
       wildcards = /:\w+|\*\w+/g;
       if (_.isObject(first)) {
         result = route.replace(wildcards, function(token, index) {
-          var key;
+          var key, _ref;
           key = token.slice(1);
-          return first[key] || '';
+          return (_ref = first[key]) != null ? _ref : '';
         });
       } else {
         result = route.replace(wildcards, function(token, index) {
-          return args.shift() || '';
+          var value;
+          value = args.shift();
+          return value != null ? value : '';
         });
       }
       return result;

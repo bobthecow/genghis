@@ -1,14 +1,30 @@
 (function() {
-  var Contrib,
+  var $, Backbone, Contrib, _,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  if (typeof Giraffe === 'undefined') {
+  $ = window.$, _ = window._, Backbone = window.Backbone;
+
+  if (typeof Giraffe === "undefined" || Giraffe === null) {
     throw new Error('Can\'t find Giraffe');
   }
 
+  if (!_) {
+    _ = typeof require === "function" ? require('underscore') : void 0;
+    if (!_) {
+      throw new Error('Can\'t find underscore');
+    }
+  }
+
+  if (!Backbone) {
+    Backbone = typeof require === "function" ? require('backbone') : void 0;
+    if (!Backbone) {
+      throw new Error('Can\'t find Backbone');
+    }
+  }
+
   Contrib = Giraffe.Contrib = {
-    version: '0.2.1'
+    version: '0.2.4'
   };
 
   /*

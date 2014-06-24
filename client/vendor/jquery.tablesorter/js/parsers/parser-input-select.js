@@ -1,4 +1,5 @@
 /*! input & select parsers for jQuery 1.7+ & tablesorter 2.7.11+
+ * Updated 5/28/2014 (v2.17.1)
  * Demo: http://mottie.github.com/tablesorter/docs/example-widget-grouping.html
  */
 /*jshint browser: true, jquery:true, unused:false */
@@ -23,6 +24,7 @@
 		format: function(s, table, cell) {
 			return $(cell).find('input').val() || s;
 		},
+		parsed : true, // filter widget flag
 		type: "text"
 	});
 
@@ -33,12 +35,18 @@
 		is: function(){
 			return false;
 		},
-		format: function(s, table, cell) {
-			// using plain language here because this is what is shown in the group headers
-			// change it as desired
-			var $c = $(cell).find('input');
-			return $c.length ? $c.is(':checked') ? 'checked' : 'unchecked' : s;
+		format: function(s, table, cell, cellIndex) {
+			var $c = $(cell),
+				$input = $c.find('input[type="checkbox"]'),
+				isChecked = $input.length ? $input[0].checked : '';
+			// adding class to row, indicating that a checkbox is checked; includes
+			// a column index in case more than one checkbox happens to be in a row
+			$c.closest('tr').toggleClass('checked-' + cellIndex, isChecked);
+			// returning plain language here because this is what is shown in the
+			// group headers - change it as desired
+			return $input.length ? isChecked ? 'checked' : 'unchecked' : s;
 		},
+		parsed : true, // filter widget flag
 		type: "text"
 	});
 
@@ -52,6 +60,7 @@
 		format: function(s, table, cell) {
 			return $(cell).find('select').val() || s;
 		},
+		parsed : true, // filter widget flag
 		type: "text"
 	});
 
@@ -62,11 +71,22 @@
 	$(window).load(function(){
 		// this flag prevents the updateCell event from being spammed
 		// it happens when you modify input text and hit enter
-		var alreadyUpdating = false;
-		$('table').find('tbody').on('change', 'select, input', function(e){
+		var alreadyUpdating = false,
+			t = $.tablesorter.css.table || 'tablesorter';
+		// bind to .tablesorter (default class name)
+		$('.' + t).find('tbody').on('change', 'select, input', function(e){
 			if (!alreadyUpdating) {
 				var $tar = $(e.target),
-					$table = $tar.closest('table');
+					$cell = $tar.closest('td'),
+					$table = $cell.closest('table'),
+					indx = $cell[0].cellIndex,
+					c = $table[0].config || false,
+					$hdr = c && c.$headers && c.$headers.eq(indx);
+				// abort if not a tablesorter table, or
+				// don't use updateCell if column is set to "sorter-false" and "filter-false", or column is set to "parser-false"
+				if ( !c || ( $hdr && $hdr.length && ( $hdr.hasClass('parser-false') || ($hdr.hasClass('sorter-false') && $hdr.hasClass('filter-false')) ) ) ){
+					return false;
+				}
 				alreadyUpdating = true;
 				$table.trigger('updateCell', [ $tar.closest('td'), resort ]);
 				updateServer(e, $table, $tar);

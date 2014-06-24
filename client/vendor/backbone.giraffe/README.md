@@ -89,15 +89,15 @@ __AngularJS__)
 
 ## Download
 
-__Version 0.2.1__
+__Version 0.2.4__
 
-[backbone.giraffe.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.js) _65.5k_
+[backbone.giraffe.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.js) _65.7k_
 
-[backbone.giraffe.min.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.min.js) _17.8k_
+[backbone.giraffe.min.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.min.js) _17.9k_
 
-[backbone.giraffe.contrib.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.contrib.js) _16.5k_
+[backbone.giraffe.contrib.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.contrib.js) _16.9k_
 
-[backbone.giraffe.contrib.min.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.contrib.min.js) _5.8k_
+[backbone.giraffe.contrib.min.js](https://raw.github.com/barc/backbone.giraffe/master/dist/backbone.giraffe.contrib.min.js) _6.1k_
 
 ## Building
 
@@ -107,6 +107,18 @@ __Version 0.2.1__
     pm run all -ws # watches for file changes and runs local server at local.projmate.com:1080
 
 ## Changelog
+
+### 0.2.4
+
+- Allow passing routing options to Giraffe.Router#cause.
+
+### 0.2.3
+
+- Fixed support for 0 as a path param.
+
+### 0.2.2
+
+- Added Backbone and Underscore CommonJS requires to Giraffe.Contrib.
 
 ### 0.2.1
 

@@ -1,5 +1,5 @@
 /*!
- * custom pager controls - beta testing
+ * custom pager controls (beta) for TableSorter 5/5/2014 (v2.16.4)
   initialize custom pager script BEFORE initializing tablesorter/tablesorter pager
   custom pager looks like this:
   1 | 2 … 5 | 6 | 7 … 99 | 100
@@ -36,27 +36,32 @@ $.tablesorter.customPagerControls = function(settings) {
 
 	$table
 		.on('pagerInitialized pagerComplete', function (e, c) {
-			var indx, pages = $('<div/>'), pageArray = [],
-			cur = c.page + 1,
-			start = cur > 1 ? (c.totalPages - cur < options.aroundCurrent ? -(options.aroundCurrent + 1) + (c.totalPages - cur) : -options.aroundCurrent) : 0,
-			end = cur < options.aroundCurrent + 1 ? options.aroundCurrent + 3 - cur : options.aroundCurrent + 1;
+			var indx,
+				p = c.pager ? c.pager : c, // using widget
+				pages = $('<div/>'),
+				pageArray = [],
+				cur = p.page + 1,
+				start = cur > 1 ? (p.filteredPages - cur < options.aroundCurrent ? -(options.aroundCurrent + 1) + (p.filteredPages - cur) : -options.aroundCurrent) : 0,
+				end = cur < options.aroundCurrent + 1 ? options.aroundCurrent + 3 - cur : options.aroundCurrent + 1;
 			for (indx = start; indx < end; indx++) {
-				if (cur + indx >= 1 && cur + indx < c.totalPages) { pageArray.push( cur + indx ); }
+				if (cur + indx >= 1 && cur + indx < p.filteredPages) { pageArray.push( cur + indx ); }
 			}
-			// include first and last pages (ends) in the pagination
-			for (indx = 0; indx < options.ends; indx++){
-				if ($.inArray(indx + 1, pageArray) === -1) { pageArray.push(indx + 1); }
-				if ($.inArray(c.totalPages - indx, pageArray) === -1) { pageArray.push(c.totalPages - indx); }
+			if (pageArray.length) {
+				// include first and last pages (ends) in the pagination
+				for (indx = 0; indx < options.ends; indx++){
+					if ($.inArray(indx + 1, pageArray) === -1) { pageArray.push(indx + 1); }
+					if ($.inArray(p.filteredPages - indx, pageArray) === -1) { pageArray.push(p.filteredPages - indx); }
+				}
+				// sort the list
+				pageArray = pageArray.sort(function(a, b){ return a - b; });
+				// make links and spacers
+				$.each(pageArray, function(indx, value){
+					pages
+						.append( $(options.link.replace(/\{page\}/g, value)).toggleClass(options.currentClass, value === cur).attr('data-page', value) )
+						.append( '<span>' + (indx < pageArray.length - 1 && ( pageArray[ indx + 1 ] - 1 !== value ) ? options.distanceSpacer :
+							( indx >= pageArray.length - 1 ? '' : options.adjacentSpacer )) + '</span>' );
+				});
 			}
-			// sort the list
-			pageArray = pageArray.sort(function(a, b){ return a - b; });
-			// make links and spacers
-			$.each(pageArray, function(indx, value){
-				pages
-					.append( $(options.link.replace(/\{page\}/g, value)).toggleClass(options.currentClass, value === cur).attr('data-page', value) )
-					.append( '<span>' + (indx < pageArray.length - 1 && ( pageArray[ indx + 1 ] - 1 !== value ) ? options.distanceSpacer :
-						( indx >= pageArray.length - 1 ? '' : options.adjacentSpacer )) + '</span>' );
-			});
 			$('.pagecount').html(pages.html());
 		});
 

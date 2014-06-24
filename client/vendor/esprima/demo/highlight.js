@@ -1,4 +1,5 @@
 /*
+  Copyright (C) 2013 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
 
   Redistribution and use in source and binary forms, with or without
@@ -22,121 +23,123 @@
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*jslint browser:true */
-/*global esprima:true */
+/*jslint browser:true sloppy:true plusplus:true */
+/*global esrefactor: true, esprima:true, editor: true, require:true */
 
-var parseTimer,
-    syntax = null,
-    markers = [];
+var parseTimer, syntax, context;
+
+function id(i) {
+    return document.getElementById(i);
+}
 
 function parse() {
-    'use strict';
-    var code = window.editor.getValue();
-    syntax = null;
+    var code = editor.getText();
+
+    if (!context) {
+        context = new esrefactor.Context();
+    }
+
     try {
+        editor.removeAllErrorMarkers();
+        editor.showOccurrences([]);
+        id('info').innerHTML = 'Ready';
+        id('info').setAttribute('class', 'alert-box secondary');
         syntax = esprima.parse(code, {
             loc: true,
             range: true,
             tolerant: true
         });
+        context.setCode(syntax);
+        trackCursor();
     } catch (e) {
+        id('info').innerHTML = e.toString();
+        id('info').setAttribute('class', 'alert-box alert');
+        editor.showOccurrences([]);
     }
 }
 
 function triggerParse(delay) {
-    'use strict';
-
     if (parseTimer) {
         window.clearTimeout(parseTimer);
     }
 
-    markers.forEach(function (marker) {
-        marker.clear();
-    });
-    markers = [];
-
     parseTimer = window.setTimeout(parse, delay || 811);
 }
-function trackCursor(editor) {
-    'use strict';
 
-    var pos, code, node, id;
+function trackCursor() {
+    var pos, identification, identifier, declaration, references,
+        model, occurrences, i, ref;
 
-    markers.forEach(function (marker) {
-        marker.clear();
-    });
-    markers = [];
-
-    if (syntax === null) {
+    if (!context) {
         parse();
-        if (syntax === null) {
-            return;
-        }
     }
 
-    pos = editor.indexFromPos(editor.getCursor());
-    code = editor.getValue();
+    editor.removeAllErrorMarkers();
+    editor.showOccurrences([]);
+    id('info').innerHTML = 'Ready';
 
-    // Executes visitor on the object and its children (recursively).
-    function traverse(object, visitor, master) {
-        var key, child, parent, path;
-
-        parent = (typeof master === 'undefined') ? [] : master;
-
-        if (visitor.call(null, object, parent) === false) {
-            return;
-        }
-        for (key in object) {
-            if (object.hasOwnProperty(key)) {
-                child = object[key];
-                path = [ object ];
-                path.push(parent);
-                if (typeof child === 'object' && child !== null) {
-                    traverse(child, visitor, path);
-                }
-            }
-        }
-    }
-
-    traverse(syntax, function (node, path) {
-        var start, end;
-        if (node.type !== esprima.Syntax.Identifier) {
-            return;
-        }
-        if (pos >= node.range[0] && pos <= node.range[1]) {
-            start = {
-                line: node.loc.start.line - 1,
-                ch: node.loc.start.column
-            };
-            end = {
-                line: node.loc.end.line - 1,
-                ch: node.loc.end.column
-            };
-            markers.push(editor.markText(start, end, 'identifier'));
-            id = node;
-        }
-    });
-
-    if (typeof id === 'undefined') {
+    pos = editor.getCaretOffset();
+    identification = context.identify(pos);
+    if (!identification) {
         return;
     }
 
-    traverse(syntax, function (node, path) {
-        var start, end;
-        if (node.type !== esprima.Syntax.Identifier) {
-            return;
+    identifier = identification.identifier;
+    declaration = identification.declaration;
+    references = identification.references;
+    model = editor.getModel();
+
+    occurrences = [{
+        line: identifier.loc.start.line,
+        start: 1 + identifier.range[0] - model.getLineStart(identifier.loc.start.line - 1),
+        end: identifier.range[1] - model.getLineStart(identifier.loc.start.line - 1),
+        readAccess: false,
+        description: identifier.name
+    }];
+
+    if (declaration) {
+        if (declaration.range !== identifier.range) {
+            occurrences.push({
+                line: declaration.loc.start.line,
+                start: 1 + declaration.range[0] - model.getLineStart(declaration.loc.start.line - 1),
+                end: declaration.range[1] - model.getLineStart(declaration.loc.start.line - 1),
+                readAccess: true,
+                description: 'Line ' + declaration.loc.start.line + ': ' + declaration.name
+            });
         }
-        if (node !== id && node.name === id.name) {
-            start = {
-                line: node.loc.start.line - 1,
-                ch: node.loc.start.column
-            };
-            end = {
-                line: node.loc.end.line - 1,
-                ch: node.loc.end.column
-            };
-            markers.push(editor.markText(start, end, 'highlight'));
+        editor.addErrorMarker(declaration.range[0],
+            'Declaration: ' + declaration.name);
+        id('info').innerHTML = 'Identifier \'' + identifier.name + '\' is declared in line ' +
+            declaration.loc.start.line + '.';
+    } else {
+        id('info').innerHTML = 'Warning: No declaration is found for \'' + identifier.name + '\'.';
+    }
+
+    for (i = 0; i < references.length; ++i) {
+        ref = references[i];
+        if (ref.range !== identifier.range) {
+            occurrences.push({
+                line: ref.loc.start.line,
+                start: 1 + ref.range[0] - model.getLineStart(ref.loc.start.line - 1),
+                end: ref.range[1] - model.getLineStart(ref.loc.start.line - 1),
+                readAccess: true,
+                description: ref.name
+            });
         }
-    });
+    }
+
+    editor.showOccurrences(occurrences);
 }
 
+window.onload = function () {
+    try {
+        require(['custom/editor'], function (editor) {
+            window.editor = editor({ parent: 'editor', lang: 'js' });
+            window.editor.getTextView().getModel().addEventListener("Changed", triggerParse);
+            window.editor.getTextView().addEventListener("Selection", trackCursor);
+            window.editor.onGotoLine(9, 12, 12);
+            triggerParse(50);
+        });
+    } catch (e) {
+    }
+};

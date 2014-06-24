@@ -1,6 +1,6 @@
 {
   "name": "backbone.giraffe",
-  "version": "0.2.1",
+  "version": "0.2.4",
   "homepage": "https://github.com/barc/backbone.giraffe",
   "authors": [
     "Ryan Atkinson <ryanatkn@gmail.com>"
@@ -28,11 +28,11 @@
     "_README*.md",
     "package.json"
   ],
-  "_release": "0.2.1",
+  "_release": "0.2.4",
   "_resolution": {
     "type": "version",
-    "tag": "v0.2.1",
-    "commit": "986c4717ffdd0edf7192c72049a8d2e9b6264d21"
+    "tag": "v0.2.4",
+    "commit": "437af2c1f14d84db8e05084a62480f5f8104ac2e"
   },
   "_source": "git://github.com/barc/backbone.giraffe.git",
   "_target": "~0.2.1",
