@@ -5,7 +5,7 @@ Projections = require 'backbone.projections'
 
 MENU_CAP = 9
 
-template    = require('../../templates/nav_section.mustache').render
+template    = require '../../templates/nav_section.mustache'
 
 class NavSection extends View
   tagName:  'li'

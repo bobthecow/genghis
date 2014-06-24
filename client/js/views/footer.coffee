@@ -1,6 +1,6 @@
 View          = require './view'
 ShortcutsView = require './keyboard_shortcuts'
-template      = require('../../templates/footer.mustache').render
+template      = require '../../templates/footer.mustache'
 
 class Footer extends View
   id:        'footer'

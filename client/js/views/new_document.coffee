@@ -3,7 +3,7 @@
 View         = require './view'
 EditDocument = require './edit_document'
 Util         = require '../util'
-template     = require('../../templates/new_document.mustache').render
+template     = require '../../templates/new_document.mustache'
 
 class NewDocument extends View
   id:        'new-document'

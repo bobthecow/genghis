@@ -55,8 +55,7 @@ gulp.task 'lint', ->
     'gulpfile.js',
     'tasks/**/*.js',
     'client/js/**/*.js',
-    '!client/js/modernizr.js',
-    '!tasks/source.js'
+    '!client/js/modernizr.js'
   ])
     .pipe(jshint(
       browser: true,

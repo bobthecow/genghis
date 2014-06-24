@@ -1,7 +1,7 @@
 Section     = require './section'
 DatabaseRow = require './database_row'
 AddDatabase = require './add_database'
-template    = require('../../templates/databases.mustache').render
+template    = require '../../templates/databases.mustache'
 
 class Databases extends Section
   id:          'databases'

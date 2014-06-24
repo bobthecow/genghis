@@ -2,7 +2,7 @@
 Util       = require '../util'
 View       = require './view'
 NavSection = require './nav_section'
-template   = require('../../templates/nav.mustache').render
+template   = require '../../templates/nav.mustache'
 
 class Nav extends View
   tagName:   'ul'

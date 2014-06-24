@@ -1,5 +1,5 @@
 AddForm  = require './add_form'
-template = require('../../templates/add_server.mustache').render
+template = require '../../templates/add_server.mustache'
 
 class AddServer extends AddForm
   template: template

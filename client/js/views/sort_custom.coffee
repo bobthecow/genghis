@@ -1,6 +1,6 @@
 GenghisJSON = require '../json'
 View        = require './view'
-template    = require('../../templates/sort_custom.mustache').render
+template    = require '../../templates/sort_custom.mustache'
 
 class SortCustom extends View
   className: 'form-group'

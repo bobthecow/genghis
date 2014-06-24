@@ -5,7 +5,7 @@ GenghisJSON = require '../json'
 AlertView   = require './alert'
 Alert       = require '../models/alert'
 defaults    = require '../defaults'
-template    = require('../../templates/edit_document.mustache').render
+template    = require '../../templates/edit_document.mustache'
 
 class EditDocument extends View
   template:     template

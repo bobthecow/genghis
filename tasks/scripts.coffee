@@ -2,6 +2,7 @@ fs         = require 'fs'
 path       = require 'path'
 
 browserify = require 'browserify'
+source     = require 'vinyl-source-stream'
 
 gulp       = require 'gulp'
 buffer     = require 'gulp-buffer'
@@ -13,10 +14,10 @@ uglify     = require 'gulp-uglify'
 
 {log, colors} = require 'gulp-util'
 
-# TODO: replace this when upstream gets its act together.
-source     = require('./source')
+hoganify   = require './hoganify'
+resolver   = require './resolver'
+rebundler  = require './rebundler'
 livereload = require './livereload'
-
 
 HEADER = fs.readFileSync('server/templates/banner.tpl')
 
@@ -28,16 +29,13 @@ gulp.task 'scripts', ->
   log colors.blue('Compiling scripts')
 
   # Start with browserify...
-  browserify(extensions: ['.coffee'])
-    .add('./client/js/script.js')
-    .transform('browserify-hogan')
-    .transform('coffeeify')
-    .transform('debowerify')
-    .transform('brfs')
-    .bundle(debug: true)
+  bundler = browserify(entries: './client/js/script.js', extensions: ['.coffee'], resolve: resolver, debug: true)
+  bundler.on 'error', console.error
 
-    # And now pass it off to gulp
-    .pipe(source('client/js/script.js'))
+  script  = rebundler('client/js/script.js', bundler)()
+
+  # And now pass it off to gulp
+  script
     .pipe(buffer()) # this pipeline doesn't play nice with vinyl-source-stream
 
     # Normal

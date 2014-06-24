@@ -1,7 +1,7 @@
 {$, _}       = require '../vendors'
 View         = require './view'
 DocumentView = require './document'
-template     = require('../../templates/document_section.mustache').render
+template     = require '../../templates/document_section.mustache'
 
 class DocumentSection extends View
   id:        'document'

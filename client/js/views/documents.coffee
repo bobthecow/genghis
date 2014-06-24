@@ -8,7 +8,7 @@ DocumentView    = require './document'
 NewDocument     = require './new_document'
 NewGridFile     = require './new_grid_file'
 
-template        = require('../../templates/documents.mustache').render
+template        = require '../../templates/documents.mustache'
 
 FILE_API_MSG    = "<h2>Unable to upload file.</h2> Your browser does not
                   support the File API. Please use a modern browser."

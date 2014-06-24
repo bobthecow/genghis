@@ -3,7 +3,7 @@ Section             = require './section'
 CollectionRow       = require './collection_row'
 AddCollection       = require './add_collection'
 AddGridFSCollection = require './add_gridfs_collection'
-template            = require('../../templates/collections.mustache').render
+template            = require '../../templates/collections.mustache'
 
 class Collections extends Section
   id:       'collections'

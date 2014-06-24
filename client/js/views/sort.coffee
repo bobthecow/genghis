@@ -4,7 +4,7 @@ CustomSort  = require './sort_custom'
 Search      = require '../models/search'
 GenghisJSON = require '../json'
 Util        = require '../util'
-template    = require('../../templates/sort.mustache').render
+template    = require '../../templates/sort.mustache'
 
 class Sort extends View
   className: 'sort-form form-inline'

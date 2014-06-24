@@ -1,6 +1,6 @@
 Row      = require './row'
 Confirm  = require './confirm'
-template = require('../../templates/server_row.mustache').render
+template = require '../../templates/server_row.mustache'
 
 class ServerRow extends Row
   template: template

@@ -1,9 +1,8 @@
 {$, Backbone} = require './vendors'
-fs            = require 'fs'
 App           = require './views/app'
 
 module.exports =
-  version: fs.readFileSync("#{__dirname}/../../VERSION"),
+  version: process.env.VERSION,
   boot: (baseUrl) ->
     $ ->
       baseUrl = "#{baseUrl}/" unless baseUrl[-1] is '/'
