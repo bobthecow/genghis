@@ -50,7 +50,8 @@ class Genghis_Response
 
     protected function renderHeaders()
     {
-        header(sprintf('HTTP/1.0 %s %s', $this->status, self::$statusCodes[$this->status]));
+        $version = ($_SERVER['SERVER_PROTOCOL'] === 'HTTP/1.0') ? '1.0' : '1.1';
+        header(sprintf('HTTP/%s %s %s', $version, $this->status, self::$statusCodes[$this->status]));
         foreach ($this->headers as $name => $val) {
             header(sprintf('%s: %s', $name, $val));
         }
