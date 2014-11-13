@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary     = %q{The single-file MongoDB admin app}
 
   spec.add_dependency 'json',             '>= 1.7.0', '< 1.9.0'
-  spec.add_dependency 'mongo',            '>= 1.8.0', '<= 1.9.2'
+  spec.add_dependency 'mongo',            '>= 1.8.0', '<= 1.11.1'
   spec.add_dependency 'sinatra',          '>= 1.3.3', '< 1.5.0'
   spec.add_dependency 'sinatra-contrib',  '>= 1.3.1', '< 1.5.0'
   spec.add_dependency 'sinatra-mustache', '>= 0.0.4', '< 0.4.0'
