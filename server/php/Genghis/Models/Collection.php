@@ -41,7 +41,14 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         try {
             $result = $this->collection->update($query, $doc, self::safe());
         } catch (MongoCursorException $e) {
-            throw new Genghis_HttpException(400, ucfirst($e->doc['err']));
+            if (isset($e->doc)) {
+                $doc = $e->doc;
+            } elseif (isset($e->document)) {
+                $doc = $e->document;
+            } else {
+                $doc = array('err' => $e->getMessage()); // Ugh. Is not pretty.
+            }
+            throw new Genghis_HttpException(400, ucfirst($doc['err']));
         }
 
         if (!(isset($result['ok']) && $result['ok'])) {
@@ -185,7 +192,14 @@ class Genghis_Models_Collection implements ArrayAccess, Genghis_JsonEncodable
         try {
             $result = $this->collection->insert($data, self::safe());
         } catch (MongoCursorException $e) {
-            throw new Genghis_HttpException(400, ucfirst($e->doc['err']));
+            if (isset($e->doc)) {
+                $doc = $e->doc;
+            } elseif (isset($e->document)) {
+                $doc = $e->document;
+            } else {
+                $doc = array('err' => $e->getMessage()); // Ugh. Is not pretty.
+            }
+            throw new Genghis_HttpException(400, ucfirst($doc['err']));
         }
 
         if (!(isset($result['ok']) && $result['ok'])) {
