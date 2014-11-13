@@ -953,7 +953,7 @@ genghis_backends.each do |backend|
             @coll.drop_indexes
             @coll.ensure_index(:foo => -1)
             @coll.ensure_index({:bar => 1}, {:unique => true})
-            @coll.ensure_index({:baz => 1}, {:name => 'baz_rocks', :sparse => true, :expireAfterSeconds => 6000})
+            @coll.ensure_index({:baz => 1}, {:sparse => true, :expireAfterSeconds => 6000})
           end
 
           after do
@@ -965,10 +965,10 @@ genghis_backends.each do |backend|
             expect(res).to be_a_json_response
             expect(@conn['__genghis_spec_test__'].collection_names.include?('spec_docs')).to eq true
             expect(@coll.index_information).to match_json_expression \
-              '_id_'      => Hash,
-              'foo_-1'    => Hash,
-              'bar_1'     => {:unique => true}.ignore_extra_keys!,
-              'baz_rocks' => {:name => 'baz_rocks', :sparse => true, :expireAfterSeconds => 6000}.ignore_extra_keys!
+              '_id_'   => Hash,
+              'foo_-1' => Hash,
+              'bar_1'  => {:unique => true}.ignore_extra_keys!,
+              'baz_1'  => {:sparse => true, :expireAfterSeconds => 6000}.ignore_extra_keys!
           end
         end
 
