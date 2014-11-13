@@ -1,6 +1,6 @@
 /*!
  * tablesorter pager plugin
- * updated 6/18/2014 (v2.17.2)
+ * updated 9/15/2014 (v2.17.8)
  */
 /*jshint browser:true, jquery:true, unused:false */
 ;(function($) {
@@ -121,7 +121,7 @@
 			dis = !!disable,
 			first = ( dis || p.page === 0 ),
 			tp = Math.min( p.totalPages, p.filteredPages ),
-			last = ( dis || (p.page === tp - 1) || p.totalPages === 0 );
+			last = ( dis || (p.page === tp - 1) || tp === 0 );
 			if ( p.updateArrows ) {
 				p.$container.find(p.cssFirst + ',' + p.cssPrev)[ first ? a : r ](d).attr('aria-disabled', first);
 				p.$container.find(p.cssNext + ',' + p.cssLast)[ last ? a : r ](d).attr('aria-disabled', last);
@@ -129,29 +129,37 @@
 		},
 
 		updatePageDisplay = function(table, p, completed) {
-			var i, pg, s, out, regex,
+			var i, pg, s, $out, regex,
 				c = table.config,
-				f = c.$table.hasClass('hasFilters') && !p.ajaxUrl,
+				f = c.$table.hasClass('hasFilters'),
 				t = [],
 				sz = p.size || 10; // don't allow dividing by zero
-			t = [ (c.widgetOptions && c.widgetOptions.filter_filteredRow || 'filtered'), c.selectorRemove ];
+			t = [ (c.widgetOptions && c.widgetOptions.filter_filteredRow || 'filtered'), c.selectorRemove.replace(/^(\w+\.)/g,'') ];
 			if (p.countChildRows) { t.push(c.cssChildRow); }
 			regex = new RegExp( '(' + t.join('|') + ')' );
-			p.totalPages = Math.ceil( p.totalRows / sz ); // needed for "pageSize" method
-			p.filteredRows = (f) ? 0 : p.totalRows;
-			p.filteredPages = p.totalPages;
-			if (f) {
-				$.each(c.cache[0].normalized, function(i, el) {
-					p.filteredRows += p.regexRows.test(el[c.columns].$row[0].className) ? 0 : 1;
-				});
-				p.filteredPages = Math.ceil( p.filteredRows / sz ) || 0;
+			if (f && !p.ajaxUrl) {
+				if ($.isEmptyObject(c.cache)) {
+					// delayInit: true so nothing is in the cache
+					p.filteredRows = p.totalRows = c.$tbodies.eq(0).children('tr').not( p.countChildRows ? '' : '.' + c.cssChildRow ).length;
+				} else {
+					p.filteredRows = 0;
+					$.each(c.cache[0].normalized, function(i, el) {
+						p.filteredRows += p.regexRows.test(el[c.columns].$row[0].className) ? 0 : 1;
+					});
+				}
+			} else if (!f) {
+				p.filteredRows = p.totalRows;
 			}
+			p.totalPages = Math.ceil( p.totalRows / sz ); // needed for "pageSize" method
+			c.totalRows = p.totalRows;
+			c.filteredRows = p.filteredRows;
+			p.filteredPages = Math.ceil( p.filteredRows / sz ) || 0;
 			if ( Math.min( p.totalPages, p.filteredPages ) >= 0 ) {
 				t = (p.size * p.page > p.filteredRows);
 				p.startRow = (t) ? 1 : (p.filteredRows === 0 ? 0 : p.size * p.page + 1);
 				p.page = (t) ? 0 : p.page;
 				p.endRow = Math.min( p.filteredRows, p.totalRows, p.size * ( p.page + 1 ) );
-				out = p.$container.find(p.cssPageDisplay);
+				$out = p.$container.find(p.cssPageDisplay);
 				// form the output string (can now get a new output string from the server)
 				s = ( p.ajaxData && p.ajaxData.output ? p.ajaxData.output || p.output : p.output )
 					// {page} = one-based index; {page+#} = zero based index +/- value
@@ -160,23 +168,36 @@
 					})
 					// {totalPages}, {extra}, {extra:0} (array) or {extra : key} (object)
 					.replace(/\{\w+(\s*:\s*\w+)?\}/gi, function(m){
-						var str = m.replace(/[{}\s]/g,''),
+						var len, indx,
+							str = m.replace(/[{}\s]/g,''),
 							extra = str.split(':'),
 							data = p.ajaxData,
 							// return zero for default page/row numbers
 							deflt = /(rows?|pages?)$/i.test(str) ? 0 : '';
+						if (/(startRow|page)/.test(extra[0]) && extra[1] === 'input') {
+							len = ('' + (extra[0] === 'page' ? p.totalPages : p.totalRows)).length;
+							indx = extra[0] === 'page' ? p.page + 1 : p.startRow;
+							return '<input type="text" class="ts-' + extra[0] + '" style="max-width:' + len + 'em" value="' + indx + '"/>';
+						}
 						return extra.length > 1 && data && data[extra[0]] ? data[extra[0]][extra[1]] : p[str] || (data ? data[str] : deflt) || deflt;
 					});
-				if (out.length) {
-					out[ (out[0].tagName === 'INPUT') ? 'val' : 'html' ](s);
+				if ($out.length) {
+					$out[ ($out[0].tagName === 'INPUT') ? 'val' : 'html' ](s);
 					if ( p.$goto.length ) {
 						t = '';
 						pg = Math.min( p.totalPages, p.filteredPages );
 						for ( i = 1; i <= pg; i++ ) {
 							t += '<option>' + i + '</option>';
 						}
-						p.$goto.html(t).val( p.page + 1 );
+						p.$goto[0].innerHTML = t;
+						p.$goto[0].value = p.page + 1;
 					}
+					// rebind startRow/page inputs
+					$out.find('.ts-startRow, .ts-page').unbind('change').bind('change', function(){
+						var v = $(this).val(),
+							pg = $(this).hasClass('ts-startRow') ? Math.floor( v/p.size ) + 1 : v;
+						c.$table.trigger('pageSet.pager', [ pg ]);
+					});
 				}
 			}
 			pagerArrows(p);
@@ -202,7 +223,7 @@
 				if (h) {
 					d = h - $b.height();
 					if ( d > 5 && $.data(table, 'pagerLastSize') === p.size && $b.children('tr:visible').length < p.size ) {
-						$b.append('<tr class="pagerSavedHeightSpacer ' + c.selectorRemove.replace(/(tr)?\./g,'') + '" style="height:' + d + 'px;"></tr>');
+						$b.append('<tr class="pagerSavedHeightSpacer ' + c.selectorRemove.replace(/^(\w+\.)/g,'') + '" style="height:' + d + 'px;"></tr>');
 					}
 				}
 			}
@@ -235,7 +256,7 @@
 						} else {
 							rows[i].style.display = ( j >= s && j < e ) ? '' : 'none';
 							// don't count child rows
-							j += rows[i].className.match(c.cssChildRow + '|' + c.selectorRemove.slice(1)) && !p.countChildRows ? 0 : 1;
+							j += rows[i].className.match(c.cssChildRow + '|' + c.selectorRemove.replace(/^(\w+\.)/g,'')) && !p.countChildRows ? 0 : 1;
 							if ( j === e && rows[i].style.display !== 'none' && rows[i].className.match(ts.css.cssHasChild) ) {
 								lastIndex = i;
 							}
@@ -289,13 +310,14 @@
 						exception === 'timeout' ? 'Time out error' :
 						exception === 'abort' ? 'Ajax Request aborted' :
 						'Uncaught error: ' + xhr.statusText + ' [' + xhr.status + ']' );
-					c.$tbodies.eq(0).children().detach();
+					c.$tbodies.eq(0).children('tr').detach();
 					p.totalRows = 0;
 				} else {
 					// process ajax object
 					if (!$.isArray(result)) {
 						p.ajaxData = result;
-						p.totalRows = result.total;
+						c.totalRows = p.totalRows = result.total;
+						c.filteredRows = p.filteredRows = typeof result.filteredRows !== 'undefined' ? result.filteredRows : result.total;
 						th = result.headers;
 						d = result.rows;
 					} else {
@@ -304,14 +326,16 @@
 						// ensure a zero returned row count doesn't fail the logical ||
 						rr_count = result[t ? 1 : 0];
 						p.totalRows = isNaN(rr_count) ? p.totalRows || 0 : rr_count;
+						// can't set filtered rows when returning an array
+						c.totalRows = c.filteredRows = p.filteredRows = p.totalRows;
 						d = p.totalRows === 0 ? [""] : result[t ? 0 : 1] || []; // row data
 						th = result[2]; // headers
 					}
-					l = d.length;
+					l = d && d.length;
 					if (d instanceof jQuery) {
 						if (p.processAjaxOnInit) {
 							// append jQuery object
-							c.$tbodies.eq(0).children().detach();
+							c.$tbodies.eq(0).children('tr').detach();
 							c.$tbodies.eq(0).append(d);
 						}
 					} else if (l) {
@@ -471,7 +495,13 @@
 				l = rows && rows.length || 0, // rows may be undefined
 				s = ( p.page * p.size ),
 				e = p.size;
-			if ( l < 1 ) { return; } // empty table, abort!
+			if ( l < 1 ) {
+				if (c.debug) {
+					ts.log('Pager: no rows for pager to render');
+				}
+				// empty table, abort!
+				return;
+			}
 			if ( p.page >= p.totalPages ) {
 				// lets not render the table more than once
 				moveToLastPage(table, p);
@@ -503,9 +533,8 @@
 			}
 			updatePageDisplay(table, p);
 			if ( !p.isDisabled ) { fixHeight(table, p); }
-			$t.trigger('applyWidgets');
 			if (table.isUpdating) {
-				$t.trigger("updateComplete", table);
+				$t.trigger('updateComplete', [ table, true ]);
 			}
 		},
 
@@ -524,14 +553,32 @@
 					.removeAttr('aria-describedby')
 					.find('tr.pagerSavedHeightSpacer').remove();
 				renderTable(table, table.config.rowsCopy, p);
+				$(table).trigger('applyWidgets');
 				if (table.config.debug) {
 					ts.log('pager disabled');
 				}
 			}
 			// disable size selector
-			p.$size.add(p.$goto).each(function(){
+			p.$size.add(p.$goto).add(p.$container.find('.ts-startRow, .ts-page')).each(function(){
 				$(this).attr('aria-disabled', 'true').addClass(p.cssDisabled)[0].disabled = true;
 			});
+		},
+
+		// updateCache if delayInit: true
+		updateCache = function(table) {
+			var c = table.config,
+				p = c.pager;
+			c.$table.trigger('updateCache', [ function(){
+				var i,
+					rows = [],
+					n = table.config.cache[0].normalized;
+				p.totalRows = n.length;
+				for (i = 0; i < p.totalRows; i++) {
+					rows.push(n[i][c.columns].$row);
+				}
+				c.rowsCopy = rows;
+				moveToPage(table, p, true);
+			} ]);
 		},
 
 		moveToPage = function(table, p, pageMoved) {
@@ -540,6 +587,9 @@
 				$t = $(table),
 				l = p.last,
 				pg = Math.min( p.totalPages, p.filteredPages );
+			if ( pageMoved !== false && p.initialized && $.isEmptyObject(table.config.cache)) {
+				return updateCache(table);
+			}
 			if ( p.page < 0 ) { p.page = 0; }
 			if ( p.page > ( pg - 1 ) && pg !== 0 ) { p.page = pg - 1; }
 			// fixes issue where one currentFilter is [] and the other is ['','',''],
@@ -572,7 +622,7 @@
 					.trigger('pageMoved', p)
 					.trigger('applyWidgets');
 				if (table.isUpdating) {
-					$t.trigger('updateComplete');
+					$t.trigger('updateComplete', [ table, true ]);
 				}
 			}
 		},
@@ -628,7 +678,10 @@
 		enablePager = function(table, p, triggered){
 			var info,
 				c = table.config;
-			p.$size.add(p.$goto).removeClass(p.cssDisabled).removeAttr('disabled').attr('aria-disabled', 'false');
+			p.$size.add(p.$goto).add(p.$container.find('.ts-startRow, .ts-page'))
+				.removeClass(p.cssDisabled)
+				.removeAttr('disabled')
+				.attr('aria-disabled', 'false');
 			p.isDisabled = false;
 			p.page = $.data(table, 'pagerLastPage') || p.page || 0;
 			p.size = $.data(table, 'pagerLastSize') || parseInt(p.$size.find('option[selected]').val(), 10) || p.size || 10;
@@ -696,10 +749,10 @@
 				}
 
 				// skipped rows
-				p.regexRows = new RegExp('(' + (wo.filter_filteredRow || 'filtered') + '|' + c.selectorRemove.substring(1) + '|' + c.cssChildRow + ')');
+				p.regexRows = new RegExp('(' + (wo.filter_filteredRow || 'filtered') + '|' + c.selectorRemove.replace(/^(\w+\.)/g,'') + '|' + c.cssChildRow + ')');
 
 				$t
-					.unbind('filterStart filterEnd sortEnd disable enable destroy update updateRows updateAll addRows pageSize '.split(' ').join('.pager '))
+					.unbind('filterStart filterEnd sortEnd disable enable destroy updateComplete pageSize '.split(' ').join('.pager '))
 					.bind('filterStart.pager', function(e, filters) {
 						p.currentFilters = filters;
 						// don't change page is filters are the same (pager updating, etc)
@@ -710,9 +763,14 @@
 					// update pager after filter widget completes
 					.bind('filterEnd.pager sortEnd.pager', function() {
 						if (p.initialized) {
+							if (c.delayInit && c.rowsCopy && c.rowsCopy.length === 0) {
+								// make sure we have a copy of all table rows once the cache has been built
+								updateCache(table);
+							}
 							// update page display first, so we update p.filteredPages
 							updatePageDisplay(table, p, false);
 							moveToPage(table, p, false);
+							c.$table.trigger('applyWidgets');
 							fixHeight(table, p);
 						}
 					})
@@ -728,12 +786,18 @@
 						e.stopPropagation();
 						destroyPager(table, p);
 					})
-					.bind('update updateRows updateAll addRows '.split(' ').join('.pager '), function(e){
+					.bind('updateComplete.pager', function(e, table, triggered){
 						e.stopPropagation();
+						// table can be unintentionally undefined in tablesorter v2.17.7 and earlier
+						if ( !table || triggered ) { return; }
 						fixHeight(table, p);
-						var $rows = c.$tbodies.eq(0).children('tr');
+						var $rows = c.$tbodies.eq(0).children('tr').not(c.selectorRemove);
 						p.totalRows = $rows.length - ( p.countChildRows ? 0 : $rows.filter('.' + c.cssChildRow).length );
 						p.totalPages = Math.ceil( p.totalRows / p.size );
+						if ($rows.length && c.rowsCopy && c.rowsCopy.length === 0) {
+							// make a copy of all table rows once the cache has been built
+							updateCache(table);
+						}
 						updatePageDisplay(table, p);
 						hideRows(table, p);
 					})
@@ -748,7 +812,7 @@
 						e.stopPropagation();
 						p.page = (parseInt(v, 10) || 1) - 1;
 						if (p.$goto.length) { p.$goto.val(p.size); } // twice?
-						moveToPage(table, p);
+						moveToPage(table, p, true);
 						updatePageDisplay(table, p, false);
 					});
 
@@ -778,7 +842,7 @@
 						.unbind('change')
 						.bind('change', function(){
 							p.page = $(this).val() - 1;
-							moveToPage(table, p);
+							moveToPage(table, p, true);
 							updatePageDisplay(table, p, false);
 						});
 				}
@@ -786,6 +850,8 @@
 				// page size selector
 				p.$size = pager.find(p.cssPageSize);
 				if ( p.$size.length ) {
+					// setting an option as selected appears to cause issues with initial page size
+					p.$size.find('option').removeAttr('selected');
 					p.$size.unbind('change.pager').bind('change.pager', function() {
 						p.$size.val( $(this).val() ); // in case there are more than one pagers
 						if ( !$(this).hasClass(p.cssDisabled) ) {
@@ -845,7 +911,7 @@
 						})
 						// add error row to thead instead of tbody, or clicking on the header will result in a parser error
 						.appendTo( c.$table.find('thead:first') )
-						.addClass( errorRow + ' ' + c.selectorRemove.replace(/^[.#]/, '') )
+						.addClass( errorRow + ' ' + c.selectorRemove.replace(/^(\w+\.)/g,'') )
 						.attr({
 							role : 'alert',
 							'aria-live' : 'assertive'

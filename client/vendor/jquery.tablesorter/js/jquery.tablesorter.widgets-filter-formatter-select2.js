@@ -1,4 +1,4 @@
-/*! Filter widget formatter functions - updated 4/30/2014 (v2.16.3)
+/*! Filter widget select2 formatter function - updated 7/17/2014 (v2.17.5)
  * requires: jQuery 1.7.2+, tableSorter 2.16+, filter widget 2.16+ and select2 v3.4.6+ plugin
  */
 /*jshint browser:true, jquery:true, unused:false */
@@ -102,6 +102,7 @@ ts.filterFormatter.select2 = function($cell, indx, select2Def) {
 		val = val.replace(/[/()$^]/g, '').split('|');
 		$cell.find('.select2').select2('val', val);
 		updateSelect2();
+		ts.filter.formatterUpdated($cell, indx);
 	});
 
 	// has sticky headers?

@@ -1,6 +1,6 @@
 /*
  * StaticRow widget for jQuery TableSorter 2.0
- * Version 1.1 - modified by Rob Garrison (4/22/2014 for tablesorter v2.16.1-beta)
+ * Version 1.2 - modified by Rob Garrison (6/28/2014 for tablesorter v2.16.1-beta+)
  * Requires:
  *  jQuery v1.4+
  *  tablesorter plugin, v2.8+, available at http://mottie.github.com/tablesorter/docs/
@@ -73,8 +73,9 @@ ts.addWidget({
 		// Loop thru static rows, moving them to their original "indexed" position,
 		// & repeat until no more re-shuffling is needed
 		var targetIndex, $thisRow, indx, numRows, $tbody, hasShuffled, $rows, max;
+
 		c.$tbodies.each(function(){
-			$tbody = $(this);
+			$tbody = $.tablesorter.processTbody(table, $(this), true); // remove tbody
 			hasShuffled = true;
 			indx = 0;
 			$rows = $tbody.children(wo.staticRow_class);
@@ -84,7 +85,6 @@ ts.addWidget({
 			// don't allow the while loop to cycle more times than the set number of static rows
 			while (hasShuffled && indx < max) {
 				hasShuffled = false;
-
 				/*jshint loopfunc:true */
 				$rows.each(function() {
 					targetIndex = $(this).data(wo.staticRow_data);
@@ -107,10 +107,11 @@ ts.addWidget({
 					}
 				});
 				indx++;
-
 			}
 
+			$.tablesorter.processTbody(table, $tbody, false); // restore tbody
 		});
+
 		c.$table.trigger('staticRowsComplete', table);
 	},
 
