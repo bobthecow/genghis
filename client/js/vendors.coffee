@@ -34,7 +34,7 @@ Backbone.$ = $
 
 # give backbone.mousetrap a hand.
 require 'mousetrap'
-require 'backbone.mousetrap'
+require 'backbone.mousetrap/backbone.mousetrap'
 
 Giraffe = require 'backbone.giraffe'
 
