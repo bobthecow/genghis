@@ -116,9 +116,9 @@
 }
 
 /* Zebra Widget - row alternating colors */
-.tablesorter-dropbox tr.odd td {
+.tablesorter-dropbox tr.odd > td {
 }
-.tablesorter-dropbox tr.even td {
+.tablesorter-dropbox tr.even > td {
 }
 
 /* Column Widget - column sort colors */
@@ -171,7 +171,7 @@ caption {
 	line-height: 0;
 	cursor: pointer;
 }
-.tablesorter-dropbox .tablesorter-filter-row.hideme .tablesorter-filter {
+.tablesorter-dropbox .tablesorter-filter-row.hideme * {
 	height: 1px;
 	min-height: 0;
 	border: 0;

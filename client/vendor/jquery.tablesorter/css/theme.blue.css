@@ -119,10 +119,10 @@
 }
 
 /* Zebra Widget - row alternating colors */
-.tablesorter-blue tbody tr.odd td {
+.tablesorter-blue tbody tr.odd > td {
 	background-color: #ebf2fa;
 }
-.tablesorter-blue tbody tr.even td {
+.tablesorter-blue tbody tr.even > td {
 	background-color: #fff;
 }
 
@@ -181,7 +181,7 @@ caption {
 	line-height: 0;
 	cursor: pointer;
 }
-.tablesorter-blue .tablesorter-filter-row.hideme .tablesorter-filter {
+.tablesorter-blue .tablesorter-filter-row.hideme * {
 	height: 1px;
 	min-height: 0;
 	border: 0;

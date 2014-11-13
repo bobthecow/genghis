@@ -100,7 +100,7 @@ Test out these custom less files live
 }
 
 /*** Arrows ***/
-@arrowPosition : center right;
+@arrowPosition : right 5px center;
 
 /* black */
 @unsortedBlack : url(data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABt0UjBAAAACnRSTlMAMwsqXt+gIBUGxGoDMAAAAFlJREFUCNctzC0SQAAUReEzGNQ3AlHRiSRZFCVZYgeswRL8hLdK7834wj3tAlGP6y7fYHpKS6w6WwbVG0I1NZVnZPG8/DYxOYlnhUYkA06R1s9ESsxR4NIdPhkPFDFYuEnMAAAAAElFTkSuQmCC);
@@ -165,10 +165,10 @@ Test out these custom less files live
 		padding: @overallPadding;
 	}
 
-  .dark-row th, .dark-row td {
+  .dark-row th, .dark-row td, caption.dark-row {
     background-color: darken( @headerBackground, 10% );
   }
-  
+
 	tbody td, tfoot th, tfoot td {
 		padding: @overallPadding;
 		vertical-align: top;
@@ -225,15 +225,15 @@ Test out these custom less files live
 		}
 
 		/* Zebra Widget - row alternating colors */
-		tr.odd td {
+		tr.odd > td {
 			.oddRows;
 		}
-		tr.even td {
+		tr.even > td {
 			.evenRows;
 		}
 
 	}
-  
+
 	/* hovered row colors
 	you'll need to add additional lines for
 	rows with more than 2 child rows
@@ -326,7 +326,7 @@ Test out these custom less files live
 		line-height: 0;
 		cursor: pointer;
 	}
-	.tablesorter-filter-row.hideme .tablesorter-filter {
+	.tablesorter-filter-row.hideme * {
 		height: 1px;
 		min-height: 0;
 		border: 0;

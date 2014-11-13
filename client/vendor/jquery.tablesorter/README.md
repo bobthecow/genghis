@@ -65,94 +65,129 @@ tablesorter can successfully parse and sort many types of data including linked 
 
 View the [complete listing here](//github.com/Mottie/tablesorter/wiki/Changes).
 
-#### <a name="v2.17.8">Version 2.17.8</a> (9/15/2014)
+#### <a name="v2.18.3">Version 2.18.3</a> (11/7/2014)
 
 * Core
-  * Fix `widthFixed` option to ignore info block tbodies.
-  * Make `emptyTo` & `stringTo` settings case insensitive.
-  * An empty string `headerTemplate` option will now prevent adding an inner div to the header.
+  * Add class names to the header icons: `cssIconNone`, `cssIconAsc` & `cssIconDesc` to indicate the sort status.
+  * The `widthFixed` option will no longer target nested table `colgroup` elements to determine if it needs to add a new `colgroup`.
 * Docs
-  * Fix setting active accordion from hash script.
-  * Add `emptyTo` clarification.
-  * Main readme: Add related projects section.
-* Editable
-  * Autoresort true no longer breaks the table.
-  * Update demo to use row id instead of index.
-  * Update validate function to allow setting it per column.
-  * Add `editable_focus`, `editable_blur` and `editable_selectAll` options. See [issue #708](//github.com/Mottie/tablesorter/issues/708).
-  * Add `editable_wrapContent` option.
-  * Add `editable_trimContent` option.
-  * Validate function now includes a contenteditable element parameter.
-  * All text callback parameters are now trimmed.
-  * Trim everything & revert widget changes.
-  * Refocus edited element after resort only.
-  * Switch form focus to focusout.
-* Filter
-  * Add `filter_defaultFilter` option.
-      * fix issue with using class selectors.
-      * Make happy with spaces within the query.
-      * Will override exact/partial select filters. Fixes [issue #721](//github.com/Mottie/tablesorter/issues/721).
-      * Fixes [issue #704](//github.com/Mottie/tablesorter/issues/704).
-  * Add `filter_excludeFilter` option; add multiple exclusions separated by spaces, not commas.
-  * Prevent multiple searches during initialization.
-  * Ensure initial filter settings get applied.
-  * Selects will exactly match the selected option unless "filter-match" class is set. Fixes [issue #721](//github.com/Mottie/tablesorter/issues/721).
-* Pager
-  * Update cache & rows copy. Fixes [issue #703](//github.com/Mottie/tablesorter/issues/703).
-  * Use native javascript to populate & set the goto select. Fixes [issue #711](//github.com/Mottie/tablesorter/issues/711).
-  * Custom pager controls. Fix control updates for multiple tables.
-  * Fix pager widget to be properly applied after a page move.
-* StickyHeaders: Fix issue so it works with jQuery v1.2.6 again.
-* Zebra: Apply style to one row. Fixes [issue #715](//github.com/Mottie/tablesorter/issues/715).
-* Parser
-  * Duration parser - added with [demo](//mottie.github.io/tablesorter/docs/example-parsers-duration.html).
-  * Select parser - Fix for IE10+ not allowing select options to be clicked.
-  * IgnoreArticles parser - Added `ignoreArticlesExcept` option.
-  * url parser - ensure it is used by the filter widget.
+  * Updated Bootstrap theme example.
+  * Pager widget option comment corrections.
+* Themes: update all themes to hide all elements in the filter row when the `filter_hideFilters` option is `true`
+* CssStickyHeaders widget: tables with a caption now work properly in Firefox.
 
-#### <a name="v2.17.7">Version 2.17.7</a> (8/9/2014)
+#### <a name="v2.18.2">Version 2.18.2</a> (11/3/2014)
 
-* Core: Do not detach rows before appending to prevent ajax rows from disappearing. Fixes [issue #701](//github.com/Mottie/tablesorter/issues/701).
-* Docs: Fix change log links.
-* Filter: attached external select causing javascript errors. Fixes [issue #702](//github.com/Mottie/tablesorter/issues/702)
+* Filter widget
+  * Fixed initialization intermittently stalling.
 
-#### <a name="v2.17.6">Version 2.17.6</a> (8/1/2014)
+* Pager addon & widget
+  * Fixed pager addon javascript error.
+  * Fixed pager widget not firing off "pagerComplete" in non-ajax tables.
+  * Fixed `savePages` being overwritten on initialization.
+  * Fixed pager widget updating the table content in non-ajax tables.
+
+#### <a name="v2.18.1">Version 2.18.1</a> (11/3/2014)
 
 * Core
-  * Adding a class name of `parser-false` to a column will now automatically set `sorter-false` and `filter-false` behavior.
-  * Add extractor type which allows giving a column two parsers, one to extract content from an input/select and the second to parse the extracted text. Thanks to [TheSin-](//github.com/TheSin-)!
-  * Ensure custom parsed data adheres to the `ignoreCase` option.
-  * Add a delay to any sort if there is an update in progress. This prevents issues with a sort being applied causing duplicate rows to be added to the table, hopefully.
-  * The `widthFixed` option now finds both visible `th` and `td` cells within the first row of the tbody to set column width percentages.
-  * Ensure all rows have a set role for screen readers (`role="row"`). Fixes [issue #690](//github.com/Mottie/tablesorter/issues/690).
-  * Redefine `c.$headers` when building headers for new/replaced header cells (not just content). Fixes [issue #683](//github.com/Mottie/tablesorter/issues/683).
+  * Add `cssAllowClicks` option; setting "tablesorter-allowClicks" on a header cell will allow clicks to bubble up.
+  * A column can now be targetted using a class name within the header cell as well as the header cell itself; this only applies to previous options that could use a class name/id to target the header cell.
+
 * Docs
-  * Fixed lots of minor HTML issues (e.g. missing closing `</li>` &amp; `<p>` tags)
+  * Emphasize that this is a fork of tablesorter. Fixes [issue #758](https://github.com/Mottie/tablesorter/issues/758).
+  * Update jQuery UI to 1.11.2.
+  * Update to Bootstrap 3.3.0.
+  * Update QUnit & fixed testing errors.
+  * Various updates to version numbers & corrections.
+
+* ColumnSelector widget:
+  * Remove breakpoint sorting. See [pull #759](https://github.com/Mottie/tablesorter/pull/759). Thanks [yelly](https://github.com/yelly)!
+
+* CssStickyHeaders widget:
+  * Fixed Chrome caption issue.
+  * Nested tables now work properly in IE.
+
+* Pager addon & widget
+  * Fix `selectorRemove` class name parseing.
+  * A `pagerComplete` event now fires off immediately after initialization & once again fires on non-ajax tables.
+  * Fix double `pagerComplete` events firing on init & initial filter settings.
+  * Fix pager initialization with filter widget & displaying page output. Fixes [issue #755](https://github.com/Mottie/tablesorter/issues/755) &amp; [issue #757](https://github.com/Mottie/tablesorter/issues/757).
+  * Current filters now update properly. See [issue #757](https://github.com/Mottie/tablesorter/issues/757).
+
+* UItheme widget:
+  * Fixed undefined removeClass selector which previously removed all classes.
+
+#### <a name="v2.18.0">Version 2.18.0</a> (10/26/2014)
+
+* Core
+  * Move "ipAddress" parser into `parser-network.js` parser file.
+  * Add "image" parser to core.
+  * Add `widgetClass` option
+      * Allows adding widgets to the table by adding a table class name.
+      * Fix debug logs for applying widgets.
+      * Fixes [issue #743](https://github.com/Mottie/tablesorter/issues/743).
+  * Add `$cell` parameter to parser detection `is` function (`is: function(s, table, cell, $cell) { /* ... */ }`).
+  * Add `$table` parameter to `onRenderHeader` function (`onRenderHeader: function (index, config, $table){ /* ... */ }`).
+  * Fix ARIA caption label reference.
+  * Get column index from data-attribute when sorting.
+  * The `aria-labelledby` attribute is no longer to all nested captions.
+  * Update `widgetClass` option matching. See [issue #743](https://github.com/Mottie/tablesorter/issues/743).
+* Themes
+  * Include caption element in metro theme; update various demo theme selectors to include the metro theme.
+  * Fix zebra striping in nested tables.
 * Parsers
-  * Add parser for textareas within the `parser-input-select.js` file.
-  * Modify input &amp; textarea parser to only update the table cache when:
-      * The user presses enter (input) or alt + enter (textarea) within the element.
-      * When the element is blurred.
-      * Or, when the mouse leaves the tbody.
-* Editable
-  * Add two new options:
-      * `editable_autoAccept`: accepts any changes made to the table cell automatically (`true` by default)
-      * `editable_validate`: a function used to validate the changes; return a valid string (`null` by default)
-  * Modify `editable_columns` type check to prevent javascript errors. See [pull #688](//github.com/Mottie/tablesorter/issues/688). Thanks [scratcher28](//github.com/scratcher28)!
-  * Limit the `editable_columns` array value to columns within the table.
-* Filter
-  * Make all options show within the current select when the `filter-onlyAvail` class is set on a column.
-  * Updated &amp; added docs for `$.tablesorter.filter.buildSelect` function to allow external calls to modify filter select options.
-  * Update `filter_selectSource` to accept arrays instead of a function. This was documented as working, but it wasn't coded until now. Sorry!
-  * Add `filter_selectSourceSeparator` option:
-      * Include a separator within the `filter_selectSource` array (e.g. "a-z|A through Z").
-      * The text that is left of the separator is added to the option value, the the text on the right is added to the option text.
-      * So `"a-z|A through Z"` becomes `<option value="a-z">A through Z</option>`.
-      * Fixes [issue #692](//github.com/Mottie/tablesorter/issues/692).
-  * Add `role="row"` to the filter row. Fixes [issue #697](//github.com/Mottie/tablesorter/issues/697).
-  * Any match inputs now follow the `filter_startsWith` setting. See [this Stackoverflow](//stackoverflow.com/q/25070448/145346) question.
-* Pager
-  * The `ouput` option can now include user modifiable `startRow` (`{startRow:input}`) or `page` (`{page:input}`) inputs within the output.
-  * Remove selected attribute from page selector options. Fixes [issue #700](//github.com/Mottie/tablesorter/issues/700).
-* Resizable
-  * Update `$.tablesorter.addHeaderResizeEvent` function's first parameter `table` to accept table DOM elements as well as jQuery objects. Fixes [issue #687](//github.com/Mottie/tablesorter/issues/687).
+  * Created `parser-network.js` parser
+      * Removed "ipAddress" parser from core.
+      * Move "ipAddress" parser into this file; a duplicate of the parser named "ipv4Address" is included.
+      * Moved "ipv6Address" parser into this file.
+      * Added new MAC parser.
+  * Update all date parsers to ensure a valid date is being parsed.
+  * Add named number parser & demo.
+* Column Selector widget
+  * Prevent adding a media query when no priorities are set.
+  * `col` element will now be hidden along with the column. Fixes [issues #740](https://github.com/Mottie/tablesorter/issues/740).
+* Editable widget
+  * Make updatable so this widget works with the pager. Fixes [issue #732](https://github.com/Mottie/tablesorter/issues/732).
+* Filter widget
+  * Fix wildcard match logic to behave logically. Fixes [issue #727](https://github.com/Mottie/tablesorter/issues/727).
+  * Add `filter_cellFilter` option. Fixes [issue #731](https://github.com/Mottie/tablesorter/issues/731).
+  * External inputs can now target multiple columns (e.g. `data-column="0-2,4,6-7"`); see [this Stackoverflow question](http://stackoverflow.com/q/26470602/145346).
+  * Any match filters now properly uses `filter_ignoreCase`. Fixes [issue #748](https://github.com/Mottie/tablesorter/issues/748).
+  * Fix saved filter updates to multiple or "any" column inputs.
+* Grouping widget
+  * Add "monthyear" grouping to dates. Fixes [issue #744](https://github.com/Mottie/tablesorter/issues/744).
+* Pager addon & widget
+  * Use a sample of page number links for large collections.
+      * Add `maxOptionSize` option
+      * Tweak code & fix problems introduces in [pull #711](https://github.com/Mottie/tablesorter/pull/711).
+      * Thanks [camallen](https://github.com/camallen)!
+  * Fix ouput display not updating on initialization.
+  * Add url check to allow ajax updating of table. Fixes [issue #730](https://github.com/Mottie/tablesorter/issues/730).
+  * Check for dynamically changing `ajaxUrl` option.
+  * Add `ajaxObject` to the `table.config.pager` variable.
+  * IE requires a value attribute for every option. Fixes [issue #734](https://github.com/Mottie/tablesorter/issues/734).
+  * Revert some code modified for large collections to use jQuery instead of native javascript (more IE issues).
+  * Ensure `pager.filteredRows` is current on page move. See [issue #745](https://github.com/Mottie/tablesorter/issues/745).
+  * Fix empty table select showing 0 & 1 pages.
+  * The `fixedHeight` option is now working properly. Fixes [issue #742](https://github.com/Mottie/tablesorter/issues/742) & [issue #729](https://github.com/Mottie/tablesorter/issues/729).
+  * Widget cleanup & only use the last search data.
+  * Add note about including an ajax `success` function within the `ajaxObject` definition. See [issue #749](https://github.com/Mottie/tablesorter/issues/749).
+* RepeatHeaders widget
+  * Now works with filtered & nested tables.
+* Resizable widget
+  * Make it work inside of an overflow container. Fixes [issue #737](https://github.com/Mottie/tablesorter/issues/737).
+* Scroller widget
+  * Remove `scroller_idPrefix` in lieu of a unique namespace id.
+* StickyHeaders widget
+  * Now stacks when within a nested table.
+  * Wrapped sticky header components (`thead` & `caption`) in a sticky div.
+  * Added `stickyHeaders_xScroll` and `stickyHeaders_yScroll` options.
+  * Removed jQuery UI selection from the demo to allow the accordion to be properly themed.
+* CssStickyHeaders widget
+  * Now stacks when within a nested table.
+  * Removed `cssStickyHeaders_zIndex` option as the widget no longer uses relative positioning (it wasn't necessary)
+  * Please note that **using this widget on nested tables does not work properly in ALL versions of IE** (including IE11).
+* UITheme
+  * Ignore nested tables.
+  * Add method to remove previous theme.
+  * Fix multiple header row sort icons.

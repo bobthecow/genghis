@@ -86,10 +86,10 @@ Default Theme
 }
 
 /* Zebra Widget - row alternating colors */
-.tablesorter-default tr.odd td {
+.tablesorter-default tr.odd > td {
 	background-color: #dfdfdf;
 }
-.tablesorter-default tr.even td {
+.tablesorter-default tr.even > td {
 	background-color: #efefef;
 }
 
@@ -149,7 +149,7 @@ caption {
 	line-height: 0;
 	cursor: pointer;
 }
-.tablesorter-default .tablesorter-filter-row.hideme .tablesorter-filter {
+.tablesorter-default .tablesorter-filter-row.hideme * {
 	height: 1px;
 	min-height: 0;
 	border: 0;

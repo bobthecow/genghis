@@ -11,7 +11,7 @@
         "jquery":               "~2.1.0",
         "jquery-hoverIntent":   "*",
         "jquery.cookie":        "~1.4.0",
-        "jquery.tablesorter":   "~2.17.2",
+        "jquery.tablesorter":   "~2.18.3",
         "mousetrap":            "~1.4.6",
         "respond":              "~1.4.2",
         "underscore":           "~1.6.0"

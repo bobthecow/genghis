@@ -5,7 +5,7 @@
 .tablesorter-jui {
 	width: 100%;
 	border-collapse: separate;
-	border-spacing: 2px; /* adjust spacing between table cells */ 
+	border-spacing: 2px; /* adjust spacing between table cells */
 	margin: 10px 0 15px;
 	padding: 5px;
 	font-size: 0.8em;
@@ -42,6 +42,9 @@
 
 .tablesorter-jui thead .sorter-false {
 	cursor: default;
+}
+.tablesorter-jui thead tr .sorter-false .ui-icon {
+	display: none;
 }
 
 /* tfoot */
@@ -116,7 +119,7 @@
 	line-height: 0;
 	cursor: pointer;
 }
-.tablesorter-jui .tablesorter-filter-row.hideme .tablesorter-filter {
+.tablesorter-jui .tablesorter-filter-row.hideme * {
 	height: 1px;
 	min-height: 0;
 	border: 0;

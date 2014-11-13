@@ -1,4 +1,4 @@
-/* Column Selector/Responsive table widget (beta) for TableSorter 5/22/2014 (v2.17.0)
+/* Column Selector/Responsive table widget (beta) for TableSorter - 11/3/2014 (v2.18.1)
  * Requires tablesorter v2.8+ and jQuery 1.7+
  * by Justin Hallett & Rob Garrison
  */
@@ -11,8 +11,8 @@ var ts = $.tablesorter,
 namespace = '.tscolsel',
 tsColSel = ts.columnSelector = {
 
-	queryAll   : '@media only all { [columns] { display: none; } }',
-	queryBreak : '@media all and (min-width: [size]) { [columns] { display: table-cell; } }',
+	queryAll   : '@media only all { [columns] { display: none; } } ',
+	queryBreak : '@media all and (min-width: [size]) { [columns] { display: table-cell; } } ',
 
 	init: function(table, c, wo) {
 		var $t, colSel;
@@ -81,7 +81,6 @@ tsColSel = ts.columnSelector = {
 				colId = $this.attr('data-column'),
 				state = ts.getData(this, c.headers[colId], 'columnSelector');
 
-
 			// if this column not hidable at all
 			// include getData check (includes "columnSelector-false" class, data attribute, etc)
 			if ( isNaN(priority) && priority.length > 0 || state === 'disable' ||
@@ -121,7 +120,6 @@ tsColSel = ts.columnSelector = {
 		if (wo.columnSelector_mediaquery) {
 			// used by window resize function
 			colSel.lastIndex = -1;
-			wo.columnSelector_breakpoints.sort();
 			tsColSel.updateBreakpoints(c, wo);
 			c.$table
 				.off('updateAll' + namespace)
@@ -191,6 +189,7 @@ tsColSel = ts.columnSelector = {
 			breaks = [];
 			c.$headers.filter('[' + wo.columnSelector_priority + '=' + (priority + 1) + ']').each(function(){
 				column = parseInt($(this).attr('data-column'), 10) + 1;
+				breaks.push(prefix + ' col:nth-child(' + column + ')');
 				breaks.push(prefix + ' tr th:nth-child(' + column + ')');
 				breaks.push(prefix + ' tr td:nth-child(' + column + ')');
 			});
@@ -204,9 +203,11 @@ tsColSel = ts.columnSelector = {
 		if (colSel.$style) {
 			colSel.$style.prop('disabled', true);
 		}
-		colSel.$breakpoints
-			.prop('disabled', false)
-			.html( tsColSel.queryAll.replace(/\[columns\]/g, mediaAll.join(',')) + breakpts );
+		if (mediaAll.length) {
+			colSel.$breakpoints
+				.prop('disabled', false)
+				.html( tsColSel.queryAll.replace(/\[columns\]/g, mediaAll.join(',')) + breakpts );
+		}
 	},
 
 	updateCols: function(c, wo) {
@@ -220,6 +221,7 @@ tsColSel = ts.columnSelector = {
 		colSel.$container.find('input[data-column]').filter('[data-column!="auto"]').each(function(){
 			if (!this.checked) {
 				column = parseInt( $(this).attr('data-column'), 10 ) + 1;
+				styles.push(prefix + ' col:nth-child(' + column + ')');
 				styles.push(prefix + ' tr th:nth-child(' + column + ')');
 				styles.push(prefix + ' tr td:nth-child(' + column + ')');
 			}
