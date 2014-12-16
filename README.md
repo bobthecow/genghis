@@ -3,9 +3,9 @@
 
 The single-file MongoDB admin app, by [Justin Hileman](http://justinhileman.info).
 
-[![Gem version](http://img.shields.io/gem/v/genghisapp.svg)](http://rubygems.org/gems/genghisapp)
-[![Build Status](http://img.shields.io/travis/bobthecow/genghis.svg)](http://travis-ci.org/bobthecow/genghis)
-[![Dependency Status](http://img.shields.io/gemnasium/bobthecow/genghis.svg)](https://gemnasium.com/bobthecow/genghis)
+[![Gem version](http://img.shields.io/gem/v/genghisapp.svg?style=flat-square)](http://rubygems.org/gems/genghisapp)
+[![Build Status](http://img.shields.io/travis/bobthecow/genghis.svg?style=flat-square)](http://travis-ci.org/bobthecow/genghis)
+[![Dependency Status](http://img.shields.io/gemnasium/bobthecow/genghis.svg?style=flat-square)](https://gemnasium.com/bobthecow/genghis)
 
 [![Genghis](http://genghisapp.com/genghis.png)](http://genghisapp.com)
 
