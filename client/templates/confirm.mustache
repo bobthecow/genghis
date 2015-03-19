@@ -1,0 +1,26 @@
+<div class="modal-dialog{{# isDangerous }} modal-danger{{/ isDangerous }}">
+  <div class="modal-content">
+    {{# header }}
+      <div class="modal-header">
+        <button class="close dismiss" type="button" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">{{ header }}</h4>
+      </div>
+    {{/ header }}
+
+    <div class="modal-body">
+      {{# body }}
+        <p>{{{ body }}}</p>
+      {{/ body }}
+      {{# confirmInput }}
+        <div class="form-group">
+          <input class="confirm-input input-lg form-control" type="text">
+        </div>
+      {{/ confirmInput }}
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-default dismiss">{{ dismissText }}</button>
+      <button class="btn {{ dangerLevel }} confirm"{{# confirmInput }} disabled{{/ confirmInput }}>{{{ confirmText }}}</button>
+    </div>
+  </div>
+</div>

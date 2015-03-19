@@ -1,0 +1,27 @@
+<div class="errors"></div>
+
+<div class="well">
+  {{# isEditable }}
+    <div class="document-actions">
+      {{# isGridFile }}
+        <a class="btn btn-sm btn-primary grid-download" href="{{ downloadUrl }}">Download</a>
+      {{/ isGridFile }}
+      {{# isGridChunk }}
+        <a class="btn btn-sm btn-default grid-file" href="{{ fileUrl }}">Grid File</a>
+      {{/ isGridChunk }}
+      <button class="btn btn-sm btn-default edit">Edit</button>
+      <button class="btn btn-sm btn-danger destroy">Delete</button>
+    </div>
+  {{/ isEditable }}
+
+  {{# id }}
+    <h3>
+      <a class="id" href="{{ url }}">{{ prettyId }}</a>
+      {{# prettyTime }}
+        <small><time datetime="{{ prettyTime }}">{{ prettyTime }}</time></small>
+      {{/ prettyTime }}
+    </h3>
+  {{/ id }}
+
+  <div class="document"></div>
+</div>

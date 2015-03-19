@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>hoverIntent jQuery Plug-in</title>
+    <!-- CHERNE.NET CSS -->
+    <link rel="stylesheet" type="text/css" href="http://cherne.net/cherne.css" />
+    <link rel="stylesheet" type="text/css" href="http://cherne.net/cherne_print.css" media="print" />
+
+    <!-- jQuery and hoverIntent -->
+    <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
+    <script type="text/javascript" src="./jquery.hoverIntent.js"></script>
+
+    <!-- DEMO CSS -->
+    <style type="text/css" media="screen">
+            /* styles for the demo examples -- NOT REQUIRED for hoverIntent to work, just for demo purposes */
+        #RESOURCES #main .demo li { padding-bottom: 0; }
+        ul.demo {display:block; width:100%; height:75px; padding:0; margin:0; background:#9cc; list-style-type:none;}
+        ul.demo li {background:#fcc; display:block; width:25%; height:50px; padding:0; margin:0; float: left; position:relative; overflow:hidden; cursor:default;  font-size:0.9em; line-height:1.1em;}
+        ul.demo li.p2 {background:#ffc;}
+        ul.demo li.p3 {background:#cfc;}
+        ul.demo li.p4 {background:#ccf;}
+        ul.demo li span { display:block; margin:4px; background:#eef; cursor:default;}
+    </style>
+
+    <!-- DEMO JS -->
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            $("#demo1 li").hover(makeTall,makeShort);
+            $("#demo2 li").hoverIntent(makeTall,makeShort);
+            $("#demo3 li").hoverIntent(toggleHeight);
+            $("#demo4").hoverIntent(makeTall,makeShort,'li');
+            $("#demo5").hoverIntent(toggleHeight,'li');
+            $("#demo6").hoverIntent({
+                over: makeTall,
+                out: makeShort,
+                selector: 'li'
+            });
+        }); // close document.ready
+
+        function makeTall(){$(this).animate({"height":75},200);}
+        function makeShort(){$(this).animate({"height":50},200);}
+        function toggleHeight(){var h=(parseInt($(this).css('height'),10) > 50) ? 50 : 75; $(this).animate({"height":h},200);}
+    </script>
+
+</head>
+
+<body>
+
+<div id="pageHeader">
+    <ul id="nav1">
+        <li><a href="http://cherne.net/">cherne.net</a></li>
+        <li><a href="http://cherne.net/brian/resume/">Resume</a></li>
+        <li><a href="http://cherne.net/brian/resources/" class="current">Resources</a></li>
+    </ul>
+    <h1>hoverIntent jQuery Plug-in</h1>
+</div>
+
+<div id="pageContent">
+
+    <div id="main">
+
+        <h2>What is hoverIntent?</h2>
+        <p>hoverIntent is a plug-in that attempts to determine the user's intent... like a crystal ball, only with mouse movement! It is similar to <a href="http://api.jquery.com/hover/">jQuery's hover method</a>. However, instead of calling the handlerIn function immediately, hoverIntent waits until the user's mouse slows down enough before making the call.</p>
+        <p>Why? To delay or prevent the accidental firing of animations or ajax calls. Simple timeouts work for small areas, but if your target area is large it may execute regardless of intent. That's where hoverIntent comes in...</p>
+
+        <h2>Examples</h2>
+
+        <noscript><p><em>If you can see this message <strong>JavaScript is disabled</strong>. This plug-in requires JavaScript to be enabled in order for the examples to work. (This is really a note to myself so the next time I look at my web site with JavaScript accidentally turned off I don't freak out and wonder why it's not working)</em></p></noscript>
+
+        <h3>jQuery's hover (for reference)</h3>
+        <pre>$("#demo1 li").hover( makeTall, makeShort );</pre>
+        <ul class="demo" id="demo1">
+            <li class="p1">&nbsp;</li>
+            <li class="p2">&nbsp;</li>
+            <li class="p3">&nbsp;</li>
+            <li class="p4"><span>hover ignores over/out events from children</span></li>
+        </ul>
+        <p>jQuery's built-in hover calls handlerIn and handlerOut functions immediately. If you move your cursor back and forth quickly across the tiles you'll see how the immediate execution can lead to problems.</p>
+
+        <h3>.hoverIntent( handlerIn, handlerOut )</h3>
+        <pre>$("#demo2 li").hoverIntent( makeTall, makeShort );</pre>
+        <ul class="demo" id="demo2">
+            <li class="p1">&nbsp;</li>
+            <li class="p2">&nbsp;</li>
+            <li class="p3">&nbsp;</li>
+            <li class="p4"><span>hoverIntent also ignores over/out events from children</span></li>
+        </ul>
+        <p>hoverIntent is interchangeable with jQuery's hover. It can use the same exact handlerIn and handlerOut functions. It passes the same <strong>this</strong> and <strong>event</strong> objects to those functions.</p>
+
+        <h3>.hoverIntent( handlerInOut )</h3>
+        <pre>$("#demo3 li").hoverIntent( toggleHeight );</pre>
+        <ul class="demo" id="demo3">
+            <li class="p1">&nbsp;</li>
+            <li class="p2">&nbsp;</li>
+            <li class="p3">&nbsp;</li>
+            <li class="p4">&nbsp;</li>
+        </ul>
+        <p>hoverIntent can also take a single handlerInOut, just like jQuery's hover.</p>
+
+        <h3>.hoverIntent( handlerIn, handlerOut, selector )</h3>
+        <pre>$("#demo4").hoverIntent( makeTall, makeShort, 'li' );</pre>
+        <ul class="demo" id="demo4">
+            <li class="p1">&nbsp;</li>
+            <li class="p2">&nbsp;</li>
+            <li class="p3">&nbsp;</li>
+            <li class="p4">&nbsp;</li>
+        </ul>
+        <p>Unlike jQuery's hover, hoverIntent supports event delegation! Just pass in a selector of a descendant element.</p>
+
+        <h3>.hoverIntent( handlerInOut, selector )</h3>
+        <pre>$("#demo5").hoverIntent( toggleHeight, 'li' );</pre>
+        <ul class="demo" id="demo5">
+            <li class="p1">&nbsp;</li>
+            <li class="p2">&nbsp;</li>
+            <li class="p3">&nbsp;</li>
+            <li class="p4">&nbsp;</li>
+        </ul>
+        <p>Unlike jQuery's hover, hoverIntent supports event delegation with handlerInOut.</p>
+
+        <h3>.hoverIntent( object )</h3>
+<pre>
+$("#demo6").hoverIntent({
+    over: makeTall,
+    out: makeShort,
+    selector: 'li'
+});
+</pre>
+        <ul class="demo" id="demo6">
+            <li class="p1">&nbsp;</li>
+            <li class="p2">&nbsp;</li>
+            <li class="p3">&nbsp;</li>
+            <li class="p4">&nbsp;</li>
+        </ul>
+        <p>To control hoverIntent more precisely and override the default configuration options, pass it an object as the first parameter. The object must at least contain an "over" function. If the "over" function is sent alone, it will act just like handlerInOut.</p>
+
+
+        <h2>Common Configuration Options</h2>
+        <p>These are the common options you'll want to use. Note, nothing prevents you from sending <a href="http://api.jquery.com/jQuery.noop/">an empty function</a> as the handlerIn or handlerOut functions.</p>
+
+        <h3>over:</h3>
+        <p>Required. The handlerIn function you'd like to call on "mouseenter with intent". Your function receives the same "this" and "event" objects as it would from jQuery's hover method. If the "over" function is sent alone (without "out") then it will be used in both cases like the handlerInOut param.</p>
+
+        <h3>out:</h3>
+        <p>The handlerOut function you'd like to call on "mouseleave after timeout". Your function receives the same "this" and "event" objects as it would from jQuery's hover method. Note, hoverIntent will only call the "out" function if the "over" function has been called.</p>
+
+        <h3>timeout:</h3>
+        <p>A simple delay, in milliseconds, before the "out" function is called. If the user mouses back over the element before the timeout has expired the "out" function will not be called (nor will the "over" function be called). This is primarily to protect against sloppy/human mousing trajectories that temporarily (and unintentionally) take the user off of the target element... giving them time to return. <em>Default timeout: 0</em></p>
+
+        <h3>selector:</h3>
+        <p>A selector string for event delegation. Used to filter the descendants of the selected elements that trigger the event. If the selector is null or omitted, the event is always triggered when it reaches the selected element. Read <a href="http://api.jquery.com/on/#direct-and-delegated-events">jQuery's API Documentation for the .on() method</a> for more information.</p>
+
+
+        <h2>Advanced Configuration Options</h2>
+        <p>Modify these if you are brave, test tirelessly, and completely understand what you are doing. When choosing the default settings for hoverIntent I tried to find the best possible balance between responsiveness and frequency of false positives.</p>
+
+        <h3>sensitivity:</h3>
+        <p>If the mouse travels fewer than this number of pixels between polling intervals, then the "over" function will be called. With the minimum sensitivity threshold of 1, the mouse must not move between polling intervals. With higher sensitivity thresholds you are more likely to receive a false positive. Note that hoverIntent r7 and earlier perform this comparison using rectilinear distance, whereas more recent versions compare against euclidean (straight-line) distance for better accuracy and intuition. If you are upgrading from an older version, you may want to verify that the desired behavior is preserved. <em>Default sensitivity: 6</em></p>
+
+        <h3>interval:</h3>
+        <p>The number of milliseconds hoverIntent waits between reading/comparing mouse coordinates. When the user's mouse first enters the element its coordinates are recorded. The soonest the "over" function can be called is after a single polling interval. Setting the polling interval higher will increase the delay before the first possible "over" call, but also increases the time to the next point of comparison. <em>Default interval: 100</em></p>
+
+
+        <h2 id="defects">Known Defects</h2>
+        <p>hoverIntent r5 suffers from <a href="http://code.google.com/p/chromium/issues/detail?id=68629">a defect in Google Chrome that improperly triggers mouseout when entering a child input[type="text"] element</a>. hoverIntent r6 uses the same mouseenter/mouseleave special events as jQuery's built-in hover, and jQuery 1.5.1 patched this issue. Thanks to Colin Stuart for tipping me off about this and for providing isolated code to demonstrate/test.</p>
+        <p id="chrome9defect" style="background:#eee;margin-bottom:1em;">This page uses jQuery 1.9.1 and hoverIntent r7, so when your cursor goes over the text input nothing should change (it should continue to read "enter parent" because you are still over this paragraph). <br/><input type="text" value=""/><br/> However, if you were using Google Chrome and if this page were using an older version of jQuery or hoverIntent, moving the cursor over the text input would improperly trigger the mouseout event, and the value would change to "leave parent".</p>
+        <script type="text/javascript">
+            function enter(e){$("input", e.target).val("enter parent");}
+            function leave(e){$("input", e.target).val("leave parent");}
+            $("#chrome9defect").hoverIntent(enter,leave);
+        </script>
+        <p>If you place an element flush against the edge of the browser chrome, sometimes Internet Explorer does not trigger a "mouseleave" event if your cursor leaves the element/browser in that direction. hoverIntent cannot correct for this.</p>
+        <p>Please email me <strong>brian(at)cherne(dot)net</strong> if you have questions or would like to notify me of any defects.</p>
+
+        <h2>Release History</h2>
+        <ul>
+            <li>v1.8.0 = (2014) Changed to <a href="http://semver.org">Semantic Versioning</a> (from r8 to v1.8.0). Removed <a href="https://en.wikipedia.org/wiki/Zero-width_no-break_space">U+FEFF character</a> from beginning of JS file. Removed stray "jQuery" in favor of "$" for noConflict situations. Changed measurements to use euclidean (instead of rectilinear) distance. Thanks to github community for patches, suggestions, and fixes!</li>
+            <li>r7 = (2013) Added event delegation via "selector" param/property. Added namespaced events for better isolation. Added handlerInOut support.</li>
+            <li>r6 = (2011) Identical to r5 except that the Google Chrome defect is fixed once you upgrade to jQuery 1.5.1 (or later).</li>
+            <li>r5 = (2007) Added state to prevent unmatched function calls. This and previous releases suffer from <a href="http://code.google.com/p/chromium/issues/detail?id=68861">a defect in Google Chrome that improperly triggers mouseout when entering a child input[type=text] element</a>.</li>
+            <li>r4 = Fixed polling interval timing issue (now uses a self-calling timeout to avoid interval irregularities).</li>
+            <li>r3 = Developer-only release for debugging.</li>
+            <li>r2 = Added timeout and interval references to DOM object -- keeps timers separate from each other. Added configurable options. Added timeout option to delay onMouseLeave function call. Fixed two-interval mouseOver bug (now setting pX and pY onMouseEnter instead of hardcoded value).</li>
+            <li>r1 = Initial release to jQuery discussion forum for feedback.</li>
+        </ul>
+
+    </div><!-- close #main -->
+
+</div><!-- close #pageContent -->
+</body>
+</html>

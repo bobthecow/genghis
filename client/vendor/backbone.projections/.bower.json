@@ -1,0 +1,14 @@
+{
+  "name": "backbone.projections",
+  "homepage": "https://github.com/andreypopp/backbone.projections",
+  "version": "1.0.0",
+  "_release": "1.0.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.0",
+    "commit": "e68939f8ad20f202d036424c399897a1b5b906e3"
+  },
+  "_source": "git://github.com/andreypopp/backbone.projections.git",
+  "_target": "*",
+  "_originalSource": "andreypopp/backbone.projections"
+}

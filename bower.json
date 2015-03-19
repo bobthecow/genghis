@@ -1,0 +1,19 @@
+{
+    "name": "genghis",
+    "dependencies": {
+        "backbone":             "~1.1.1",
+        "backbone.giraffe":     "~0.2.1",
+        "backbone.mousetrap":   "elasticsales/backbone.mousetrap",
+        "backbone.projections": "andreypopp/backbone.projections",
+        "bootstrap":            "~3.1.0",
+        "codemirror":           "~3.21.0",
+        "esprima":              "~1.2.2",
+        "jquery":               "~2.1.0",
+        "jquery-hoverIntent":   "*",
+        "jquery.cookie":        "~1.4.0",
+        "jquery.tablesorter":   "~2.18.3",
+        "mousetrap":            "~1.4.6",
+        "respond":              "~1.4.2",
+        "underscore":           "~1.6.0"
+    }
+}

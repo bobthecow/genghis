@@ -1,0 +1,19 @@
+<h1>
+  404:
+  {{# heading }}
+    {{{ heading }}}
+  {{/ heading }}
+  {{^ heading }}
+    Not Found
+  {{/ heading }}
+</h1>
+
+{{# content }}
+  {{{ content }}}
+{{/ content }}
+{{^ content }}
+  <p>
+    If you think you've reached this message in error, please press <strong>0</strong>
+    to speak with an operator. Otherwise, hang up and try again.
+  </p>
+{{/ content }}

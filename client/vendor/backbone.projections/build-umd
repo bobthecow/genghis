@@ -1,0 +1,40 @@
+#!/usr/bin/env coffee
+
+path = require 'path'
+through = require 'through'
+moduleDeps = require 'module-deps'
+browserPack = require 'browser-pack'
+umd = require 'umd'
+
+mangleName = (name) ->
+  localPath = path.relative(process.cwd(), name)
+  if localPath.search(/node_modules/) == 0
+    path.basename(localPath, '.js')
+  else
+    localPath
+
+mangleNames = (row) ->
+  localPath = path.relative(process.cwd(), row.id)
+
+  if localPath.search(/node_modules/) != 0
+    for k, v of row.deps
+      row.deps[k] = mangleName(v)
+    row.id = localPath
+    this.queue row
+
+entry = process.argv[2]
+
+stream = moduleDeps(entry)
+  .pipe(through mangleNames)
+  .pipe(browserPack(raw: true))
+
+data = []
+
+stream.on 'error', (err) ->
+  console.error err
+stream.on 'data', (chunk) ->
+  data.push(chunk)
+stream.on 'end', ->
+  data = data.join('')
+  data = umd('BackboneProjections', false, "return #{data}('lib/index.js')")
+  console.log data

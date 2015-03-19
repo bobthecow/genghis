@@ -1,0 +1,27 @@
+{
+  "name": "jquery-hoverintent",
+  "version": "1.8.1",
+  "homepage": "http://cherne.net/brian/resources/jquery.hoverIntent.html",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/briancherne/jquery-hoverIntent"
+  },
+  "authors": [
+    "Brian Cherne <brian@cherne.net>"
+  ],
+  "description": "A jQuery plug-in that attempts to determine the user's intent on mouseover. To delay or prevent the accidental firing of callbacks.",
+  "main": "jquery.hoverIntent.js",
+  "keywords": [
+    "delay",
+    "hover",
+    "hoverintent",
+    "intent",
+    "jquery",
+    "mouseover",
+    "plugin"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "jquery": ">=1.9.1"
+  }
+}

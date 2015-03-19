@@ -1,0 +1,46 @@
+AllCops:
+  Excludes:
+    - client/**
+    - genghis.rb
+    - node_modules/**
+    - pkg/**
+    - public/**
+    - tasks/**
+    - tmp/**
+
+Documentation:
+  Enabled: false
+
+HashSyntax:
+  EnforcedStyle: hash_rockets
+
+SpaceInsideHashLiteralBraces:
+  EnforcedStyle:               no_space
+  EnforcedStyleForEmptyBraces: no_space
+
+
+# Let's agree to disagree...
+
+ClassLength:
+  Enabled: false
+
+CyclomaticComplexity:
+  Enabled: false
+
+Encoding:
+  Enabled: false
+
+HandleExceptions:
+  Enabled: false
+
+LineLength:
+  Enabled: false
+
+MethodLength:
+  Enabled: false
+
+NumericLiterals:
+  Enabled: false
+
+RaiseArgs:
+  Enabled: false
