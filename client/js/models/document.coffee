@@ -40,7 +40,7 @@ class Document extends Giraffe.Model
           return id.$value
         when 'BinData'
           # Special case: UUID
-          if id.$value.$subtype is 3
+          if id.$value.$subtype in [3, 4]
             uuid = /^([0-9a-f]{8})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{12})$/i
             hex  = Util.base64ToHex(id.$value.$binary)
             return hex.replace(uuid, '$1-$2-$3-$4-$5') if uuid.test(hex)
