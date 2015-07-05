@@ -4,6 +4,7 @@ Gemfile.lock
 .bundle/
 node_modules/
 npm-debug.log
+public/
 
 # Ignore some giant vendor directories
 client/vendor/**/build/

@@ -14,7 +14,7 @@ template = require 'gulp-template'
 VERSION  = fs.readFileSync('VERSION')
 
 assetName = (file) ->
-  file.path.replace(/^.*?public\/(templates\/)?|/, '').replace('.min.', '.')
+  file.path.replace(/^.*public\/(templates\/)?|/, '').replace('.min.', '.')
 
 # Internal builds for distribution...
 gulp.task 'build:assets', ['styles', 'scripts', 'templates', 'copy'], ->
