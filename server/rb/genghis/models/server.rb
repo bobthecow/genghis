@@ -146,7 +146,7 @@ module Genghis
             stats = client[@db].command(:dbStats => true)
             {
               'databases' => [{'name' => @db}],
-              'totalSize' => stats['fileSize']
+              'totalSize' => stats.key?('fileSize') ? stats['fileSize'] : stats['storageSize']
             }
           end
         end

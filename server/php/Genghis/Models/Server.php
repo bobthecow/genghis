@@ -238,7 +238,7 @@ class Genghis_Models_Server implements ArrayAccess, Genghis_JsonEncodable
                 ->command(array('dbStats' => true));
 
             return array(
-                'totalSize' => $stats['fileSize'],
+                'totalSize' => isset($stats['fileSize']) ? $stats['fileSize'] : $stats['storageSize'],
                 'databases' => array(array('name' => $this->db)),
             );
         }
