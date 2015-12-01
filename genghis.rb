@@ -8,6 +8,12 @@
 #
 # Copyright (c) 2011-2014 Justin Hileman
 #
+# Accepts URIs when they contain curly braces
+# This overrides the DEFAULT_PARSER with the UNRESERVED key, including '{' and '}'
+require 'webrick'
+URI::DEFAULT_PARSER = URI::Parser.new(:UNRESERVED => URI::REGEXP::PATTERN::UNRESERVED + '\{\}')
+
+
 module Genghis
   VERSION = '3.0.0-dev'
 end
