@@ -35,6 +35,11 @@ $ ruby genghis.rb
 $ php -S localhost:8000 genghis.php
 ```
 
+### With Docker
+
+You can run Genghis app through Docker with [dockervan/genghis](https://hub.docker.com/r/dockervan/genghis/) image:
+
+More examples here: [https://github.com/dockervan/genghis#how-to-use-this-image](https://github.com/dockervan/genghis#how-to-use-this-image)
 
 ### In your LAMP stack
 
