@@ -78,6 +78,12 @@ mount Genghis::Server.new, :at => '/genghis'
 
 
 
+Indexes
+-------
+Currently Genghis does not support adding indexes. Indexes can be created using the mongo shell. See [Indexes Tutorial](https://docs.mongodb.org/manual/tutorial/create-an-index/) on MongoDB.
+
+
+
 Genghis Dependencies
 --------------------
 
